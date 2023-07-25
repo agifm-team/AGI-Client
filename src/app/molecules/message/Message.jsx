@@ -217,6 +217,10 @@ const MessageBody = React.memo(({
         hljsFixer(el, 'MessageBody');
       }
 
+      if (!el.hasClass('hljs')) {
+        el.addClass('hljs');
+      }
+
     });
 
     // Add tooltip on the emoji

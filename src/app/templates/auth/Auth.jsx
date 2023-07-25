@@ -70,7 +70,7 @@ function Auth() {
                         </div>
 
                         <div className="col-md-4 small">
-                          <a href="https://twitter.com/JasminDreasond" target="_blank" rel="noreferrer" className="text-bg-force">Twitter</a>
+                          <a href="https://twitter.com/seshubon" target="_blank" rel="noreferrer" className="text-bg-force">Twitter</a>
                         </div>
 
                         <div className="col-md-4 small">

@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 
+import clone from 'clone';
 import hljs from 'highlight.js';
 
 import { hljsFixer, resizeWindowChecker } from '../../../util/tools';
@@ -13,7 +14,7 @@ import {
   getUsername, getUsernameOfRoomMember, parseReply, trimHTMLReply,
 } from '../../../util/matrixUtil';
 import { colorMXID } from '../../../util/colorMXID';
-import { getEventCords } from '../../../util/common';
+import { getEventCords, copyToClipboard } from '../../../util/common';
 import { redactEvent, sendReaction } from '../../../client/action/roomTimeline';
 import {
   openEmojiBoard, openProfileViewer, openReadReceipts, openViewSource, replyTo,
@@ -34,6 +35,13 @@ import * as Media from '../media/Media';
 import { confirmDialog } from '../confirm-dialog/ConfirmDialog';
 import { getBlobSafeMimeType } from '../../../util/mimetypes';
 import { html, plain } from '../../../util/markdown';
+import getUrlPreview from '../../../util/libs/getUrlPreview';
+
+// const expressionWithHttp =
+//   /(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))/gi;
+
+const expressionWithHttp =
+  /((www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))/gi;
 
 function PlaceholderMessage() {
   return (
@@ -597,7 +605,7 @@ function handleOpenViewSource(mEvent, roomTimeline) {
 
 // Message Options
 const MessageOptions = React.memo(({
-  roomTimeline, mEvent, edit, reply,
+  roomTimeline, mEvent, edit, reply, roomid, senderid, eventid, msgtype, body, customHTML,
 }) => {
   const { roomId, room } = roomTimeline;
   const mx = initMatrix.matrixClient;
@@ -635,6 +643,23 @@ const MessageOptions = React.memo(({
         content={() => (
           <>
             <MenuHeader>Options</MenuHeader>
+            <MenuItem
+              className="text-start"
+              faSrc="fa-solid fa-copy"
+              onClick={() => {
+                const messageBody = $(`[roomid='${roomid}'][senderid='${senderid}'][eventid='${eventid}'][msgtype='${msgtype}'] .message-body`);
+                if (messageBody.length > 0) {
+                  copyToClipboard((customHTML
+                    ? html(customHTML, { kind: 'edit', onlyPlain: true }).plain
+                    : plain(body, { kind: 'edit', onlyPlain: true }).plain));
+                  alert('Text successfully copied to the clipboard.');
+                } else {
+                  alert('No text was found in this message.');
+                }
+              }}
+            >
+              Copy text
+            </MenuItem>
             <MenuItem
               className="text-start"
               faSrc="fa-solid fa-check-double"
@@ -687,6 +712,10 @@ const MessageOptions = React.memo(({
 
 // Options Default
 MessageOptions.propTypes = {
+  roomid: PropTypes.string,
+  senderid: PropTypes.string,
+  eventid: PropTypes.string,
+  msgtype: PropTypes.string,
   roomTimeline: PropTypes.shape({}).isRequired,
   mEvent: PropTypes.shape({}).isRequired,
   edit: PropTypes.func.isRequired,
@@ -825,12 +854,15 @@ function getEditedBody(editedMEvent) {
 // Message Base Receive
 function Message({
   mEvent, isBodyOnly, roomTimeline,
-  focus, fullTime, isEdit, setEdit, cancelEdit, children, className, classNameMessage,
+  focus, fullTime, isEdit, setEdit, cancelEdit, children, className, classNameMessage, timelineSVRef, timelineScrollRef,
 }) {
 
   // Get Room Data
+  $(timelineSVRef.current).trigger('scroll');
+  const mx = initMatrix.matrixClient;
   const roomId = mEvent.getRoomId();
   const { editedTimeline, reactionTimeline } = roomTimeline ?? {};
+  const [embeds, setEmbeds] = useState([]);
 
   // Content Body
   const classList = [];
@@ -850,6 +882,7 @@ function Message({
   // Content Data
   let isCustomHTML = content.format === 'org.matrix.custom.html';
   let customHTML = isCustomHTML ? content.formatted_body : null;
+  const bodyUrls = body.match(expressionWithHttp);
 
   // Edit Data
   const edit = useCallback(() => {
@@ -899,12 +932,90 @@ function Message({
     }
   }
 
+
+  useEffect(() => {
+
+    // Room jQuery base
+    const messageFinder = `[roomid='${roomId}'][senderid='${senderId}'][eventid='${eventId}'][msgtype='${msgType}']`;
+
+    // Read Message
+    if (msgType === 'm.text') {
+
+      // Check Urls on the message
+      if (Array.isArray(bodyUrls) && bodyUrls.length > 0) {
+
+        // Create embed base
+        const newEmbeds = clone(embeds);
+        const searchEmbeds = async () => {
+
+          let limit = 5;
+          for (const item in bodyUrls) {
+            if (
+
+              limit > 0 && newEmbeds.findIndex(
+                tb =>
+                  tb.url === bodyUrls[item] &&
+                  tb.roomId === roomId &&
+                  tb.senderId === senderId &&
+                  tb.eventId === eventId
+              ) < 0 &&
+
+              bodyUrls[item].indexOf('@') < 0 &&
+              bodyUrls[item].indexOf(':') < 0
+
+            ) {
+
+              const tinyEmbed = {
+                url: bodyUrls[item],
+                roomId,
+                senderId,
+                eventId,
+              };
+
+              try {
+                // eslint-disable-next-line no-await-in-loop
+                tinyEmbed.data = await getUrlPreview(`https://${bodyUrls[item]}`);
+              } catch (err) {
+                tinyEmbed.data = null;
+                console.error(err);
+              }
+
+              newEmbeds.push(tinyEmbed);
+              limit--;
+
+            }
+          }
+
+          setEmbeds(newEmbeds);
+
+        };
+
+        searchEmbeds();
+
+      }
+
+    }
+
+    // Detect Top Chatbox Class
+    if ($('body').hasClass('chatbox-top-page')) {
+      if (timelineScrollRef.current) {
+        timelineScrollRef.current.scrollTo(99999);
+      }
+    }
+
+    // Complete
+    return () => {
+      $(messageFinder).find('.message-url-embed').remove();
+    };
+
+  }, []);
+
   // Normal Message
   if (msgType !== 'm.bad.encrypted') {
 
     // Return Data
     return (
-      <tr className={classList.join(' ')}>
+      <tr roomid={roomId} senderid={senderId} eventid={eventId} msgtype={msgType} className={classList.join(' ')}>
 
         <td className='p-0 ps-2 ps-md-4 py-1 pe-md-2 align-top text-center chat-base'>
 
@@ -933,6 +1044,12 @@ function Message({
 
           {roomTimeline && !isEdit && (
             <MessageOptions
+              customHTML={customHTML}
+              body={body}
+              roomid={roomId}
+              senderid={senderId}
+              eventid={eventId}
+              msgtype={msgType}
               roomTimeline={roomTimeline}
               mEvent={mEvent}
               edit={edit}
@@ -964,7 +1081,8 @@ function Message({
             />
           )}
 
-          {!isEdit && (
+          {!isEdit && (<>
+
             <MessageBody
               className={classNameMessage}
               senderName={username}
@@ -973,6 +1091,71 @@ function Message({
               msgType={msgType}
               isEdited={isEdited}
             />
+
+            {embeds.length > 0 ? <div className='message-embed message-url-embed'>
+              {embeds.map(embed => {
+                if (
+
+                  embed.data &&
+
+                  (
+                    !embed.data['og:type'] ||
+                    (typeof embed.data['og:type'] === 'string' && embed.data['og:type'] === 'website')
+                  )
+
+                ) {
+
+                  const isThumb = (typeof embed.data['og:image:height'] !== 'number' || embed.data['og:image:height'] < 512 || embed.data['og:image:height'] === embed.data['og:image:width']);
+
+                  return <div className='card mt-2'>
+                    <div className='card-body'>
+
+                      {isThumb && typeof embed.data['og:image'] === 'string' && embed.data['og:image'].length > 0 ? <span className='float-end'>
+                        <Media.Image
+                          name='embed-img'
+                          className='embed-thumb'
+                          width={embed.data['og:image:width']}
+                          height={embed.data['og:image:height']}
+                          link={mx.mxcUrlToHttp(embed.data['og:image'], 2000, 2000)}
+                          type={embed.data['og:image:type']}
+                        />
+                      </span> : null}
+
+                      <span>
+
+                        {typeof embed.data['og:site_name'] === 'string' && embed.data['og:site_name'].length > 0 ? <p className='card-text very-small mb-2'>{embed.data['og:site_name']}</p> : null}
+
+                        {typeof embed.data['og:title'] === 'string' && embed.data['og:title'].length > 0 ? <h5 className='card-title small fw-bold'>
+                          {typeof embed.data['og:url'] === 'string' && embed.data['og:url'].length > 0 ? <a href={embed.data['og:url']} target='_blank' rel="noreferrer">
+                            {embed.data['og:title']}
+                          </a> : embed.data['og:title']}
+                        </h5> : null}
+
+                        {typeof embed.data['og:description'] === 'string' && embed.data['og:description'].length > 0 ? <p className='card-text very-small'>
+                          {embed.data['og:description']}
+                        </p> : null}
+
+                        {!isThumb && typeof embed.data['og:image'] === 'string' && embed.data['og:image'].length > 0 ?
+                          <Media.Image
+                            name='embed-img'
+                            className='mt-2 embed-img'
+                            width={embed.data['og:image:width']}
+                            height={embed.data['og:image:height']}
+                            link={mx.mxcUrlToHttp(embed.data['og:image'], 2000, 2000)}
+                            type={embed.data['og:image:type']}
+                          />
+                          : null}
+
+                      </span>
+
+                    </div>
+                  </div>;
+
+                }
+              })}
+            </div> : null}
+
+          </>
           )}
 
           {isEdit && (
@@ -1002,17 +1185,22 @@ function Message({
           </td>
         )}
 
-
       </tr>
     );
 
+  }
+
+  if ($('body').hasClass('chatbox-top-page')) {
+    if (timelineScrollRef.current) {
+      setTimeout(() => timelineScrollRef.current.scrollTo(99999), 100);
+    }
   }
 
   // Bad Message
   const errorMessage = `<i class="bi bi-key-fill text-warning"></i> <strong>Unable to decrypt message.</strong>`;
   isCustomHTML = true;
   return (
-    <tr className={classList.join(' ')}>
+    <tr roomid={roomId} senderid={senderId} eventid={eventId} msgtype={msgType} className={classList.join(' ')}>
 
       <td className='p-0 ps-2 ps-md-4 py-1 pe-md-2 align-top text-center chat-base'>
 
@@ -1040,6 +1228,10 @@ function Message({
 
         {roomTimeline && !isEdit && (
           <MessageOptions
+            roomid={roomId}
+            senderid={senderId}
+            eventid={eventId}
+            msgtype={msgType}
             roomTimeline={roomTimeline}
             mEvent={mEvent}
             edit={edit}

@@ -117,6 +117,8 @@ function handleOnClickCapture(e) {
 }
 
 function renderEvent(
+  timelineScrollRef,
+  timelineSVRef,
   roomTimeline,
   mEvent,
   prevMEvent,
@@ -147,6 +149,8 @@ function renderEvent(
   }
   return (
     <Message
+      timelineScrollRef={timelineScrollRef}
+      timelineSVRef={timelineSVRef}
       key={mEvent.getId()}
       mEvent={mEvent}
       isBodyOnly={isBodyOnly}
@@ -510,23 +514,43 @@ function RoomViewContent({ eventId, roomTimeline }) {
     }
   }, [roomTimeline]);
 
-  useEffect(() => {
-    $('body').on('keydown', listenKeyboard);
-    return () => {
-      $('body').off('keydown', listenKeyboard);
-    };
-  }, [listenKeyboard]);
-
   const handleTimelineScroll = (event) => {
+
     const timelineScroll = timelineScrollRef.current;
-    if (!event.target) return;
+    const timelineSV = $(timelineSVRef.current);
+    if ((!event || !event.target) && timelineSV.length < 1) return;
 
     throttle._(() => {
+
       const backwards = timelineScroll?.calcScroll();
       if (typeof backwards !== 'boolean') return;
+
+      if (!backwards) {
+        $('body').addClass('chatbox-top-page');
+      } else {
+        $('body').removeClass('chatbox-top-page');
+      }
+
       handleScroll(backwards);
+
     }, 200)();
+
   };
+
+  const handleTimelineScrollJquery = event => handleTimelineScroll(event.originalEvent);
+  useEffect(() => {
+
+    const timelineSV = $(timelineSVRef.current);
+    timelineSV.on('scroll', handleTimelineScrollJquery);
+    $('body').on('keydown', listenKeyboard);
+    timelineSV.trigger('scroll');
+
+    return () => {
+      $('body').off('keydown', listenKeyboard);
+      $(timelineSVRef.current).off('scroll', handleTimelineScrollJquery);
+    };
+
+  }, [listenKeyboard]);
 
   const renderTimeline = () => {
     const tl = [];
@@ -583,6 +607,8 @@ function RoomViewContent({ eventId, roomTimeline }) {
       if (isFocus) jumpToItemIndex = itemCountIndex;
 
       tl.push(renderEvent(
+        timelineScrollRef,
+        timelineSVRef,
         roomTimeline,
         mEvent,
         isNewEvent ? null : prevMEvent,
@@ -601,7 +627,7 @@ function RoomViewContent({ eventId, roomTimeline }) {
   };
 
   return (
-    <ScrollView onScroll={handleTimelineScroll} ref={timelineSVRef} autoHide>
+    <ScrollView ref={timelineSVRef} autoHide>
       <div className="room-view__content" onClick={handleOnClickCapture}>
         <div className="timeline__wrapper mb-2">
           <table className="table table-borderless table-hover align-middle m-0" id="chatbox">

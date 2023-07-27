@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import clone from 'clone';
 import hljs from 'highlight.js';
 
-import { hljsFixer, resizeWindowChecker } from '../../../util/tools';
+import { hljsFixer, resizeWindowChecker, chatboxScrollToBottom } from '../../../util/tools';
 import { twemojify } from '../../../util/twemojify';
 
 import initMatrix from '../../../client/initMatrix';
@@ -854,7 +854,7 @@ function getEditedBody(editedMEvent) {
 // Message Base Receive
 function Message({
   mEvent, isBodyOnly, roomTimeline,
-  focus, fullTime, isEdit, setEdit, cancelEdit, children, className, classNameMessage, timelineSVRef, timelineScrollRef,
+  focus, fullTime, isEdit, setEdit, cancelEdit, children, className, classNameMessage, timelineSVRef,
 }) {
 
   // Get Room Data
@@ -932,7 +932,6 @@ function Message({
     }
   }
 
-
   useEffect(() => {
 
     // Room jQuery base
@@ -960,8 +959,7 @@ function Message({
                   tb.eventId === eventId
               ) < 0 &&
 
-              bodyUrls[item].indexOf('@') < 0 &&
-              bodyUrls[item].indexOf(':') < 0
+              !bodyUrls[item].startsWith('@')
 
             ) {
 
@@ -996,14 +994,8 @@ function Message({
 
     }
 
-    // Detect Top Chatbox Class
-    if ($('body').hasClass('chatbox-top-page')) {
-      if (timelineScrollRef.current) {
-        timelineScrollRef.current.scrollTo(99999);
-      }
-    }
-
     // Complete
+    chatboxScrollToBottom();
     return () => {
       $(messageFinder).find('.message-url-embed').remove();
     };
@@ -1094,16 +1086,7 @@ function Message({
 
             {embeds.length > 0 ? <div className='message-embed message-url-embed'>
               {embeds.map(embed => {
-                if (
-
-                  embed.data &&
-
-                  (
-                    !embed.data['og:type'] ||
-                    (typeof embed.data['og:type'] === 'string' && embed.data['og:type'] === 'website')
-                  )
-
-                ) {
+                if (embed.data) {
 
                   const isThumb = (typeof embed.data['og:image:height'] !== 'number' || embed.data['og:image:height'] < 512 || embed.data['og:image:height'] === embed.data['og:image:width']);
 
@@ -1190,11 +1173,7 @@ function Message({
 
   }
 
-  if ($('body').hasClass('chatbox-top-page')) {
-    if (timelineScrollRef.current) {
-      setTimeout(() => timelineScrollRef.current.scrollTo(99999), 100);
-    }
-  }
+  chatboxScrollToBottom();
 
   // Bad Message
   const errorMessage = `<i class="bi bi-key-fill text-warning"></i> <strong>Unable to decrypt message.</strong>`;

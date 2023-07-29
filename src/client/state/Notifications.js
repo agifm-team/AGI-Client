@@ -1,3 +1,6 @@
+import { Capacitor } from '@capacitor/core';
+import { LocalNotifications } from '@capacitor/local-notifications';
+
 import EventEmitter from 'events';
 import renderAvatar from '../../app/atoms/avatar/render';
 import { cssColorMXID } from '../../util/colorMXID';
@@ -9,10 +12,6 @@ import { setFavicon } from '../../util/common';
 import { updateName } from '../../util/roomName';
 
 import { html, plain } from '../../util/markdown';
-
-// import LogoSVG from './img/svg/cinny.svg';
-// import LogoUnreadSVG from './img/svg/cinny-unread.svg';
-// import LogoHighlightSVG from './img/svg/cinny-highlight.svg';
 
 const LogoSVG = './img/png/cinny.png';
 const LogoUnreadSVG = './img/png/cinny-unread.png';
@@ -42,6 +41,7 @@ function findMutedRule(overrideRules, roomId) {
 
 class Notifications extends EventEmitter {
   constructor(roomList) {
+
     super();
 
     this.initialized = false;
@@ -57,7 +57,25 @@ class Notifications extends EventEmitter {
     this._listenEvents();
 
     // Ask for permission by default after loading
-    window.Notification?.requestPermission();
+    if (Capacitor.isNativePlatform()) {
+      LocalNotifications.checkPermissions().then(async permStatus => {
+
+        if (permStatus.display === 'prompt') {
+          permStatus = await LocalNotifications.requestPermissions();
+        }
+
+        if (permStatus.display !== 'granted') {
+          throw new Error('User denied mobile permissions!');
+        }
+
+        // return LocalNotifications.registerActionTypes({types: {}});
+        return true;
+
+      });
+    } else {
+      window.Notification?.requestPermission();
+    }
+
   }
 
   async _initNoti() {
@@ -283,23 +301,42 @@ class Notifications extends EventEmitter {
         body = plain(content.body, state);
       }
 
-      const noti = new window.Notification(title, {
-        body: body.plain,
-        icon,
-        tag: mEvent.getId(),
-        silent: settings.isNotificationSounds,
-      });
-      if (settings.isNotificationSounds) {
-        noti.onshow = () => this._playNotiSound();
-      }
-      noti.onclick = () => selectRoom(room.roomId, mEvent.getId());
+      if (Capacitor.isNativePlatform()) {
 
-      this.eventIdToPopupNoti.set(mEvent.getId(), noti);
-      if (this.roomIdToPopupNotis.has(room.roomId)) {
-        this.roomIdToPopupNotis.get(room.roomId).push(noti);
+        /* 
+        const noti = await LocalNotifications.schedule({notifications: [
+          {
+            body: body.plain,
+            sound: './sound/notification.ogg',
+            smallIcon: icon,
+            largeIcon: icon,
+          }
+        ]});
+        */
+
       } else {
-        this.roomIdToPopupNotis.set(room.roomId, [noti]);
+
+        const noti = new window.Notification(title, {
+          body: body.plain,
+          icon,
+          tag: mEvent.getId(),
+          silent: settings.isNotificationSounds,
+        });
+
+        if (settings.isNotificationSounds) {
+          noti.onshow = () => this._playNotiSound();
+        }
+        noti.onclick = () => selectRoom(room.roomId, mEvent.getId());
+
+        this.eventIdToPopupNoti.set(mEvent.getId(), noti);
+        if (this.roomIdToPopupNotis.has(room.roomId)) {
+          this.roomIdToPopupNotis.get(room.roomId).push(noti);
+        } else {
+          this.roomIdToPopupNotis.set(room.roomId, [noti]);
+        }
+
       }
+
     } else {
       this._playNotiSound();
     }
@@ -398,17 +435,19 @@ class Notifications extends EventEmitter {
     });
 
     this.matrixClient.on('Room.receipt', (mEvent, room) => {
-      if (mEvent.getType() === 'm.receipt') {
-        if (room.isSpaceRoom()) return;
-        const content = mEvent.getContent();
-        const readedEventId = Object.keys(content)[0];
-        const readerUserId = Object.keys(content[readedEventId]['m.read'])[0];
-        if (readerUserId !== this.matrixClient.getUserId()) return;
+      if (mEvent.getType() !== 'm.receipt' || room.isSpaceRoom()) return;
+      const content = mEvent.getContent();
+      const userId = this.matrixClient.getUserId();
 
-        this.deleteNoti(room.roomId);
-
-        this._deletePopupRoomNotis(room.roomId);
-      }
+      Object.keys(content).forEach((eventId) => {
+        Object.entries(content[eventId]).forEach(([receiptType, receipt]) => {
+          if (!cons.supportReceiptTypes.includes(receiptType)) return;
+          if (Object.keys(receipt || {}).includes(userId)) {
+            this.deleteNoti(room.roomId);
+            this._deletePopupRoomNotis(room.roomId);
+          }
+        });
+      });
     });
 
     this.matrixClient.on('Room.myMembership', (room, membership) => {

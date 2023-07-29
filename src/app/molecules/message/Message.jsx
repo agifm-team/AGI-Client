@@ -5,8 +5,9 @@ import PropTypes from 'prop-types';
 
 import clone from 'clone';
 import hljs from 'highlight.js';
+import * as linkify from "linkifyjs";
 
-import { hljsFixer, resizeWindowChecker, chatboxScrollToBottom } from '../../../util/tools';
+import { hljsFixer, resizeWindowChecker, chatboxScrollToBottom, toast } from '../../../util/tools';
 import { twemojify } from '../../../util/twemojify';
 
 import initMatrix from '../../../client/initMatrix';
@@ -37,12 +38,6 @@ import { getBlobSafeMimeType } from '../../../util/mimetypes';
 import { html, plain } from '../../../util/markdown';
 import getUrlPreview from '../../../util/libs/getUrlPreview';
 import jReact from '../../../../mods/lib/jReact';
-
-// const expressionWithHttp =
-//   /(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))/gi;
-
-const expressionWithHttp =
-  /((www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))/gi;
 
 function PlaceholderMessage() {
   return (
@@ -653,9 +648,9 @@ const MessageOptions = React.memo(({
                   copyToClipboard((customHTML
                     ? html(customHTML, { kind: 'edit', onlyPlain: true }).plain
                     : plain(body, { kind: 'edit', onlyPlain: true }).plain));
-                  alert('Text successfully copied to the clipboard.');
+                  toast('Text successfully copied to the clipboard.');
                 } else {
-                  alert('No text was found in this message.');
+                  toast('No text was found in this message.');
                 }
               }}
             >
@@ -883,7 +878,7 @@ function Message({
   // Content Data
   let isCustomHTML = content.format === 'org.matrix.custom.html';
   let customHTML = isCustomHTML ? content.formatted_body : null;
-  const bodyUrls = body.match(expressionWithHttp);
+  const bodyUrls = linkify.find(body.replace(/<(.*)>|\((.*)\)>|^((?:(?:[ ]{4}|\t).*(\R|$))+)|`{3}([\w]*)\n([\S\s]+?)\n`{3}|`{2}([\w]*)\n([\S\s]+?)\n`{2}|`{1}([\w]*)\n([\S\s]+?)\n`{1}/gm, ''));
 
   // Edit Data
   const edit = useCallback(() => {
@@ -952,15 +947,18 @@ function Message({
           for (const item in bodyUrls) {
             if (
 
+              bodyUrls[item].href &&
+
               limit > 0 && newEmbeds.findIndex(
                 tb =>
-                  tb.url === bodyUrls[item] &&
+                  tb.url &&
+                  tb.url.href === bodyUrls[item].href &&
                   tb.roomId === roomId &&
                   tb.senderId === senderId &&
                   tb.eventId === eventId
               ) < 0 &&
 
-              !bodyUrls[item].startsWith('@')
+              !bodyUrls[item].href.startsWith('@')
 
             ) {
 
@@ -971,12 +969,16 @@ function Message({
                 eventId,
               };
 
-              try {
-                // eslint-disable-next-line no-await-in-loop
-                tinyEmbed.data = await getUrlPreview(`https://${bodyUrls[item]}`);
-              } catch (err) {
+              if (bodyUrls[item].href.startsWith('http') || bodyUrls[item].href.startsWith('https')) {
+                try {
+                  // eslint-disable-next-line no-await-in-loop
+                  tinyEmbed.data = await getUrlPreview(bodyUrls[item].href);
+                } catch (err) {
+                  tinyEmbed.data = null;
+                  console.error(err);
+                }
+              } else {
                 tinyEmbed.data = null;
-                console.error(err);
               }
 
               newEmbeds.push(tinyEmbed);

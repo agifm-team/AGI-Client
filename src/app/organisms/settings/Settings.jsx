@@ -11,13 +11,14 @@ import {
 } from '../../../client/action/settings';
 import { emitUpdateProfile, openEmojiBoard } from '../../../client/action/navigation';
 import { usePermission } from '../../hooks/usePermission';
-import { TWEMOJI_BASE_URL } from '../../../util/twemojify';
+import { TWEMOJI_BASE_URL, twemojifyIcon } from '../../../util/twemojify';
 
 import Button from '../../atoms/button/Button';
 import Toggle from '../../atoms/button/Toggle';
 import Tabs from '../../atoms/tabs/Tabs';
 import SegmentedControls from '../../atoms/segmented-controls/SegmentedControls';
 
+import IconButton from '../../atoms/button/IconButton';
 import PopupWindow from '../../molecules/popup-window/PopupWindow';
 import SettingTile from '../../molecules/setting-tile/SettingTile';
 import ImportE2ERoomKeys from '../../molecules/import-export-e2e-room-keys/ImportE2ERoomKeys';
@@ -36,7 +37,7 @@ import { MenuItem } from '../../atoms/context-menu/ContextMenu';
 import RadioButton from '../../atoms/button/RadioButton';
 import ImageUpload from '../../molecules/image-upload/ImageUpload';
 
-import { resizeWindowChecker } from '../../../util/tools';
+import { resizeWindowChecker, toast } from '../../../util/tools';
 import { getStatusCSS } from '../../../util/onlineStatus';
 
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
@@ -79,6 +80,56 @@ function PrivacySection() {
           />
         </ul>
       </div>
+    </div>
+  );
+};
+
+function ExperimentalSection() {
+  const [isUsingUseGPU, setUsingUseGPU] = useState(false);
+
+  useEffect(() => {
+    const isEnabledgpu = global.localStorage.getItem('usingUseGPU');
+    setUsingUseGPU((typeof isEnabledgpu === 'string' && isEnabledgpu === 'on'));
+  }, []);
+
+  return (
+    <div>
+
+      <div className="card noselect mt-3">
+        <ul className="list-group list-group-flush">
+          <li className="list-group-item very-small text-gray">WARNING!</li>
+          <li className="list-group-item small text-danger">
+            This is a <strong>TESTING FEATURE</strong> session! Any setting enabled in this location is completely at <strong>your own risk</strong>!
+          </li>
+        </ul>
+      </div>
+
+      <div className="card noselect mt-3">
+        <ul className="list-group list-group-flush">
+          <li className="list-group-item very-small text-gray">Chat room</li>
+          <SettingTile
+            title='Use GPU Mode'
+            options={(
+              <Toggle
+                className='d-inline-flex'
+                isActive={isUsingUseGPU}
+                onToggle={() => {
+                  const isEnabled = global.localStorage.getItem('usingUseGPU');
+                  if (typeof isEnabled === 'string' && isEnabled === 'on') {
+                    global.localStorage.removeItem('usingUseGPU');
+                    setUsingUseGPU(false);
+                  } else {
+                    global.localStorage.setItem('usingUseGPU', 'on');
+                    setUsingUseGPU(true);
+                  }
+                }}
+              />
+            )}
+            content={<div className="very-small text-gray">This function will theoretically try to use your GPU to render the application. (You need to restart the app for the option to take effect)</div>}
+          />
+        </ul>
+      </div>
+
     </div>
   );
 };
@@ -433,8 +484,12 @@ function ProfileSection() {
 
   const customStatusRef = useRef(null);
   const bioRef = useRef(null);
-  const [customStatusIcon, setcustomStatusIcon] = useState('./img/default_avatar/1.jpg');
-  const [customStatusValue, setcustomStatusValue] = useState(null);
+
+  const [customStatusIcon, setcustomStatusIcon] = useState(typeof userProfile.msgIcon === 'string' ?
+    userProfile.msgIcon.length <= 2 ? twemojifyIcon(userProfile.msgIcon) : initMatrix.matrixClient.mxcUrlToHttp(userProfile.msgIcon)
+    : './img/default_avatar/1.jpg');
+
+  const [customStatusValue, setcustomStatusValue] = useState(typeof userProfile.msgIcon === 'string' ? userProfile.msgIcon : null);
 
   const [profileStatus, setProfileStatus] = useState(userProfile.status ? userProfile.status : 'online');
   const [banner, setBanner] = useState(userProfile.banner);
@@ -455,18 +510,39 @@ function ProfileSection() {
       const content = initMatrix.matrixClient.getAccountData('pony.house.profile')?.getContent() ?? {};
 
       const { value } = customStatusRef.current;
-      if (typeof value === 'string' && value.length > 0) {
-        setCustomStatus(value);
-        content.msg = value;
+
+      if (
+        (typeof value === 'string' && value.length > 0) ||
+        (typeof customStatusValue === 'string' && customStatusValue.length > 0)
+      ) {
+
+        if (typeof value === 'string' && value.length > 0) {
+          setCustomStatus(value);
+          content.msg = value;
+        } else {
+          setCustomStatus(null);
+          content.msg = null;
+        }
+
+        if (typeof customStatusValue === 'string' && customStatusValue.length > 0) {
+          content.msgIcon = customStatusValue;
+        } else {
+          content.msgIcon = null;
+        }
+
       } else {
+
         setCustomStatus(null);
         content.msg = null;
+
+        content.msgIcon = null;
+
       }
 
       initMatrix.matrixClient.setAccountData('pony.house.profile', content);
       emitUpdateProfile(content);
 
-      alert('The custom status of your profile has been successfully defined.');
+      toast('The custom status of your profile has been successfully defined.');
 
     }
   };
@@ -488,7 +564,7 @@ function ProfileSection() {
       initMatrix.matrixClient.setAccountData('pony.house.profile', content);
       emitUpdateProfile(content);
 
-      alert('The biography of your profile has been successfully updated.');
+      toast('The biography of your profile has been successfully updated.');
 
     }
   };
@@ -607,7 +683,13 @@ function ProfileSection() {
           <div className='very-small text-gray'>Enter a status that will appear next to your name.</div>
           <div className="input-group">
             <span className="input-group-text" id="basic-addon1">
-              <img id='change-custom-status-img' className='img-fluid disabled' src={customStatusIcon} alt='custom-status' onClick={(e) => {
+
+              {customStatusValue ? <IconButton fa="fa-solid fa-xmark" className='btn-sm me-2' onClick={() => {
+                setcustomStatusIcon('./img/default_avatar/1.jpg');
+                setcustomStatusValue(null);
+              }} /> : null}
+
+              <img id='change-custom-status-img' className='img-fluid' src={customStatusIcon} alt='custom-status' onClick={(e) => {
                 if (!$(e.target).hasClass('disabled')) {
 
                   const cords = getEventCords(e);
@@ -637,6 +719,7 @@ function ProfileSection() {
 
                 }
               }} />
+
             </span>
             <input ref={customStatusRef} className="form-control form-control-bg" type="text" placeholder="" maxLength="100" defaultValue={customStatus} />
           </div>
@@ -692,6 +775,7 @@ export const tabText = {
   DONATE: 'Donate',
   PROFILE: 'Profile',
   LOGOUT: 'Logout',
+  EXPERIMENTAL: 'Experimental',
 };
 const tabItems = [
 
@@ -758,6 +842,15 @@ const tabItems = [
   { type: 'divider', },
 
   {
+    text: tabText.EXPERIMENTAL,
+    faSrc: "fa-solid fa-flask",
+    disabled: false,
+    render: () => <ExperimentalSection />,
+  },
+
+  { type: 'divider', },
+
+  {
     text: tabText.LOGOUT,
     faSrc: "fa-solid fa-power-off",
     className: 'btn-text-danger',
@@ -767,7 +860,9 @@ const tabItems = [
         initMatrix.logout();
       }
     }
-  }];
+  }
+
+];
 
 function useWindowToggle(setSelectedTab) {
   const [isOpen, setIsOpen] = useState(false);

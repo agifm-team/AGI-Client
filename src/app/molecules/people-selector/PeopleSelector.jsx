@@ -25,15 +25,45 @@ function PeopleSelector({
 
       // Get Status
       const customStatus = $(customStatusRef.current);
+      const htmlStatus = [];
+      let customStatusImg;
 
       if (
         content && content.presenceStatusMsg &&
-        content.presence !== 'offline' && content.presence !== 'unavailable' &&
-        typeof content.presenceStatusMsg.msg === 'string' && content.presenceStatusMsg.msg.length > 0
+        content.presence !== 'offline' && content.presence !== 'unavailable' && (
+          (typeof content.presenceStatusMsg.msg === 'string' && content.presenceStatusMsg.msg.length > 0) ||
+          (typeof content.presenceStatusMsg.msgIcon === 'string' && content.presenceStatusMsg.msgIcon.length > 0)
+        )
       ) {
-        customStatus.html(ReactDOMServer.renderToStaticMarkup(twemojify(content.presenceStatusMsg.msg.substring(0, 100))));
-      } else {
-        customStatus.html('');
+
+        if (typeof content.presenceStatusMsg.msgIcon === 'string' && content.presenceStatusMsg.msgIcon.length > 0) {
+
+          customStatusImg = $('<img>', { src: content.presenceStatusMsg.msgIconThumb, alt: 'icon', class: 'emoji me-1' });
+          htmlStatus.push(customStatusImg);
+
+          customStatusImg.data('pony-house-cs-normal', content.presenceStatusMsg.msgIconThumb);
+          customStatusImg.data('pony-house-cs-hover', content.presenceStatusMsg.msgIcon);
+
+        }
+
+        if (typeof content.presenceStatusMsg.msg === 'string' && content.presenceStatusMsg.msg.length > 0) {
+          htmlStatus.push(ReactDOMServer.renderToStaticMarkup(<span className='text-truncate cs-text'>
+            {twemojify(content.presenceStatusMsg.msg.substring(0, 100))}
+          </span>));
+        }
+
+      }
+
+      customStatus.html(htmlStatus);
+
+      if (customStatusImg) {
+        customStatusImg.parent().parent().parent().hover(
+          () => {
+            customStatusImg.attr('src', customStatusImg.data('pony-house-cs-hover'));
+          }, () => {
+            customStatusImg.attr('src', customStatusImg.data('pony-house-cs-normal'));
+          }
+        );
       }
 
     }
@@ -49,23 +79,21 @@ function PeopleSelector({
 
       // Update Status Profile
       const updateProfileStatus = (mEvent, tinyData) => {
-        if (statusRef && statusRef.current) {
 
-          // Get Status
-          const mx = initMatrix.matrixClient;
-          const status = $(statusRef.current);
-          const tinyUser = tinyData;
+        // Get Status
+        const mx = initMatrix.matrixClient;
+        const status = $(statusRef.current);
+        const tinyUser = tinyData;
 
-          // Is You
-          if (tinyUser.userId === mx.getUserId()) {
-            const yourData = mx.getAccountData('pony.house.profile')?.getContent() ?? {};
-            tinyUser.presenceStatusMsg = JSON.stringify(yourData);
-          }
-
-          // Update Status Icon
-          getCustomStatus(updateUserStatusIcon(status, tinyUser));
-
+        // Is You
+        if (tinyUser.userId === mx.getUserId()) {
+          const yourData = mx.getAccountData('pony.house.profile')?.getContent() ?? {};
+          tinyUser.presenceStatusMsg = JSON.stringify(yourData);
         }
+
+        // Update Status Icon
+        getCustomStatus(updateUserStatusIcon(status, tinyUser));
+
       };
 
       // Read Events
@@ -94,7 +122,7 @@ function PeopleSelector({
 
       <div className="small people-selector__name text-start">
         <span className='emoji-size-fix'>{twemojify(name)}</span>
-        <div ref={customStatusRef} className='very-small text-gray text-truncate emoji-size-fix-2' />
+        <div ref={customStatusRef} className='very-small text-gray text-truncate emoji-size-fix-2 user-custom-status' />
       </div>
 
       {peopleRole !== null && <Text className="people-selector__role" variant="b3">{peopleRole}</Text>}

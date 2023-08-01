@@ -1,4 +1,7 @@
+import * as colors from 'console-log-colors';
+import moment from 'moment-timezone';
 import clone from 'clone';
+
 import { logger as mxLogger } from 'matrix-js-sdk/lib/logger';
 import { consoleRemoveData, consoleNewData, consoleUpdate } from '../action/navigation';
 import tinyAPI from '../../util/mods';
@@ -42,6 +45,7 @@ mxLogger.log = (...msg) => logCache.add('log', msg);
 mxLogger.warn = (...msg) => logCache.add('warn', msg);
 mxLogger.error = (...msg) => logCache.add('error', msg);
 mxLogger.trace = (...msg) => logCache.add('trace', msg);
+mxLogger.debug = (...msg) => logCache.add('debug', msg);
 
 function isLogString(value) {
 
@@ -81,7 +85,7 @@ const createLogArgs = (type, args) => {
 
 function playLogData() {
     for (const item in logCache.data) {
-        console[logCache.data[item].level](logDatatoString(logCache.data[item].msg));
+        console[logCache.data[item].level](`${colors.gray(`[${moment().format()}]`)} ${colors.grey('[matrix]')}`, logDatatoString(logCache.data[item].msg));
     }
 }
 

@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 
+import * as colors from 'console-log-colors';
 import clone from 'clone';
 import hljs from 'highlight.js';
 import * as linkify from "linkifyjs";
@@ -258,7 +259,7 @@ const MessageBody = React.memo(({
         true,
       );
     } catch {
-      console.error('Malformed custom html: ', body);
+      console.error(`${colors.grey('[matrix]')} ${colors.blue('[msg]')} Malformed custom html: `, body);
       content = twemojify(body, undefined);
     }
   } else if (!isSystem) {
@@ -878,7 +879,7 @@ function Message({
   // Content Data
   let isCustomHTML = content.format === 'org.matrix.custom.html';
   let customHTML = isCustomHTML ? content.formatted_body : null;
-  const bodyUrls = linkify.find(body.replace(/<(.*)>|\((.*)\)>|^((?:(?:[ ]{4}|\t).*(\R|$))+)|`{3}([\w]*)\n([\S\s]+?)`{3}|`{3}([\S\s]+?)`{3}|`{2}([\S\s]+?)`{2}|`{1}([\S\s]+?)`{1}/gm, ''));
+  const bodyUrls = linkify.find(body.replace(/^((?:(?:[ ]{4}|\t).*(\R|$))+)|`{3}([\w]*)\n([\S\s]+?)`{3}|`{3}([\S\s]+?)`{3}|`{2}([\S\s]+?)`{2}|`([\S\s]+?)|\[([\S\s]+?)\]|\{([\S\s]+?)\}|\<([\S\s]+?)\>|\(([\S\s]+?)\)/gm, ''));
 
   // Edit Data
   const edit = useCallback(() => {

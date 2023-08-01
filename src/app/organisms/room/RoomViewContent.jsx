@@ -515,17 +515,23 @@ function RoomViewContent({ eventId, roomTimeline }) {
   const handleTimelineScroll = (event) => {
 
     const tinyScroll = $('#chatbox-scroll');
-    if (tinyScroll.length > 0) {
+    const body = $('body');
 
-      const scrollSize = tinyScroll.prop('scrollHeight') - $(window).height();
-      if (tinyScroll.scrollTop() >= scrollSize - 300) {
-        $('body').addClass('chatbox-top-page');
+    if (!body.hasClass('force-no-chatbox-top-page')) {
+      if (tinyScroll.length > 0) {
+
+        const scrollSize = tinyScroll.prop('scrollHeight') - $(window).height();
+        if (tinyScroll.scrollTop() >= scrollSize - 300) {
+          body.addClass('chatbox-top-page');
+        } else {
+          body.removeClass('chatbox-top-page');
+        }
+
       } else {
-        $('body').removeClass('chatbox-top-page');
+        body.addClass('chatbox-top-page');
       }
-
     } else {
-      $('body').addClass('chatbox-top-page');
+      body.removeClass('chatbox-top-page');
     }
 
     const timelineScroll = timelineScrollRef.current;
@@ -556,6 +562,8 @@ function RoomViewContent({ eventId, roomTimeline }) {
   }, [listenKeyboard]);
 
   const renderTimeline = () => {
+
+    const body = $('body');
     const tl = [];
     const limit = eventLimitRef.current;
 
@@ -564,10 +572,12 @@ function RoomViewContent({ eventId, roomTimeline }) {
     const readUptoEvent = readUptoEvtStore.getItem();
     let unreadDivider = false;
 
+    let renderingHolders = false;
     if (roomTimeline.canPaginateBackward() || limit.from > 0) {
       tl.push(loadingMsgPlaceholders(1, PLACEHOLDER_COUNT));
       itemCountIndex += PLACEHOLDER_COUNT;
     }
+
     for (let i = limit.from; i < limit.length; i += 1) {
       if (i >= timeline.length) break;
       const mEvent = timeline[i];
@@ -594,7 +604,7 @@ function RoomViewContent({ eventId, roomTimeline }) {
           && readUptoEvent.getTs() < mEvent.getTs());
         if (unreadDivider) {
           isNewEvent = true;
-          tl.push(<Divider key={`new-${mEvent.getId()}`} variant="success" text="New messages" />);
+          tl.push(<Divider key={`new-${mEvent.getId()}`} variant="success" text="New messages" roomId={roomTimeline.roomId} clickRemove />);
           itemCountIndex += 1;
           if (jumpToItemIndex === -1) jumpToItemIndex = itemCountIndex;
         }
@@ -621,11 +631,21 @@ function RoomViewContent({ eventId, roomTimeline }) {
       ));
       itemCountIndex += 1;
     }
+
     if (roomTimeline.canPaginateForward() || limit.length < timeline.length) {
+      renderingHolders = true;
       tl.push(loadingMsgPlaceholders(2, PLACEHOLDER_COUNT));
     }
 
+    if (renderingHolders) {
+      body.removeClass('chatbox-top-page');
+      body.addClass('force-no-chatbox-top-page');
+    } else {
+      body.removeClass('force-no-chatbox-top-page');
+    }
+
     return tl;
+
   };
 
   return (

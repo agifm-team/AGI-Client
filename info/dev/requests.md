@@ -3,10 +3,6 @@ Made by aisa
     1 - Don't mark messages as read if the window isn't focused.
     2- Don't switch to a room when joined via invite on another session.
 
-chad
-
-    --> did you ever find out why it never scrolls down to the bottom yet? c:
-
 Made by Me
 
     Insert into manifest
@@ -49,8 +45,6 @@ Made by Me
 
     =======================================================
 
-    -------------> Quando você clica em uma mensagem mencionada e está no bottom da página, o auto scroll da issue. Corrigir isso agora.
-
     --> Confiador de URL
 
     --> Depois de um determinado tempo de inatividade, o usuário que estiver com status online vai trocar para Afk.
@@ -58,11 +52,7 @@ Made by Me
     --> Status ocupado não pode enviar notificação
     --> Criar sistema de alterar o tamanho da fonte do aplicativo
 
-    --> Marcar mensagens como lidas quando a pessoa abre o chat de conversa. (aisa - 1)
-
     --> <Text>{systemState.status}</Text>
-
-    --> Concertar envio de notificação. A notificação precisa apitar quando o usuário está na mesma página, mas está com a janela minimizada
 
     --> Tema https://github.com/catppuccin/cinny
 

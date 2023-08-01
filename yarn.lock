@@ -229,20 +229,20 @@
     "@babel/helper-validator-identifier" "^7.22.5"
     to-fast-properties "^2.0.0"
 
-"@capacitor/android@5.0.5":
-  version "5.0.5"
-  resolved "https://registry.yarnpkg.com/@capacitor/android/-/android-5.0.5.tgz#61a9e3b13c7c1a489e237efee18574e2d65a4088"
-  integrity sha512-vH5Qoy+p2Egsu1GtPtOsihHcEI2fCGCIHwlUGPaXXGysudzpzWtJZ5JZNlycJyfRdjECrjkutgbNaHLog+YlXQ==
+"@capacitor/android@5.2.2":
+  version "5.2.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/android/-/android-5.2.2.tgz#9f2cfd5b81f96deecc22d77aee9a3161c14c70b4"
+  integrity sha512-2kx5C2lJ/DSwPWS7fKvextWhg4AK3SQvQnHgp8+WX6SDYgphBNlGUh45N/qBoMeVM7lqjANJFGQDCk0FjimlWQ==
 
 "@capacitor/app@5.0.3":
   version "5.0.3"
   resolved "https://registry.yarnpkg.com/@capacitor/app/-/app-5.0.3.tgz#f1801b0e33c778bc840cec41101983c9df5c13b0"
   integrity sha512-YqGWnD+O8wjNVyIctZCMkVqOr3RhxunLUBbmLpdRc66RzPN7xEk8GAwxY2YV/ehTL054mo3uqovpWvei7rYsEA==
 
-"@capacitor/cli@5.0.5":
-  version "5.0.5"
-  resolved "https://registry.yarnpkg.com/@capacitor/cli/-/cli-5.0.5.tgz#4936d782b3e9602b737cfca783ed3bf7a1a1e848"
-  integrity sha512-Mf+lr2L98NfDZki3e5jdG176LUH0rf+OFoMa/oFf6dp4iHwQjS1HiHN5iaGcfJ5RWt432SMEB0dOgicXPb4KCQ==
+"@capacitor/cli@5.2.2":
+  version "5.2.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/cli/-/cli-5.2.2.tgz#7799e4bfccc8a5bd7f51df1c6ea74d9505a5aae9"
+  integrity sha512-h/cefX3sefLcmd4VI2h+fNIYKWH1QCUACWAH8bkdJ+aEL+x2xYbGlqeW6Belb3E2Uvu9OA+cz7YVDnNRcjyQyw==
   dependencies:
     "@ionic/cli-framework-output" "^2.2.5"
     "@ionic/utils-fs" "^3.1.6"
@@ -274,10 +274,10 @@
   resolved "https://registry.yarnpkg.com/@capacitor/haptics/-/haptics-5.0.6.tgz#c22fd6acbc62cbdff39279ded687c418f2c89a5a"
   integrity sha512-UrMcR7p2X10ql4VLlowUuH/VckTeu0lj+RQpekxox14uxDmu5AGIFDK/iDTi8W6QZkxTJRZK6sbCjgwYgNJ7Pw==
 
-"@capacitor/ios@5.0.5":
-  version "5.0.5"
-  resolved "https://registry.yarnpkg.com/@capacitor/ios/-/ios-5.0.5.tgz#799c6eb3bf5988ff1e394a28d7f5caa8435460da"
-  integrity sha512-U72TPbKN1HlUqEGCOPsCBp6j93Qu1TazWUuA8Q1yfcGDfSOE0zMDNl3eU7XO5OyzpV7z9lf8NJdehimezVl7sA==
+"@capacitor/ios@5.2.2":
+  version "5.2.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/ios/-/ios-5.2.2.tgz#209cc3b15199325f3f5515f7a208ff9830482f52"
+  integrity sha512-6nNhB+G9tamJFMdvPOIATEPIXlh3GNXMq8eeY3xrFO72bBTmQpXdbDQmMJeBbpVlkEnFoVUXiSxAu6O0E9x9Lw==
 
 "@capacitor/local-notifications@5.0.6":
   version "5.0.6"
@@ -2859,6 +2859,11 @@ confusing-browser-globals@^1.0.10:
   resolved "https://registry.yarnpkg.com/confusing-browser-globals/-/confusing-browser-globals-1.0.11.tgz#ae40e9b57cdd3915408a2805ebd3a5585608dc81"
   integrity sha512-JsPKdmh8ZkmnHxDk55FZ1TqVLvEQTvoByJZRN9jzI0UjxK/QgAmsphz7PGtqgPieQZ/CQcHWXCR7ATDNhGe+YA==
 
+console-log-colors@0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/console-log-colors/-/console-log-colors-0.4.0.tgz#35ebaa439416e6be069c4b08cc66c9a08d023f79"
+  integrity sha512-XX0qO0MUzbREpPrutavmOLML8h8IokzKTzJqMwvykBcL9D7bMbj5P17+driOjy4RaA99aIAkMDo8holIxYbbpQ==
+
 content-type@^1.0.4:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/content-type/-/content-type-1.0.5.tgz#8b773162656d1d1086784c8f23a54ce6d73d7918"
@@ -4800,6 +4805,11 @@ linkify-html@4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/linkify-html/-/linkify-html-4.1.1.tgz#da88082149471bb6d3945fabf0d855a33c7f4120"
   integrity sha512-7RcF7gIhEOGBBvs7orCJ2tevaz7iF0ZLZSRPWNNBOnW/uGjOOQYB+ztSeHF6dchMC2dM9H8zZlt6Z959bjteaw==
+
+linkify-plugin-keyword@4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/linkify-plugin-keyword/-/linkify-plugin-keyword-4.1.1.tgz#0359a5d6d1ca11dd95016722f4bfd31dc50fc15a"
+  integrity sha512-N55yPOhPbwZs66nqR4o/4oxq0xR+CTn+NFhrwSQvrNlHMcuZ6oaIlzFwdU0Es6Sdea/7Bn6zFbmNyJ/FPH4gLg==
 
 linkifyjs@4.1.1:
   version "4.1.1"

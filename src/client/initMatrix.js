@@ -69,14 +69,14 @@ class InitMatrix extends EventEmitter {
   setupSync() {
     const sync = {
       NULL: () => {
-        logger.log('NULL state');
+        logger.log(`NULL state`);
       },
       SYNCING: () => {
-        logger.log('SYNCING state');
+        logger.log(`SYNCING state`);
       },
       PREPARED: (prevState) => {
-        logger.log('PREPARED state');
-        logger.log('Previous state: ', prevState);
+        logger.log(`PREPARED state`);
+        logger.log(`Previous state: `, prevState);
         // TODO: remove global.initMatrix at end
         global.initMatrix = this;
         if (prevState === null) {
@@ -91,16 +91,16 @@ class InitMatrix extends EventEmitter {
         }
       },
       RECONNECTING: () => {
-        logger.log('RECONNECTING state');
+        logger.log(`RECONNECTING state`);
       },
       CATCHUP: () => {
-        logger.log('CATCHUP state');
+        logger.log(`CATCHUP state`);
       },
       ERROR: () => {
-        logger.log('ERROR state');
+        logger.log(`ERROR state`);
       },
       STOPPED: () => {
-        logger.log('STOPPED state');
+        logger.log(`STOPPED state`);
       },
     };
     this.matrixClient.on('sync', (state, prevState) => sync[state](prevState));

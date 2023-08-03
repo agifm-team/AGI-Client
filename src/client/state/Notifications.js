@@ -12,6 +12,7 @@ import { setFavicon } from '../../util/common';
 import { updateName } from '../../util/roomName';
 
 import { html, plain } from '../../util/markdown';
+import { getAccountStatus } from '../../app/organisms/navigation/ProfileAvatarMenu';
 
 const LogoSVG = './img/png/cinny.png';
 const LogoUnreadSVG = './img/png/cinny-unread.png';
@@ -254,12 +255,19 @@ class Notifications extends EventEmitter {
 
   async _displayPopupNoti(mEvent, room) {
 
+    const userStatus = getAccountStatus('status');
     if (!settings.showNotifications && !settings.isNotificationSounds) return;
 
     const actions = this.matrixClient.getPushActionsForEvent(mEvent);
     if (!actions?.notify) return;
 
-    if (navigation.selectedRoomId === room.roomId && document.visibilityState === 'visible' && !$('body').hasClass('windowHidden')) return;
+    if (
+      navigation.selectedRoomId === room.roomId &&
+      document.visibilityState === 'visible' &&
+      !$('body').hasClass('windowHidden')
+    ) return;
+
+    if (userStatus === 'dnd' || userStatus === '🔴') return;
 
     if (mEvent.isEncrypted()) {
       await mEvent.attemptDecryption(this.matrixClient.crypto);

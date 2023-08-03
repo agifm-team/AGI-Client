@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+
+import clone from 'clone';
 import jReact from '../../../../mods/lib/jReact';
 
 import IconButton from '../../atoms/button/IconButton';
@@ -16,6 +18,23 @@ import { getPresence, getUserStatus } from '../../../util/onlineStatus';
 import {
     openSettings,
 } from '../../../client/action/navigation';
+import tinyAPI from '../../../util/mods';
+
+const accountStatus = { status: null, data: null };
+export function getAccountStatus(where) {
+
+    if (typeof where === 'string') {
+
+        if (where !== 'status') {
+            return clone(accountStatus.status);
+        }
+
+        return clone(accountStatus.data[where]);
+    }
+
+    return null;
+
+};
 
 function ProfileAvatarMenu() {
     const mx = initMatrix.matrixClient;
@@ -37,6 +56,7 @@ function ProfileAvatarMenu() {
 
         // Set New User Status
         const onProfileUpdate = (event = {}) => {
+
             if (event) {
 
                 const tinyEvent = event;
@@ -76,9 +96,13 @@ function ProfileAvatarMenu() {
                     }
 
                     $(customStatusRef.current).html(htmlStatus);
+                    accountStatus.data = content.presenceStatusMsg;
+                    accountStatus.status = event.status;
 
                 } else {
                     $(customStatusRef.current).html(jReact(twemojifyReact(user2.userId)));
+                    accountStatus.data = null;
+                    accountStatus.status = null;
                 }
 
                 if (statusRef && statusRef.current && typeof event.status === 'string' && event.status.length > 0) {
@@ -87,7 +111,13 @@ function ProfileAvatarMenu() {
                     statusRef.current.className = getUserStatus(user2);
                 }
 
+            } else {
+                accountStatus.data = null;
+                accountStatus.status = null;
             }
+
+            tinyAPI.emit('userStatusUpdate', accountStatus);
+
         };
 
         onProfileUpdate(mx.getAccountData('pony.house.profile')?.getContent() ?? {});

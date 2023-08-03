@@ -45,14 +45,10 @@ Made by Me
 
     =======================================================
 
-    ----------> Colocar alternador de modals no dialog e popup
-
     --> Depois de um determinado tempo de inatividade, o usuário que estiver com status online vai trocar para Afk.
     --> Se o usuário colocar o status afk propositalmente, apenas o presence vai definir o afk value para questões de privacidade do usuário.
     --> Status ocupado não pode enviar notificação
     --> Criar sistema de alterar o tamanho da fonte do aplicativo
-
-    --> <Text>{systemState.status}</Text>
 
     --> Tema https://github.com/catppuccin/cinny
 
@@ -67,53 +63,8 @@ Made by Me
     Web3 XMTP Chat
     https://xmtp.org/docs/build/get-started
 
-    protocols:
-
     Crypto Wormhole
     https://docs.wormhole.com/wormhole/quick-start/wh-connect
     https://www.portalbridge.com/#/transfer
 
     Validador de DNS
-
-    Twitter: (https://twitter.com)
-    twitter://
-
-    Bitcoin: (https://bitcoin.org/)
-    bitcoin://
-
-    Dogecoin: (https://dogecoin.com/)
-    dogecoin://
-
-    Ethereum: ()
-    ethereum://
-
-    Monero: ()
-    monero://
-
-    Web3: (https://w3url.w3eth.io/#/)
-    web3://
-
-    Arweave: (https://arweave.app/welcome)
-    ar://
-
-    IPFS: (https://ipfs.io/)
-    ipfs://
-
-    LBRY Crypto File: (https://lbry.com/)
-    lbry://
-
-    Steam: (https://developer.valvesoftware.com/wiki/Steam_browser_protocol)
-
-    steam://
-
-    steam://store/<id>
-
-    steam://install/<id>
-    steam://uninstall/<id>
-
-    steam://launch/<id>
-
-    steam://publisher/<name>
-
-    steam://installaddon/<addon>
-    steam://removeaddon/<addon>

@@ -1,4 +1,5 @@
 import initMatrix from '../client/initMatrix';
+import tinyAPI from './mods';
 
 // Cache Data
 const userInteractions = {
@@ -17,11 +18,6 @@ const lastTimestampUpdate = () => {
     userInteractions.afkTime.value = moment().valueOf();
 };
 
-// Interval
-const intervalTimestamp = () => {
-    // console.log(getUserAfk());
-};
-
 // Get
 export function getUserAfk(type = 'seconds') {
 
@@ -30,6 +26,25 @@ export function getUserAfk(type = 'seconds') {
     }
 
     return null;
+
+};
+
+// Interval
+const intervalTimestamp = () => {
+
+    // API
+    const counter = getUserAfk();
+    tinyAPI.emit('afkTimeCounter', counter);
+
+    // 10 Minutes later...
+    if (counter > 600) {
+
+    }
+
+    // Nope
+    else {
+
+    }
 
 };
 

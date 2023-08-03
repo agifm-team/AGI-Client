@@ -234,6 +234,13 @@ console object = level, message
     term
     config
 
+`src/util/twemojify.jsx`
+
+### openUrlChecker
+
+    hostname
+    protocol
+
 `others`
 
 ### mouseWheel

@@ -3,13 +3,18 @@ import React, { lazy, Suspense } from 'react';
 
 import * as linkify from "linkifyjs";
 import linkifyHtml from 'linkify-html';
+import Linkify from 'linkify-react';
+
 import linkifyRegisterKeywords from 'linkify-plugin-keyword';
 
 import parse from 'html-react-parser';
 import twemoji from 'twemoji';
+import Tooltip from '../app/atoms/tooltip/Tooltip';
 import { sanitizeText } from './sanitize';
 
 import keywords from '../../mods/keywords';
+import { btModal, objType } from './tools';
+import tinyAPI from './mods';
 
 // Register Protocols
 linkify.registerCustomProtocol('matrix');
@@ -35,7 +40,25 @@ linkify.registerCustomProtocol('lbry');
 
 // Register Keywords
 const tinywords = [];
-for (const item in keywords) { tinywords.push(keywords[item].name); }
+const tinywordsDB = {};
+for (const item in keywords) {
+
+  if (typeof keywords[item].name === 'string') {
+    tinywords.push(keywords[item].name);
+    tinywordsDB[keywords[item].name] = { href: keywords[item].href, title: keywords[item].title };
+  }
+
+  else if (Array.isArray(keywords[item].name) && keywords[item].name.length > 0) {
+    for (const item2 in keywords[item].name) {
+      if (typeof keywords[item].name[item2] === 'string') {
+        tinywords.push(keywords[item].name[item2]);
+        tinywordsDB[keywords[item].name[item2]] = { href: keywords[item].href, title: keywords[item].title };
+      };
+    }
+  }
+
+}
+
 linkifyRegisterKeywords(tinywords);
 
 // Emoji Base
@@ -76,6 +99,139 @@ const mathOptions = {
   },
 };
 
+// Open URL
+const openTinyURL = async (url) => {
+  try {
+
+    // Prepare Whitelist
+    const whiteList = JSON.parse(localStorage.getItem('pony-house-urls-whitelist') ?? '[]');
+    let urlAllowed = false;
+
+    // Checker Value
+    const tinyUrl = new URL(url);
+    let tinyValue = tinyUrl.origin;
+    if (typeof tinyValue !== 'string' || tinyValue === 'null') {
+      tinyValue = tinyUrl.protocol;
+    }
+
+    // Start loading
+    $.LoadingOverlay('show');
+    let scammerCache;
+
+    try {
+      scammerCache = await tinyAPI.emitAsync('openUrlChecker', tinyUrl.hostname || tinyUrl.host, tinyUrl.protocol);
+    } catch (err) {
+      scammerCache = null;
+      console.error(err);
+    }
+
+    const isScammer = (objType(scammerCache, 'object') && scammerCache.isScammer);
+
+    // Read Whitelist
+    if (whiteList.indexOf(tinyValue) > -1) urlAllowed = true;
+    if (!urlAllowed) {
+
+      const body = $('<center>', { class: 'small' }).append(
+
+        $('<p>', { class: isScammer ? 'text-danger' : null }).text(isScammer ?
+          'The domain was detected in a scammer database! Are you sure you want to continue? Proceed at your own risk!' :
+          'This link is taking you to the following website'
+        ),
+
+        $('<div>', { class: 'card' }).append(
+          $('<div>', { class: `card-body text-break${isScammer ? ' text-warning' : ''}` }).text(url)
+        ),
+
+        (typeof tinyValue === 'string' && tinyValue !== 'null' && $('<div>', { class: 'form-check mt-2 text-start' }).append(
+          $('<input>', { type: 'checkbox', class: 'form-check-input', id: 'whitelist-the-domain' }),
+          $('<label>', { class: 'form-check-label small', for: 'whitelist-the-domain' }).html(`Trust <strong>${typeof tinyUrl.hostname === 'string' && tinyUrl.hostname.length > 0 && tinyUrl.hostname !== 'null' ? tinyUrl.hostname : 'protocol'}</strong> links from now on`)
+        ))
+
+      );
+
+      const tinyModal = btModal({
+
+        id: 'trust-tiny-url',
+        title: `Leaving ${__ENV_APP__.info.name}`,
+
+        dialog: 'modal-dialog-centered modal-lg',
+        body,
+
+        footer: [
+          $('<button>', { class: 'btn btn-bg mx-2' }).text('Go Back').on('click', () => tinyModal.hide()),
+          $('<button>', { class: `btn ${isScammer ? ' btn-danger' : 'btn-primary'} mx-2` }).text('Visit Site').prepend(
+            isScammer ? $('<i>', { class: 'fa-solid fa-circle-radiation me-2' }) : null
+          ).on('click', () => {
+
+            if (typeof tinyValue === 'string' && tinyValue !== 'null' && $('#whitelist-the-domain').is(':checked')) {
+              whiteList.push(tinyValue);
+              global.localStorage.setItem('pony-house-urls-whitelist', JSON.stringify(whiteList));
+            }
+
+            global.open(url, '_blank');
+            tinyModal.hide();
+            $.LoadingOverlay('hide');
+
+          }),
+        ],
+
+      });
+
+    } else if (urlAllowed) global.open(url, '_blank'); $.LoadingOverlay('hide');
+
+  } catch (err) {
+    alert(err.message, 'Error - Open External url');
+    console.error(err);
+  }
+};
+
+const tinyRender = {
+
+  html: type => ({ attributes, content }) => {
+
+    let tinyAttr = '';
+    for (const attr in attributes) {
+      tinyAttr += ` ${attr}${attributes[attr].length > 0 ? `=${attributes[attr]}` : ''}`;
+    }
+
+    if (type === 'keyword') {
+      tinyAttr += ' iskeyword="true"';
+    } else {
+      tinyAttr += ' iskeyword="false"';
+    }
+
+    const db = tinywordsDB[content.toLowerCase()];
+    return `<a${tinyAttr} title="${db?.title}">${content}</a>`;
+
+  },
+
+  react: type => ({ attributes, content }) => {
+    const { href, ...props } = attributes;
+    const db = tinywordsDB[content.toLowerCase()];
+    const result = <a href={href} onClick={(e) => { e.preventDefault(); openTinyURL($(e.target).attr('href')); return false; }} {...props} iskeyword={type === 'keyword' ? 'true' : 'false'} className='lk-href'>{content}</a>;
+    return db?.title ? <Tooltip content={<small>{db.title}</small>} >{result}</Tooltip> : result;
+  }
+
+};
+
+tinyRender.list = {
+
+  react: {
+    url: tinyRender.react('url'),
+    mail: tinyRender.react('mail'),
+    email: tinyRender.react('email'),
+    keyword: tinyRender.react('keyword'),
+  },
+
+  html: {
+    url: tinyRender.html('url'),
+    mail: tinyRender.html('mail'),
+    email: tinyRender.html('email'),
+    keyword: tinyRender.html('keyword'),
+  }
+
+};
+
 /**
  * @param {string} text - text to twemojify
  * @param {object|undefined} opts - options for tweomoji.parse
@@ -84,53 +240,93 @@ const mathOptions = {
  * @param {boolean} [maths=false] - render maths (default: false)
  * @returns React component
  */
-export function twemojify(text, opts, linkifyEnabled = false, sanitize = true, maths = false) {
+const twemojifyAction = (text, opts, linkifyEnabled, sanitize, maths, isReact) => {
 
+  // Not String
   if (typeof text !== 'string') return text;
 
-  let content = text;
+  // Content Prepare
+  let msgContent = text;
   const options = opts ?? { base: TWEMOJI_BASE_URL };
   if (!options.base) {
     options.base = TWEMOJI_BASE_URL;
   }
 
+  // Sanitize Filter
   if (sanitize) {
-    content = sanitizeText(content);
+    msgContent = sanitizeText(msgContent);
   }
 
-  content = twemoji.parse(content, options);
+  // Emoji Parse
+  msgContent = twemoji.parse(msgContent, options);
+
+  // Linkify Options
+  const linkifyOptions = {
+
+    defaultProtocol: 'https',
+
+    formatHref: {
+      keyword: (keyword) => {
+        const tinyword = keyword.toLowerCase();
+        if (tinywordsDB[tinyword] && typeof tinywordsDB[tinyword].href === 'string') return tinywordsDB[tinyword].href;
+      },
+    },
+
+    rel: 'noreferrer noopener',
+    target: '_blank',
+
+  };
+
+  // React Mode
+  if (isReact) {
+
+    // Insert Linkify
+    if (linkifyEnabled) {
+
+      // Render Data
+      linkifyOptions.render = tinyRender.list.react;
+      return <span className='linkify-base'><Linkify options={linkifyOptions}>{parse(msgContent, maths ? mathOptions : null)}</Linkify></span>;
+
+    }
+
+    // Complete
+    return <span className='linkify-base'>{parse(msgContent, maths ? mathOptions : null)}</span>;
+
+  }
+
+  // jQuery Mode
+
+  // Insert Linkify
   if (linkifyEnabled) {
-    content = linkifyHtml(content, {
 
-      defaultProtocol: 'https',
+    // Render Data
+    linkifyOptions.render = tinyRender.list.html;
+    linkifyOptions.className = 'lk-href';
 
-      formatHref: {
-        keyword: (keyword) => {
-          const tinyword = keyword.toLowerCase();
-          const item = keywords.find(word => word.name === tinyword);
-          if (item) return item.href;
-        },
-      },
+    // Insert Render
+    msgContent = linkifyHtml(msgContent, linkifyOptions);
 
-      rel: 'noreferrer noopener',
-
-      render: ({ tagName, attributes }) => {
-
-        let tinyAttrs = '';
-        for (const attr in attributes) {
-          tinyAttrs += ` ${attr}=${attributes[attr]}`;
-        }
-
-        return `<${tagName} class='linkify-url' target='_blank'${tinyAttrs}>${arguments[0]}</${tagName}>`;
-
-      },
-
-    });
   }
 
-  return parse(content, maths ? mathOptions : null);
+  // Final Result
+  msgContent = $('<span>', { class: 'linkify-base' }).html(msgContent);
+  const tinyUrls = msgContent.find('.lk-href');
+  tinyUrls.on('click', event => { const e = event.originalEvent; e.preventDefault(); openTinyURL($(e.target).attr('href')); return false; });
+  tinyUrls.each(() => $(this).attr('title') && $(this).tooltip());
 
+  // Complete
+  return msgContent;
+
+};
+
+// Functions
+export function twemojify(text, opts, linkifyEnabled = false, sanitize = true) {
+  return twemojifyAction(text, opts, linkifyEnabled, sanitize, false, false);
 }
+
+export function twemojifyReact(text, opts, linkifyEnabled = false, sanitize = true, maths = false) {
+  return twemojifyAction(text, opts, linkifyEnabled, sanitize, maths, true);
+};
 
 export function twemojifyIcon(text, size = 72) {
   return `${TWEMOJI_BASE_URL}${size}x${size}/${text.emojiToCode().toLowerCase()}.png`;

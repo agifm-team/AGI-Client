@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import ReactDOMServer from 'react-dom/server';
-import { twemojify } from '../../../util/twemojify';
+import { twemojifyReact, twemojify } from '../../../util/twemojify';
 
 import { blurOnBubbling } from '../../atoms/button/script';
 
@@ -47,9 +46,7 @@ function PeopleSelector({
         }
 
         if (typeof content.presenceStatusMsg.msg === 'string' && content.presenceStatusMsg.msg.length > 0) {
-          htmlStatus.push(ReactDOMServer.renderToStaticMarkup(<span className='text-truncate cs-text'>
-            {twemojify(content.presenceStatusMsg.msg.substring(0, 100))}
-          </span>));
+          htmlStatus.push($('<span>', { class: 'text-truncate cs-text' }).html(twemojify(content.presenceStatusMsg.msg.substring(0, 100))));
         }
 
       }
@@ -121,7 +118,7 @@ function PeopleSelector({
       {!disableStatus ? <i ref={statusRef} className={getUserStatus(user)} /> : ''}
 
       <div className="small people-selector__name text-start">
-        <span className='emoji-size-fix'>{twemojify(name)}</span>
+        <span className='emoji-size-fix'>{twemojifyReact(name)}</span>
         <div ref={customStatusRef} className='very-small text-gray text-truncate emoji-size-fix-2 user-custom-status' />
       </div>
 

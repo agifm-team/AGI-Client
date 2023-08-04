@@ -1,6 +1,6 @@
 {
   "name": "pony-house-matrix",
-  "version": "1.3.17",
+  "version": "1.3.18",
   "description": "The open source house, your house, the house for all matrix ponies",
   "main": "index.js",
   "engines": {
@@ -9,7 +9,7 @@
   "scripts": {
     "start": "vite",
     "start-dev": "vite dev",
-    "install": "( git submodule update --init --recursive && node -r esm ./scripts/build.js )",
+    "install": "( git submodule update --init --recursive && node -r esm ./build.js )",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build",
     "lint": "yarn check:eslint && yarn check:prettier",
     "check:eslint": "eslint src/*",

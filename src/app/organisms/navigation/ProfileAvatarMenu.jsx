@@ -19,6 +19,7 @@ import {
     openSettings,
 } from '../../../client/action/navigation';
 import tinyAPI from '../../../util/mods';
+import { enableAfkSystem } from '../../../util/userStatusEffects';
 
 const accountStatus = { status: null, data: null };
 export function getAccountStatus(where) {
@@ -60,7 +61,10 @@ function ProfileAvatarMenu() {
             if (event) {
 
                 const tinyEvent = event;
-                const eventJSON = JSON.stringify(tinyEvent);
+
+                const tinyClone = clone(event);
+                if (tinyClone.afk) tinyClone.status = '🟠';
+                const eventJSON = JSON.stringify(tinyClone);
 
                 if (eventJSON.length > 0 /* && (typeof user2.presenceStatusMsg !== 'string' || user2.presenceStatusMsg !== eventJSON) */) {
 
@@ -117,6 +121,7 @@ function ProfileAvatarMenu() {
             }
 
             tinyAPI.emit('userStatusUpdate', accountStatus);
+            enableAfkSystem();
 
         };
 

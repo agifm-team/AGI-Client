@@ -37,6 +37,8 @@ Made by Me
 
     Criar i18
 
+    Sistema de trocar o tamanho da imagem antes de enviar.
+
     https://github.com/electron-vite/electron-vite-react
 
     https://docs.walletconnect.com/2.0/web/web3modal/react/wagmi/installation
@@ -46,6 +48,27 @@ Made by Me
     =======================================================
 
     ----------------------> COLOCAR PARA MOBILE QUANDO O USUÁRIO MINIMIZAR O APP, COLOCAR O MODO AFK
+
+    --> Quando a configuração de avatar de canais em space é ativado. Está mostrando avatar de usuários aleatóriamente.
+
+    --> Algumas alocações de avatar de repente ficaram desregulados.
+
+    --> A configuração padrão ao criar uma room deve ser fundador invés de admin
+
+    --> Fazer o marcador que separa a lista de amigos da lista de DMs estranhos.
+    --> Fazer uma configuração se o usuário vai ou não receber notificação de DMs estranhos.
+
+    --> Os usuários que madam DM devem ser mostrados na lista de fixados. (Apenas os DMs marcados como da lsita de amigos)
+
+    --> Quando o usuário abrir o app, invés de ir para a sessão de salas, ele deve ir para a lista de DMs.
+
+    --> Ajeitar... Ao criar uma sala, o app está jogando para o menu de homes. Isso não pode acotecer se a room for dentro de um space.
+    --> Ajeitar a troca de favicon quando alguma notificação acontece.
+
+    --> Se o usuário estiver em uma popup, enviar notificações mesmo se estiver na mesma janela.
+    --> Checar Sincronizador da lista de emojis quando um novo emoji ou lista de emoji é adicionado.
+
+    --> Se o registro tiver recaptcha, checar uma whitelist se o registro pode continuar.
 
     --> Opção de desativar carregamento de embeds de url
     --> Opção de desativar carregamento de embeds de mensagens
@@ -62,6 +85,19 @@ Made by Me
     --> Criar sistema de alterar o tamanho da fonte do aplicativo
 
     --> Tema https://github.com/catppuccin/cinny
+
+    --> Ajeitar sincronização quando uma DM é aberta pela primeira vez
+
+    --> Ajeitar o carregador de usuários de rooms para ficar mais otimizado
+
+    --> Sistema de perfil do space. Este perfil vai ter mais uma configuração de banner adicional.
+
+    --> Ver perfil do usuário ao passar o mouse em cima dele.
+
+    --> Sistema de ligações tem dois métodos de servidor. Ou usando o servidor matrix. Ou usando um Jitsi.
+    (Se a pessoa não configurar um custom Jitsi server, vai usar o servidor padrão)
+    (Todo mudno precisa está usando o mesmo jitsi server para funcionar. Todos vão ver qual o dominio do servidor que está sendo usado)
+    (A pessoa precisa confirmar se ela vai aceitar ou não usar um servidor personalizado desconhecido pro questões de seguranças)
 
     Sandbox: https://github.com/sablejs/sablejs
 

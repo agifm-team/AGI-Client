@@ -47,30 +47,20 @@ Made by Me
 
     =======================================================
 
-    ----------------------> COLOCAR PARA MOBILE QUANDO O USUÁRIO MINIMIZAR O APP, COLOCAR O MODO AFK
-
     --> Quando a configuração de avatar de canais em space é ativado. Está mostrando avatar de usuários aleatóriamente.
 
     --> Algumas alocações de avatar de repente ficaram desregulados.
-
-    --> A configuração padrão ao criar uma room deve ser fundador invés de admin
 
     --> Fazer o marcador que separa a lista de amigos da lista de DMs estranhos.
     --> Fazer uma configuração se o usuário vai ou não receber notificação de DMs estranhos.
 
     --> Os usuários que madam DM devem ser mostrados na lista de fixados. (Apenas os DMs marcados como da lsita de amigos)
 
-    --> Quando o usuário abrir o app, invés de ir para a sessão de salas, ele deve ir para a lista de DMs.
-
     --> Ajeitar... Ao criar uma sala, o app está jogando para o menu de homes. Isso não pode acotecer se a room for dentro de um space.
-    --> Ajeitar a troca de favicon quando alguma notificação acontece.
 
     --> Se o usuário estiver em uma popup, enviar notificações mesmo se estiver na mesma janela.
     --> Checar Sincronizador da lista de emojis quando um novo emoji ou lista de emoji é adicionado.
 
-    --> Se o registro tiver recaptcha, checar uma whitelist se o registro pode continuar.
-
-    --> Opção de desativar carregamento de embeds de url
     --> Opção de desativar carregamento de embeds de mensagens
 
     --> Criar sistema de notes

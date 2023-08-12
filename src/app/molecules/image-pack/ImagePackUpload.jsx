@@ -8,8 +8,10 @@ import Text from '../../atoms/text/Text';
 import Button from '../../atoms/button/Button';
 import Input from '../../atoms/input/Input';
 import IconButton from '../../atoms/button/IconButton';
+import { updateEmojiList } from '../../../client/action/navigation';
+import { getSelectRoom } from '../../../util/selectedRoom';
 
-function ImagePackUpload({ onUpload }) {
+function ImagePackUpload({ onUpload, roomId, }) {
   const mx = initMatrix.matrixClient;
   const inputRef = useRef(null);
   const shortcodeRef = useRef(null);
@@ -17,8 +19,10 @@ function ImagePackUpload({ onUpload }) {
   const [progress, setProgress] = useState(false);
 
   const handleSubmit = async (evt) => {
+
     evt.preventDefault();
     if (!imgFile) return;
+
     const { shortcodeInput } = evt.target;
     const shortcode = shortcodeInput.value.trim();
     if (shortcode === '') return;
@@ -31,6 +35,13 @@ function ImagePackUpload({ onUpload }) {
     setProgress(false);
     setImgFile(null);
     shortcodeRef.current.value = '';
+
+    if (!roomId) {
+      updateEmojiList(getSelectRoom());
+    } else {
+      updateEmojiList(roomId);
+    }
+
   };
 
   const handleFileChange = (evt) => {
@@ -65,6 +76,7 @@ function ImagePackUpload({ onUpload }) {
   );
 }
 ImagePackUpload.propTypes = {
+  roomId: PropTypes.string,
   onUpload: PropTypes.func.isRequired,
 };
 

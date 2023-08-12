@@ -47,7 +47,8 @@ Made by Me
 
     =======================================================
 
-    --> Quando a configuração de avatar de canais em space é ativado. Está mostrando avatar de usuários aleatóriamente.
+    --> Ajeitar... Ao criar uma sala, o app está jogando para o menu de homes. Isso não pode acotecer se a room for dentro de um space.
+    (Isso também acontece quando tenta criar uma DM)
 
     --> Algumas alocações de avatar de repente ficaram desregulados.
 
@@ -56,15 +57,7 @@ Made by Me
 
     --> Os usuários que madam DM devem ser mostrados na lista de fixados. (Apenas os DMs marcados como da lsita de amigos)
 
-    --> Ajeitar... Ao criar uma sala, o app está jogando para o menu de homes. Isso não pode acotecer se a room for dentro de um space.
-
-    --> Se o usuário estiver em uma popup, enviar notificações mesmo se estiver na mesma janela.
-    --> Checar Sincronizador da lista de emojis quando um novo emoji ou lista de emoji é adicionado.
-
     --> Opção de desativar carregamento de embeds de mensagens
-
-    --> Criar sistema de notes
-    (limite de 500 itens no array)
 
     --> Criar filtro para desativar animação de gifs especificas. A gente vai usar a ID e dominio do arquivo para facilitar isso.
     (Limite de 600 itens por array) (Opçao alternativa de fazer a animação ser hover)
@@ -83,6 +76,8 @@ Made by Me
     --> Sistema de perfil do space. Este perfil vai ter mais uma configuração de banner adicional.
 
     --> Ver perfil do usuário ao passar o mouse em cima dele.
+
+    --> O atualizar de emojis de rooms só funciona quando muda de room
 
     --> Sistema de ligações tem dois métodos de servidor. Ou usando o servidor matrix. Ou usando um Jitsi.
     (Se a pessoa não configurar um custom Jitsi server, vai usar o servidor padrão)

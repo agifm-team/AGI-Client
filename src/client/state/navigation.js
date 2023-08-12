@@ -370,6 +370,14 @@ class Navigation extends EventEmitter {
         this._selectTab(action.tabId);
       },
 
+      [cons.actions.navigation.UPDATE_EMOJI_LIST]: () => {
+        this.emit(cons.events.navigation.UPDATED_EMOJI_LIST, action.roomId);
+      },
+
+      [cons.actions.navigation.UPDATE_EMOJI_LIST_DATA]: () => {
+        this.emit(cons.events.navigation.UPDATED_EMOJI_LIST_DATA, action.roomId);
+      },
+
       [cons.actions.navigation.CONSOLE_REMOVE_DATA]: () => {
         this.emit(cons.events.navigation.CONSOLE_REMOVED_DATA, action.content);
       },

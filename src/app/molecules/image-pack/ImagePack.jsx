@@ -4,7 +4,7 @@ import React, {
 import PropTypes from 'prop-types';
 
 import initMatrix from '../../../client/initMatrix';
-import { openReusableDialog } from '../../../client/action/navigation';
+import { openReusableDialog, updateEmojiList } from '../../../client/action/navigation';
 import { suffixRename } from '../../../util/common';
 
 import Button from '../../atoms/button/Button';
@@ -17,6 +17,7 @@ import { confirmDialog } from '../confirm-dialog/ConfirmDialog';
 import ImagePackProfile from './ImagePackProfile';
 import ImagePackItem from './ImagePackItem';
 import ImagePackUpload from './ImagePackUpload';
+import { getSelectRoom } from '../../../util/selectedRoom';
 
 const renameImagePackItem = (shortcode) => new Promise((resolve) => {
   let isCompleted = false;
@@ -27,12 +28,15 @@ const renameImagePackItem = (shortcode) => new Promise((resolve) => {
       <div style={{ padding: 'var(--sp-normal)' }}>
         <form
           onSubmit={(e) => {
+
             e.preventDefault();
             const sc = e.target.shortcode.value;
             if (sc.trim() === '') return;
+
             isCompleted = true;
             resolve(sc.trim());
             requestClose();
+
           }}
         >
           <div>
@@ -84,7 +88,7 @@ function useRoomImagePack(roomId, stateKey) {
   ), [room, stateKey]);
 
   const sendPackContent = (content) => {
-    mx.sendStateEvent(roomId, 'im.ponies.room_emotes', content, stateKey);
+    mx.sendStateEvent(roomId, 'im.ponies.room_emotes', content, stateKey).then(() => updateEmojiList(roomId));
   };
 
   return {
@@ -104,7 +108,7 @@ function useUserImagePack() {
   ), []);
 
   const sendPackContent = (content) => {
-    mx.setAccountData('im.ponies.user_emotes', content);
+    mx.setAccountData('im.ponies.user_emotes', content).then(() => updateEmojiList(getSelectRoom()));
   };
 
   return {
@@ -133,13 +137,16 @@ function useImagePackHandles(pack, sendPackContent) {
     sendPackContent(pack.getContent());
     forceUpdate();
   };
+
   const handleEditProfile = (name, attribution) => {
     pack.setDisplayName(name);
     pack.setAttribution(attribution);
     sendPackContent(pack.getContent());
     forceUpdate();
   };
+
   const handleUsageChange = (newUsage) => {
+
     const usage = [];
     if (newUsage === 'emoticon' || newUsage === 'both') usage.push('emoticon');
     if (newUsage === 'sticker' || newUsage === 'both') usage.push('sticker');
@@ -148,6 +155,7 @@ function useImagePackHandles(pack, sendPackContent) {
 
     sendPackContent(pack.getContent());
     forceUpdate();
+
   };
 
   const handleRenameItem = async (key) => {
@@ -158,7 +166,9 @@ function useImagePackHandles(pack, sendPackContent) {
 
     sendPackContent(pack.getContent());
     forceUpdate();
+
   };
+
   const handleDeleteItem = async (key) => {
     const isConfirmed = await confirmDialog(
       'Delete',
@@ -171,8 +181,11 @@ function useImagePackHandles(pack, sendPackContent) {
 
     sendPackContent(pack.getContent());
     forceUpdate();
+
   };
+
   const handleUsageItem = (key, newUsage) => {
+
     const usage = [];
     if (newUsage === 'emoticon' || newUsage === 'both') usage.push('emoticon');
     if (newUsage === 'sticker' || newUsage === 'both') usage.push('sticker');
@@ -180,7 +193,9 @@ function useImagePackHandles(pack, sendPackContent) {
 
     sendPackContent(pack.getContent());
     forceUpdate();
+
   };
+
   const handleAddItem = (key, url) => {
     const newKey = getNewKey(key);
     if (!newKey || !url) return;
@@ -249,6 +264,7 @@ function ImagePack({ roomId, stateKey, handlePackDelete }) {
   const canChange = room.currentState.maySendStateEvent('im.ponies.room_emotes', mx.getUserId());
 
   const handleDeletePack = async () => {
+
     const isConfirmed = await confirmDialog(
       'Delete Pack',
       `Are you sure that you want to delete "${pack.displayName}"?`,
@@ -256,7 +272,9 @@ function ImagePack({ roomId, stateKey, handlePackDelete }) {
       'danger',
     );
     if (!isConfirmed) return;
+
     handlePackDelete(stateKey);
+
   };
 
   const images = [...pack.images].slice(0, viewMore ? pack.images.size : 2);
@@ -274,7 +292,7 @@ function ImagePack({ roomId, stateKey, handlePackDelete }) {
         onEditProfile={canChange ? handleEditProfile : null}
       />
       {canChange && (
-        <ImagePackUpload onUpload={handleAddItem} />
+        <ImagePackUpload onUpload={handleAddItem} roomId={roomId} />
       )}
 
       {images.length === 0 ? null : (

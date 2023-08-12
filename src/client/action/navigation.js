@@ -1,3 +1,4 @@
+import { setSelectRoom, setSelectSpace } from '../../util/selectedRoom';
 import appDispatcher from '../dispatcher';
 import cons from '../state/cons';
 
@@ -16,6 +17,7 @@ export function selectRoomMode(roomType) {
 }
 
 export function selectSpace(roomId) {
+  setSelectSpace(roomId);
   appDispatcher.dispatch({
     type: cons.actions.navigation.SELECT_SPACE,
     roomId,
@@ -23,6 +25,7 @@ export function selectSpace(roomId) {
 }
 
 export function selectRoom(roomId, eventId) {
+  setSelectRoom(roomId);
   appDispatcher.dispatch({
     type: cons.actions.navigation.SELECT_ROOM,
     roomId,
@@ -204,6 +207,20 @@ export function consoleRemoveData(content) {
   appDispatcher.dispatch({
     type: cons.actions.navigation.CONSOLE_REMOVE_DATA,
     content,
+  });
+}
+
+export function updateEmojiList(roomId) {
+  appDispatcher.dispatch({
+    type: cons.actions.navigation.UPDATE_EMOJI_LIST,
+    roomId,
+  });
+}
+
+export function updateEmojiListData(roomId) {
+  appDispatcher.dispatch({
+    type: cons.actions.navigation.UPDATE_EMOJI_LIST_DATA,
+    roomId,
   });
 }
 

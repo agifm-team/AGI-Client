@@ -1,6 +1,7 @@
 import EventEmitter from 'events';
 import appDispatcher from '../dispatcher';
 import cons from './cons';
+import { updateEmojiListData } from '../action/navigation';
 
 function isMEventSpaceChild(mEvent) {
   return mEvent.getType() === 'm.space.child' && Object.keys(mEvent.getContent()).length > 0;
@@ -289,6 +290,7 @@ class RoomList extends EventEmitter {
     });
 
     this.matrixClient.on('RoomState.events', (mEvent, state) => {
+
       if (mEvent.getType() === 'm.space.child') {
         const roomId = mEvent.event.room_id;
         const childId = mEvent.event.state_key;
@@ -304,16 +306,23 @@ class RoomList extends EventEmitter {
         this.emit(cons.events.roomList.ROOMLIST_UPDATED);
         return;
       }
+
       if (mEvent.getType() === 'm.room.join_rules') {
         this.emit(cons.events.roomList.ROOMLIST_UPDATED);
         return;
       }
+
       if (['m.room.avatar', 'm.room.topic'].includes(mEvent.getType())) {
         if (mEvent.getType() === 'm.room.avatar') {
           this.emit(cons.events.roomList.ROOMLIST_UPDATED);
         }
         this.emit(cons.events.roomList.ROOM_PROFILE_UPDATED, state.roomId);
       }
+
+      if (mEvent.getType() === 'im.ponies.room_emotes') {
+        updateEmojiListData(state.roomId);
+      }
+
     });
 
     this.matrixClient.on('Room.myMembership', async (room, membership, prevMembership) => {

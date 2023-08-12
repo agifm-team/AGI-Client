@@ -15,7 +15,7 @@ import * as roomActions from '../../../client/action/room';
 import {
   getUsername, getUsernameOfRoomMember, getPowerLabel, hasDMWith, hasDevices,
 } from '../../../util/matrixUtil';
-import { getEventCords } from '../../../util/common';
+import { copyToClipboard, getEventCords } from '../../../util/common';
 import { colorMXID, cssColorMXID } from '../../../util/colorMXID';
 
 import Text from '../../atoms/text/Text';
@@ -29,6 +29,8 @@ import Dialog from '../../molecules/dialog/Dialog';
 
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
+import { addToDataFolder, getDataList } from '../../../util/selectedRoom';
+import { toast } from '../../../util/tools';
 
 function ModerationTools({
   roomId, userId,
@@ -63,25 +65,26 @@ function ModerationTools({
   };
 
   return (
-    <div className="card-body">
-      {canIKick && (
-        <form onSubmit={handleKick}>
-          <div className="input-group mb-3">
-            <Input placeholder="Kick reason" name="kick-reason" />
-            <Button className="border-bg" variant='outline-secondary' type="submit">Kick</Button>
-          </div>
-        </form>
-      )}
-      {canIBan && (
-        <form onSubmit={handleBan}>
-          <div className="input-group mb-3">
-            <Input placeholder="Ban reason" name="ban-reason" />
-            <Button className="border-bg" variant='outline-secondary' type="submit">Ban</Button>
-          </div>
-        </form>
-      )}
-    </div>
-  );
+    (canIKick || canIBan) && (
+      <div className="card-body">
+        {canIKick && (
+          <form onSubmit={handleKick}>
+            <div className="input-group mb-3">
+              <Input placeholder="Kick reason" name="kick-reason" />
+              <Button className="border-bg" variant='outline-secondary' type="submit">Kick</Button>
+            </div>
+          </form>
+        )}
+        {canIBan && (
+          <form onSubmit={handleBan}>
+            <div className="input-group mb-3">
+              <Input placeholder="Ban reason" name="ban-reason" />
+              <Button className="border-bg" variant='outline-secondary' type="submit">Ban</Button>
+            </div>
+          </form>
+        )}
+      </div>
+    ));
 }
 ModerationTools.propTypes = {
   roomId: PropTypes.string.isRequired,
@@ -364,11 +367,14 @@ function ProfileViewer() {
   // Prepare
   const profileAvatar = useRef(null);
   const bioRef = useRef(null);
+  const noteRef = useRef(null);
   const customStatusRef = useRef(null);
   const statusRef = useRef(null);
   const profileBanner = useRef(null);
   const [isOpen, roomId, userId, closeDialog, handleAfterClose] = useToggleDialog();
   const [lightbox, setLightbox] = useState(false);
+  const userNameRef = useRef(null);
+  const displayNameRef = useRef(null);
   useRerenderOnProfileChange(roomId, userId);
 
   // Get Data
@@ -466,21 +472,80 @@ function ProfileViewer() {
 
       };
 
+      // Copy Profile Username
+      const copyUsername = {
+
+        tag: (event) => {
+          try {
+
+            const target = $(event.target);
+            const tinyUsername = target.text().trim();
+
+            if (tinyUsername.length > 0) {
+              copyToClipboard(tinyUsername);
+              toast('Username successfully copied to the clipboard.');
+            }
+
+          } catch (err) {
+            console.error(err);
+            alert(err.message);
+          }
+        },
+
+        display: (event) => {
+          try {
+
+            const target = $(event.target);
+            const displayName = target.text().trim();
+
+            if (displayName.length > 0) {
+              copyToClipboard(displayName);
+              toast('Display name successfully copied to the clipboard.');
+            }
+
+          } catch (err) {
+            console.error(err);
+            alert(err.message);
+          }
+        }
+
+      };
+
       // Avatar Preview
       const tinyAvatarPreview = () => {
         imageViewer(lightbox, $(profileAvatar.current).find('> img'), username, avatarUrl, true);
       };
 
+      // Update Note
+      const tinyNoteUpdate = (event) => {
+        addToDataFolder('user_cache', 'note', userId, $(event.target).val(), 500);
+      };
+
+      const tinyNoteSpacing = (event) => {
+        const element = event.target;
+        element.style.height = "5px";
+        element.style.height = `${Number(element.scrollHeight)}px`;
+      };
+
       // Read Events
       updateProfileStatus(null, user);
+      const tinyNote = getDataList('user_cache', 'note', userId);
 
       user.on('User.currentlyActive', updateProfileStatus);
       user.on('User.lastPresenceTs', updateProfileStatus);
       user.on('User.presence', updateProfileStatus);
 
+      $(displayNameRef.current).on('click', copyUsername.display);
+      $(userNameRef.current).on('click', copyUsername.tag);
+
       $(profileAvatar.current).on('click', tinyAvatarPreview);
+      $(noteRef.current).on('change', tinyNoteUpdate).on('keypress keyup keydown', tinyNoteSpacing).val(tinyNote);
+      tinyNoteSpacing({ target: noteRef.current });
 
       return () => {
+        $(displayNameRef.current).off('click', copyUsername.display);
+        $(userNameRef.current).off('click', copyUsername.tag);
+        $(noteRef.current).off('change', tinyNoteUpdate).off('keypress keyup keydown', tinyNoteSpacing);
         $(profileAvatar.current).off('click', tinyAvatarPreview);
         user.removeListener('User.currentlyActive', updateProfileStatus);
         user.removeListener('User.lastPresenceTs', updateProfileStatus);
@@ -593,8 +658,8 @@ function ProfileViewer() {
                 </Button>
               </div>
 
-              <h6 className='emoji-size-fix m-0 mb-1'><strong>{twemojifyReact(username)}</strong></h6>
-              <small className='text-gray emoji-size-fix'>{twemojifyReact(userId)}</small>
+              <h6 ref={displayNameRef} className='emoji-size-fix m-0 mb-1 fw-bold display-name'>{twemojifyReact(username)}</h6>
+              <small ref={userNameRef} className='text-gray emoji-size-fix username'>{twemojifyReact(userId)}</small>
 
               <div ref={customStatusRef} className='d-none mt-2 emoji-size-fix small user-custom-status' />
 
@@ -602,10 +667,15 @@ function ProfileViewer() {
 
                 <hr />
 
-                <div className='text-gray emoji-size-fix text-uppercase fw-bold very-small mb-2'>About me</div>
+                <div className='text-gray text-uppercase fw-bold very-small mb-2'>About me</div>
                 <div id='tiny-bio' className='emoji-size-fix small text-freedom' />
 
               </div>
+
+              <hr />
+
+              <label for="tiny-note" class="form-label text-gray text-uppercase fw-bold very-small mb-2">Note</label>
+              <textarea ref={noteRef} spellcheck="false" class="form-control form-control-bg emoji-size-fix small" id="tiny-note" placeholder="Insert a note here" />
 
             </div>
 

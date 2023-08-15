@@ -13,7 +13,6 @@ import logger from './logger';
 
 global.Olm = Olm;
 
-
 class InitMatrix extends EventEmitter {
   constructor() {
     super();

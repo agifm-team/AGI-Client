@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable no-undef */
-// import { Notification, contextBridge } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
+import startNotifications from './notification';
 
 function domReady(condition: DocumentReadyState[] = ['complete', 'interactive']) {
   return new Promise((resolve) => {
@@ -94,6 +95,25 @@ window.onmessage = (ev) => {
   ev.data.payload === 'removeLoading' && removeLoading();
 };
 
-// contextBridge.exposeInMainWorld('NotificationPush', (options: object) => new Notification(options));
+contextBridge.exposeInMainWorld('desktopNotification', (options: object) =>
+  startNotifications(options),
+);
+
+contextBridge.exposeInMainWorld('focusAppWindow', () =>
+  ipcRenderer.send('tiny-focus-window', true),
+);
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+let electronResize: Function | null = null;
+ipcRenderer.on('resize', (event, data) => {
+  if (typeof electronResize === 'function') {
+    electronResize(data);
+  }
+});
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+contextBridge.exposeInMainWorld('setElectrnoResize', (callback: Function) => {
+  electronResize = callback;
+});
 
 setTimeout(removeLoading, 4999);

@@ -3,6 +3,10 @@ import { release } from 'node:os';
 import { join } from 'node:path';
 import { update } from './update';
 
+import startNotifications from './notification';
+import startEvents from './events';
+import startResizeEvents from './events/resize';
+
 // The built directory structure
 //
 // ├─┬ dist-electron
@@ -24,11 +28,6 @@ if (release().startsWith('6.1')) app.disableHardwareAcceleration();
 
 // Set application name for Windows 10+ notifications
 if (process.platform === 'win32') app.setAppUserModelId(app.getName());
-
-if (!app.requestSingleInstanceLock()) {
-  app.quit();
-  process.exit(0);
-}
 
 // Remove electron security warnings
 // This warning only shows in development mode
@@ -53,6 +52,10 @@ async function createWindow() {
     },
   });
 
+  startResizeEvents(ipcMain, win);
+  startEvents(ipcMain, win);
+  startNotifications(ipcMain, win);
+
   win.removeMenu();
 
   if (tinyUrl) {
@@ -64,11 +67,6 @@ async function createWindow() {
     win.loadFile(indexHtml);
   }
 
-  // Test actively push message to the Electron-Renderer
-  win.webContents.on('did-finish-load', () => {
-    win?.webContents.send('main-process-message', new Date().toLocaleString());
-  });
-
   // Make all links open with the browser, not with the application
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('https:')) shell.openExternal(url);
@@ -77,9 +75,35 @@ async function createWindow() {
 
   // Apply electron-updater
   update(win);
+
+  app.on('activate', () => {
+    // On macOS it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
 }
 
-app.whenReady().then(createWindow);
+// Anti Multi Same App
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+  process.exit(0);
+} else {
+  app.on('second-instance', () => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (win) {
+      if (win.isMinimized()) {
+        win.restore();
+      }
+      win?.focus();
+    }
+  });
+
+  // This method will be called when Electron has finished
+  // initialization and is ready to create browser windows.
+  // Some APIs can only be used after this event occurs.
+  app.whenReady().then(createWindow);
+}
 
 app.on('window-all-closed', () => {
   win = null;

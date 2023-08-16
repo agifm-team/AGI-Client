@@ -1,6 +1,5 @@
 import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
-// import { Notification as ElectronNoti } from 'electron';
 
 import EventEmitter from 'events';
 import renderAvatar from '../../../app/atoms/avatar/render';
@@ -255,7 +254,6 @@ class Notifications extends EventEmitter {
   async _displayPopupNoti(mEvent, room) {
 
     // Data Prepare
-    const body = $('body');
     const userStatus = getAccountStatus('status');
     if (!settings.showNotifications && !settings.isNotificationSounds) return;
 
@@ -265,10 +263,10 @@ class Notifications extends EventEmitter {
 
     // Check Window
     if (
-      !body.hasClass('modal-open') &&
+      !$('body').hasClass('modal-open') &&
       navigation.selectedRoomId === room.roomId &&
       document.visibilityState === 'visible' &&
-      !body.hasClass('windowHidden')
+      !$('body').hasClass('windowHidden')
     ) return;
 
     if (userStatus === 'dnd' || userStatus === '🔴') return;
@@ -337,6 +335,7 @@ class Notifications extends EventEmitter {
 
         // Prepare Data
         const notiData = {
+          title,
           body: body.plain,
           icon,
           tag: mEvent.getId(),
@@ -345,29 +344,28 @@ class Notifications extends EventEmitter {
         // Silent Mode
         let noti;
         if (__ENV_APP__.electron_mode) {
+          // notiData.engine = 'notifier';
           notiData.silent = true;
-          // notiData.title = title;
-          // noti = new ElectronNoti(notiData);
-          noti = new window.Notification(title, notiData);
+          noti = await window.desktopNotification(notiData);
         } else {
           notiData.silent = settings.isNotificationSounds;
           noti = new window.Notification(title, notiData);
         }
 
+        // Play Notification
         if (__ENV_APP__.electron_mode) {
 
-          // Play Notification
           if (settings.isNotificationSounds) {
-            // noti.on('click', () => this._playNotiSound());
-            noti.onshow = () => this._playNotiSound();
+            noti.on('show', () => this._playNotiSound());
           }
 
-          // noti.on('click', () => selectRoom(room.roomId, mEvent.getId()));
-          noti.onclick = () => selectRoom(room.roomId, mEvent.getId());
+          noti.on('click', () => {
+            selectRoom(room.roomId, mEvent.getId());
+            window.focusAppWindow();
+          });
 
         } else {
 
-          // Play Notification
           if (settings.isNotificationSounds) {
             noti.onshow = () => this._playNotiSound();
           }
@@ -382,6 +380,11 @@ class Notifications extends EventEmitter {
           this.roomIdToPopupNotis.get(room.roomId).push(noti);
         } else {
           this.roomIdToPopupNotis.set(room.roomId, [noti]);
+        }
+
+        // Send Notification
+        if (__ENV_APP__.electron_mode) {
+          noti.show();
         }
 
       }

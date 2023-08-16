@@ -1,6 +1,6 @@
 <center>
 
-<img align="center" src="https://github.com/Pony-House/Client/blob/dev/krita/banner/github.jpg?raw=true" height="380">
+<img align="center" src="https://github.com/Pony-House/Client/blob/dev/gallery/krita/banner/github.jpg?raw=true" height="380">
 
 <br/>
 
@@ -41,6 +41,8 @@ To set default Homeserver on login and register page, place a customized [`confi
 ## Custom App Style
 Would you like to customize your login page to your website? Then you can check out some values available in the `config/custom-css.scss` file.
 
+Replace this value to change the appID: `pony-house-matrix`
+
 If you would like to edit the homeservers list, you can edit the `config/config.json` file.
 
 If you want to put a custom name or welcome message for the app, edit the .env file. (This will only affect the application within react.)
@@ -71,10 +73,23 @@ between multiple Node.js versions based on the needs of different projects you'r
 Execute the following commands to start a development server (or a Ionic environment):
 ```sh
 yarn # Installs all dependencies
-yarn start-dev # Serve a development version
+yarn start # Serve a development version
 ```
 
 To build the web app:
 ```sh
 yarn build # Compiles the app into the dist/ directory
+```
+
+### Electron (Desktop)
+> While you're using the app's dev mode, it's normal for the app to show that it's disconnected for a few seconds before fully loading the page. Notifications may not mute OS sound in application dev mode. The same thing can happen for notification click events to fail only in dev mode.
+
+Execute the following commands to start a development server (or a Ionic environment):
+```sh
+yarn electron:start # Serve a development version
+```
+
+To build the desktop app:
+```sh
+yarn electron:build # Compiles the app into the release/ directory
 ```

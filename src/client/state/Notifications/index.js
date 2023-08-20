@@ -263,6 +263,7 @@ class Notifications extends EventEmitter {
 
     // Check Window
     if (
+      (!__ENV_APP__.electron_mode || typeof window.getElectronShowStatus !== 'function' || window.getElectronShowStatus()) &&
       !$('body').hasClass('modal-open') &&
       navigation.selectedRoomId === room.roomId &&
       document.visibilityState === 'visible' &&

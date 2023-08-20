@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable no-undef */
+import * as colors from 'console-log-colors';
 import { contextBridge, ipcRenderer } from 'electron';
 import startNotifications from './notification';
 
@@ -89,6 +90,7 @@ function useLoading() {
 // ----------------------------------------------------------------------
 
 const { appendLoading, removeLoading } = useLoading();
+contextBridge.exposeInMainWorld('useLoadingElectron', { appendLoading, removeLoading });
 domReady().then(appendLoading);
 
 window.onmessage = (ev) => {
@@ -103,6 +105,10 @@ contextBridge.exposeInMainWorld('focusAppWindow', () =>
   ipcRenderer.send('tiny-focus-window', true),
 );
 
+ipcRenderer.on('ping', (_event, arg) => {
+  console.log(colors.green('[electron] [ping] '), arg);
+});
+
 // eslint-disable-next-line @typescript-eslint/ban-types
 let electronResize: Function | null = null;
 ipcRenderer.on('resize', (event, data) => {
@@ -112,8 +118,16 @@ ipcRenderer.on('resize', (event, data) => {
 });
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-contextBridge.exposeInMainWorld('setElectrnoResize', (callback: Function) => {
+contextBridge.exposeInMainWorld('setElectronResize', (callback: Function) => {
   electronResize = callback;
 });
 
 setTimeout(removeLoading, 4999);
+
+// App Status
+let appShow = true;
+ipcRenderer.on('tiny-app-is-show', (event, data) => {
+  if (typeof data === 'boolean') appShow = data;
+});
+
+contextBridge.exposeInMainWorld('getElectronShowStatus', () => appShow);

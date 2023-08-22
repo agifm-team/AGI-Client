@@ -1,4 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import VolumeMeter from '../../../../util/libs/volumeMeter';
+
+let testingMicro = false;
+let aCtx = null;
+let microphone = null;
+let microInterval = null;
 
 let loadingDevices = false;
 let devices;
@@ -46,6 +52,29 @@ const validatorVolume = (value) => {
 
 };
 
+// eslint-disable-next-line no-async-promise-executor
+const stopMicroTest = (testingValue = false, audioMonitor = null) => new Promise(async (resolve, reject) => {
+    try {
+
+        if (microphone) await microphone.stop();
+        if (audioMonitor) audioMonitor.find('.progress-bar').css('width', '100%');
+
+        microphone = null;
+        testingMicro = testingValue;
+        aCtx = null;
+
+        if (microInterval) {
+            clearInterval(microInterval);
+            microInterval = null;
+        }
+
+        resolve(true);
+
+    } catch (err) {
+        reject(err);
+    }
+});
+
 function VoiceVideoSection() {
 
     // Prepare React
@@ -60,11 +89,14 @@ function VoiceVideoSection() {
 
     const audioVolumeRef = useRef(null);
     const speakerVolumeRef = useRef(null);
+    const testMicroRefButton = useRef(null);
 
     // Effects
     useEffect(() => {
 
         // jQuery prepare
+        const testMicroButton = $(testMicroRefButton.current);
+
         const audioVolume = $(audioVolumeRef.current);
         const speakerVolume = $(speakerVolumeRef.current);
 
@@ -82,7 +114,16 @@ function VoiceVideoSection() {
         tinyAudioVolume = validatorVolume(tinyAudioVolume);
         tinySpeakerVolume = validatorVolume(tinySpeakerVolume);
 
-        const updateTinyVolume = (target, where) => () => global.localStorage.setItem(where, target.val());
+        const updateTinyVolume = (target, where) => () => {
+
+            const oldValue = global.localStorage.getItem(where);
+            const newValue = target.val();
+
+            if (oldValue !== newValue) global.localStorage.setItem(where, newValue);
+            if (microphone) microphone.setVolume(Number(newValue));
+
+        };
+
         audioVolume.val(tinyAudioVolume);
         speakerVolume.val(tinySpeakerVolume);
 
@@ -106,6 +147,100 @@ function VoiceVideoSection() {
         const updateSpeakerDevice = updateTinyVolume(speakerSelect, 'tinySpeakerDevice');
         const updateVideoDevice = updateTinyVolume(videoSelect, 'tinyVideoVolume');
 
+        // Test Microphone
+        const tinyTestMicro = () => {
+
+            // Prepare Micro
+            testMicroButton.removeClass('btn-outline-primary').removeClass('btn-outline-danger');
+            if (!testingMicro && !microphone && !aCtx) {
+                stopMicroTest(true, audioMonitor).then(() => {
+
+                    // Get Value
+                    testMicroButton.addClass('disabled');
+                    const tinyAudioDeviceUse = global.localStorage.getItem('tinyAudioDevice');
+
+                    // Start Media
+                    navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msgGetUserMedia);
+                    navigator.getUserMedia({
+                        audio: {
+
+                            /*
+                            mandatory: {
+                                googEchoCancellation: false,
+                                googAutoGainControl: false,
+                                googNoiseSuppression: false,
+                                googHighpassFilter: false
+                            },
+                            */
+
+                            echoCancellation: false,
+                            autoGainControl: false,
+                            noiseSuppression: false,
+                            highpassFilter: false,
+
+                            deviceId: { exact: typeof tinyAudioDeviceUse === 'string' && tinyAudioDeviceUse.length > 0 ? tinyAudioDeviceUse : 'default' }
+
+                        }
+                    }, (stream) => {
+
+                        // Prepare Audio
+                        if (!aCtx) aCtx = new AudioContext();
+
+                        // Micro
+                        microphone = new VolumeMeter(aCtx);
+                        microphone.setVolume(Number(global.localStorage.getItem('tinyAudioDevice')));
+
+                        microphone.connectToSource(stream, true, () => {
+                            microInterval = setInterval(() => {
+
+                                let volumeValue = microphone.volume * 1000;
+                                volumeValue = volumeValue < 100 ? volumeValue > 0 ? volumeValue : 0 : 100;
+
+                                audioMonitor.find('.progress-bar').css('width', `${100 - volumeValue}%`)
+
+                            }, 1);
+                        });
+
+                        // Complete
+                        testMicroButton.addClass('btn-outline-danger');
+                        testMicroButton.removeClass('disabled');
+
+                    }, (err) => {
+
+
+
+                        testMicroButton.addClass('btn-outline-primary');
+                        testMicroButton.removeClass('disabled');
+
+                        console.error(err);
+                        alert(err.message);
+                    }
+                    );
+
+                }).catch(err => {
+                    console.error(err);
+                    alert(err.message);
+                });
+            }
+
+            // Disable
+            else {
+                stopMicroTest(true, audioMonitor).then(() => {
+
+                    aCtx = null;
+                    microphone = null;
+                    testingMicro = false;
+
+                    testMicroButton.addClass('btn-outline-primary');
+
+                }).catch(err => {
+                    console.error(err);
+                    alert(err.message);
+                });
+            }
+
+        };
+
         // Get Devices List
         if (!loadingDevices && devicesItem === null) {
             listDevices().then(devices2 => {
@@ -126,6 +261,8 @@ function VoiceVideoSection() {
         audioVolume.on('change', updateVolAudio);
         speakerVolume.on('change', updateSpeakerAudio);
 
+        testMicroButton.on('click', tinyTestMicro);
+
         return () => {
 
             if (devicesItem !== null) setDevicesItem(null);
@@ -136,6 +273,9 @@ function VoiceVideoSection() {
                 ;
             audioVolume.off('change', updateVolAudio);
             speakerVolume.off('change', updateSpeakerAudio);
+
+            testMicroButton.off('click', tinyTestMicro);
+            stopMicroTest();
 
         };
 
@@ -155,7 +295,7 @@ function VoiceVideoSection() {
 
                         <div className='col-md-6'>
                             <div className='very-small text-uppercase fw-bold mb-2'>Input Device</div>
-                            <select ref={audioSelectRef} class="form-select form-control-bg">
+                            <select ref={audioSelectRef} className="form-select form-control-bg">
                                 <option>Choose...</option>
                                 {devicesItem && Array.isArray(devicesItem.audio) && devicesItem.audio.length > 0 ?
                                     devicesItem.audio.map(item => <option value={item.deviceId}>{item.label}</option>)
@@ -165,7 +305,7 @@ function VoiceVideoSection() {
 
                         <div className='col-md-6'>
                             <div className='very-small text-uppercase fw-bold mb-2'>Output Device</div>
-                            <select ref={speakerSelectRef} class="form-select form-control-bg">
+                            <select ref={speakerSelectRef} className="form-select form-control-bg">
                                 <option>Choose...</option>
                                 {devicesItem && Array.isArray(devicesItem.speaker) && devicesItem.speaker.length > 0 ?
                                     devicesItem.speaker.map(item => <option value={item.deviceId}>{item.label}</option>)
@@ -183,12 +323,12 @@ function VoiceVideoSection() {
 
                         <div className='col-md-6'>
                             <div className='very-small text-uppercase fw-bold mb-2'>Input Volume</div>
-                            <input ref={audioVolumeRef} type="range" class="form-range" min={0} max={100} />
+                            <input ref={audioVolumeRef} type="range" className="form-range" min={0} max={100} />
                         </div>
 
                         <div className='col-md-6'>
                             <div className='very-small text-uppercase fw-bold mb-2'>Output Volume</div>
-                            <input ref={speakerVolumeRef} type="range" class="form-range" min={0} max={100} />
+                            <input ref={speakerVolumeRef} type="range" className="form-range" min={0} max={100} />
                         </div>
 
                     </div>
@@ -200,12 +340,12 @@ function VoiceVideoSection() {
                     <div className='very-small text-uppercase fw-bold mb-1'>Mic Test</div>
 
                     <div className='very-small mb-2'>Having mic issues? Start a test and say something fun. Your voice will be played back to you.</div>
-                    <div class="my-3">
-                        <button class="btn btn-sm btn-outline-primary" type="button" id="button-addon1">Let&apos;s Check</button>
+                    <div className="my-3">
+                        <button className={`btn btn-sm btn-outline-${testingMicro ? 'danger' : 'primary'}`} type="button" ref={testMicroRefButton}>Let&apos;s Check</button>
                     </div>
 
-                    <div ref={audioMonitorRef} class="progress justify-content-end audio-progress-bar" role="progressbar">
-                        <div class="progress-bar" style={{ width: '100%' }} />
+                    <div ref={audioMonitorRef} className="progress justify-content-end audio-progress-bar" role="progressbar">
+                        <div className="progress-bar" style={{ width: '100%' }} />
                     </div>
 
                 </li>
@@ -224,7 +364,7 @@ function VoiceVideoSection() {
 
                     <div ref={videoMonitorRef} className="ratio ratio-16x9 w-50 border border-bg mb-2" />
                     <div className='very-small text-uppercase fw-bold mb-2'>Camera</div>
-                    <select ref={videoSelectRef} class="form-select form-control-bg">
+                    <select ref={videoSelectRef} className="form-select form-control-bg">
                         <option selected>Choose...</option>
                         {devicesItem && Array.isArray(devicesItem.video) && devicesItem.video.length > 0 ?
                             devicesItem.video.map(item => <option value={item.deviceId}>{item.label}</option>)

@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import VolumeMeter from '../../../../util/libs/volumeMeter';
+import SettingTile from '../../../molecules/setting-tile/SettingTile';
+import Toggle from '../../../atoms/button/Toggle';
+import { toggleActionLocal } from '../Api';
 
 let testingMicro = false;
-let aCtx = null;
 let microphone = null;
 let microInterval = null;
 
@@ -61,7 +63,6 @@ const stopMicroTest = (testingValue = false, audioMonitor = null) => new Promise
 
         microphone = null;
         testingMicro = testingValue;
-        aCtx = null;
 
         if (microInterval) {
             clearInterval(microInterval);
@@ -78,7 +79,11 @@ const stopMicroTest = (testingValue = false, audioMonitor = null) => new Promise
 function VoiceVideoSection() {
 
     // Prepare React
+    const audioMediaSettings = toggleActionLocal('ponyHouse-usermedia')();
     const [devicesItem, setDevicesItem] = useState(null);
+
+    const [echoCancellation, setEchoCancellation] = useState((audioMediaSettings.echoCancellation === true));
+    const [noiseSuppression, setNoiseSuppression] = useState((audioMediaSettings.noiseSuppression === true));
 
     const audioSelectRef = useRef(null);
     const speakerSelectRef = useRef(null);
@@ -107,52 +112,12 @@ function VoiceVideoSection() {
         const speakerSelect = $(speakerSelectRef.current);
         const audioSelect = $(audioSelectRef.current);
 
-        // Insert Volume
-        let tinyAudioVolume = global.localStorage.getItem('tinyAudioVolume');
-        let tinySpeakerVolume = global.localStorage.getItem('tinySpeakerVolume');
-
-        tinyAudioVolume = validatorVolume(tinyAudioVolume);
-        tinySpeakerVolume = validatorVolume(tinySpeakerVolume);
-
-        const updateTinyVolume = (target, where) => () => {
-
-            const oldValue = global.localStorage.getItem(where);
-            const newValue = target.val();
-
-            if (oldValue !== newValue) global.localStorage.setItem(where, newValue);
-            if (microphone) microphone.setVolume(Number(newValue));
-
-        };
-
-        audioVolume.val(tinyAudioVolume);
-        speakerVolume.val(tinySpeakerVolume);
-
-        const updateVolAudio = updateTinyVolume(audioVolume, 'tinyAudioVolume');
-        const updateSpeakerAudio = updateTinyVolume(speakerVolume, 'tinySpeakerVolume');
-
-        // Insert Selectors
-        let tinyAudioDevice = global.localStorage.getItem('tinyAudioDevice');
-        let tinySpeakerDevice = global.localStorage.getItem('tinySpeakerDevice');
-        let tinyVideoVolume = global.localStorage.getItem('tinyVideoVolume');
-
-        if (typeof tinyAudioDevice !== 'string' || tinyAudioDevice.length < 1) tinyAudioDevice = 'default';
-        if (typeof tinySpeakerDevice !== 'string' || tinySpeakerDevice.length < 1) tinySpeakerDevice = 'default';
-        if (typeof tinyVideoVolume !== 'string' || tinyVideoVolume.length < 1) tinyVideoVolume = 'default';
-
-        videoSelect.val(tinyVideoVolume);
-        speakerSelect.val(tinySpeakerDevice);
-        audioSelect.val(tinyAudioDevice);
-
-        const updateVolDevice = updateTinyVolume(audioSelect, 'tinyAudioDevice');
-        const updateSpeakerDevice = updateTinyVolume(speakerSelect, 'tinySpeakerDevice');
-        const updateVideoDevice = updateTinyVolume(videoSelect, 'tinyVideoVolume');
-
         // Test Microphone
-        const tinyTestMicro = () => {
+        const tinyTestMicro = (forced = false) => {
 
             // Prepare Micro
             testMicroButton.removeClass('btn-outline-primary').removeClass('btn-outline-danger');
-            if (!testingMicro && !microphone && !aCtx) {
+            if ((!testingMicro && !microphone) || (typeof forced === 'boolean' && forced)) {
                 stopMicroTest(true, audioMonitor).then(() => {
 
                     // Get Value
@@ -173,9 +138,9 @@ function VoiceVideoSection() {
                             },
                             */
 
-                            echoCancellation: false,
+                            echoCancellation,
+                            noiseSuppression,
                             autoGainControl: false,
-                            noiseSuppression: false,
                             highpassFilter: false,
 
                             deviceId: { exact: typeof tinyAudioDeviceUse === 'string' && tinyAudioDeviceUse.length > 0 ? tinyAudioDeviceUse : 'default' }
@@ -184,13 +149,9 @@ function VoiceVideoSection() {
                     }, (stream) => {
 
                         // Prepare Audio
-                        if (!aCtx) aCtx = new AudioContext();
-
-                        // Micro
-                        microphone = new VolumeMeter(aCtx);
-                        microphone.setVolume(Number(global.localStorage.getItem('tinyAudioDevice')));
-
+                        microphone = new VolumeMeter();
                         microphone.connectToSource(stream, true, () => {
+                            microphone.setVolume(Number(global.localStorage.getItem('tinyAudioVolume')));
                             microInterval = setInterval(() => {
 
                                 let volumeValue = microphone.volume * 1000;
@@ -227,7 +188,6 @@ function VoiceVideoSection() {
             else {
                 stopMicroTest(true, audioMonitor).then(() => {
 
-                    aCtx = null;
                     microphone = null;
                     testingMicro = false;
 
@@ -240,6 +200,50 @@ function VoiceVideoSection() {
             }
 
         };
+
+        // Insert Volume
+        let tinyAudioVolume = global.localStorage.getItem('tinyAudioVolume');
+        let tinySpeakerVolume = global.localStorage.getItem('tinySpeakerVolume');
+
+        tinyAudioVolume = validatorVolume(tinyAudioVolume);
+        tinySpeakerVolume = validatorVolume(tinySpeakerVolume);
+
+        const updateTinyVolume = (target, where, updateVolume = false, forceUpdate = false) => () => {
+
+            const oldValue = global.localStorage.getItem(where);
+            const newValue = target.val();
+
+            if (oldValue !== newValue) global.localStorage.setItem(where, newValue);
+            if (updateVolume && microphone) microphone.setVolume(Number(newValue));
+
+            if (testingMicro && microphone && forceUpdate) {
+                tinyTestMicro(true);
+            }
+
+        };
+
+        audioVolume.val(tinyAudioVolume);
+        speakerVolume.val(tinySpeakerVolume);
+
+        const updateVolAudio = updateTinyVolume(audioVolume, 'tinyAudioVolume', true);
+        const updateSpeakerAudio = updateTinyVolume(speakerVolume, 'tinySpeakerVolume');
+
+        // Insert Selectors
+        let tinyAudioDevice = global.localStorage.getItem('tinyAudioDevice');
+        let tinySpeakerDevice = global.localStorage.getItem('tinySpeakerDevice');
+        let tinyVideoVolume = global.localStorage.getItem('tinyVideoVolume');
+
+        if (typeof tinyAudioDevice !== 'string' || tinyAudioDevice.length < 1) tinyAudioDevice = 'default';
+        if (typeof tinySpeakerDevice !== 'string' || tinySpeakerDevice.length < 1) tinySpeakerDevice = 'default';
+        if (typeof tinyVideoVolume !== 'string' || tinyVideoVolume.length < 1) tinyVideoVolume = 'default';
+
+        videoSelect.val(tinyVideoVolume);
+        speakerSelect.val(tinySpeakerDevice);
+        audioSelect.val(tinyAudioDevice);
+
+        const updateVolDevice = updateTinyVolume(audioSelect, 'tinyAudioDevice', false, true);
+        const updateSpeakerDevice = updateTinyVolume(speakerSelect, 'tinySpeakerDevice', false, true);
+        const updateVideoDevice = updateTinyVolume(videoSelect, 'tinyVideoVolume');
 
         // Get Devices List
         if (!loadingDevices && devicesItem === null) {
@@ -275,7 +279,9 @@ function VoiceVideoSection() {
             speakerVolume.off('change', updateSpeakerAudio);
 
             testMicroButton.off('click', tinyTestMicro);
-            stopMicroTest();
+
+            testMicroButton.removeClass('btn-outline-primary').removeClass('btn-outline-danger').addClass('btn-outline-primary');
+            stopMicroTest(false, audioMonitor);
 
         };
 
@@ -372,6 +378,38 @@ function VoiceVideoSection() {
                     </select>
 
                 </li>
+
+            </ul>
+        </div>
+
+        <div className="card noselect mt-3">
+            <ul className="list-group list-group-flush">
+
+                <li className="list-group-item very-small text-gray">User Media Settings</li>
+
+                <SettingTile
+                    title="Echo Cancellation"
+                    options={(
+                        <Toggle
+                            className='d-inline-flex'
+                            isActive={echoCancellation}
+                            onToggle={toggleActionLocal('ponyHouse-usermedia', 'echoCancellation', setEchoCancellation)}
+                        />
+                    )}
+                    content={<div className="very-small text-gray">Echo cancellation is a feature which attempts to prevent echo effects on a two-way audio connection by attempting to reduce or eliminate crosstalk between the user's output device and their input device.</div>}
+                />
+
+                <SettingTile
+                    title="Noise Suppression"
+                    options={(
+                        <Toggle
+                            className='d-inline-flex'
+                            isActive={noiseSuppression}
+                            onToggle={toggleActionLocal('ponyHouse-usermedia', 'noiseSuppression', setNoiseSuppression)}
+                        />
+                    )}
+                    content={<div className="very-small text-gray">Noise suppression automatically filters the audio to remove background noise, hum caused by equipment.</div>}
+                />
 
             </ul>
         </div>

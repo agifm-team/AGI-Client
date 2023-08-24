@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import VolumeMeter from '../../../../util/libs/volumeMeter';
-import SettingTile from '../../../molecules/setting-tile/SettingTile';
-import Toggle from '../../../atoms/button/Toggle';
-import { toggleActionLocal } from '../Api';
+import VolumeMeter from '../../../../../util/libs/volumeMeter';
+import SettingTile from '../../../../molecules/setting-tile/SettingTile';
+import Toggle from '../../../../atoms/button/Toggle';
+import Button from '../../../../atoms/button/Button';
+import { toggleActionLocal } from '../../Api';
 
+let webcamStream = null;
 let testingMicro = false;
 let microphone = null;
 let microInterval = null;
@@ -76,6 +78,24 @@ const stopMicroTest = (testingValue = false, audioMonitor = null) => new Promise
     }
 });
 
+// eslint-disable-next-line no-async-promise-executor
+const stopWebcamTest = (stream) => new Promise(async (resolve, reject) => {
+    try {
+
+        if (webcamStream) {
+            await webcamStream.getTracks().forEach(async (track) => {
+                await track.stop();
+            });
+        }
+
+        webcamStream = null;
+        resolve(true);
+
+    } catch (err) {
+        reject(err);
+    }
+});
+
 function VoiceVideoSection() {
 
     // Prepare React
@@ -94,13 +114,16 @@ function VoiceVideoSection() {
 
     const audioVolumeRef = useRef(null);
     const speakerVolumeRef = useRef(null);
+
     const testMicroRefButton = useRef(null);
+    const testWebcamRefButton = useRef(null);
 
     // Effects
     useEffect(() => {
 
         // jQuery prepare
         const testMicroButton = $(testMicroRefButton.current);
+        const testWebcamButton = $(testWebcamRefButton.current);
 
         const audioVolume = $(audioVolumeRef.current);
         const speakerVolume = $(speakerVolumeRef.current);
@@ -111,6 +134,36 @@ function VoiceVideoSection() {
         const videoSelect = $(videoSelectRef.current);
         const speakerSelect = $(speakerSelectRef.current);
         const audioSelect = $(audioSelectRef.current);
+
+        // Test Webcam
+        const tinyTestWebcam = () => {
+
+            // Start
+            testWebcamButton.addClass('disabled');
+            const tinyVideoDeviceUse = global.localStorage.getItem('tinyVideoDevice');
+
+            // Start Media
+            navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msgGetUserMedia);
+            navigator.getUserMedia({
+                video: {
+
+                    deviceId: { exact: typeof tinyVideoDeviceUse === 'string' && tinyVideoDeviceUse.length > 0 ? tinyVideoDeviceUse : 'default' }
+
+                }
+            }, (stream) => {
+
+                webcamStream = stream;
+                const video = $('<video>', { class: 'h-100 w-100' }).prop('autoplay', true);
+                videoMonitor.empty().append(video).css('background-color', '#000');
+                video[0].srcObject = stream;
+
+            }, (err) => {
+                testWebcamButton.removeClass('disabled');
+                console.error(err);
+                alert(err.message);
+            });
+
+        };
 
         // Test Microphone
         const tinyTestMicro = (forced = false) => {
@@ -168,15 +221,12 @@ function VoiceVideoSection() {
 
                     }, (err) => {
 
-
-
                         testMicroButton.addClass('btn-outline-primary');
                         testMicroButton.removeClass('disabled');
 
                         console.error(err);
                         alert(err.message);
-                    }
-                    );
+                    });
 
                 }).catch(err => {
                     console.error(err);
@@ -231,19 +281,19 @@ function VoiceVideoSection() {
         // Insert Selectors
         let tinyAudioDevice = global.localStorage.getItem('tinyAudioDevice');
         let tinySpeakerDevice = global.localStorage.getItem('tinySpeakerDevice');
-        let tinyVideoVolume = global.localStorage.getItem('tinyVideoVolume');
+        let tinyVideoDevice = global.localStorage.getItem('tinyVideoDevice');
 
         if (typeof tinyAudioDevice !== 'string' || tinyAudioDevice.length < 1) tinyAudioDevice = 'default';
         if (typeof tinySpeakerDevice !== 'string' || tinySpeakerDevice.length < 1) tinySpeakerDevice = 'default';
-        if (typeof tinyVideoVolume !== 'string' || tinyVideoVolume.length < 1) tinyVideoVolume = 'default';
+        if (typeof tinyVideoDevice !== 'string' || tinyVideoDevice.length < 1) tinyVideoDevice = 'default';
 
-        videoSelect.val(tinyVideoVolume);
+        videoSelect.val(tinyVideoDevice);
         speakerSelect.val(tinySpeakerDevice);
         audioSelect.val(tinyAudioDevice);
 
         const updateVolDevice = updateTinyVolume(audioSelect, 'tinyAudioDevice', false, true);
         const updateSpeakerDevice = updateTinyVolume(speakerSelect, 'tinySpeakerDevice', false, true);
-        const updateVideoDevice = updateTinyVolume(videoSelect, 'tinyVideoVolume');
+        const updateVideoDevice = updateTinyVolume(videoSelect, 'tinyVideoDevice');
 
         // Get Devices List
         if (!loadingDevices && devicesItem === null) {
@@ -266,6 +316,7 @@ function VoiceVideoSection() {
         speakerVolume.on('change', updateSpeakerAudio);
 
         testMicroButton.on('click', tinyTestMicro);
+        testWebcamButton.on('click', tinyTestWebcam);
 
         return () => {
 
@@ -279,9 +330,11 @@ function VoiceVideoSection() {
             speakerVolume.off('change', updateSpeakerAudio);
 
             testMicroButton.off('click', tinyTestMicro);
+            testWebcamButton.off('click', tinyTestWebcam);
 
             testMicroButton.removeClass('btn-outline-primary').removeClass('btn-outline-danger').addClass('btn-outline-primary');
             stopMicroTest(false, audioMonitor);
+            stopWebcamTest();
 
         };
 
@@ -367,8 +420,23 @@ function VoiceVideoSection() {
                 <li className="list-group-item very-small text-gray">Video Settings</li>
 
                 <li className="list-group-item border-0">
+                    <center>
+                        <div className="ratio ratio-16x9 w-50 border border-bg mb-2">
+                            <div ref={videoMonitorRef} className='d-flex justify-content-center align-items-center text-center'>
 
-                    <div ref={videoMonitorRef} className="ratio ratio-16x9 w-50 border border-bg mb-2" />
+                                <Button
+                                    ref={testWebcamRefButton}
+                                    variant='primary'
+                                    className='btn-sm'
+                                    size="extra-small"
+                                    tooltip="Open in new tab"
+                                    faSrc="fa-solid fa-video"
+                                >Test Video</Button>
+
+                            </div>
+                        </div>
+                    </center>
+
                     <div className='very-small text-uppercase fw-bold mb-2'>Camera</div>
                     <select ref={videoSelectRef} className="form-select form-control-bg">
                         <option selected>Choose...</option>
@@ -396,7 +464,7 @@ function VoiceVideoSection() {
                             onToggle={toggleActionLocal('ponyHouse-usermedia', 'echoCancellation', setEchoCancellation)}
                         />
                     )}
-                    content={<div className="very-small text-gray">Echo cancellation is a feature which attempts to prevent echo effects on a two-way audio connection by attempting to reduce or eliminate crosstalk between the user's output device and their input device.</div>}
+                    content={<div className="very-small text-gray">Echo cancellation is a feature which attempts to prevent echo effects on a two-way audio connection by attempting to reduce or eliminate crosstalk between the user&apos;s output device and their input device.</div>}
                 />
 
                 <SettingTile

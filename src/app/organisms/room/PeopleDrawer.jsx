@@ -17,6 +17,7 @@ import Button from '../../atoms/button/Button';
 import Input from '../../atoms/input/Input';
 import SegmentedControl from '../../atoms/segmented-controls/SegmentedControls';
 import PeopleSelector from '../../molecules/people-selector/PeopleSelector';
+import tinyAPI from '../../../util/mods';
 
 function simplyfiMembers(members) {
   const mx = initMatrix.matrixClient;
@@ -39,15 +40,24 @@ function PeopleDrawer({ roomId }) {
   const room = mx.getRoom(roomId);
   const canInvite = room?.canInvite(mx.getUserId());
 
+  const newValues = [
+    { name: 'Joined', value: 'join' },
+    { name: 'Invited', value: 'invite' },
+    { name: 'Banned', value: 'ban' },
+  ];
+
+  tinyAPI.emit('roomMembersOptions', newValues);
+  const defaultMembership = newValues.find(item => item.value === 'join');
+
   const [itemCount, setItemCount] = useState(PER_PAGE_MEMBER);
-  const [membership, setMembership] = useState('join');
+  const [membership, setMembership] = useState(defaultMembership);
   const [memberList, setMemberList] = useState([]);
   const [searchedMembers, setSearchedMembers] = useState(null);
   const searchRef = useRef(null);
 
   const getMembersWithMembership = useCallback(
     (mship) => room.getMembersWithMembership(mship),
-    [roomId, membership],
+    [roomId, membership.value],
   );
 
   function loadMorePeople() {
@@ -84,14 +94,25 @@ function PeopleDrawer({ roomId }) {
     let isRoomChanged = false;
 
     const updateMemberList = (event) => {
+
       if (isLoadingMembers) return;
       if (event && event?.getRoomId() !== roomId) return;
-      setMemberList(
-        simplyfiMembers(
-          getMembersWithMembership(membership)
-            .sort(memberByAtoZ).sort(memberByPowerLevel),
-        ),
-      );
+
+      // Default
+      if (!Array.isArray(membership.custom)) {
+
+        setMemberList(
+          simplyfiMembers(
+            getMembersWithMembership(membership.value)
+              .sort(memberByAtoZ).sort(memberByPowerLevel),
+          ),
+        );
+
+      }
+
+      // Custom
+      else setMemberList(membership.custom);
+
     };
 
     searchRef.current.value = '';
@@ -122,8 +143,26 @@ function PeopleDrawer({ roomId }) {
   }, [roomId, membership]);
 
   useEffect(() => {
-    setMembership('join');
+    setMembership(defaultMembership);
   }, [roomId]);
+
+  const segments = [];
+  const segmentsIndex = {};
+  const selectMembership = [];
+
+  let segmentIndexCounter = 0;
+  for (const item in newValues) {
+    const vl = newValues[item];
+    if (typeof vl.name === 'string' && typeof vl.value === 'string') {
+
+      segments.push({ text: vl.name });
+      selectMembership.push(() => setMembership(vl));
+
+      segmentsIndex[vl.value] = segmentIndexCounter;
+      segmentIndexCounter++;
+
+    }
+  }
 
   const mList = searchedMembers !== null ? searchedMembers.data : memberList.slice(0, itemCount);
   return (
@@ -147,7 +186,7 @@ function PeopleDrawer({ roomId }) {
 
       </Header>
 
-      <div className="people-drawer__content-wrapper">
+      <div className={`people-drawer__content-wrapper people-drawer-select-${membership.value}`}>
 
         <center className='p-3 w-100' style={{
           'height': '100%',
@@ -158,36 +197,41 @@ function PeopleDrawer({ roomId }) {
             className='pb-3'
             selected={
               (() => {
-                const getSegmentIndex = {
-                  join: 0,
-                  invite: 1,
-                  ban: 2,
-                };
-                return getSegmentIndex[membership];
+                const getSegmentIndex = segmentsIndex;
+                return getSegmentIndex[membership.value];
               })()
             }
-            segments={[{ text: 'Joined' }, { text: 'Invited' }, { text: 'Banned' }]}
+            segments={segments}
             onSelect={(index) => {
-              const selectSegment = [
-                () => setMembership('join'),
-                () => setMembership('invite'),
-                () => setMembership('ban'),
-              ];
+              const selectSegment = selectMembership;
               selectSegment[index]?.();
             }}
           />
 
           {
             mList.map((member) => (
-              <PeopleSelector
-                key={member.userId}
-                user={member.user}
-                onClick={() => openProfileViewer(member.userId, roomId)}
-                avatarSrc={member.avatarSrc}
-                name={member.name}
-                color={colorMXID(member.userId)}
-                peopleRole={member.peopleRole}
-              />
+              !member.customSelector ?
+
+                <PeopleSelector
+                  key={member.userId}
+                  user={member.user}
+                  onClick={() => typeof member.customClick !== 'function' ? openProfileViewer(member.userId, roomId) : member.customClick()}
+                  avatarSrc={member.avatarSrc}
+                  name={member.name}
+                  color={colorMXID(member.userId)}
+                  peopleRole={member.peopleRole}
+                /> :
+
+                <member.customSelector
+                  key={member.userId}
+                  user={member.user}
+                  onClick={() => typeof member.customClick !== 'function' ? openProfileViewer(member.userId, roomId) : member.customClick()}
+                  avatarSrc={member.avatarSrc}
+                  name={member.name}
+                  color={colorMXID(member.userId)}
+                  peopleRole={member.peopleRole}
+                />
+
             ))
           }
 

@@ -1,6 +1,6 @@
 <center>
 
-<img align="center" src="https://github.com/Pony-House/Client/blob/dev/gallery/krita/banner/github.jpg?raw=true" height="380">
+<img align="center" src="https://raw.githubusercontent.com/agifm-team/AGI-Client/dev/public/favicon.ico?raw=true" height="380">
 
 <br/>
 
@@ -14,12 +14,12 @@
 
 </center>
 
-# Pony House
+# AGI Haus
 
-A Cinny fork Matrix client focusing primarily on simple, elegant and secure interface. The main goal is to have an instant messaging application that is easy on people and has a modern touch.
-
+A Cinny fork Matrix client focusing primarily on AI Agent utility with a simple, elegant and secure interface. The main goal is to build an Agent platform that is easy to use and has a pro tools for ai assisted productivity and fun.
+//
 <img align="center" src="https://github.com/Pony-House/Client/blob/dev/docs/assets/preview-1.png?raw=true" height="380">
-
+//
 ## Motivation
 I am someone who is definitely tired of seeing censorship spread across the internet. As I write this message on May 01 2023, it has been one of the most difficult days to have privacy, especially in Brazil due to the current political scenario.
 

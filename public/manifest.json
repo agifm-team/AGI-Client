@@ -1,7 +1,7 @@
 {
-  "name": "Pony House",
-  "short_name": "Pony House",
-  "description": "The open source house, your house, the house for all matrix ponies.",
+  "name": "AGI Haus",
+  "short_name": "AGI Haus",
+  "description": "Ai Agents for power users",
   "dir": "auto",
   "lang": "en-US",
   "display_override": [

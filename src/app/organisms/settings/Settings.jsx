@@ -38,7 +38,6 @@ export const tabText = {
   EMOJI: 'Emoji',
   SECURITY: 'Security',
   ABOUT: 'About',
-  DONATE: 'Donate',
   PROFILE: 'Profile',
   LOGOUT: 'Logout',
   EXPERIMENTAL: 'Experimental',
@@ -98,13 +97,6 @@ const tabItems = [
   },
 
   { type: 'divider', },
-
-  {
-    text: tabText.DONATE,
-    faSrc: "fa-solid fa-coins",
-    disabled: false,
-    render: () => <DonateSection />,
-  },
 
   {
     text: tabText.ABOUT,

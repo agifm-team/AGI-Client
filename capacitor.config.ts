@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'pony.house.matrix',
-  appName: 'pony-house-matrix',
+  appId: 'agi.haus',
+  appName: 'agi-haus',
   webDir: 'dist',
 
   server: {

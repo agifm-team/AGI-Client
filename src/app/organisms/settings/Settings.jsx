@@ -16,7 +16,6 @@ import AppearanceSection from './pages/Appearance';
 import NotificationsSection from './pages/Notifications';
 import SecuritySection from './pages/Security';
 import PrivacySection from './pages/Privacy';
-import DonateSection from './pages/Donate';
 import AboutSection from './pages/About';
 import ExperimentalSection from './pages/Experimental';
 import VoiceVideoSection from './pages/VoiceVideo';

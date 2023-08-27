@@ -1,9 +1,8 @@
 {
   "defaultHomeserver": 0,
   "homeserverList": [
-    "matrix.agi.haus"
-    "matrix.org",
-    "mozilla.org"
+    "matrix.agi.haus",
+    "matrix.org"
   ],
   "allowCustomHomeservers": true
 }

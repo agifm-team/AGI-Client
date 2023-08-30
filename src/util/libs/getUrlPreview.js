@@ -2,6 +2,7 @@ import * as linkify from 'linkifyjs';
 
 import initMatrix from '../../client/initMatrix';
 import { objType } from '../tools';
+import convertProtocols from './convertProtocols';
 
 const tinyCache = {};
 setInterval(() => {
@@ -18,19 +19,21 @@ const urlConvert = {
     http: (url) => `https${url.substring(4, url.length)}`,
 };
 
-export default function getUrlPreview(url, ts = 0) {
+export default function getUrlPreview(newUrl, ts = 0) {
     return new Promise((resolve, reject) => {
         const mx = initMatrix.matrixClient;
-        if (typeof url === 'string' && linkify.test(url)) {
+        if (typeof newUrl === 'string' && linkify.test(newUrl)) {
+
+            const url = convertProtocols(newUrl, newUrl);
 
             if (
-                tinyCache[url] &&
-                (objType(tinyCache[url].data, 'object') || tinyCache[url].data === null)
+                tinyCache[url.href] &&
+                (objType(tinyCache[url.href].data, 'object') || tinyCache[url.href].data === null)
             ) {
-                resolve(tinyCache[url].data);
+                resolve(tinyCache[url.href].data);
             } else {
 
-                let tinyUrl = url;
+                let tinyUrl = url.href;
                 for (const item in urlConvert) {
                     if (tinyUrl.startsWith(`${item}://`)) {
                         tinyUrl = urlConvert[item](tinyUrl);
@@ -39,10 +42,10 @@ export default function getUrlPreview(url, ts = 0) {
                 }
 
                 mx.getUrlPreview(tinyUrl, ts).then(embed => {
-                    tinyCache[url] = { data: embed, timeout: 60 };
+                    tinyCache[url.href] = { data: embed, timeout: 60 };
                     resolve(embed);
                 }).catch(err => {
-                    tinyCache[url] = { data: null, timeout: 60 };
+                    tinyCache[url.href] = { data: null, timeout: 60 };
                     reject(err);
                 });
 

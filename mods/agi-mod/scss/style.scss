@@ -1,0 +1,119 @@
+#agi-flowise-modal {
+  .modal-dialog {
+    min-width: 80%;
+  }
+
+  @media (max-width: 768px) {
+    .modal-dialog,
+    .modal-content {
+      min-width: 100% !important;
+      min-height: 100% !important;
+    }
+  }
+}
+
+.tiny-welcome {
+  overflow-y: auto;
+
+  #menu {
+    .card {
+      transition: 0.03s background-color;
+      cursor: pointer;
+      background-color: #139a78;
+      border-color: #0d6f56;
+      width: 240px;
+      height: 200px;
+      .card-body {
+        display: grid;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    .card:hover {
+      background-color: #0d6f56;
+    }
+
+    .card:active {
+      background-color: #0b5a46;
+    }
+  }
+
+  center {
+    width: 40%;
+  }
+
+  .category {
+    height: 280px;
+
+    ul {
+      overflow-x: auto;
+      overflow-y: hidden;
+      width: auto !important;
+
+      li {
+        border-radius: 5px !important;
+
+        .avatar {
+          border-radius: 50% !important;
+          max-height: 120px;
+          margin-bottom: 25px !important;
+        }
+      }
+    }
+
+    .cover,
+    ul li {
+      height: 270px !important;
+      min-height: 270px !important;
+    }
+
+    ul li {
+      width: 300px !important;
+      min-width: 300px !important;
+    }
+
+    .cover {
+      pointer-events: none;
+      position: relative;
+      top: 270px !important;
+      margin-top: -270px;
+      z-index: 1;
+      background: linear-gradient(
+        90deg,
+        transparent 70%,
+        var(--bg-surface) 95%,
+        var(--bg-surface) 100%
+      );
+    }
+  }
+}
+
+.sidebar__cross-signin-alert .avatar-container {
+  animation-name: none !important;
+}
+
+/* Buttons Back text position */
+.room-view__unread--open,
+.room-view__STB--open {
+  left: unset !important;
+  z-index: 999 !important;
+}
+
+.room-view__unread--open {
+  height: 50px;
+  width: 160px !important;
+  right: 27px !important;
+  > button > div {
+    display: none;
+  }
+}
+
+.room-view__STB--open {
+  width: 130px !important;
+  right: -22px !important;
+  text-align: center;
+  > button {
+    width: 100%;
+  }
+}

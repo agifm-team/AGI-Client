@@ -53,22 +53,7 @@ function Welcome() {
 
             </div>
 
-            <ul className="nav justify-content-center mt-5">
-                <li className="nav-item">
-                    <a className="nav-link" href="#">Assitant</a>
-                </li>
-                <li className="nav-item">
-                    <a className="nav-link" href="#">Claud-instante-100k</a>
-                </li>
-                <li className="nav-item">
-                    <a className="nav-link" href="#">GPT-4</a>
-                </li>
-                <li className="nav-item">
-                    <a className="nav-link" href="#">More</a>
-                </li>
-            </ul>
-
-            <input type="text" className="form-control form-control-bg mt-2" />
+            <input type="text" className="form-control form-control-bg mt-5" />
 
             {categories.map((citem) => <div className='my-5 category' id={`agi-home-${citem.id}`}>
 

@@ -5,7 +5,7 @@ import buttons, { addRoomOptions } from './menu/Buttons';
 import PeopleSelector from './bots/PeopleSelector';
 import Welcome from './bots/Welcome';
 
-const serverAddress = 'https://flow.agi.fm/';
+const serverAddress = 'https://flow.agi.haus/';
 
 export { serverAddress };
 

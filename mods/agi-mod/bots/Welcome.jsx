@@ -24,9 +24,17 @@ function Welcome() {
                     'Accept': 'application/json'
                 }
             }).then(res => res.json()).then((newData) => {
+
                 selected = tinyType;
                 loadingData = false;
-                setData(newData);
+
+                if (newData.data) setData(newData.data);
+                else {
+                    alert(newData?.message);
+                    console.error(newData?.message);
+                    console.error(newData?.status);
+                }
+
             }).catch(err => {
                 console.error(err);
                 alert(err.message);
@@ -52,16 +60,14 @@ function Welcome() {
 
     // Categories
     const categories = [];
-    /*
-        if (tinyCache.items[tinyType] && Array.isArray(tinyCache.items[tinyType].category_keys)) {
-        for (const item in tinyCache.items[tinyType].category_keys) {
+    if (data && Array.isArray(data.category_keys)) {
+        for (const item in data.category_keys) {
             categories.push({
-                name: typeof tinyCache.items[tinyType].category_keys[item] === 'string' ? tinyCache.items[tinyType].category_keys[item] : '',
+                name: typeof data.category_keys[item] === 'string' ? data.category_keys[item] : '',
                 id: tinyType
             });
         }
     }
-    */
 
     return <div className="tiny-welcome p-3 border-0 h-100 noselect px-5" style={{ alignItems: 'center' }}>
         <center className='py-5 w-100 px-5'>

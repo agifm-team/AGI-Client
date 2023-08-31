@@ -28,6 +28,10 @@
         align-items: center;
         justify-content: center;
       }
+
+      &.active {
+        background-color: #0d6f56;
+      }
     }
 
     .card:hover {

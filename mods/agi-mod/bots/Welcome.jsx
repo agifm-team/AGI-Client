@@ -34,9 +34,6 @@ function Welcome() {
             });
         }
 
-        // Complete
-        return () => { setData(null); };
-
     });
 
     console.log(data);

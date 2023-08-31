@@ -11,7 +11,7 @@ import defaultAvatar from '../../../src/app/atoms/avatar/defaultAvatar';
 
 import * as roomActions from '../../../src/client/action/room';
 import { getSelectRoom } from '../../../src/util/selectedRoom';
-import { serverAddress } from '../index';
+import { serverAddress } from '../socket';
 
 const createButton = (id, title, icon) => jReact(
     <button

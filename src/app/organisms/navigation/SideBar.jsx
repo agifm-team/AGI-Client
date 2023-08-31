@@ -100,19 +100,6 @@ function FeaturedTab() {
   return (
     <>
       <SidebarAvatar
-        tooltip="Direct Messages"
-        active={selectedTab === cons.tabs.DIRECTS}
-        onClick={() => selectTab(cons.tabs.DIRECTS)}
-        avatar={<Avatar faSrc="fa-solid fa-user" size="normal" />}
-        notificationBadge={dmsNoti ? (
-          <NotificationBadge
-            className={notificationClasses}
-            alert={dmsNoti?.highlight > 0}
-            content={abbreviateNumber(dmsNoti.total) || null}
-          />
-        ) : null}
-      />
-      <SidebarAvatar
         tooltip="Home"
         active={selectedTab === cons.tabs.HOME}
         onClick={() => selectTab(cons.tabs.HOME)}
@@ -122,6 +109,19 @@ function FeaturedTab() {
             className={notificationClasses}
             alert={homeNoti?.highlight > 0}
             content={abbreviateNumber(homeNoti.total) || null}
+          />
+        ) : null}
+      />
+      <SidebarAvatar
+        tooltip="Direct Messages"
+        active={selectedTab === cons.tabs.DIRECTS}
+        onClick={() => selectTab(cons.tabs.DIRECTS)}
+        avatar={<Avatar faSrc="fa-solid fa-user" size="normal" />}
+        notificationBadge={dmsNoti ? (
+          <NotificationBadge
+            className={notificationClasses}
+            alert={dmsNoti?.highlight > 0}
+            content={abbreviateNumber(dmsNoti.total) || null}
           />
         ) : null}
       />

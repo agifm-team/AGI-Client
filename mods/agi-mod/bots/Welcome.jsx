@@ -101,7 +101,7 @@ function Welcome() {
 
             <input type="text" className="form-control form-control-bg mt-5 text-center" />
 
-            {!loadingData ?
+            {!loadingData && Array.isArray(data.categories) ?
                 categories.map((citem) => <div className='my-5 category' id={`agi-home-${citem.id}`}>
 
                     <h5 className='title mt-2 mb-3 float-start'>{citem.name}</h5>
@@ -111,13 +111,13 @@ function Welcome() {
 
                     <div className='cover' />
                     <ul className='list-group list-group-horizontal border-0' >
-                        {items.map((item) => <li className={`list-group-item border border-bg m${item.index > 0 ? item.index < items.length - 1 ? 'x-3' : 's-3' : 'e-3'}`} id={`agi-home-item-${item.id}`}>
+                        {data.categories.map((item) => item?.popular_bots.map((bot) => <li className={`list-group-item border border-bg m${item.index > 0 ? item.index < items.length - 1 ? 'x-3' : 's-3' : 'e-3'}`} id={`agi-home-item-${bot.bot_id}`}>
 
-                            <img className='img-fluid avatar' alt='avatar' src={item.avatar} />
-                            <h5 className="card-title text-bg">{item.title}</h5>
-                            <p className="card-text text-bg-low">{item.desc}</p>
+                            <img className='img-fluid avatar' alt='avatar' src={defaultAvatar(1)} />
+                            <h5 className="card-title text-bg">{bot.bot_name}</h5>
+                            <p className="card-text text-bg-low">{bot.description}</p>
 
-                        </li>)}
+                        </li>))}
                     </ul>
 
                 </div>)

@@ -1,10 +1,45 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import defaultAvatar from '../../../src/app/atoms/avatar/defaultAvatar';
 
-const serverAddress = 'http://54.219.82.132:5000/';
-
+let loadingData = false;
+let selected = null;
+const serverAddress = 'http://54.219.159.140:5000/';
 function Welcome() {
+
+    // Data
+    const [tinyType, setTinyType] = useState('community');
+    const [data, setData] = useState(null);
+
+    // Effect
+    useEffect(() => {
+
+        // Set Data
+        if ((selected !== tinyType || !data) && !loadingData) {
+
+            // Load Data
+            loadingData = true;
+            fetch(`${serverAddress}get_list/${tinyType}`, {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }).then(res => res.json()).then((newData) => {
+                selected = tinyType;
+                loadingData = false;
+                setData(newData);
+            }).catch(err => {
+                console.error(err);
+                alert(err.message);
+                loadingData = false;
+            });
+        }
+
+        // Complete
+        return () => { setData(null); };
+
+    });
+
+    console.log(data);
 
     // Items
     const items = [];
@@ -19,33 +54,40 @@ function Welcome() {
     }
 
     // Categories
-    const categories = [
-        { name: 'Popular bots', id: 'popular-bots' },
-        { name: 'New bots', id: 'new-bots' }
-    ];
+    const categories = [];
+    /*
+        if (tinyCache.items[tinyType] && Array.isArray(tinyCache.items[tinyType].category_keys)) {
+        for (const item in tinyCache.items[tinyType].category_keys) {
+            categories.push({
+                name: typeof tinyCache.items[tinyType].category_keys[item] === 'string' ? tinyCache.items[tinyType].category_keys[item] : '',
+                id: tinyType
+            });
+        }
+    }
+    */
 
     return <div className="tiny-welcome p-3 border-0 h-100 noselect px-5" style={{ alignItems: 'center' }}>
         <center className='py-5 w-100 px-5'>
 
-            <div id='menu' class="row">
+            <div id='menu' className="row">
 
-                <div class="col-sm-6 mb-3 mb-sm-0">
-                    <div class="card">
-                        <div class="card-body">
+                <div className="col-sm-6 mb-3 mb-sm-0">
+                    <div className="card">
+                        <div className="card-body">
 
-                            <h5 class="card-title fw-bold text-uppercase">Enterprise</h5>
-                            <p class="card-text">AI Agents for Teams</p>
+                            <h5 className="card-title fw-bold text-uppercase">Enterprise</h5>
+                            <p className="card-text">AI Agents for Teams</p>
 
                         </div>
                     </div>
                 </div>
 
-                <div class="col-sm-6">
-                    <div class="card">
-                        <div class="card-body">
+                <div className="col-sm-6">
+                    <div className="card">
+                        <div className="card-body">
 
-                            <h5 class="card-title fw-bold text-uppercase">Community</h5>
-                            <p class="card-text">AI Agents for Fun and Productivity</p>
+                            <h5 className="card-title fw-bold text-uppercase">Community</h5>
+                            <p className="card-text">AI Agents for Fun and Productivity</p>
 
                         </div>
                     </div>
@@ -67,8 +109,8 @@ function Welcome() {
                     {items.map((item) => <li className={`list-group-item border border-bg m${item.index > 0 ? item.index < items.length - 1 ? 'x-3' : 's-3' : 'e-3'}`} id={`agi-home-item-${item.id}`}>
 
                         <img className='img-fluid avatar' alt='avatar' src={item.avatar} />
-                        <h5 class="card-title text-bg">{item.title}</h5>
-                        <p class="card-text text-bg-low">{item.desc}</p>
+                        <h5 className="card-title text-bg">{item.title}</h5>
+                        <p className="card-text text-bg-low">{item.desc}</p>
 
                     </li>)}
                 </ul>

@@ -23,7 +23,7 @@ import { MessageReply } from '../../molecules/message/Message';
 
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 
-import commands from './commands';
+import commands from '../../../commands';
 
 // Variables
 const CMD_REGEX = /(^\/|:|@)(\S*)$/;
@@ -425,11 +425,13 @@ function RoomViewInput({
 
     const textArea = $(textAreaRef.current);
     const msg = textArea.val();
-    textArea.val(replaceCmdWith(
-      msg,
-      cmdCursorPos,
-      typeof cmdData?.replace !== 'undefined' ? cmdData.replace : '',
-    ));
+    textArea.val(
+      `${replaceCmdWith(
+        msg,
+        cmdCursorPos,
+        typeof cmdData?.replace !== 'undefined' ? cmdData.replace : '',
+      )}${typeof cmdData?.type === 'string' && cmdData.type === 'msg' ? ' ' : ''}`
+    );
 
     textArea.focus();
 
@@ -552,7 +554,6 @@ function RoomViewInput({
       roomsInput.setAttachment(roomId, attachment);
     }
 
-
     // Prepare Message
     const textArea = $(textAreaRef.current);
     textArea.prop('disabled', true).css('cursor', 'not-allowed');
@@ -586,9 +587,11 @@ function RoomViewInput({
       return;
     }
 
-    if (['me', 'shrug', 'plain'].includes(cmdName)) {
-      commands[cmdName].exe(roomId, cmdData, sendBody);
-      return;
+    if (typeof commands[cmdName].type === 'string') {
+      if (commands[cmdName].type === 'msg') {
+        commands[cmdName].exe(roomId, cmdData, sendBody);
+        return;
+      }
     }
 
     commands[cmdName].exe(roomId, cmdData);

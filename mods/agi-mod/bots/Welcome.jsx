@@ -45,8 +45,6 @@ function Welcome() {
 
     });
 
-    console.log(data);
-
     // Items
     const items = [];
     for (let i = 0; i < 10; i++) {
@@ -101,7 +99,7 @@ function Welcome() {
 
             <input type="text" className="form-control form-control-bg mt-5 text-center" />
 
-            {!loadingData && Array.isArray(data.categories) ?
+            {!loadingData && data && Array.isArray(data.categories) ?
                 categories.map((citem) => <div className='my-5 category' id={`agi-home-${citem.id}`}>
 
                     <h5 className='title mt-2 mb-3 float-start'>{citem.name}</h5>

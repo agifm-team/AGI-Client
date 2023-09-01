@@ -4,4 +4,4 @@ export default function startMods(firstTime) {
 
     startAgi(firstTime);
 
-};
+}; 

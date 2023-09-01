@@ -16,10 +16,6 @@ const userInteractions = {
         isActive: false,
     },
 
-    desktop: {
-        isActive: true,
-    },
-
     afkTime: {
         value: null,
         interval: null
@@ -46,6 +42,11 @@ export function setVoiceChatMode(value = true) {
 
 // Get
 export function getUserAfk(type = 'seconds') {
+
+    if (__ENV_APP__.electron_mode && global.systemIdleTime?.get) {
+        global.systemIdleTime.exec();
+        return global.systemIdleTime.get();
+    }
 
     if (typeof userInteractions.afkTime.value === 'number') {
         return moment().diff(userInteractions.afkTime.value, type);
@@ -75,7 +76,6 @@ const intervalTimestamp = () => {
             // 10 Minutes later...
             if (
                 !userInteractions.vc.isActive &&
-                (!__ENV_APP__.electron_mode || !userInteractions.desktop.isActive) &&
                 (content.status === '🟢' || content.status === 'online') &&
                 (counter > 600 || content.status === '🟠' || content.status === 'idle' || !userInteractions.mobile.isActive)
             ) {
@@ -106,8 +106,11 @@ export function startUserAfk() {
         userInteractions.afkTime.interval = null;
     }
 
-    $(window).on("mousemove", lastTimestampUpdate);
-    userInteractions.afkTime.value = moment().valueOf();
+    if (!__ENV_APP__.electron_mode) {
+        $(window).on("mousemove", lastTimestampUpdate);
+        userInteractions.afkTime.value = moment().valueOf();
+    }
+
     userInteractions.afkTime.interval = setInterval(intervalTimestamp, 1000);
 
 };
@@ -115,13 +118,13 @@ export function startUserAfk() {
 // Stop
 export function stopUserAfk() {
 
-    $(window).on("mousemove", lastTimestampUpdate);
+    if (!__ENV_APP__.electron_mode) $(window).on("mousemove", lastTimestampUpdate);
     if (userInteractions.afkTime.interval) {
         clearInterval(userInteractions.afkTime.interval);
         userInteractions.afkTime.interval = null;
     }
 
-    userInteractions.afkTime.value = null;
+    if (!__ENV_APP__.electron_mode) userInteractions.afkTime.value = null;
 
 };
 

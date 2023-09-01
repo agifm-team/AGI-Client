@@ -1,10 +1,9 @@
 import React from 'react';
 import './scss/style.scss';
+import startPeopleSelector from './bots/PeopleSelector';
 
 import buttons, { addRoomOptions } from './menu/Buttons';
-import PeopleSelector from './bots/PeopleSelector';
 import Welcome from './bots/Welcome';
-import { serverAddress } from './socket';
 
 export default function startTest(firstTime) {
 
@@ -14,37 +13,8 @@ export default function startTest(firstTime) {
         // Start Mod
         console.log('[agi.fm] Loading mod...');
 
-        // Members List
-        tinyAPI.on('roomMembersOptions', (data, items) => {
-
-            items.unshift({
-                name: 'Agents', value: 'agents', custom: [
-                    {
-
-                        avatarSrc: "https://matrix-server.matrix.horse/_matrix/media/r0/thumbnail/matrix.horse/pcWfVgQCBBJiBTtWAhiwLNUE?width=24&height=24&method=crop",
-                        name: "Tiny Jasmini (@jasmindreasond:matrix.horse)",
-
-                        peopleRole: "Bot",
-                        powerLevel: undefined,
-                        userId: "@jasmindreasond:matrix.horse",
-                        username: "jasmindreasond",
-
-                        customClick: () => { console.log('event test'); },
-                        customSelector: PeopleSelector,
-
-                    }
-                ]
-            });
-
-            items.unshift({
-                name: 'Agents-Joined', value: 'agents-joined', custom: [
-
-                ]
-            });
-
-        });
-
         // Start Buttons
+        startPeopleSelector();
         buttons();
 
         // Start Page Detector

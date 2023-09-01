@@ -79,7 +79,7 @@ const engines = {
 
         notifier.notify({
 
-            appID: 'pony-house-matrix',
+            appID: 'agi-client-matrix',
             id: tag,
 
             title: data?.title,

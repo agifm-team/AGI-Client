@@ -11,7 +11,7 @@ const createDirName = (where) => {
 };
 
 // Validate Folders
-const tempFolder = path.join(app.getPath('temp'), './pony-house-matrix');
+const tempFolder = path.join(app.getPath('temp'), './agi-client-matrix');
 if (!fs.existsSync(tempFolder)) {
     fs.mkdirSync(tempFolder);
 }

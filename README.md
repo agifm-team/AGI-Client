@@ -39,7 +39,7 @@ To set default Homeserver on login and register page, place a customized [`confi
 ## Custom App Style
 Would you like to customize your login page to your website? Then you can check out some values available in the `config/custom-css.scss` file.
 
-Replace this value to change the appID: `pony-house-matrix`
+Replace this value to change the appID: `agi-client-matrix`
 
 App title in `electron/main/index.ts`.
 

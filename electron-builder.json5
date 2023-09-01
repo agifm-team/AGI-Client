@@ -2,7 +2,7 @@
  * @see https://www.electron.build/configuration/configuration
  */
 {
-  appId: 'pony-house-matrix',
+  appId: 'agi-client-matrix',
   asar: true,
   directories: {
     output: 'release/${version}',

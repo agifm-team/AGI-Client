@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 
 import defaultAvatar from '../../../src/app/atoms/avatar/defaultAvatar';
 
+let connectionTestTimeout = false;
+
 let selected = null;
 const serverAddress = 'http://54.219.159.140:5000/';
 function Welcome() {
@@ -37,9 +39,17 @@ function Welcome() {
                 setLoadingData(false);
 
             }).catch(err => {
+
                 console.error(err);
                 alert(err.message);
-                setLoadingData(false);
+
+                if (!connectionTestTimeout) {
+                    connectionTestTimeout = true;
+                    setTimeout(() => {
+                        setLoadingData(false);
+                    }, 3000);
+                }
+
             });
         }
 

@@ -35,7 +35,7 @@ PeopleSelector.propTypes = {
 
 let tinyData = null;
 function updateAgentsList() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         fetch(`${serverAddress}api/v1/get_bots/user1`, {
             headers: {
                 'Accept': 'application/json'

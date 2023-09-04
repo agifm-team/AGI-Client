@@ -182,7 +182,7 @@ export default function buttons() {
 
     superagent.tooltip({ placement: 'right' }).on('click', () => btModal({
         id: 'agi-superagent-modal',
-        dialog: 'modal-lg',
+        dialog: 'modal-fullscreen',
         title: 'SuperAgent',
         body: jReact(<iframe title='Flowise' src={serverAddress} className='w-100 height-modal-full-size' style={{ backgroundColor: '#000' }} />)
     }));

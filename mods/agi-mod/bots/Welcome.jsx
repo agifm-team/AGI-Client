@@ -17,7 +17,7 @@ function Welcome() {
     useEffect(() => {
 
         // Set Data
-        if ((selected !== tinyType || !data) && !loadingData) {
+        /* if ((selected !== tinyType || !data) && !loadingData) {
 
             // Load Data
             setLoadingData(true);
@@ -51,7 +51,7 @@ function Welcome() {
                 }
 
             });
-        }
+        } */
 
     });
 

@@ -12,6 +12,22 @@
   }
 }
 
+#agi-superagent-modal {
+  .modal-fullscreen {
+    .modal-header {
+      height: 33px;
+      font-size: 12px !important;
+      .modal-title {
+        font-size: 15px;
+      }
+    }
+
+    .height-modal-full-size {
+      height: 100% !important;
+    }
+  }
+}
+
 .tiny-welcome {
   overflow-y: auto;
 

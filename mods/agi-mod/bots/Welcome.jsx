@@ -5,7 +5,7 @@ import defaultAvatar from '../../../src/app/atoms/avatar/defaultAvatar';
 let connectionTestTimeout = false;
 
 let selected = null;
-const serverAddress = 'http://54.219.159.140:5000/';
+const serverAddress = 'http://13.56.181.201:5000/';
 function Welcome() {
 
     // Data

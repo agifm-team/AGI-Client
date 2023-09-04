@@ -1,6 +1,6 @@
 import socketIOClient from 'socket.io-client';
 
-const serverAddress = 'https://flow.agi.haus/';
+const serverAddress = 'https://flow.immagine.ai/';
 
 export { serverAddress };
 

@@ -1,9 +1,12 @@
 import React from 'react';
 
-export default function Message(data, content) {
+export default function startMessage() {
+    tinyAPI.on('messageBody', (data, content) => {
 
-    if (content['agi.client.iframe.item']) {
-        data.custom = <div>Tiny Test</div>;
-    }
+        if (content['agi.client.iframe.item']) {
+            console.log(content);
+            data.custom = <div>Tiny Test</div>;
+        }
 
+    });
 };

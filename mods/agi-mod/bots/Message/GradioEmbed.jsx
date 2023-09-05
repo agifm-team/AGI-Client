@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 
-function Embed({ agiData }) {
+function GradioEmbed({ agiData }) {
 
     const embedRef = useRef(null);
 
@@ -16,4 +16,4 @@ function Embed({ agiData }) {
 
 };
 
-export default Embed;
+export default GradioEmbed;

@@ -1,5 +1,5 @@
 import React from 'react';
-import Embed from './Embed';
+import GradioEmbed from './GradioEmbed';
 
 export default function startMessage() {
     tinyAPI.on('messageBody', (data, content) => {
@@ -13,7 +13,7 @@ export default function startMessage() {
 
                 // Gradio
                 if (agiData.source === 'gradio') {
-                    data.custom = <Embed agiData={agiData} />;
+                    data.custom = <GradioEmbed agiData={agiData} />;
                 }
 
             }

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
-import defaultAvatar from '../../../src/app/atoms/avatar/defaultAvatar';
-import { serverAddress } from '../socket';
+import defaultAvatar from '../../../../src/app/atoms/avatar/defaultAvatar';
+import { serverAddress } from '../../socket';
+import ItemWelcome from './item';
 
 let connectionTestTimeout = false;
 
@@ -120,13 +121,7 @@ function Welcome() {
 
                     <div className='cover' />
                     <ul className='list-group list-group-horizontal border-0' >
-                        {data.categories.map((item) => item?.popular_bots.map((bot) => <li className={`list-group-item border border-bg m${item.index > 0 ? item.index < items.length - 1 ? 'x-3' : 's-3' : 'e-3'}`} id={`agi-home-item-${bot.bot_id}`}>
-
-                            <img className='img-fluid avatar' alt='avatar' src={defaultAvatar(1)} />
-                            <h5 className="card-title text-bg">{bot.bot_name}</h5>
-                            <p className="card-text text-bg-low">{bot.description}</p>
-
-                        </li>))}
+                        {data.categories.map((item) => item?.popular_bots.map((bot) => <ItemWelcome bot={bot} item={item} itemsLength={items.length} />))}
                     </ul>
 
                 </div>)

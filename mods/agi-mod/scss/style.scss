@@ -72,12 +72,37 @@
       width: auto !important;
 
       li {
+        cursor: pointer;
         border-radius: 5px !important;
 
         .avatar {
           border-radius: 50% !important;
           max-height: 120px;
           margin-bottom: 25px !important;
+        }
+
+        .list-group-item * {
+          pointer-events: none;
+        }
+
+        &:hover {
+          .avatar {
+            filter: brightness(75%);
+          }
+
+          .card-title {
+            color: var(--tc-link) !important;
+          }
+
+          .card-text {
+            color: var(--tc-surface-normal) !important;
+          }
+        }
+
+        &:active {
+          .avatar {
+            filter: brightness(55%);
+          }
         }
       }
     }

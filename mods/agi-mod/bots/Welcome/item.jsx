@@ -11,13 +11,17 @@ import {
 
 function ItemWelcome({ bot, item, itemsLength }) {
 
+    // Refs
     const buttonRef = useRef(null);
 
+    // Effect
     useEffect(() => {
 
+        // Get Button
         const button = $(buttonRef.current);
         const tinyButton = async () => {
 
+            // Select tab and bot id
             selectTab(cons.tabs.DIRECTS);
             const userId = button.attr('bot');
 
@@ -41,6 +45,7 @@ function ItemWelcome({ bot, item, itemsLength }) {
 
         };
 
+        // Insert Event Click
         button.on('click', tinyButton);
         return () => {
             button.off('click', tinyButton);
@@ -48,6 +53,7 @@ function ItemWelcome({ bot, item, itemsLength }) {
 
     });
 
+    // Complete
     return <li ref={buttonRef} className={`list-group-item border border-bg m${item.index > 0 ? item.index < itemsLength - 1 ? 'x-3' : 's-3' : 'e-3'}`} bot={bot.bot_id}>
         <img className='img-fluid avatar' draggable={false} alt='avatar' src={defaultAvatar(1)} />
         <h5 className="card-title text-bg">{bot.bot_name}</h5>

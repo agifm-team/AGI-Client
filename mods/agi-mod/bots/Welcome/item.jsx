@@ -1,5 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import defaultAvatar from '../../../../src/app/atoms/avatar/defaultAvatar';
+import { selectRoom, selectRoomMode, selectTab } from '../../../../src/client/action/navigation';
+import cons from '../../../../src/client/state/cons';
+
+import * as roomActions from '../../../../src/client/action/room';
+
+import {
+    hasDMWith, hasDevices,
+} from '../../../../src/util/matrixUtil';
 
 function ItemWelcome({ bot, item, itemsLength }) {
 
@@ -8,9 +16,29 @@ function ItemWelcome({ bot, item, itemsLength }) {
     useEffect(() => {
 
         const button = $(buttonRef.current);
-        const tinyButton = (e) => {
-            const botId = button.attr('bot');
-            console.log(botId);
+        const tinyButton = async () => {
+
+            selectTab(cons.tabs.DIRECTS);
+            const userId = button.attr('bot');
+
+            // Check and open if user already have a DM with userId.
+            const dmRoomId = hasDMWith(userId);
+            if (dmRoomId) {
+                selectRoomMode('room');
+                selectRoom(dmRoomId);
+                return;
+            }
+
+            // Create new DM
+            try {
+                $.LoadingOverlay('show');
+                await roomActions.createDM(userId, await hasDevices(userId));
+                $.LoadingOverlay('hide');
+            } catch (err) {
+                console.error(err);
+                alert(err.message);
+            }
+
         };
 
         button.on('click', tinyButton);

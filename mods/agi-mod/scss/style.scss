@@ -1,3 +1,9 @@
+/* Message Embed */
+.agi-client-embed {
+  max-width: 1200px;
+}
+
+/* Modals */
 #agi-flowise-modal {
   .modal-dialog {
     min-width: 80%;
@@ -28,6 +34,7 @@
   }
 }
 
+/* Welcome Page */
 .tiny-welcome {
   overflow-y: auto;
 

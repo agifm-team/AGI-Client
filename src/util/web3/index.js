@@ -7,7 +7,7 @@ const defaultNetworks = {
   // Ethereum
   ethereum: {
 
-    chainId: '1',
+    chainId: '0x1',
     chainIdInt: 1,
     rpcUrls: ['https://cloudflare-eth.com/'],
     chainName: 'Ethereum Mainnet',
@@ -47,7 +47,7 @@ const defaultNetworks = {
   // Binsnace Smart Chain (BEP20)
   bsc: {
 
-    chainId: '56',
+    chainId: '0x38',
     chainIdInt: 56,
     rpcUrls: ['https://bsc-dataseed.binance.org/'],
     chainName: 'Smart Chain',
@@ -67,7 +67,7 @@ const defaultNetworks = {
   // Gnosis Chain (USD)
   gnosis: {
 
-    chainId: '100',
+    chainId: '0x64',
     chainIdInt: 100,
     rpcUrls: ['https://rpc.gnosischain.com/'],
     chainName: 'Gnosis',
@@ -86,7 +86,7 @@ const defaultNetworks = {
   // Avalanche Network
   avax: {
 
-    chainId: '43114',
+    chainId: '0xa86a',
     chainIdInt: 43114,
     rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
     chainName: 'Avalanche Network',
@@ -105,7 +105,7 @@ const defaultNetworks = {
   // Optimism Mainnet
   op: {
 
-    chainId: '10',
+    chainId: '0xa',
     chainIdInt: 10,
     rpcUrls: ['https://mainnet.optimism.io/'],
     chainName: 'Optimism Mainnet',
@@ -121,6 +121,29 @@ const defaultNetworks = {
 
   },
 
+  // Base
+  base: {
+
+    chainId: '0x2105',
+    chainIdInt: 8453,
+    rpcUrls: ['https://mainnet.base.org/'],
+    chainName: 'Base Mainnet',
+    nativeCurrency: {
+      name: 'ETH',
+      symbol: 'ETH',
+      decimals: 18
+    },
+    blockExplorerUrls: ['https://basescan.org/'],
+    blockExplorerApis: ['https://api.basescan.org/'],
+
+    factory: [],
+
+  },
+
+};
+
+export function getDefaultNetworks() {
+  return clone(defaultNetworks);
 };
 
 export function getWeb3Cfg(folder, getDefault = true) {
@@ -157,6 +180,12 @@ export function getWeb3Cfg(folder, getDefault = true) {
 export function setWeb3Cfg(folder, value) {
   const content = getWeb3Cfg(null, false);
   content[folder] = value;
+  global.localStorage.setItem('ponyHouse-web3', JSON.stringify(content));
+};
+
+export function deleteWeb3Cfg(folder) {
+  const content = getWeb3Cfg(null, false);
+  if (typeof content[folder] !== 'undefined') delete content[folder];
   global.localStorage.setItem('ponyHouse-web3', JSON.stringify(content));
 };
 
@@ -562,6 +591,7 @@ const startWeb3 = () => {
 
   tinyCrypto.getCfg = getWeb3Cfg;
   tinyCrypto.setCfg = setWeb3Cfg;
+  tinyCrypto.deleteCfg = deleteWeb3Cfg;
 
   // Insert into global
   global.tinyCrypto = tinyCrypto;

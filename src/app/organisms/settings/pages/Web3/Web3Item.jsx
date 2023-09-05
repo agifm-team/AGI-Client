@@ -1,8 +1,16 @@
-import React, { useEffect, useRef } from 'react';
-import { setWeb3Cfg, getWeb3Cfg } from '../../../../../util/web3';
+import React, { useEffect, useRef, useState } from 'react';
+import clone from 'clone';
 
+import { setWeb3Cfg, getWeb3Cfg, getDefaultNetworks } from '../../../../../util/web3';
+import { objType, tinyConfirm } from '../../../../../util/tools';
+
+let loadData = null;
+
+// https://chainlist.org/
 function Web3Item({ item, networkId }) {
 
+    // Data React
+    const divBaseRef = useRef(null);
     const idValueRef = useRef(null);
     const blockIdRef = useRef(null);
     const blockIdNumberRef = useRef(null);
@@ -15,100 +23,192 @@ function Web3Item({ item, networkId }) {
     const tokenSymbolRef = useRef(null);
     const tokenDecimalsRef = useRef(null);
 
-    console.log(item);
+    const [tinyNetwork, setTinyNetwork] = useState(networkId);
+    const defaultNetworks = getDefaultNetworks();
+
+    const [blockchainName, setBlockchainName] = useState(typeof item.chainName === 'string' ? item.chainName : '');
+    const [blockchainId, setBlockId] = useState(typeof item.chainId === 'string' ? item.chainId : '');
+    const [blockchainExplorer, setBlockchainExplorer] = useState(Array.isArray(item?.blockExplorerUrls) ? item.blockExplorerUrls : ['']);
 
     // Effects
     useEffect(() => {
 
+        // Template
+        const valueTemplate = (where, type, data, folder, setValue) => {
+
+            // Prepare Config Base
+            const web3Settings = getWeb3Cfg();
+
+            // Get New Item
+            const newData = { nativeCurrency: {} };
+            if (web3Settings.networks[tinyNetwork]) {
+                for (const titem in web3Settings.networks[tinyNetwork]) {
+                    newData[titem] = web3Settings.networks[tinyNetwork][titem];
+                }
+            }
+
+            // Insert new data
+            if (typeof data === 'string' || typeof data === 'number') {
+
+                if (type === 'array') {
+
+                    if (typeof folder === 'string') {
+
+                        if (!objType(newData[where], 'object')) { newData[where] = {}; }
+                        newData[where][folder] = data.replace(/ \,/g, ',').split(',');
+
+                        for (const item2 in newData[where][folder]) {
+                            newData[where][folder][item2] = newData[where][folder][item2].trim();
+                        }
+
+                    } else {
+
+                        newData[where] = data.replace(/ \,/g, ',').split(',');
+
+                        for (const item2 in newData[where]) {
+                            newData[where][item2] = newData[where][item2].trim();
+                        }
+
+                    }
+
+                } else if (type === 'number') {
+
+                    if (typeof folder === 'string') {
+                        if (!objType(newData[where], 'object')) { newData[where] = {}; }
+                        newData[where][folder] = Number(data);
+                    } else {
+                        newData[where] = Number(data);
+                    }
+
+                } else if (typeof folder === 'string') {
+                    if (!objType(newData[where], 'object')) { newData[where] = {}; }
+                    newData[where][folder] = data;
+                } else {
+                    newData[where] = data;
+                }
+
+            } else if (typeof newData[where][folder] !== 'undefined') {
+                delete newData[where][folder];
+            } else if (typeof newData[where] !== 'undefined') {
+                delete newData[where];
+            }
+
+            // Reset Data
+            if (web3Settings.networks[tinyNetwork]) delete web3Settings.networks[tinyNetwork];
+            web3Settings.networks[tinyNetwork] = newData;
+            setWeb3Cfg('networks', web3Settings.networks);
+
+            // set Value
+            if (type === 'array') {
+                if (typeof setValue === 'function') setValue(typeof data !== 'undefined' && data !== null ? data.replace(/ \,/g, ',').split(',') : '');
+            } else if (typeof setValue === 'function') setValue(typeof data !== 'undefined' && data !== null ? data : '');
+
+        };
+
         // Object Id
         const idValue = $(idValueRef.current);
-        idValue.val(networkId);
+        idValue.val(tinyNetwork);
+        const idValueChange = (event) => {
+            const newId = $(event.target).val();
+            if (typeof newId === 'string' && newId.length > 0) {
 
-        const idValueChange = () => {
+                // Prepare Config Base
+                const web3Settings = getWeb3Cfg();
+                const tinyData = {};
 
+                for (const item2 in web3Settings.networks[tinyNetwork]) {
+                    tinyData[item2] = clone(web3Settings.networks[tinyNetwork][item2]);
+                }
+
+                delete web3Settings.networks[tinyNetwork];
+                web3Settings.networks[newId] = tinyData;
+                setWeb3Cfg('networks', web3Settings.networks);
+
+                setTinyNetwork(newId);
+
+            }
         };
 
         // Blockchain Id
         const blockId = $(blockIdRef.current);
-        blockId.val(item.chainId);
-
-        const blockIdChange = () => {
-
-        };
+        const blockIdChange = (event) => valueTemplate('chainId', 'string', $(event.target).val(), undefined, setBlockId);
 
         // Blockchain Id Int
         const blockIdNumber = $(blockIdNumberRef.current);
-        blockIdNumber.val(item.chainIdInt);
-
-        const blockIdNumberChange = () => {
-
-        };
+        const blockIdNumberChange = (event) => valueTemplate('chainIdInt', 'number', $(event.target).val());
 
         // Blockchain Name
         const blockName = $(blockNameRef.current);
-        blockName.val(item.chainName);
-
-        const blockNameChange = () => {
-
-        };
+        const blockNameChange = (event) => valueTemplate('chainName', 'string', $(event.target).val(), undefined, setBlockchainName);
 
         // Token Name
         const tokenName = $(tokenNameRef.current);
-        tokenName.val(item.nativeCurrency?.name);
-
-        const tokenNameChange = () => {
-
-        };
+        const tokenNameChange = (event) => valueTemplate('nativeCurrency', 'string', $(event.target).val(), 'name');
 
         // Token Symbol
         const tokenSymbol = $(tokenSymbolRef.current);
-        tokenSymbol.val(item.nativeCurrency?.symbol);
-
-        const tokenSymbolChange = () => {
-
-        };
+        const tokenSymbolChange = (event) => valueTemplate('nativeCurrency', 'string', $(event.target).val(), 'symbol');
 
         // Token Decimals
         const tokenDecimals = $(tokenDecimalsRef.current);
-        tokenDecimals.val(item.nativeCurrency?.decimals);
-
-        const tokenDecimalsChange = () => {
-
-        };
+        const tokenDecimalsChange = (event) => valueTemplate('nativeCurrency', 'number', $(event.target).val(), 'decimals');
 
         // Explorer Url
         const explorerUrl = $(explorerUrlRef.current);
-        explorerUrl.val(item?.blockExplorerUrls.join(','));
-
-        const explorerUrlChange = () => {
-
-        };
+        const explorerUrlChange = (event) => valueTemplate('blockExplorerUrls', 'array', $(event.target).val(), undefined, setBlockchainExplorer);
 
         // Explorer Url - API
         const explorerUrlApi = $(explorerUrlApiRef.current);
-        explorerUrlApi.val(item?.blockExplorerApis.join(','));
-
-        const explorerUrlApiChange = () => {
-
-        };
+        const explorerUrlApiChange = (event) => valueTemplate('blockExplorerApis', 'array', $(event.target).val());
 
         // Chain RPC
         const chainRpc = $(chainRpcRef.current);
-        chainRpc.val(item?.rpcUrls.join(','));
-
-        const chainRpcChange = () => {
-
-        };
+        const chainRpcChange = (event) => valueTemplate('rpcUrls', 'array', $(event.target).val());
 
         // Factory Smart Contract
         const factorySc = $(factoryScRef.current);
-        factorySc.val(item?.factory.join(','));
+        const factoryScChange = (event) => valueTemplate('factory', 'array', $(event.target).val());
 
-        const factoryScChange = () => {
+        loadData = () => {
+
+            const web3Settings = getWeb3Cfg();
+            const newItem = web3Settings.networks[tinyNetwork];
+
+            // Blockchain Id
+            blockId.val(blockchainId);
+
+            // Blockchain Id Int
+            blockIdNumber.val(newItem.chainIdInt);
+
+            // Blockchain Name
+            blockName.val(blockchainName);
+
+            // Token Name
+            tokenName.val(newItem.nativeCurrency?.name);
+
+            // Token Symbol
+            tokenSymbol.val(newItem.nativeCurrency?.symbol);
+
+            // Token Decimals
+            tokenDecimals.val(newItem.nativeCurrency?.decimals);
+
+            // Explorer Url
+            explorerUrl.val(blockchainExplorer);
+
+            // Explorer Url - API
+            explorerUrlApi.val(Array.isArray(newItem?.blockExplorerApis) ? newItem.blockExplorerApis.join(', ') : '');
+
+            // Chain RPC
+            chainRpc.val(Array.isArray(newItem?.rpcUrls) ? newItem.rpcUrls.join(', ') : '');
+
+            // Factory Smart Contract
+            factorySc.val(Array.isArray(newItem?.factory) ? newItem.factory.join(', ') : '');
 
         };
 
         // Turn On
+        loadData();
+
         idValue.on('change', idValueChange);
         blockId.on('change', blockIdChange);
         blockIdNumber.on('change', blockIdNumberChange);
@@ -138,81 +238,124 @@ function Web3Item({ item, networkId }) {
 
     });
 
-    return <div className="card noselect mb-3">
+    return <div ref={divBaseRef} className="card noselect mb-3">
         <ul className="list-group list-group-flush">
 
             <li className="list-group-item very-small text-gray">
-                <a data-bs-toggle="collapse" href={`#chain_collapse_${item.chainId}`} role="button" aria-expanded="false" aria-controls={`chain_collapse_${item.chainId}`}>
-                    {item.chainName} <img src={`${item?.blockExplorerUrls}images/favicon.ico`} className='ms-2 img-fluid' style={{ height: 20 }} alt='logo' />
+                <a data-bs-toggle="collapse" href={`#chain_collapse_${blockchainId}`} role="button" aria-expanded="false" aria-controls={`chain_collapse_${blockchainId}`}>
+                    {blockchainName} {blockchainExplorer && typeof blockchainExplorer[0] === 'string' && blockchainExplorer[0].length > 0 ? <img src={`${blockchainExplorer[0]}images/favicon.ico`} onError={(event) => {
+                        $(event.target).remove();
+                    }} className='ms-2 img-fluid' style={{ height: 20 }} height={20} alt='logo' /> : null}
                 </a>
             </li>
 
-            <li id={`chain_collapse_${item.chainId}`} className="list-group-item collapse">
+            <li id={`chain_collapse_${blockchainId}`} className="list-group-item collapse">
 
                 <div className="mb-3">
-                    <label for={`chain_name_id_${item.chainId}`} className="form-label small">Chain Name</label>
-                    <input ref={blockNameRef} type="text" className="form-control form-control-bg" id={`chain_name_id_${item.chainId}`} />
+                    <label for={`chain_name_id_${blockchainId}`} className="form-label small">Chain Name</label>
+                    <input ref={blockNameRef} type="text" className="form-control form-control-bg" id={`chain_name_id_${blockchainId}`} />
                     <div className="very-small text-gray">Put the blockchain name here.</div>
                 </div>
 
                 <div className="mb-3">
-                    <label for={`chain_${item.chainId}`} className="form-label small">Object Id</label>
-                    <input ref={idValueRef} type="text" className="form-control form-control-bg" id={`chain_id_${item.chainId}`} />
+                    <label for={`chain_${blockchainId}`} className="form-label small">Object Id</label>
+                    <input ref={idValueRef} type="text" className="form-control form-control-bg" id={`chain_id_${blockchainId}`} />
                     <div className="very-small text-gray">This is the name to the blockchain id. This is recommend using only lowercase letters and no spaces to work correctly.</div>
                 </div>
 
                 <div className="mb-3">
-                    <label for={`chain_block_id_${item.chainId}`} className="form-label small">Blockchain Id</label>
-                    <input ref={blockIdRef} type="text" className="form-control form-control-bg" id={`chain_block_id_${item.chainId}`} />
+                    <label for={`chain_block_id_${blockchainId}`} className="form-label small">Blockchain Id</label>
+                    <input ref={blockIdRef} type="text" className="form-control form-control-bg" id={`chain_block_id_${blockchainId}`} />
                     <div className="very-small text-gray">This is the blockchain identifier value within the Ethereum network. Enter a chain value here.</div>
                 </div>
 
                 <div className="mb-3">
-                    <label for={`chain_block_id_number_${item.chainId}`} className="form-label small">Blockchain Id</label>
-                    <input ref={blockIdNumberRef} type="text" className="form-control form-control-bg" id={`chain_block_id_number_${item.chainId}`} />
+                    <label for={`chain_block_id_number_${blockchainId}`} className="form-label small">Blockchain Id (Number)</label>
+                    <input ref={blockIdNumberRef} type="number" className="form-control form-control-bg" id={`chain_block_id_number_${blockchainId}`} />
                     <div className="very-small text-gray">This is the blockchain identifier value (Number) within the Ethereum network. Enter a chain value here.</div>
                 </div>
 
                 <div className="mb-3">
-                    <label for={`chain_factory_${item.chainId}`} className="form-label small">Factory Smart Contract</label>
-                    <input ref={factoryScRef} type="text" className="form-control form-control-bg" id={`chain_factory_${item.chainId}`} />
+                    <label for={`chain_factory_${blockchainId}`} className="form-label small">Factory Smart Contract</label>
+                    <input ref={factoryScRef} type="text" className="form-control form-control-bg" id={`chain_factory_${blockchainId}`} />
                     <div className="very-small text-gray">The smart contract of the blockchain factory.</div>
                 </div>
 
                 <div className="mb-3">
-                    <label for={`chain_explorer_id_${item.chainId}`} className="form-label small">Explorer Url</label>
-                    <input ref={explorerUrlRef} type="text" className="form-control form-control-bg" id={`chain_explorer_id_${item.chainId}`} />
+                    <label for={`chain_explorer_id_${blockchainId}`} className="form-label small">Explorer Url</label>
+                    <input ref={explorerUrlRef} type="text" className="form-control form-control-bg" id={`chain_explorer_id_${blockchainId}`} />
                     <div className="very-small text-gray">The url of the blockchain explorer server.</div>
                 </div>
 
                 <div className="mb-3">
-                    <label for={`chain_explorer_api_id_${item.chainId}`} className="form-label small">Explorer API Url</label>
-                    <input ref={explorerUrlApiRef} type="text" className="form-control form-control-bg" id={`chain_explorer_api_id_${item.chainId}`} />
+                    <label for={`chain_explorer_api_id_${blockchainId}`} className="form-label small">Explorer API Url</label>
+                    <input ref={explorerUrlApiRef} type="text" className="form-control form-control-bg" id={`chain_explorer_api_id_${blockchainId}`} />
                     <div className="very-small text-gray">The api url of the blockchain explorer server.</div>
                 </div>
 
                 <div className="mb-3">
-                    <label for={`chain_rpc_id_${item.chainId}`} className="form-label small">RPC Url</label>
-                    <input ref={chainRpcRef} type="text" className="form-control form-control-bg" id={`chain_rpc_id_${item.chainId}`} />
+                    <label for={`chain_rpc_id_${blockchainId}`} className="form-label small">RPC Url</label>
+                    <input ref={chainRpcRef} type="text" className="form-control form-control-bg" id={`chain_rpc_id_${blockchainId}`} />
                     <div className="very-small text-gray">The RPC url of the blockchain server.</div>
                 </div>
 
                 <div className="mb-3">
-                    <label for={`chain_name_${item.chainId}`} className="form-label small">Name</label>
-                    <input ref={tokenNameRef} type="text" className="form-control form-control-bg" id={`chain_name_${item.chainId}`} />
+                    <label for={`chain_name_${blockchainId}`} className="form-label small">Name</label>
+                    <input ref={tokenNameRef} type="text" className="form-control form-control-bg" id={`chain_name_${blockchainId}`} />
                     <div className="very-small text-gray">The token name.</div>
                 </div>
 
                 <div className="mb-3">
-                    <label for={`chain_symbol_${item.chainId}`} className="form-label small">Symbol</label>
-                    <input ref={tokenSymbolRef} type="text" className="form-control form-control-bg" id={`chain_symbol_${item.chainId}`} />
+                    <label for={`chain_symbol_${blockchainId}`} className="form-label small">Symbol</label>
+                    <input ref={tokenSymbolRef} type="text" className="form-control form-control-bg" id={`chain_symbol_${blockchainId}`} />
                     <div className="very-small text-gray">The token symbol.</div>
                 </div>
 
                 <div className="mb-3">
-                    <label for={`chain_decimals_${item.chainId}`} className="form-label small">Decimals</label>
-                    <input ref={tokenDecimalsRef} type="number" min={0} className="form-control form-control-bg" id={`chain_decimals_${item.chainId}`} />
+                    <label for={`chain_decimals_${blockchainId}`} className="form-label small">Decimals</label>
+                    <input ref={tokenDecimalsRef} type="number" min={0} className="form-control form-control-bg" id={`chain_decimals_${blockchainId}`} />
                     <div className="very-small text-gray">The token decimals.</div>
+                </div>
+
+                <div className="mb-3">
+
+                    {defaultNetworks[tinyNetwork] ?
+
+                        <button type="button" className="btn btn-sm btn-danger" onClick={async () => {
+                            const isConfirmed = await tinyConfirm('Are you sure you want to reset this network data?', 'Web3 network');
+                            if (isConfirmed) {
+
+                                const web3Settings = getWeb3Cfg();
+
+                                if (web3Settings.networks[tinyNetwork]) delete web3Settings.networks[tinyNetwork];
+                                web3Settings.networks[tinyNetwork] = defaultNetworks[tinyNetwork];
+
+                                setWeb3Cfg('networks', web3Settings.networks);
+                                const newItem = web3Settings.networks[tinyNetwork];
+
+                                setBlockchainName(typeof newItem.chainName === 'string' ? newItem.chainName : '');
+                                setBlockId(typeof newItem.chainId === 'string' ? newItem.chainId : '');
+                                setBlockchainExplorer(Array.isArray(newItem?.blockExplorerUrls) ? newItem.blockExplorerUrls : ['']);
+                                if (typeof loadData === 'function') loadData();
+
+                            }
+                        }}>Reset Data</button> :
+
+                        <button type="button" className={`btn btn-sm btn-danger${defaultNetworks[tinyNetwork] ? ' me-3' : ''} my-1 my-sm-0`} onClick={async () => {
+                            const isConfirmed = await tinyConfirm('Are you sure you want to delete this network?', 'Web3 network');
+                            if (isConfirmed) {
+
+                                $(divBaseRef.current).addClass('d-none');
+                                const web3Settings = getWeb3Cfg();
+
+                                if (web3Settings.networks[tinyNetwork]) delete web3Settings.networks[tinyNetwork];
+                                setWeb3Cfg('networks', web3Settings.networks);
+
+                            }
+                        }}>Delete Data</button>
+
+                    }
+
                 </div>
 
             </li>

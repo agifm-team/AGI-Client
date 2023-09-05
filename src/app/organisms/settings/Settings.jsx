@@ -85,7 +85,7 @@ const tabItems = [
     render: () => <IpfsSection />,
   },
 
-  /*  {
+  /* {
     text: tabText.WEB3,
     faSrc: "fa-brands fa-ethereum",
     disabled: false,

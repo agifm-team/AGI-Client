@@ -4,6 +4,7 @@ import startPeopleSelector from './bots/PeopleSelector';
 
 import buttons, { addRoomOptions } from './menu/Buttons';
 import Welcome from './bots/Welcome';
+import Message from './bots/Message';
 
 export default function startTest(firstTime) {
 
@@ -29,5 +30,8 @@ export default function startTest(firstTime) {
 
     // Welcome Page
     tinyAPI.on('startWelcomePage', (data, tinyWelcome) => { tinyWelcome.html = <Welcome />; });
+
+    // Message Reader
+    tinyAPI.on('messageBody', (data, content) => Message(data, content));
 
 };

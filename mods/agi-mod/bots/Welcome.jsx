@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
 import defaultAvatar from '../../../src/app/atoms/avatar/defaultAvatar';
+import { serverAddress } from '../socket';
 
 let connectionTestTimeout = false;
 
 let selected = null;
-const serverAddress = 'http://13.56.181.201:5000/';
+const apiAddress = `${serverAddress}api/v1/`;
 function Welcome() {
 
     // Data
@@ -17,11 +18,11 @@ function Welcome() {
     useEffect(() => {
 
         // Set Data
-        /* if ((selected !== tinyType || !data) && !loadingData) {
+        if ((selected !== tinyType || !data) && !loadingData) {
 
             // Load Data
             setLoadingData(true);
-            fetch(`${serverAddress}get_list/${tinyType}`, {
+            fetch(`${apiAddress}get_list/${tinyType}`, {
                 headers: {
                     'Accept': 'application/json'
                 }
@@ -51,7 +52,7 @@ function Welcome() {
                 }
 
             });
-        } */
+        }
 
     });
 

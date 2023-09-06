@@ -145,6 +145,33 @@
   animation-name: none !important;
 }
 
+/* Agents Bar */
+.people-drawer-select-agents {
+  .agent-button {
+    cursor: pointer;
+
+    &:hover {
+      .avatar {
+        filter: brightness(75%);
+      }
+
+      .card-title {
+        color: var(--tc-link) !important;
+      }
+
+      .card-text {
+        color: var(--tc-surface-normal) !important;
+      }
+    }
+
+    &:active {
+      .avatar {
+        filter: brightness(55%);
+      }
+    }
+  }
+}
+
 /* Buttons Back text position */
 .room-view__unread--open,
 .room-view__STB--open {

@@ -20,17 +20,17 @@ function GradioEmbed({ agiData }) {
             };
 
             embed.addEventListener('render', embedMessage);
-            embed.addEventListener('message', embedMessage2);
+            embed.addEventListener('status', embedMessage2);
             return () => {
                 embed.removeEventListener('render', embedMessage);
-                embed.removeEventListener('message', embedMessage2);
+                embed.removeEventListener('status', embedMessage2);
             };
 
         }
     });
 
     return <div className='mt-2 ratio ratio-16x9 embed-video enabled agi-client-embed'>
-        <gradio-app ref={embedRef} src={agiData.url} />
+        <iframe allow='camera;microphone' title='gradio' ref={embedRef} src={agiData.url} autoscroll />
     </div>;
 
 };

@@ -6,7 +6,11 @@ import buttons, { addRoomOptions } from './menu/Buttons';
 import Welcome from './bots/Welcome';
 import startMessage from './bots/Message';
 
-export default function startTest(firstTime) {
+if ($('head').find('#gradio-api').length < 1) {
+    $('head').append($('<script>', { src: 'https://gradio.s3-us-west-2.amazonaws.com/3.42.0/gradio.js', id: 'gradio-api', type: 'module' }))
+}
+
+export default function startAgiMod(firstTime) {
 
     // Normal Loading
     if (!firstTime) {

@@ -1,9 +1,5 @@
 import React, { useRef, useEffect } from 'react';
 
-if ($('head').find('#gradio-api').length < 1) {
-    $('head').append($('<script>', { src: 'https://gradio.s3-us-west-2.amazonaws.com/3.42.0/gradio.js', id: 'gradio-api', type: 'module' }))
-}
-
 function GradioEmbed({ agiData }) {
 
     const embedRef = useRef(null);

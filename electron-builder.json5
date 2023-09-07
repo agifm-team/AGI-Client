@@ -3,7 +3,7 @@
  */
 {
   appId: 'agi-client-matrix',
-  productName: 'Agi Client',
+  productName: 'Immagine.AI',
   copyright: 'Copyright © 2023 ${author}',
   asar: true,
   directories: {

@@ -34,7 +34,7 @@
     "brony-fandom",
     "pony-house"
   ],
-  "author": "JasminDreasond (Yasmin Seidel)",
+  "author": "seshu.bonam",
   "license": "AGPL-3.0-only",
   "dependencies": {
     "@capacitor/android": "5.2.2",

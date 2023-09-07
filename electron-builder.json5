@@ -2,7 +2,7 @@
  * @see https://www.electron.build/configuration/configuration
  */
 {
-  appId: 'agi-client-matrix',
+  appId: 'immagine-ai-matrix',
   productName: 'Immagine.AI',
   copyright: 'Copyright © 2023 ${author}',
   asar: true,

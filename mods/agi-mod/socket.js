@@ -12,20 +12,20 @@ const socket = socketIOClient(serverAddress, {
 });
 
 socket.on('connect', () => {
-    console.log(`[agi.fm] [socket] Connected on the Id: ${socket.id}`);
+    console.log(`[immagine.ai] [socket] Connected on the Id: ${socket.id}`);
 });
 
 socket.on('start', () => {
-    console.log('[agi.fm] [socket] start');
+    console.log('[immagine.ai] [socket] start');
 });
 
 socket.on('token', (token) => {
-    console.log('[agi.fm] [socket] token:', token);
+    console.log('[immagine.ai] [socket] token:', token);
 });
 
 
 socket.on('end', () => {
-    console.log('[agi.fm] [socket] end');
+    console.log('[immagine.ai] [socket] end');
 });
 
 socket.connect();

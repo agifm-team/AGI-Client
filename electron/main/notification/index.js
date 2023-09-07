@@ -79,7 +79,7 @@ const engines = {
 
         notifier.notify({
 
-            appID: 'agi-client-matrix',
+            appID: 'immagine-ai-matrix',
             id: tag,
 
             title: data?.title,

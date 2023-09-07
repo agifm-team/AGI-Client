@@ -12,7 +12,7 @@ export default function startAgiMod(firstTime) {
     if (!firstTime) {
 
         // Start Mod
-        console.log('[agi.fm] Loading mod...');
+        console.log('[immagine.ai] Loading mod...');
 
         // Start Buttons
         startPeopleSelector();
@@ -25,7 +25,7 @@ export default function startAgiMod(firstTime) {
         tinyAPI.on('selectTabAfter', () => addRoomOptions({}, 'room'));
 
         // Mod Loaded
-        console.log('[agi.fm] Loading complete!');
+        console.log('[immagine.ai] Loading complete!');
 
     }
 

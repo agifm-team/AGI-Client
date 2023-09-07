@@ -4,21 +4,8 @@
 }
 
 /* Modals */
+#agi-superagent-modal,
 #agi-flowise-modal {
-  .modal-dialog {
-    min-width: 80%;
-  }
-
-  @media (max-width: 768px) {
-    .modal-dialog,
-    .modal-content {
-      min-width: 100% !important;
-      min-height: 100% !important;
-    }
-  }
-}
-
-#agi-superagent-modal {
   .modal-fullscreen {
     .modal-header {
       height: 33px;

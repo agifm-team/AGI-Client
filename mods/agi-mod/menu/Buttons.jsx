@@ -175,7 +175,7 @@ export default function buttons() {
     // Add Click
     flowise.tooltip({ placement: 'right' }).on('click', () => btModal({
         id: 'agi-flowise-modal',
-        dialog: 'modal-lg',
+        dialog: 'modal-fullscreen',
         title: 'Flowise',
         body: jReact(<iframe title='Flowise' src={serverAddress} className='w-100 height-modal-full-size' style={{ backgroundColor: '#000' }} />)
     }));

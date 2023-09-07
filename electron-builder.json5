@@ -3,6 +3,8 @@
  */
 {
   appId: 'agi-client-matrix',
+  productName: 'Agi Client',
+  copyright: 'Copyright © 2023 ${author}',
   asar: true,
   directories: {
     output: 'release/${version}',
@@ -26,6 +28,7 @@
     perMachine: false,
     allowToChangeInstallationDirectory: true,
     deleteAppDataOnUninstall: false,
+    uninstallDisplayName: 'Pony House',
   },
   publish: {
     provider: 'generic',

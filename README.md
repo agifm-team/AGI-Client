@@ -41,6 +41,8 @@ Would you like to customize your login page to your website? Then you can check 
 
 Replace this value to change the appID: `agi-client-matrix`
 
+Replace some values in the file: `electron-builder.json5`
+
 App title in `electron/main/index.ts`.
 
 If you would like to edit the version checker url, you can edit the `src/client/state/cons.js` file.
@@ -85,6 +87,8 @@ yarn build # Compiles the app into the dist/ directory
 
 ### Electron (Desktop)
 > While you're using the app's dev mode, it's normal for the app to show that it's disconnected for a few seconds before fully loading the page. Notifications may not mute OS sound in application dev mode. The same thing can happen for notification click events to fail only in dev mode.
+
+The application has only been tested on the linux platform. But that won't stop you from trying to deploy to Windows or Mac.
 
 Execute the following commands to start a development server (or a Ionic environment):
 ```sh

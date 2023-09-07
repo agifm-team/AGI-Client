@@ -14,7 +14,7 @@
 
 </center>
 
-# AGI Haus
+# Immagine.AI
 
 A Cinny fork Matrix client focusing primarily on AI Agent utility with a simple, elegant and secure interface. The main goal is to build an Agent platform that is easy to use and has a pro tools for ai assisted productivity and fun.
 

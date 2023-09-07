@@ -94,7 +94,7 @@ export function addRoomOptions(dt, roomType) {
         // Bot List button
         botsMenu.find('> button').tooltip({ placement: 'bottom' }).on('click', () => {
             $.LoadingOverlay('show');
-            fetch(`https://flow.agi.fm/api/v1/get_bots/${mx.getUserId()}`, {
+            fetch(`${serverAddress}api/v1/get_bots/${mx.getUserId()}`, {
                 headers: {
                     'Accept': 'application/json'
                 }

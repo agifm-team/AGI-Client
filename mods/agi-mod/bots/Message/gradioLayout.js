@@ -61,10 +61,6 @@ const components = {
 
         }
 
-        if (props.show_label && props.label && id !== null) {
-            finalResult.append();
-        }
-
         return finalResult;
 
     },
@@ -260,6 +256,14 @@ const components = {
 
     video: (props) => {
         console.log(`Video`, props);
+    },
+
+    row: (props) => {
+        console.log(`Row`, props);
+    },
+
+    form: (props) => {
+        console.log(`Row`, props);
     },
 
 };

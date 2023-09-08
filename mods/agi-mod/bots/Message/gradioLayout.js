@@ -3,148 +3,148 @@ import { objType } from '../../../../src/util/tools';
 // Components
 const components = {
 
-    Audio: (component) => {
-
+    audio: (component) => {
+        console.log(`Audio`, component);
     },
 
-    BarPlot: (component) => {
-
+    barplot: (component) => {
+        console.log(`BarPlot`, component);
     },
 
-    Button: (component) => {
-
+    button: (component) => {
+        console.log(`Button`, component);
     },
 
-    Chatbot: (component) => {
-
+    chatbot: (component) => {
+        console.log(`Chatbot`, component);
     },
 
-    Checkbox: (component) => {
-
+    checkbox: (component) => {
+        console.log(`Checkbox`, component);
     },
 
-    CheckboxGroup: (component) => {
-
+    checkboxgroup: (component) => {
+        console.log(`CheckboxGroup`, component);
     },
 
-    ClearButton: (component) => {
-
+    clearbutton: (component) => {
+        console.log(`ClearButton`, component);
     },
 
-    Code: (component) => {
-
+    code: (component) => {
+        console.log(`Code`, component);
     },
 
-    ColorPicker: (component) => {
-
+    colorpicker: (component) => {
+        console.log(`ColorPicker`, component);
     },
 
-    Dataframe: (component) => {
-
+    dataframe: (component) => {
+        console.log(`Dataframe`, component);
     },
 
-    Dataset: (component) => {
-
+    dataset: (component) => {
+        console.log(`Dataset`, component);
     },
 
-    Dropdown: (component) => {
-
+    dropdown: (component) => {
+        console.log(`Dropdown`, component);
     },
 
-    DuplicateButton: (component) => {
-
+    duplicatebutton: (component) => {
+        console.log(`DuplicateButton`, component);
     },
 
-    File: (component) => {
-
+    file: (component) => {
+        console.log(`File`, component);
     },
 
-    Gallery: (component) => {
-
+    gallery: (component) => {
+        console.log(`Gallery`, component);
     },
 
-    HTML: (component) => {
-
+    html: (component) => {
+        console.log(`HTML`, component);
     },
 
-    HighlightedText: (component) => {
-
+    highlightedtext: (component) => {
+        console.log(`HighlightedText`, component);
     },
 
-    Image: (component) => {
-
+    image: (component) => {
+        console.log(`Image`, component);
     },
 
-    Interpretation: (component) => {
-
+    interpretation: (component) => {
+        console.log(`Interpretation`, component);
     },
 
-    JSON: (component) => {
-
+    json: (component) => {
+        console.log(`JSON`, component);
     },
 
-    Label: (component) => {
-
+    label: (component) => {
+        console.log(`Label`, component);
     },
 
-    LinePlot: (component) => {
-
+    lineplot: (component) => {
+        console.log(`LinePlot`, component);
     },
 
-    LoginButton: (component) => {
-
+    loginbutton: (component) => {
+        console.log(`LoginButton`, component);
     },
 
-    LogoutButton: (component) => {
-
+    logoutbutton: (component) => {
+        console.log(`LogoutButton`, component);
     },
 
-    Markdown: (component) => {
-
+    markdown: (component) => {
+        console.log(`Markdown`, component);
     },
 
-    Model3D: (component) => {
-
+    model3d: (component) => {
+        console.log(`Model3D`, component);
     },
 
-    Number: (component) => {
-
+    number: (component) => {
+        console.log(`Number`, component);
     },
 
-    Plot: (component) => {
-
+    plot: (component) => {
+        console.log(`Plot`, component);
     },
 
-    Radio: (component) => {
-
+    radio: (component) => {
+        console.log(`Radio`, component);
     },
 
-    ScatterPlot: (component) => {
-
+    scatterplot: (component) => {
+        console.log(`ScatterPlot`, component);
     },
 
-    Slider: (component) => {
-
+    slider: (component) => {
+        console.log(`Slider`, component);
     },
 
-    State: (component) => {
-
+    state: (component) => {
+        console.log(`State`, component);
     },
 
-    Textbox: (component) => {
-
+    textbox: (component) => {
+        console.log(`Textbox`, component);
     },
 
-    Timeseries: (component) => {
-
+    timeseries: (component) => {
+        console.log(`Timeseries`, component);
     },
 
-    UploadButton: (component) => {
-
+    uploadbutton: (component) => {
+        console.log(`UploadButton`, component);
     },
 
-    Video: (component) => {
-
+    video: (component) => {
+        console.log(`Video`, component);
     },
 
 };

@@ -65,22 +65,14 @@ function PeopleSelector({ avatarSrc, name, peopleRole, }) {
 }
 
 PeopleSelector.defaultProps = {
-    avatarAnimSrc: null,
     avatarSrc: null,
     peopleRole: null,
-    user: null,
-    disableStatus: false,
 };
 
 PeopleSelector.propTypes = {
-    disableStatus: PropTypes.bool,
-    user: PropTypes.object,
-    avatarAnimSrc: PropTypes.string,
     avatarSrc: PropTypes.string,
     name: PropTypes.string.isRequired,
-    color: PropTypes.string.isRequired,
     peopleRole: PropTypes.string,
-    onClick: PropTypes.func.isRequired,
 };
 
 export default PeopleSelector;

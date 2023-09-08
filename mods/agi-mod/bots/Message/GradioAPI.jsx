@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { client } from '@gradio/client';
+import { objType } from '../../../../src/util/tools';
 
 function GradioEmbed({ agiData }) {
 
@@ -28,9 +29,9 @@ function GradioEmbed({ agiData }) {
             // Execute Data
             else {
 
+                // Test
                 const embed = $(embedRef.current);
                 console.log(app);
-                console.log(appInfo);
 
             }
 

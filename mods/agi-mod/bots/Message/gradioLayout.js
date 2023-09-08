@@ -59,7 +59,43 @@ const components = {
     },
 
     dropdown: (props) => {
-        console.log(`Dropdown`, props);
+
+        const finalResult = displayOptions(props);
+        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+
+        if (props.show_label && props.label && id !== null) {
+            finalResult.append($('<label>', { for: id, class: 'form-label' }).text(props.label));
+        }
+
+        const dropdown = $(`<select>`, {
+            id: id !== null ? id : null,
+            class: 'form-control form-control-bg'
+        });
+
+        if (Array.isArray(props.choices) && props.choices.length > 0) {
+
+            for (const item in props.choices) {
+                if (typeof props.choices[item] === 'string') {
+                    dropdown.append($('<option>', { value: props.choices[item] }).text(props.choices[item]));
+                }
+            }
+
+            if (props.allow_custom_value) {
+                dropdown.append($('<option>', { value: 'custom' }).text('Custom'));
+            }
+
+            dropdown.val(props.value);
+
+            if (props.allow_custom_value) {
+                dropdown.append($('<input>', { type: 'text', value: props.value, readonly: (props.choices.indexOf(props.value) > -1) }));
+            }
+
+            finalResult.append(dropdown);
+
+        }
+
+        return finalResult;
+
     },
 
     duplicatebutton: (props) => {
@@ -143,23 +179,22 @@ const components = {
         const finalResult = displayOptions(props);
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
 
+        if (props.show_label && props.label && id !== null) {
+            finalResult.append($('<label>', { for: id, class: 'form-label' }).text(props.label));
+        }
+
         const tinyNoteSpacing = (event) => {
             const element = event.target;
             element.style.height = `${Number(element.scrollHeight)}px`;
         };
 
-        const textarea = $(`<${props.container ? 'input' : 'textarea'}>`, {
+        const textarea = $(`<textarea>`, {
             id: id !== null ? id : null,
             placeholder: props.placeholder,
             class: 'form-control form-control-bg'
         }).on('keypress keyup keydown', tinyNoteSpacing);
 
         textarea.val(props.value);
-
-        if (props.show_label && props.label && id !== null) {
-            finalResult.append($('<label>', { for: id, class: 'form-label' }).text(props.label));
-        }
-
         finalResult.append(textarea);
 
         if (props.show_copy_button) {

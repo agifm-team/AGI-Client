@@ -3,7 +3,149 @@ import { objType } from '../../../../src/util/tools';
 // Components
 const components = {
 
+    Audio: (component) => {
 
+    },
+
+    BarPlot: (component) => {
+
+    },
+
+    Button: (component) => {
+
+    },
+
+    Chatbot: (component) => {
+
+    },
+
+    Checkbox: (component) => {
+
+    },
+
+    CheckboxGroup: (component) => {
+
+    },
+
+    ClearButton: (component) => {
+
+    },
+
+    Code: (component) => {
+
+    },
+
+    ColorPicker: (component) => {
+
+    },
+
+    Dataframe: (component) => {
+
+    },
+
+    Dataset: (component) => {
+
+    },
+
+    Dropdown: (component) => {
+
+    },
+
+    DuplicateButton: (component) => {
+
+    },
+
+    File: (component) => {
+
+    },
+
+    Gallery: (component) => {
+
+    },
+
+    HTML: (component) => {
+
+    },
+
+    HighlightedText: (component) => {
+
+    },
+
+    Image: (component) => {
+
+    },
+
+    Interpretation: (component) => {
+
+    },
+
+    JSON: (component) => {
+
+    },
+
+    Label: (component) => {
+
+    },
+
+    LinePlot: (component) => {
+
+    },
+
+    LoginButton: (component) => {
+
+    },
+
+    LogoutButton: (component) => {
+
+    },
+
+    Markdown: (component) => {
+
+    },
+
+    Model3D: (component) => {
+
+    },
+
+    Number: (component) => {
+
+    },
+
+    Plot: (component) => {
+
+    },
+
+    Radio: (component) => {
+
+    },
+
+    ScatterPlot: (component) => {
+
+    },
+
+    Slider: (component) => {
+
+    },
+
+    State: (component) => {
+
+    },
+
+    Textbox: (component) => {
+
+    },
+
+    Timeseries: (component) => {
+
+    },
+
+    UploadButton: (component) => {
+
+    },
+
+    Video: (component) => {
+
+    },
 
 };
 

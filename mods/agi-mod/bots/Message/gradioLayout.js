@@ -35,7 +35,38 @@ const components = {
     },
 
     checkboxgroup: (props) => {
-        console.log(`CheckboxGroup`, props);
+
+        const finalResult = displayOptions(props);
+        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        finalResult.attr('id', id);
+
+        if (props.show_label && props.label && id !== null) {
+            finalResult.append($('<label>', { for: id, class: 'form-label' }).text(props.label));
+        }
+
+        if (Array.isArray(props.choices) && props.choices.length > 0) {
+
+            for (const item in props.choices) {
+                if (typeof props.choices[item] === 'string') {
+
+                    const input = $(`<div>`, { class: 'form-check' }).append(
+                        $('<input>', { id: id !== null ? id + item : null, class: 'form-check-input', type: 'radio', value: props.choices[item] }),
+                        $('<label>', { for: id !== null ? id + item : null, class: 'form-check-label' }).text(props.choices[item]),
+                    );
+
+                    finalResult.append(input);
+
+                }
+            }
+
+        }
+
+        if (props.show_label && props.label && id !== null) {
+            finalResult.append();
+        }
+
+        return finalResult;
+
     },
 
     clearbutton: (props) => {

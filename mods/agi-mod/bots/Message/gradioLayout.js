@@ -1,150 +1,192 @@
-import { objType } from '../../../../src/util/tools';
+import { objType, toast } from '../../../../src/util/tools';
+import { copyToClipboard } from '../../../../src/util/common';
 
 // Components
 const components = {
 
-    audio: (component) => {
-        console.log(`Audio`, component);
+    audio: (props) => {
+        console.log(`Audio`, props);
     },
 
-    barplot: (component) => {
-        console.log(`BarPlot`, component);
+    barplot: (props) => {
+        console.log(`BarPlot`, props);
     },
 
-    button: (component) => {
-        console.log(`Button`, component);
+    button: (props) => $('<button>', {
+        id: props.elem_id ? `gradio_${props.elem_id}` : null,
+        class: `${!props.visible ? 'd-none ' : ''}btn btn-${props.variant ? props.variant : 'bg'}`
+    }).data('gradio_props', props).text(props.value),
+
+    chatbot: (props) => {
+        console.log(`Chatbot`, props);
     },
 
-    chatbot: (component) => {
-        console.log(`Chatbot`, component);
+    checkbox: (props) => {
+        console.log(`Checkbox`, props);
     },
 
-    checkbox: (component) => {
-        console.log(`Checkbox`, component);
+    checkboxgroup: (props) => {
+        console.log(`CheckboxGroup`, props);
     },
 
-    checkboxgroup: (component) => {
-        console.log(`CheckboxGroup`, component);
+    clearbutton: (props) => {
+        console.log(`ClearButton`, props);
     },
 
-    clearbutton: (component) => {
-        console.log(`ClearButton`, component);
+    code: (props) => {
+        console.log(`Code`, props);
     },
 
-    code: (component) => {
-        console.log(`Code`, component);
+    colorpicker: (props) => {
+        console.log(`ColorPicker`, props);
     },
 
-    colorpicker: (component) => {
-        console.log(`ColorPicker`, component);
+    dataframe: (props) => {
+        console.log(`Dataframe`, props);
     },
 
-    dataframe: (component) => {
-        console.log(`Dataframe`, component);
+    dataset: (props) => {
+        console.log(`Dataset`, props);
     },
 
-    dataset: (component) => {
-        console.log(`Dataset`, component);
+    dropdown: (props) => {
+        console.log(`Dropdown`, props);
     },
 
-    dropdown: (component) => {
-        console.log(`Dropdown`, component);
+    duplicatebutton: (props) => {
+        console.log(`DuplicateButton`, props);
     },
 
-    duplicatebutton: (component) => {
-        console.log(`DuplicateButton`, component);
+    file: (props) => {
+        console.log(`File`, props);
     },
 
-    file: (component) => {
-        console.log(`File`, component);
+    gallery: (props) => {
+        console.log(`Gallery`, props);
     },
 
-    gallery: (component) => {
-        console.log(`Gallery`, component);
+    html: (props) => $(props.value),
+
+    highlightedtext: (props) => {
+        console.log(`HighlightedText`, props);
     },
 
-    html: (component) => {
-        console.log(`HTML`, component);
+    image: (props) => {
+        console.log(`Image`, props);
     },
 
-    highlightedtext: (component) => {
-        console.log(`HighlightedText`, component);
+    interpretation: (props) => {
+        console.log(`Interpretation`, props);
     },
 
-    image: (component) => {
-        console.log(`Image`, component);
+    json: (props) => {
+        console.log(`JSON`, props);
     },
 
-    interpretation: (component) => {
-        console.log(`Interpretation`, component);
+    label: (props) => {
+        console.log(`Label`, props);
     },
 
-    json: (component) => {
-        console.log(`JSON`, component);
+    lineplot: (props) => {
+        console.log(`LinePlot`, props);
     },
 
-    label: (component) => {
-        console.log(`Label`, component);
+    loginbutton: (props) => {
+        console.log(`LoginButton`, props);
     },
 
-    lineplot: (component) => {
-        console.log(`LinePlot`, component);
+    logoutbutton: (props) => {
+        console.log(`LogoutButton`, props);
     },
 
-    loginbutton: (component) => {
-        console.log(`LoginButton`, component);
+    markdown: (props) => {
+        console.log(`Markdown`, props);
     },
 
-    logoutbutton: (component) => {
-        console.log(`LogoutButton`, component);
+    model3d: (props) => {
+        console.log(`Model3D`, props);
     },
 
-    markdown: (component) => {
-        console.log(`Markdown`, component);
+    number: (props) => {
+        console.log(`Number`, props);
     },
 
-    model3d: (component) => {
-        console.log(`Model3D`, component);
+    plot: (props) => {
+        console.log(`Plot`, props);
     },
 
-    number: (component) => {
-        console.log(`Number`, component);
+    radio: (props) => {
+        console.log(`Radio`, props);
     },
 
-    plot: (component) => {
-        console.log(`Plot`, component);
+    scatterplot: (props) => {
+        console.log(`ScatterPlot`, props);
     },
 
-    radio: (component) => {
-        console.log(`Radio`, component);
+    slider: (props) => {
+        console.log(`Slider`, props);
     },
 
-    scatterplot: (component) => {
-        console.log(`ScatterPlot`, component);
+    state: (props) => {
+        console.log(`State`, props);
     },
 
-    slider: (component) => {
-        console.log(`Slider`, component);
+    textbox: (props) => {
+
+        const finalResult = $('<div>', { class: `${!props.visible ? 'd-none ' : ''}my-2` }).data('gradio_props', props);
+        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+
+        const tinyNoteSpacing = (event) => {
+            const element = event.target;
+            element.style.height = `${Number(element.scrollHeight)}px`;
+        };
+
+        const textarea = $(`<${props.container ? 'input' : 'textarea'}>`, {
+            id: id !== null ? id : null,
+            placeholder: props.placeholder,
+            class: 'form-control form-control-bg'
+        }).on('keypress keyup keydown', tinyNoteSpacing);
+
+        textarea.val(props.value);
+
+        if (props.show_label && props.label && id !== null) {
+            finalResult.append($('<label>', { for: id, class: 'form-label' }).text(props.label));
+        }
+
+        finalResult.append(textarea);
+
+        if (props.show_copy_button) {
+            finalResult.append($('<button>', { class: `btn btn-primary` }).text('Copy text')).on('click', () => {
+                try {
+
+                    const data = textarea.val().trim();
+
+                    if (data.length > 0) {
+                        copyToClipboard(data);
+                        toast('Text successfully copied to the clipboard.');
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    alert(err.message);
+                }
+            });
+        }
+
+        return finalResult;
+
     },
 
-    state: (component) => {
-        console.log(`State`, component);
+    timeseries: (props) => {
+        console.log(`Timeseries`, props);
     },
 
-    textbox: (component) => {
-        console.log(`Textbox`, component);
+    uploadbutton: (props) => {
+        console.log(`UploadButton`, props);
     },
 
-    timeseries: (component) => {
-        console.log(`Timeseries`, component);
-    },
-
-    uploadbutton: (component) => {
-        console.log(`UploadButton`, component);
-    },
-
-    video: (component) => {
-        console.log(`Video`, component);
+    video: (props) => {
+        console.log(`Video`, props);
     },
 
 };
@@ -166,8 +208,8 @@ const childrenLoader = (items, config) => {
 
                 // Componet
                 const component = config.components.find(c => c.id === items[item].id);
-                if (objType(component, 'object') && typeof component.type === 'string' && typeof components[component.type] === 'function') {
-                    const tinyHtml = components[component.type](component);
+                if (objType(component, 'object') && objType(component.props, 'object') && typeof component.type === 'string' && typeof components[component.type] === 'function') {
+                    const tinyHtml = components[component.type](component.props);
                     if (page) tinyHtml.append(page);
                     html.push(tinyHtml);
                 }

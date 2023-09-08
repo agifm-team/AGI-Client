@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { client } from '@gradio/client';
-import { objType } from '../../../../src/util/tools';
+import { getHtml } from './gradioLayout';
 
 function GradioEmbed({ agiData }) {
 
@@ -22,16 +22,17 @@ function GradioEmbed({ agiData }) {
             // Load App
             if (!app) {
                 client(agiData.url).then(newApp => setApp(newApp)).catch(tinyError);
-            } else if (!appInfo) {
-                app.view_api().then(newInfo => setAppInfo(newInfo)).catch(tinyError);
             }
 
             // Execute Data
             else {
 
+                // Read Template
+                const page = getHtml(app);
+
                 // Test
                 const embed = $(embedRef.current);
-                console.log(app);
+                console.log(app, page);
 
             }
 

@@ -28,3 +28,10 @@ const readTemplate = (items, existName) => {
 // Start Template
 readTemplate(appInfo.named_endpoints, true);
 readTemplate(appInfo.unnamed_endpoints, false);
+
+
+/*
+ else if (!appInfo) {
+    app.view_api().then(newInfo => setAppInfo(newInfo)).catch(tinyError);
+}
+*/

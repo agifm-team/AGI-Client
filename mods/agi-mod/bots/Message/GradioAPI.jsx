@@ -38,9 +38,9 @@ function GradioEmbed({ agiData }) {
         }
     });
 
-    // Complete
+    // Temp result. (I'm using this only to have a preview. This will be removed later.)
     return <div ref={embedRef} className='mt-2 ratio ratio-16x9 embed-video enabled agi-client-embed'>
-        yay
+        <iframe title='gradio' src="https://$your_space_host.hf.space" />
     </div>;
 
 };

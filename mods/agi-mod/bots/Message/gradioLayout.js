@@ -4,6 +4,12 @@ import { marked } from 'marked';
 import { objType, toast } from '../../../../src/util/tools';
 import { copyToClipboard } from '../../../../src/util/common';
 
+const labelCreator = (props) => {
+
+};
+
+const displayOptions = (props) => $('<div>', { class: `${!props.visible ? 'd-none ' : ''}my-2` }).data('gradio_props', props);
+
 // Components
 const components = {
 
@@ -134,7 +140,7 @@ const components = {
 
     textbox: (props) => {
 
-        const finalResult = $('<div>', { class: `${!props.visible ? 'd-none ' : ''}my-2` }).data('gradio_props', props);
+        const finalResult = displayOptions(props);
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
 
         const tinyNoteSpacing = (event) => {

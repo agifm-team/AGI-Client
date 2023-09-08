@@ -1,7 +1,11 @@
 import { objType } from '../../../../src/util/tools';
 
 // Components
-const components = {};
+const components = {
+
+
+
+};
 
 // Children
 const childrenLoader = (items, app) => {
@@ -20,10 +24,21 @@ const childrenLoader = (items, app) => {
 
                 // Componet
                 const component = app.components.find(c => c.id === items[item].id);
-                if (objType(component, 'object') && typeof component.type === 'string' && typeof components[component.type] === 'function') {
-                    const tinyHtml = components[component.type](component);
-                    if (page) tinyHtml.append(page);
-                    html.push(tinyHtml);
+                if ((objType(component, 'object') && typeof component.type === 'string' && typeof components[component.type] === 'function') || items[item].id === 0) {
+
+                    let tinyHtml;
+
+                    if (items[item].id !== 0) {
+                        tinyHtml = components[component.type](component);
+                    } else {
+                        tinyHtml = $('<span>');
+                    }
+
+                    if (tinyHtml) {
+                        if (page) tinyHtml.append(page);
+                        html.push(tinyHtml);
+                    }
+
                 }
 
             }

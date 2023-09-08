@@ -82,6 +82,7 @@
     "linkify-plugin-keyword": "4.1.1",
     "linkify-react": "4.1.1",
     "linkifyjs": "4.1.1",
+    "marked": "8.0.1",
     "matrix-crdt": "0.2.1-alpha.1",
     "matrix-js-sdk": "26.1.0",
     "matrix-widget-api": "1.5.0",

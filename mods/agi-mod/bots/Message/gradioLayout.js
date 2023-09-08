@@ -1,3 +1,6 @@
+import sanitizeHtml from 'sanitize-html';
+import { marked } from 'marked';
+
 import { objType, toast } from '../../../../src/util/tools';
 import { copyToClipboard } from '../../../../src/util/common';
 
@@ -65,7 +68,7 @@ const components = {
         console.log(`Gallery`, props);
     },
 
-    html: (props) => $(props.value),
+    html: (props) => $(props.value).data('gradio_props', props),
 
     highlightedtext: (props) => {
         console.log(`HighlightedText`, props);
@@ -99,9 +102,7 @@ const components = {
         console.log(`LogoutButton`, props);
     },
 
-    markdown: (props) => {
-        console.log(`Markdown`, props);
-    },
+    markdown: (props) => $(sanitizeHtml(marked.parse(props.value))).data('gradio_props', props),
 
     model3d: (props) => {
         console.log(`Model3D`, props);

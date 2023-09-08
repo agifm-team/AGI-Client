@@ -8,7 +8,7 @@ const components = {
 };
 
 // Children
-const childrenLoader = (items, app) => {
+const childrenLoader = (items, config) => {
     if (Array.isArray(items)) {
 
         // HTML Items
@@ -20,25 +20,14 @@ const childrenLoader = (items, app) => {
 
                 // Page Data
                 let page;
-                if (Array.isArray(items[item].children)) page = childrenLoader(items[item].children);
+                if (Array.isArray(items[item].children) && items[item].children.length > 0) page = childrenLoader(items[item].children, config);
 
                 // Componet
-                const component = app.components.find(c => c.id === items[item].id);
-                if ((objType(component, 'object') && typeof component.type === 'string' && typeof components[component.type] === 'function') || items[item].id === 0) {
-
-                    let tinyHtml;
-
-                    if (items[item].id !== 0) {
-                        tinyHtml = components[component.type](component);
-                    } else {
-                        tinyHtml = $('<span>');
-                    }
-
-                    if (tinyHtml) {
-                        if (page) tinyHtml.append(page);
-                        html.push(tinyHtml);
-                    }
-
+                const component = config.components.find(c => c.id === items[item].id);
+                if (objType(component, 'object') && typeof component.type === 'string' && typeof components[component.type] === 'function') {
+                    const tinyHtml = components[component.type](component);
+                    if (page) tinyHtml.append(page);
+                    html.push(tinyHtml);
                 }
 
             }
@@ -51,10 +40,15 @@ const childrenLoader = (items, app) => {
 };
 
 export function getHtml(app) {
-    if (objType(app.layout, 'object') && Array.isArray(app.components)) {
+    if (
+        objType(app, 'object') && objType(app.config, 'object') && objType(app.config.layout, 'object') &&
+        Array.isArray(app.config.layout.children) && app.config.layout.children.length > 0 &&
+        Array.isArray(app.config.components) && app.config.components.length > 0
+    ) {
 
         // Get Children
-        const page = childrenLoader([app.layout], app);
+        const page = childrenLoader(app.config.layout.children, app.config);
+        console.log(app.config, page);
 
         // Complete
         return page;

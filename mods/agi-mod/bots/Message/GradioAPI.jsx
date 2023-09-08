@@ -32,7 +32,6 @@ function GradioEmbed({ agiData }) {
 
                 // Test
                 const embed = $(embedRef.current);
-                console.log(app, page);
 
             }
 

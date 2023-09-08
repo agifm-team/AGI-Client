@@ -4,10 +4,7 @@ import { marked } from 'marked';
 import { objType, toast } from '../../../../src/util/tools';
 import { copyToClipboard } from '../../../../src/util/common';
 
-const labelCreator = (props) => {
-
-};
-
+const labelCreator = (props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label);
 const displayOptions = (props) => $('<div>', { class: `${!props.visible ? 'd-none ' : ''}my-2` }).data('gradio_props', props);
 
 // Components
@@ -41,7 +38,7 @@ const components = {
         finalResult.attr('id', id);
 
         if (props.show_label && props.label && id !== null) {
-            finalResult.append($('<label>', { for: id, class: 'form-label' }).text(props.label));
+            finalResult.append(labelCreator(props, id));
         }
 
         if (Array.isArray(props.choices) && props.choices.length > 0) {
@@ -91,7 +88,7 @@ const components = {
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
 
         if (props.show_label && props.label && id !== null) {
-            finalResult.append($('<label>', { for: id, class: 'form-label' }).text(props.label));
+            finalResult.append(labelCreator(props, id));
         }
 
         const dropdown = $(`<select>`, {
@@ -207,7 +204,7 @@ const components = {
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
 
         if (props.show_label && props.label && id !== null) {
-            finalResult.append($('<label>', { for: id, class: 'form-label' }).text(props.label));
+            finalResult.append(labelCreator(props, id));
         }
 
         const tinyNoteSpacing = (event) => {

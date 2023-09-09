@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { client } from '@gradio/client';
 import { getHtml } from './gradioLayout';
+import { objType } from '../../../../src/util/tools';
 
 function GradioEmbed({ agiData }) {
 
@@ -28,10 +29,13 @@ function GradioEmbed({ agiData }) {
 
                 // Insert Embed
                 const embed = $(embedRef.current);
-                if (embed.find('gladio-embed').length < 1) {
+                if (embed.find('gladio-embed').length < 1 && objType(app, 'object') && objType(app.config, 'object') && typeof app.config.space_id === 'string' && app.config.space_id.length > 0) {
+
+                    // Id
+                    const id = app.config.space_id.replace('/', '_');
 
                     // Read Template
-                    const page = $('<gradio-embed>').append(getHtml(app)).data('gladio_app', app);
+                    const page = $('<gradio-embed>', { space: id }).append(getHtml(app.config, `gradio-embed[space='${id}']`)).data('gladio_app', app);
                     embed.append(page);
 
                     return () => {

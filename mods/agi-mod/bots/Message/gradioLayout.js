@@ -1,6 +1,5 @@
 import sanitizeHtml from 'sanitize-html';
 import { marked } from 'marked';
-// import sass from 'sass/sass.dart';
 
 import { objType, toast } from '../../../../src/util/tools';
 import { copyToClipboard } from '../../../../src/util/common';
@@ -342,20 +341,26 @@ const childrenLoader = (items, config) => {
     }
 };
 
-export function getHtml(app, cssBase) {
+export function getHtml(config, cssBase) {
     if (
-        objType(app, 'object') && objType(app.config, 'object') && objType(app.config.layout, 'object') &&
-        Array.isArray(app.config.layout.children) && app.config.layout.children.length > 0 &&
-        Array.isArray(app.config.components) && app.config.components.length > 0
+        objType(config, 'object') && objType(config.layout, 'object') &&
+        Array.isArray(config.layout.children) && config.layout.children.length > 0 &&
+        Array.isArray(config.components) && config.components.length > 0
     ) {
 
         // Get Children
-        const page = childrenLoader(app.config.layout.children, app.config);
-        // if (typeof app.config.css === 'string' && app.config.css.length > 0 && typeof cssBase === 'string' && cssBase.length > 0) page.push($('<style>').append(sass.compileString(`${cssBase} {
-        //     ${app.config.css}
-        // }`)));
+        const page = childrenLoader(config.layout.children, config);
+        if (typeof config.css === 'string' && config.css.length > 0 && typeof cssBase === 'string' && cssBase.length > 0) {
 
-        console.log(app.config, page);
+            const tinyStyle = sass.compileString(`${cssBase} {
+                ${config.css}
+            }`);
+
+            if (typeof tinyStyle.css === 'string') page.push($('<style>').append(tinyStyle.css));
+
+        }
+
+        console.log(config, page);
 
         // Complete
         return page;

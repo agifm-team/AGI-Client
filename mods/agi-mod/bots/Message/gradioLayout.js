@@ -47,7 +47,7 @@ const components = {
                 if (typeof props.choices[item] === 'string') {
 
                     const input = $(`<div>`, { class: 'form-check' }).append(
-                        $('<input>', { id: id !== null ? id + item : null, class: 'form-check-input', type: 'radio', value: props.choices[item] }),
+                        $('<input>', { id: id !== null ? id + item : null, class: 'form-check-input', type: 'checkbox', value: props.choices[item] }).prop('checked', (Array.isArray(props.value) && props.value.length > 0 && props.value.indexOf(props.choices[item]) > -1)),
                         $('<label>', { for: id !== null ? id + item : null, class: 'form-check-label' }).text(props.choices[item]),
                     );
 
@@ -183,7 +183,39 @@ const components = {
     },
 
     radio: (props) => {
-        console.log(`Radio`, props);
+
+        const finalResult = displayOptions(props);
+        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        finalResult.attr('id', id);
+
+        if (props.show_label && props.label && id !== null) {
+            finalResult.append(labelCreator(props, id));
+        }
+
+        if (Array.isArray(props.choices) && props.choices.length > 0) {
+
+            for (const item in props.choices) {
+                if (typeof props.choices[item] === 'string') {
+
+                    const input = $(`<div>`, { class: 'form-check' }).append(
+                        $('<input>', { id: id !== null ? id + item : null, class: 'form-check-input', type: 'radio', value: props.choices[item], name: id, }),
+                        $('<label>', { for: id !== null ? id + item : null, class: 'form-check-label' }).text(props.choices[item]),
+                    );
+
+                    finalResult.append(input);
+
+                }
+            }
+
+            const $radios = finalResult.find(`input:radio[name="${id}"]`);
+            if ($radios.is(':checked') === false) {
+                $radios.filter(`[value="${props.value}"]`).prop('checked', true);
+            }
+
+        }
+
+        return finalResult;
+
     },
 
     scatterplot: (props) => {

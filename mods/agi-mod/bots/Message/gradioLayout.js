@@ -1,5 +1,6 @@
 import sanitizeHtml from 'sanitize-html';
 import { marked } from 'marked';
+// import sass from 'sass/sass.dart';
 
 import { objType, toast } from '../../../../src/util/tools';
 import { copyToClipboard } from '../../../../src/util/common';
@@ -291,6 +292,10 @@ const components = {
     
     Some strange stuff is happening here. Please don't touch this.
 
+    accordion: () => {
+        console.log(`Row`, props);       
+    },
+
     row: (props) => {
         console.log(`Row`, props);
     },
@@ -322,8 +327,10 @@ const childrenLoader = (items, config) => {
                 const component = config.components.find(c => c.id === items[item].id);
                 if (objType(component, 'object') && objType(component.props, 'object') && typeof component.type === 'string' && typeof components[component.type] === 'function') {
                     const tinyHtml = components[component.type](component.props);
-                    if (page) tinyHtml.append(page);
-                    html.push(tinyHtml);
+                    if (typeof tinyHtml !== 'undefined') {
+                        if (page) tinyHtml.append(page);
+                        html.push(tinyHtml);
+                    }
                 }
 
             }
@@ -335,7 +342,7 @@ const childrenLoader = (items, config) => {
     }
 };
 
-export function getHtml(app) {
+export function getHtml(app, cssBase) {
     if (
         objType(app, 'object') && objType(app.config, 'object') && objType(app.config.layout, 'object') &&
         Array.isArray(app.config.layout.children) && app.config.layout.children.length > 0 &&
@@ -344,6 +351,10 @@ export function getHtml(app) {
 
         // Get Children
         const page = childrenLoader(app.config.layout.children, app.config);
+        // if (typeof app.config.css === 'string' && app.config.css.length > 0 && typeof cssBase === 'string' && cssBase.length > 0) page.push($('<style>').append(sass.compileString(`${cssBase} {
+        //     ${app.config.css}
+        // }`)));
+
         console.log(app.config, page);
 
         // Complete

@@ -7,7 +7,6 @@ function GradioEmbed({ agiData }) {
     // Prepare Data
     const embedRef = useRef(null);
     const [app, setApp] = useState(null);
-    const [appInfo, setAppInfo] = useState(null);
     const [appError, setAppError] = useState(null);
 
     useEffect(() => {
@@ -27,11 +26,19 @@ function GradioEmbed({ agiData }) {
             // Execute Data
             else {
 
-                // Read Template
-                const page = getHtml(app);
-
-                // Test
+                // Insert Embed
                 const embed = $(embedRef.current);
+                if (embed.find('gladio-embed').length < 1) {
+
+                    // Read Template
+                    const page = $('<gradio-embed>').append(getHtml(app)).data('gladio_app', app);
+                    embed.append(page);
+
+                    return () => {
+                        page.remove();
+                    };
+
+                }
 
             }
 

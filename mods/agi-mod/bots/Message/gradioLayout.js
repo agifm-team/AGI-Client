@@ -8,6 +8,12 @@ import initMatrix from '../../../../src/client/initMatrix';
 const labelCreator = (props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label);
 const displayOptions = (props) => $('<div>', { class: `${!props.visible ? 'd-none ' : ''}my-2` }).data('gradio_props', props);
 
+/*
+
+   Soon I will add another security script here, which is the href detector, to add a layer of warning that the user is going to a third-party page. 
+
+*/
+
 const htmlAllowed = {
 
     transformTags: {

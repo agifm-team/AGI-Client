@@ -1,8 +1,3 @@
-/* Message Embed */
-.agi-client-embed {
-  max-width: 1200px;
-}
-
 /* Modals */
 #agi-superagent-modal,
 #agi-flowise-modal {
@@ -185,10 +180,19 @@
 }
 
 /* Gradio Embed */
-gradio-embed {
-  h1 {
-    img {
-      max-height: 72px;
+.agi-client-embed {
+  max-width: 1200px;
+  iframe {
+    width: 100%;
+    height: 520px;
+  }
+  gradio-embed {
+    width: 100%;
+
+    h1 {
+      img {
+        max-height: 72px;
+      }
     }
   }
 }

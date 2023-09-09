@@ -3,9 +3,59 @@ import { marked } from 'marked';
 
 import { objType, toast } from '../../../../src/util/tools';
 import { copyToClipboard } from '../../../../src/util/common';
+import initMatrix from '../../../../src/client/initMatrix';
 
 const labelCreator = (props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label);
 const displayOptions = (props) => $('<div>', { class: `${!props.visible ? 'd-none ' : ''}my-2` }).data('gradio_props', props);
+
+const htmlAllowed = {
+
+    transformTags: {
+        img: (tagName, attribs) => {
+
+            const mx = initMatrix.matrixClient;
+            const { src } = attribs;
+
+            if (src.startsWith('mxc://') === true) {
+                return {
+                    tagName,
+                    attribs: {
+                        ...attribs,
+                        src: mx?.mxcUrlToHttp(src),
+                        class: 'img-fluid',
+                    },
+                };
+            }
+
+            return {
+                tagName,
+                attribs: {
+                    ...attribs,
+                    class: 'img-fluid',
+                },
+            };
+
+        },
+    },
+
+    allowedTags: [
+        'address', 'article', 'aside', 'footer', 'header', 'h1', 'h2', 'h3', 'h4',
+        'h5', 'h6', 'hgroup', 'main', 'nav', 'section', 'blockquote', 'dd', 'div',
+        'dl', 'dt', 'figcaption', 'figure', 'hr', 'li', 'main', 'ol', 'p', 'pre',
+        'ul', 'a', 'abbr', 'b', 'bdi', 'bdo', 'br', 'cite', 'code', 'data', 'dfn',
+        'em', 'i', 'kbd', 'mark', 'q', 'rb', 'rp', 'rt', 'rtc', 'ruby', 's', 'samp',
+        'small', 'span', 'strong', 'sub', 'sup', 'time', 'u', 'var', 'wbr', 'caption',
+        'col', 'colgroup', 'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'tr', 'img'
+    ],
+
+    allowedAttributes: {
+        a: ['href', 'name', 'target'],
+        // We don't currently allow img itself by default, but
+        // these attributes would make sense if we did.
+        img: ['src', 'srcset', 'alt', 'title', 'width', 'height', 'loading', 'class']
+    },
+
+};
 
 // Components
 const components = {
@@ -134,17 +184,7 @@ const components = {
         console.log(`Gallery`, props);
     },
 
-    html: (props) => $(sanitizeHtml(props.value, {
-        allowedTags: [
-            'address', 'article', 'aside', 'footer', 'header', 'h1', 'h2', 'h3', 'h4',
-            'h5', 'h6', 'hgroup', 'main', 'nav', 'section', 'blockquote', 'dd', 'div',
-            'dl', 'dt', 'figcaption', 'figure', 'hr', 'li', 'main', 'ol', 'p', 'pre',
-            'ul', 'a', 'abbr', 'b', 'bdi', 'bdo', 'br', 'cite', 'code', 'data', 'dfn',
-            'em', 'i', 'kbd', 'mark', 'q', 'rb', 'rp', 'rt', 'rtc', 'ruby', 's', 'samp',
-            'small', 'span', 'strong', 'sub', 'sup', 'time', 'u', 'var', 'wbr', 'caption',
-            'col', 'colgroup', 'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'tr'
-        ],
-    })).data('gradio_props', props),
+    html: (props) => $(sanitizeHtml(props.value, htmlAllowed)).data('gradio_props', props),
 
     highlightedtext: (props) => {
         console.log(`HighlightedText`, props);
@@ -178,7 +218,7 @@ const components = {
         console.log(`LogoutButton`, props);
     },
 
-    markdown: (props) => $(sanitizeHtml(marked.parse(props.value))).data('gradio_props', props),
+    markdown: (props) => $(sanitizeHtml(marked.parse(props.value), htmlAllowed)).data('gradio_props', props),
 
     model3d: (props) => {
         console.log(`Model3D`, props);

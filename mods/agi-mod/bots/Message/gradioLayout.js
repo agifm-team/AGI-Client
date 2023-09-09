@@ -273,7 +273,19 @@ const components = {
     },
 
     slider: (props) => {
-        console.log(`Slider`, props);
+
+        const finalResult = displayOptions(props);
+        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        finalResult.attr('id', id);
+
+        if (props.show_label && props.label && id !== null) {
+            finalResult.append(labelCreator(props, id));
+        }
+
+        finalResult.append($('<input>', { type: 'range', class: 'form-range', max: props.maximum, min: props.minimum, step: props.step }));
+
+        return finalResult;
+
     },
 
     state: (props) => {

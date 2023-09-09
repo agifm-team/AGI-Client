@@ -255,13 +255,19 @@ const components = {
         console.log(`Video`, props);
     },
 
+    /*
+    
+    Some strange stuff is happening here. Please don't touch this.
+
     row: (props) => {
         console.log(`Row`, props);
     },
 
     form: (props) => {
-        console.log(`Row`, props);
+        console.log(`Form`, props);
     },
+    
+    */
 
 };
 

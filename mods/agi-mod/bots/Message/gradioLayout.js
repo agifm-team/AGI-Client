@@ -349,6 +349,10 @@ const components = {
         console.log(`Video`, props);
     },
 
+    column: (props) => {
+        console.log(`Column`, props);
+    },
+
     /*
     
     Some strange stuff is happening here. Please don't touch this.

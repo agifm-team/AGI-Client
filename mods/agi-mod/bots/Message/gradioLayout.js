@@ -452,23 +452,17 @@ const components = {
         console.log(`Column`, props);
     },
 
-    /*
-    
-    Some strange stuff is happening here. Please don't touch this.
-
-    accordion: () => {
-        console.log(`Row`, props);       
+    row: (props) => {
+        console.log(`Row`, props);
     },
 
-    row: (props) => {
+    accordion: (props) => {
         console.log(`Row`, props);
     },
 
     form: (props) => {
         console.log(`Form`, props);
     },
-    
-    */
 
 };
 

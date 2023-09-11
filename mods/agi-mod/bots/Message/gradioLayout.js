@@ -14,6 +14,21 @@ const displayOptions = (props) => $('<div>', { class: `${!props.visible ? 'd-non
 
 */
 
+const rowsList = {
+    1: [12],
+    2: [6, 6],
+    3: [4, 4, 4],
+    4: [3, 3, 3, 3],
+    5: [2, 2, 4, 2, 2],
+    6: [2, 2, 2, 2, 2, 2],
+    7: [1, 2, 2, 2, 2, 2, 1],
+    8: [2, 1, 1, 2, 2, 1, 1, 2],
+    9: [2, 1, 1, 1, 2, 1, 1, 1, 2],
+    10: [2, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+    11: [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+    12: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+};
+
 const htmlAllowed = {
 
     transformTags: {
@@ -94,7 +109,7 @@ const components = {
         finalResult.attr('id', id);
 
         if (props.show_label && props.label && id !== null) {
-            finalResult.append(labelCreator(props, id));
+            finalResult.append(labelCreator(props));
         }
 
         if (Array.isArray(props.choices) && props.choices.length > 0) {
@@ -187,7 +202,33 @@ const components = {
     },
 
     gallery: (props) => {
-        console.log(`Gallery`, props);
+
+        const finalResult = displayOptions(props);
+        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        finalResult.attr('id', id);
+
+        if (props.show_label && props.label && id !== null) {
+            finalResult.append(labelCreator(props, `${id}_image`));
+        }
+
+        const gallery = $('<div>', { class: 'row' });
+
+        if (typeof props.grid_cols === 'number' && !Number.isNaN(props.grid_cols) && Number.isFinite(props.grid_cols) && props.grid_cols <= 12 && rowsList[props.grid_cols]) {
+
+            if (Array.isArray(rowsList[props.grid_cols])) {
+                for (const item in rowsList[props.grid_cols]) {
+                    gallery.append($('<div>', { class: `col-md-${rowsList[props.grid_cols][item]}` }));
+                }
+            }
+
+        }
+
+        if (props.show_share_button) {
+
+        }
+
+        return finalResult;
+
     },
 
     html: (props) => $(sanitizeHtml(props.value, htmlAllowed)).data('gradio_props', props),
@@ -197,7 +238,35 @@ const components = {
     },
 
     image: (props) => {
-        console.log(`Image`, props);
+
+        const finalResult = displayOptions(props);
+        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        finalResult.attr('id', id);
+
+        const img = $('<img>', { alt: 'image', class: 'img-fluid' }).css({ 'max-height': '124px' });
+
+        if (props.show_label && props.label && id !== null) {
+            finalResult.append(labelCreator(props, `${id}_image`));
+        }
+
+        if (props.tool === 'editor' && props.source === 'upload') {
+
+            if (props.interactive !== false) {
+                finalResult.append($('<input>', { class: 'form-control', type: 'file', id: `${id}_image` }));
+            }
+
+        }
+
+        if (props.show_share_button) {
+
+        }
+
+        if (props.show_download_button) {
+
+        }
+
+        return finalResult;
+
     },
 
     interpretation: (props) => {
@@ -304,7 +373,7 @@ const components = {
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
 
         if (props.show_label && props.label && id !== null) {
-            finalResult.append(labelCreator(props, id));
+            finalResult.append(labelCreator(props, `${id}_textbox`));
         }
 
         const tinyNoteSpacing = (event) => {
@@ -313,7 +382,7 @@ const components = {
         };
 
         const textarea = $(`<textarea>`, {
-            id: id !== null ? id : null,
+            id: id !== null ? `${id}_textbox` : null,
             placeholder: props.placeholder,
             class: 'form-control form-control-bg'
         }).on('keypress keyup keydown', tinyNoteSpacing);
@@ -380,7 +449,7 @@ const components = {
 };
 
 // Children
-const childrenLoader = (items, config) => {
+const childrenLoader = (items, config, url) => {
     if (Array.isArray(items)) {
 
         // HTML Items
@@ -397,7 +466,7 @@ const childrenLoader = (items, config) => {
                 // Componet
                 const component = config.components.find(c => c.id === items[item].id);
                 if (objType(component, 'object') && objType(component.props, 'object') && typeof component.type === 'string' && typeof components[component.type] === 'function') {
-                    const tinyHtml = components[component.type](component.props);
+                    const tinyHtml = components[component.type](component.props, url);
                     if (typeof tinyHtml !== 'undefined') {
                         if (page) tinyHtml.append(page);
                         html.push(tinyHtml);
@@ -413,7 +482,7 @@ const childrenLoader = (items, config) => {
     }
 };
 
-export function getHtml(config, cssBase) {
+export function getHtml(config, cssBase, url = '') {
     if (
         objType(config, 'object') && objType(config.layout, 'object') &&
         Array.isArray(config.layout.children) && config.layout.children.length > 0 &&
@@ -421,7 +490,7 @@ export function getHtml(config, cssBase) {
     ) {
 
         // Get Children
-        const page = childrenLoader(config.layout.children, config);
+        const page = childrenLoader(config.layout.children, config, url);
         if (typeof config.css === 'string' && config.css.length > 0 && typeof cssBase === 'string' && cssBase.length > 0) {
 
             const tinyStyle = sass.compileString(`${cssBase} {

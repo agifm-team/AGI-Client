@@ -201,11 +201,18 @@ const components = {
         console.log(`File`, props);
     },
 
-    gallery: (props) => {
+    gallery: (props, url) => {
 
+        let tinyUrl = url;
         const finalResult = displayOptions(props);
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
         finalResult.attr('id', id);
+
+        if (typeof tinyUrl === 'string' && tinyUrl.length > 0) {
+            if (tinyUrl.startsWith('/')) {
+                tinyUrl = tinyUrl.substring(0, tinyUrl.length - 1);
+            }
+        } else { tinyUrl = ''; }
 
         if (props.show_label && props.label && id !== null) {
             finalResult.append(labelCreator(props, `${id}_image`));
@@ -215,13 +222,30 @@ const components = {
 
         if (typeof props.grid_cols === 'number' && !Number.isNaN(props.grid_cols) && Number.isFinite(props.grid_cols) && props.grid_cols <= 12 && rowsList[props.grid_cols]) {
 
-            if (Array.isArray(rowsList[props.grid_cols])) {
-                for (const item in rowsList[props.grid_cols]) {
-                    gallery.append($('<div>', { class: `col-md-${rowsList[props.grid_cols][item]}` }));
+            if (Array.isArray(rowsList[props.grid_cols]) && Array.isArray(props.value)) {
+
+                let rowNumber = 0;
+
+                for (const item in props.value) {
+
+                    gallery.append($('<div>', { class: `col-md-${rowsList[props.grid_cols][rowNumber]}` }).append(
+                        objType(props.value[item][0], 'object') && typeof props.value[item][0].name === 'string' && props.value[item][0].name.length > 0 ?
+                            $('<img>', { class: 'img-fluid', src: `${url}${props.value[item][0].name}` }).data('gradio_props_gallery_item', props.value[item]) : null,
+                        typeof props.value[item][1] === 'string' ? $('<div>', { class: 'small text-bg' }).text(props.value[item][1]) : null
+                    ));
+
+                    rowNumber++;
+                    if (typeof rowsList[props.grid_cols][rowNumber] !== 'number') {
+                        rowNumber = 0;
+                    }
+
                 }
+
             }
 
         }
+
+        finalResult.append(gallery);
 
         if (props.show_share_button) {
 

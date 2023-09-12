@@ -189,6 +189,27 @@
   gradio-embed {
     width: 100%;
 
+    .gallery {
+      .avatar {
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 100%;
+        height: 320px;
+      }
+
+      @media (max-width: 768px) {
+        .avatar {
+          height: 142px;
+        }
+      }
+
+      @media (max-width: 545px) {
+        .avatar {
+          height: 72px;
+        }
+      }
+    }
+
     h1 {
       img {
         max-height: 72px;

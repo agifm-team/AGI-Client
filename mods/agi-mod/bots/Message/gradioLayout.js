@@ -206,7 +206,7 @@ const components = {
         let tinyUrl = url;
         const finalResult = displayOptions(props);
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
-        finalResult.attr('id', id);
+        finalResult.attr('id', id).addClass('gallery');
 
         if (typeof tinyUrl === 'string' && tinyUrl.length > 0) {
             if (tinyUrl.startsWith('/')) {
@@ -235,10 +235,16 @@ const components = {
                         imgUrl = `${tinyUrl}${imgUrl}`;
                     }
 
-                    gallery.append($('<div>', { class: `col-md-${rowsList[props.grid_cols][rowNumber]}` }).append(
-                        objType(props.value[item][0], 'object') && typeof props.value[item][0].name === 'string' && props.value[item][0].name.length > 0 ?
-                            $('<img>', { class: 'img-fluid', src: imgUrl }).data('gradio_props_gallery_item', props.value[item]) : null,
-                        typeof props.value[item][1] === 'string' ? $('<div>', { class: 'text-bg' }).text(props.value[item][1]) : null
+                    gallery.append($('<div>', { class: `col-${rowsList[props.grid_cols][rowNumber]}` }).append(
+
+                        $('<div>', { class: 'p-4' }).append(
+
+                            objType(props.value[item][0], 'object') && typeof props.value[item][0].name === 'string' && props.value[item][0].name.length > 0 ?
+                                $('<div>', { class: 'avatar' }).css({ 'background-image': `url('${imgUrl}')` }).data('gradio_props_gallery_item', props.value[item]) : null,
+                            typeof props.value[item][1] === 'string' ? $('<div>', { class: 'text-bg' }).text(props.value[item][1]) : null
+
+                        )
+
                     ));
 
                     rowNumber++;

@@ -207,7 +207,7 @@ const components = {
         let tinyUrl = url;
         const finalResult = displayOptions(props);
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
-        finalResult.attr('id', id).addClass('gallery');
+        finalResult.attr('id', id).addClass('gallery').addClass('card').addClass('p-3');
 
         if (typeof tinyUrl === 'string' && tinyUrl.length > 0) {
             if (tinyUrl.startsWith('/')) {

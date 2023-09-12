@@ -190,6 +190,21 @@
     width: 100%;
 
     .gallery {
+      max-height: 500px;
+      overflow-y: auto;
+
+      @media (max-height: 800px) {
+        max-height: 400px;
+      }
+
+      @media (max-height: 730px) {
+        max-height: 300px;
+      }
+
+      @media (max-height: 660px) {
+        max-height: 200px;
+      }
+
       button {
         padding: 1.5rem !important;
       }

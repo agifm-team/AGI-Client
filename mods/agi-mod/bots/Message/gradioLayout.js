@@ -6,7 +6,7 @@ import { copyToClipboard } from '../../../../src/util/common';
 import initMatrix from '../../../../src/client/initMatrix';
 
 const labelCreator = (props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label);
-const displayOptions = (props, id) => $('<div>', { class: `${!props.visible ? 'd-none ' : ''}my-2`, component: id }).data('gradio_props', props);
+const displayOptions = (props, id) => $('<div>', { class: `${!props.visible ? 'd-none ' : ''}my-2`, component: id, component_type: props.name }).data('gradio_props', props);
 
 /*
 
@@ -415,13 +415,19 @@ const components = {
             finalResult.append(labelCreator(props, `${id}_textbox`));
         }
 
+        const isTextInput = (props.lines === 1 && props.max_lines === 1);
+
         const tinyNoteSpacing = (event) => {
-            const element = event.target;
-            element.style.height = `${Number(element.scrollHeight)}px`;
+            if (!isTextInput) {
+                const element = event.target;
+                element.style.height = `${Number(element.scrollHeight)}px`;
+            }
         };
 
-        const textarea = $(`<textarea>`, {
+        const textarea = $(`<${isTextInput ? 'input' : 'textarea'}>`, {
             id: id !== null ? `${id}_textbox` : null,
+            rows: props.lines,
+            maxrows: props.max_lines,
             placeholder: props.placeholder,
             class: 'form-control form-control-bg'
         }).on('keypress keyup keydown', tinyNoteSpacing);
@@ -496,7 +502,17 @@ const components = {
     },
 
     form: (props, compId) => {
-        console.log(`Form`, props, compId);
+
+        const finalResult = displayOptions(props, compId);
+        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        finalResult.attr('id', id).addClass('row');
+
+        if (props.show_label && typeof props.label === 'string') {
+            finalResult.append($('<div>', { id }).text(props.label));
+        }
+
+        return finalResult;
+
     },
 
 };

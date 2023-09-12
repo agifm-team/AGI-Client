@@ -189,6 +189,7 @@
   gradio-embed {
     width: 100%;
 
+    /* Gallery */
     .gallery {
       max-height: 500px;
       overflow-y: auto;
@@ -242,6 +243,12 @@
       }
     }
 
+    /* Textbox */
+    .textbox textarea[rows='1'] {
+      resize: none;
+    }
+
+    /* H1 */
     h1 {
       img {
         max-height: 72px;

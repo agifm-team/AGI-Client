@@ -209,6 +209,22 @@
         padding: 1.5rem !important;
       }
 
+      button:hover,
+      button:active {
+        .avatar {
+          border-color: #e28800 !important;
+          cursor: pointer !important;
+        }
+      }
+
+      button:hover .avatar {
+        filter: brightness(110%);
+      }
+
+      button:active .avatar {
+        filter: brightness(125%);
+      }
+
       .avatar {
         background-repeat: no-repeat;
         background-position: center;

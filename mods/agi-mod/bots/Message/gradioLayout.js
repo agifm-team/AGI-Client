@@ -108,7 +108,7 @@ const components = {
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
         finalResult.attr('id', id);
 
-        if (props.show_label && props.label && id !== null) {
+        if (props.show_label && props.label) {
             finalResult.append(labelCreator(props));
         }
 
@@ -158,7 +158,7 @@ const components = {
         const finalResult = displayOptions(props);
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
 
-        if (props.show_label && props.label && id !== null) {
+        if (props.show_label && props.label) {
             finalResult.append(labelCreator(props, id));
         }
 
@@ -210,11 +210,13 @@ const components = {
 
         if (typeof tinyUrl === 'string' && tinyUrl.length > 0) {
             if (tinyUrl.startsWith('/')) {
-                tinyUrl = tinyUrl.substring(0, tinyUrl.length - 1);
+                tinyUrl = `${tinyUrl.substring(0, tinyUrl.length - 1)}/file=`;
+            } else {
+                tinyUrl = `${tinyUrl}/file=`;
             }
         } else { tinyUrl = ''; }
 
-        if (props.show_label && props.label && id !== null) {
+        if (props.show_label && props.label) {
             finalResult.append(labelCreator(props, `${id}_image`));
         }
 
@@ -228,10 +230,15 @@ const components = {
 
                 for (const item in props.value) {
 
+                    let imgUrl = props.value[item][0].name;
+                    if (!imgUrl.startsWith('https://') && !imgUrl.startsWith('http://')) {
+                        imgUrl = `${tinyUrl}${imgUrl}`;
+                    }
+
                     gallery.append($('<div>', { class: `col-md-${rowsList[props.grid_cols][rowNumber]}` }).append(
                         objType(props.value[item][0], 'object') && typeof props.value[item][0].name === 'string' && props.value[item][0].name.length > 0 ?
-                            $('<img>', { class: 'img-fluid', src: `${url}${props.value[item][0].name}` }).data('gradio_props_gallery_item', props.value[item]) : null,
-                        typeof props.value[item][1] === 'string' ? $('<div>', { class: 'small text-bg' }).text(props.value[item][1]) : null
+                            $('<img>', { class: 'img-fluid', src: imgUrl }).data('gradio_props_gallery_item', props.value[item]) : null,
+                        typeof props.value[item][1] === 'string' ? $('<div>', { class: 'text-bg' }).text(props.value[item][1]) : null
                     ));
 
                     rowNumber++;
@@ -269,7 +276,7 @@ const components = {
 
         const img = $('<img>', { alt: 'image', class: 'img-fluid' }).css({ 'max-height': '124px' });
 
-        if (props.show_label && props.label && id !== null) {
+        if (props.show_label && props.label) {
             finalResult.append(labelCreator(props, `${id}_image`));
         }
 
@@ -337,7 +344,7 @@ const components = {
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
         finalResult.attr('id', id);
 
-        if (props.show_label && props.label && id !== null) {
+        if (props.show_label && props.label) {
             finalResult.append(labelCreator(props, id));
         }
 
@@ -377,7 +384,7 @@ const components = {
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
         finalResult.attr('id', id);
 
-        if (props.show_label && props.label && id !== null) {
+        if (props.show_label && props.label) {
             finalResult.append(labelCreator(props, id));
         }
 
@@ -396,7 +403,7 @@ const components = {
         const finalResult = displayOptions(props);
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
 
-        if (props.show_label && props.label && id !== null) {
+        if (props.show_label && props.label) {
             finalResult.append(labelCreator(props, `${id}_textbox`));
         }
 
@@ -453,7 +460,17 @@ const components = {
     },
 
     row: (props) => {
-        console.log(`Row`, props);
+
+        const finalResult = displayOptions(props);
+        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        finalResult.attr('id', id).addClass('card').addClass('p-2');
+
+        if (props.show_label && typeof props.label === 'string') {
+            finalResult.append($('<div>', { id }).text(props.label));
+        }
+
+        return finalResult;
+
     },
 
     accordion: (props) => {
@@ -479,7 +496,7 @@ const childrenLoader = (items, config, url) => {
 
                 // Page Data
                 let page;
-                if (Array.isArray(items[item].children) && items[item].children.length > 0) page = childrenLoader(items[item].children, config);
+                if (Array.isArray(items[item].children) && items[item].children.length > 0) page = childrenLoader(items[item].children, config, url);
 
                 // Componet
                 const component = config.components.find(c => c.id === items[item].id);

@@ -518,17 +518,27 @@ const components = {
         const collapseId = `${id}_collapse_${compId}`;
 
         if (typeof props.label === 'string') {
+
+            const collapse = $('<div>', { class: 'collapse', id: collapseId });
+            const button = $('<button>', { class: 'ms-2 btn ic-btn ic-btn-link btn-bg btn-link btn-bg btn-text-link btn-bg', type: 'button', 'data-bs-toggle': 'collapse', 'aria-expanded': props.open ? 'true' : 'false', 'aria-controls': collapseId, 'data-bs-target': `#${collapseId}` }).append(
+                $('<i>', { class: `ic-base ic-fa ic-fa-normal fa-solid fa-caret-${props.open ? 'down' : 'left'}` })
+            );
+
+            collapse.on('hide.bs.collapse', () => {
+                const target = button.find('> .ic-base');
+                target.removeClass('fa-caret-left').removeClass('fa-caret-down');
+                target.addClass('fa-caret-left');
+            }).on('show.bs.collapse', () => {
+                const target = button.find('> .ic-base');
+                target.removeClass('fa-caret-left').removeClass('fa-caret-down');
+                target.addClass('fa-caret-down');
+            });
+
             finalResult.append($('<div>', { id, class: 'card' }).append($('<div>', { class: 'card-body p-2' }).append(
-
-                $('<span>').text(props.label).append(
-                    $('<button>', { class: 'ms-2 btn ic-btn ic-btn-link btn-bg btn-link btn-bg btn-text-link btn-bg', type: 'button', 'data-bs-toggle': 'collapse', 'aria-expanded': props.open ? 'true' : 'false', 'aria-controls': collapseId, 'data-bs-target': `#${collapseId}` }).append(
-                        $('<i>', { class: 'ic-base ic-fa ic-fa-normal fa-solid fa-caret-left' })
-                    )
-                ),
-
-                $('<div>', { class: 'collapse', id: collapseId })
-
+                $('<span>').text(props.label).append(button),
+                collapse
             )));
+
         }
 
         return finalResult;

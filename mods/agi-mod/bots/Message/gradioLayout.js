@@ -526,7 +526,7 @@ const components = {
                     )
                 ),
 
-                $('<div>', { class: 'collapse', id: collapseId }).append('test')
+                $('<div>', { class: 'collapse', id: collapseId })
 
             )));
         }
@@ -590,6 +590,10 @@ const childrenLoader = (items, config, url) => {
                     }
 
                     const tinyHtml = components[component.type](component.props, component.id, url);
+                    if (component.type === 'accordion') {
+                        tinyHtml.find('.card .card-body .collapse').append(newPage);
+                    }
+
                     if (typeof tinyHtml !== 'undefined') {
                         if (page) tinyHtml.append(page);
                         html.push(tinyHtml);

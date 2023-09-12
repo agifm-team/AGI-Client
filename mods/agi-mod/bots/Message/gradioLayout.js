@@ -91,7 +91,6 @@ const components = {
 
 
     button: (props, compId) => {
-        console.log(`Button`, props, compId);
 
         const finalResult = displayOptions(props, compId);
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
@@ -511,7 +510,29 @@ const components = {
     },
 
     accordion: (props, compId) => {
-        console.log(`Row`, props, compId);
+
+        const finalResult = displayOptions(props, compId);
+        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        finalResult.attr('id', id).addClass('form');
+
+        const collapseId = `${id}_collapse_${compId}`;
+
+        if (typeof props.label === 'string') {
+            finalResult.append($('<div>', { id, class: 'card' }).append($('<div>', { class: 'card-body p-2' }).append(
+
+                $('<span>').text(props.label).append(
+                    $('<button>', { class: 'ms-2 btn ic-btn ic-btn-link btn-bg btn-link btn-bg btn-text-link btn-bg', type: 'button', 'data-bs-toggle': 'collapse', 'aria-expanded': props.open ? 'true' : 'false', 'aria-controls': collapseId, 'data-bs-target': `#${collapseId}` }).append(
+                        $('<i>', { class: 'ic-base ic-fa ic-fa-normal fa-solid fa-caret-left' })
+                    )
+                ),
+
+                $('<div>', { class: 'collapse', id: collapseId }).append('test')
+
+            )));
+        }
+
+        return finalResult;
+
     },
 
     form: (props, compId) => {
@@ -551,14 +572,18 @@ const childrenLoader = (items, config, url) => {
                 const component = config.components.find(c => c.id === items[item].id);
                 if (objType(component, 'object') && objType(component.props, 'object') && typeof component.type === 'string' && typeof components[component.type] === 'function') {
 
-                    if (existChildrens && component.type === 'row') {
+                    if (existChildrens && (component.type === 'row' || component.type === 'accordion')) {
 
-                        const rowItems = rowsList[items[item].children.length];
-                        let rowItem = 0;
-                        newPage.forEach(item2 => {
-                            page.push($('<div>', { class: `col-md-${rowItems[rowItem]}` }).append(item2));
-                            if (rowItem > rowItems) rowItem = 0;
-                        });
+                        if (component.type === 'row') {
+
+                            const rowItems = rowsList[items[item].children.length];
+                            let rowItem = 0;
+                            newPage.forEach(item2 => {
+                                page.push($('<div>', { class: `col-md-${rowItems[rowItem]}` }).append(item2));
+                                if (rowItem > rowItems) rowItem = 0;
+                            });
+
+                        }
 
                     } else {
                         page = newPage;

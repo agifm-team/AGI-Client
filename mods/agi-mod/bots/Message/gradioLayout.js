@@ -89,10 +89,21 @@ const components = {
         console.log(`BarPlot`, props, compId);
     },
 
-    button: (props) => $('<button>', {
-        id: props.elem_id ? `gradio_${props.elem_id}` : null,
-        class: `${!props.visible ? 'd-none ' : ''}btn btn-${props.variant ? props.variant : 'bg'}`
-    }).data('gradio_props', props).text(props.value),
+
+    button: (props, compId) => {
+        console.log(`Button`, props, compId);
+
+        const finalResult = displayOptions(props, compId);
+        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        finalResult.attr('id', id).addClass('button').addClass('d-grid');
+
+        finalResult.append($('<button>', {
+            class: `btn btn-${props.variant ? props.variant : 'bg'}`,
+        }).text(props.value));
+
+        return finalResult;
+
+    },
 
     chatbot: (props, compId) => {
         console.log(`Chatbot`, props, compId);
@@ -505,7 +516,7 @@ const components = {
 
         const finalResult = displayOptions(props, compId);
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
-        finalResult.attr('id', id).addClass('row');
+        finalResult.attr('id', id).addClass('form');
 
         if (props.show_label && typeof props.label === 'string') {
             finalResult.append($('<div>', { id }).text(props.label));

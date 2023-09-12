@@ -5,7 +5,7 @@ import { objType, toast } from '../../../../src/util/tools';
 import { copyToClipboard } from '../../../../src/util/common';
 import initMatrix from '../../../../src/client/initMatrix';
 
-const labelCreator = (props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label);
+const labelCreator = (icon, props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label).prepend(icon);
 const displayOptions = (props, id) => $('<div>', { class: `${!props.visible ? 'd-none ' : ''}my-2`, component: id, component_type: props.name }).data('gradio_props', props);
 
 /*
@@ -120,7 +120,7 @@ const components = {
         finalResult.attr('id', id).addClass('checkboxgroup');
 
         if (props.show_label && props.label) {
-            finalResult.append(labelCreator(props));
+            finalResult.append(labelCreator(null, props));
         }
 
         if (Array.isArray(props.choices) && props.choices.length > 0) {
@@ -171,7 +171,7 @@ const components = {
         finalResult.addClass('dropdown')
 
         if (props.show_label && props.label) {
-            finalResult.append(labelCreator(props, id));
+            finalResult.append(labelCreator(null, props, id));
         }
 
         const dropdown = $(`<select>`, {
@@ -229,7 +229,7 @@ const components = {
         } else { tinyUrl = ''; }
 
         if (props.show_label && props.label) {
-            finalResult.append(labelCreator(props, `${id}_image`));
+            finalResult.append(labelCreator(null, props, `${id}_image`));
         }
 
         const gallery = $('<div>', { class: 'row' });
@@ -292,10 +292,10 @@ const components = {
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
         finalResult.attr('id', id).addClass('image');
 
-        const img = $('<img>', { alt: 'image', class: 'img-fluid' }).css({ 'max-height': '124px' });
+        const img = $('<div>', { class: 'image-preview ratio ratio-16x9 border border-bg' });
 
         if (props.show_label && props.label) {
-            finalResult.append(labelCreator(props, `${id}_image`));
+            finalResult.append(labelCreator(null, props, `${id}_image`));
         }
 
         if (props.tool === 'editor' && props.source === 'upload') {
@@ -303,6 +303,8 @@ const components = {
             if (props.interactive !== false) {
                 finalResult.append($('<input>', { class: 'form-control', type: 'file', id: `${id}_image` }));
             }
+
+            finalResult.append(img);
 
         }
 
@@ -363,7 +365,7 @@ const components = {
         finalResult.attr('id', id).addClass('radio');
 
         if (props.show_label && props.label) {
-            finalResult.append(labelCreator(props, id));
+            finalResult.append(labelCreator(null, props, id));
         }
 
         if (Array.isArray(props.choices) && props.choices.length > 0) {
@@ -403,7 +405,7 @@ const components = {
         finalResult.attr('id', id).addClass('slider');
 
         if (props.show_label && props.label) {
-            finalResult.append(labelCreator(props, id));
+            finalResult.append(labelCreator(null, props, id));
         }
 
         finalResult.append($('<input>', { type: 'range', class: 'form-range', max: props.maximum, min: props.minimum, step: props.step }));
@@ -423,7 +425,7 @@ const components = {
         finalResult.addClass('textbox')
 
         if (props.show_label && props.label) {
-            finalResult.append(labelCreator(props, `${id}_textbox`));
+            finalResult.append(labelCreator(null, props, `${id}_textbox`));
         }
 
         const isTextInput = (props.lines === 1 && props.max_lines === 1);

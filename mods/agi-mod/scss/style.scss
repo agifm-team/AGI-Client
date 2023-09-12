@@ -248,6 +248,13 @@
       resize: none;
     }
 
+    /* Image */
+    .image {
+      .image-preview {
+        background-color: var(--bg-surface-semi-transparent);
+      }
+    }
+
     /* H1 */
     h1 {
       img {

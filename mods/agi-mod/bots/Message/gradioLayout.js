@@ -106,7 +106,7 @@ const components = {
 
         const finalResult = displayOptions(props);
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
-        finalResult.attr('id', id);
+        finalResult.attr('id', id).addClass('checkboxgroup');
 
         if (props.show_label && props.label) {
             finalResult.append(labelCreator(props));
@@ -157,6 +157,7 @@ const components = {
 
         const finalResult = displayOptions(props);
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        finalResult.addClass('dropdown')
 
         if (props.show_label && props.label) {
             finalResult.append(labelCreator(props, id));
@@ -237,10 +238,10 @@ const components = {
 
                     gallery.append($('<div>', { class: `col-${rowsList[props.grid_cols][rowNumber]}` }).append(
 
-                        $('<div>', { class: 'p-4' }).append(
+                        $('<button>', { class: 'w-100' }).append(
 
                             objType(props.value[item][0], 'object') && typeof props.value[item][0].name === 'string' && props.value[item][0].name.length > 0 ?
-                                $('<div>', { class: 'avatar' }).css({ 'background-image': `url('${imgUrl}')` }).data('gradio_props_gallery_item', props.value[item]) : null,
+                                $('<div>', { class: 'avatar border border-bg' }).css({ 'background-image': `url('${imgUrl}')` }).data('gradio_props_gallery_item', props.value[item]) : null,
                             typeof props.value[item][1] === 'string' ? $('<div>', { class: 'text-bg' }).text(props.value[item][1]) : null
 
                         )
@@ -278,7 +279,7 @@ const components = {
 
         const finalResult = displayOptions(props);
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
-        finalResult.attr('id', id);
+        finalResult.attr('id', id).addClass('image');
 
         const img = $('<img>', { alt: 'image', class: 'img-fluid' }).css({ 'max-height': '124px' });
 
@@ -348,7 +349,7 @@ const components = {
 
         const finalResult = displayOptions(props);
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
-        finalResult.attr('id', id);
+        finalResult.attr('id', id).addClass('radio');
 
         if (props.show_label && props.label) {
             finalResult.append(labelCreator(props, id));
@@ -388,7 +389,7 @@ const components = {
 
         const finalResult = displayOptions(props);
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
-        finalResult.attr('id', id);
+        finalResult.attr('id', id).addClass('slider');
 
         if (props.show_label && props.label) {
             finalResult.append(labelCreator(props, id));
@@ -408,6 +409,7 @@ const components = {
 
         const finalResult = displayOptions(props);
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        finalResult.addClass('textbox')
 
         if (props.show_label && props.label) {
             finalResult.append(labelCreator(props, `${id}_textbox`));
@@ -462,14 +464,24 @@ const components = {
     },
 
     column: (props) => {
-        console.log(`Column`, props);
+
+        const finalResult = displayOptions(props);
+        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        finalResult.attr('id', id).addClass('p-2').addClass('column');
+
+        if (props.show_label && typeof props.label === 'string') {
+            finalResult.append($('<div>', { id }).text(props.label));
+        }
+
+        return finalResult;
+
     },
 
     row: (props) => {
 
         const finalResult = displayOptions(props);
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
-        finalResult.attr('id', id).addClass('card').addClass('p-2');
+        finalResult.attr('id', id).addClass('row');
 
         if (props.show_label && typeof props.label === 'string') {
             finalResult.append($('<div>', { id }).text(props.label));
@@ -501,17 +513,34 @@ const childrenLoader = (items, config, url) => {
             if (objType(items[item], 'object') && typeof items[item].id === 'number' && !Number.isNaN(items[item].id) && Number.isFinite(items[item].id)) {
 
                 // Page Data
-                let page;
-                if (Array.isArray(items[item].children) && items[item].children.length > 0) page = childrenLoader(items[item].children, config, url);
+                let page = [];
+                let newPage;
+                const existChildrens = (Array.isArray(items[item].children) && items[item].children.length > 0);
+                if (existChildrens) newPage = childrenLoader(items[item].children, config, url);
 
                 // Componet
                 const component = config.components.find(c => c.id === items[item].id);
                 if (objType(component, 'object') && objType(component.props, 'object') && typeof component.type === 'string' && typeof components[component.type] === 'function') {
+
+                    if (existChildrens && component.type === 'row') {
+
+                        const rowItems = rowsList[items[item].children.length];
+                        let rowItem = 0;
+                        newPage.forEach(item2 => {
+                            page.push($('<div>', { class: `col-md-${rowItems[rowItem]}` }).append(item2));
+                            if (rowItem > rowItems) rowItem = 0;
+                        });
+
+                    } else {
+                        page = newPage;
+                    }
+
                     const tinyHtml = components[component.type](component.props, url);
                     if (typeof tinyHtml !== 'undefined') {
                         if (page) tinyHtml.append(page);
                         html.push(tinyHtml);
                     }
+
                 }
 
             }

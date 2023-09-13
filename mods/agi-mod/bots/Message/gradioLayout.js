@@ -119,7 +119,37 @@ const components = {
     },
 
     audio: (props, compId) => {
-        console.log(`Audio`, props, compId);
+
+        const finalResult = displayOptions(props, compId);
+        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        finalResult.attr('id', id).addClass('image');
+
+        const img = $('<div>', { class: 'image-preview ratio ratio-16x9 border border-bg' });
+
+        if (props.show_label && props.label) {
+            finalResult.append(labelCreator(null, props, `${id}_image`));
+        }
+
+        if (props.interactive !== false) {
+
+            if (props.source === 'upload') {
+                finalResult.append($('<input>', { class: 'form-control', type: 'file', id: `${id}_image`, accept: 'audio/*' }));
+            }
+
+        }
+
+        finalResult.append(img);
+
+        if (props.show_share_button) {
+
+        }
+
+        if (props.show_download_button) {
+
+        }
+
+        return finalResult;
+
     },
 
     barplot: (props, compId) => {
@@ -336,15 +366,15 @@ const components = {
             finalResult.append(labelCreator(null, props, `${id}_image`));
         }
 
-        if (props.tool === 'editor' && props.source === 'upload') {
+        if (props.interactive !== false) {
 
-            if (props.interactive !== false) {
-                finalResult.append($('<input>', { class: 'form-control', type: 'file', id: `${id}_image` }));
+            if (props.source === 'upload') {
+                finalResult.append($('<input>', { class: 'form-control', type: 'file', id: `${id}_image`, accept: 'image/*' }));
             }
 
-            finalResult.append(img);
-
         }
+
+        finalResult.append(img);
 
         if (props.show_share_button) {
 
@@ -404,7 +434,7 @@ const components = {
             finalResult.append(labelCreator(null, props, id));
         }
 
-        const radioGroup = $('<div>', { class: 'mx-4 border border-bg p-2' });
+        const radioGroup = $('<div>', { class: 'border border-bg p-2' });
 
         if (Array.isArray(props.choices) && props.choices.length > 0) {
 

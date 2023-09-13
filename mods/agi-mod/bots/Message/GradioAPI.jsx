@@ -50,7 +50,7 @@ function GradioEmbed({ agiData }) {
     });
 
     // Temp result. (I'm using this only to have a preview. This will be removed later.)
-    return <div ref={embedRef} className='mt-2 agi-client-embed border border-bg p-2 bg-bg2'>
+    return <div ref={embedRef} className='mt-2 agi-client-embed border border-bg p-4 bg-bg2'>
         <iframe title='gradio' src={agiData.url} />
     </div>;
 

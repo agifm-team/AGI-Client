@@ -407,7 +407,42 @@ const components = {
             finalResult.append(labelCreator(null, props, id));
         }
 
-        finalResult.append($('<input>', { type: 'range', class: 'form-range', max: props.maximum, min: props.minimum, step: props.step }));
+        const input = $('<input>', { type: 'range', class: 'form-range', max: props.maximum, min: props.minimum, step: props.step });
+        const numberInput = $('<input>', { class: 'form-control form-control-bg form-control-slider float-end', type: 'number', max: props.maximum, min: props.minimum, step: props.step });
+        finalResult.append(numberInput);
+
+        numberInput.on('change keypress keydown keyup', () => {
+
+            const value = Number(numberInput.val());
+            const value2 = Number(input.val());
+            const max = Number(numberInput.attr('max'));
+            const min = Number(numberInput.attr('min'));
+
+            if (!Number.isNaN(max) && Number.isFinite(max) && !Number.isNaN(min) && Number.isFinite(min)) {
+
+                if (!Number.isNaN(value) && Number.isFinite(value)) {
+                    if (value > max) numberInput.val(max);
+                    if (value < min) numberInput.val(min);
+                } else {
+                    numberInput.val(min);
+                }
+
+                if (value !== value2) input.val(value);
+
+            }
+
+        });
+
+        input.on('change keypress keydown keyup', () => {
+            const value = Number(numberInput.val());
+            const value2 = Number(input.val());
+            if (value !== value2) numberInput.val(value2);
+        });
+
+        finalResult.append(input);
+
+        input.val(props.value);
+        numberInput.val(props.value);
 
         return finalResult;
 

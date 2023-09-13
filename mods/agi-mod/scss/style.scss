@@ -263,11 +263,25 @@
       }
     }
 
+    /* Slider */
+    .slider {
+      .form-control-slider {
+        padding: 7px;
+        max-width: 100px;
+      }
+    }
+
     /* H1 */
     h1 {
+      font-size: 32px;
       img {
         max-height: 72px;
       }
+    }
+
+    /* H2 */
+    h2 {
+      font-size: 22px;
     }
 
     /* H3 */

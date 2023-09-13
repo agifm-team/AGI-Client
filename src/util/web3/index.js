@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import clone from 'clone';
 import { objType } from '../tools';
+import startStatus from './status';
 
 const defaultNetworks = {
 
@@ -261,6 +262,11 @@ const startWeb3 = () => {
 
   // Check if Web3 has been injected by the browser (Mist/MetaMask).
   if (typeof ethereum !== 'undefined' && window.ethereum.isMetaMask) {
+
+    // Checker
+    tinyCrypto.existEthereum = () => (typeof window.ethereum !== 'undefined');
+    tinyCrypto.isUnlocked = () => (window.ethereum._isUnlocked);
+    tinyCrypto.existWalletApp = () => (tinyCrypto.existEthereum() && tinyCrypto.isUnlocked());
 
     // Emitter
     class MyEmitter extends EventEmitter { }
@@ -585,6 +591,13 @@ const startWeb3 = () => {
 
   }
 
+  // Nothing
+  else {
+    tinyCrypto.existEthereum = () => false;
+    tinyCrypto.isUnlocked = () => false;
+    tinyCrypto.existWalletApp = () => false;
+  }
+
   // Freeze
   tinyCrypto.call = Object.freeze(tinyCrypto.call);
   tinyCrypto.get = Object.freeze(tinyCrypto.get);
@@ -595,6 +608,9 @@ const startWeb3 = () => {
 
   // Insert into global
   global.tinyCrypto = tinyCrypto;
+
+  // Start Status
+  startStatus();
 
 };
 

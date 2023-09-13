@@ -111,7 +111,7 @@ function AppearanceSection() {
 
             <div className="card noselect mt-3">
                 <ul className="list-group list-group-flush">
-                    <li className="list-group-item very-small text-gray">{__ENV_APP__.info.name}</li>
+                    <li className="list-group-item very-small text-gray">User message</li>
 
                     <SettingTile
                         title="Disable animated hover avatars"
@@ -127,6 +127,25 @@ function AppearanceSection() {
 
                     <SettingTile
                         title="Disable message url embed"
+                        options={(
+                            <Toggle
+                                className='d-inline-flex'
+                                isActive={isEmbedDisabled}
+                                onToggle={toggleAction('pony.house.appearance', 'isEmbedDisabled', setEmbedDisabled)}
+                            />
+                        )}
+                        content={<div className="very-small text-gray">All messages will no longer load embed.</div>}
+                    />
+
+                </ul>
+            </div>
+
+            <div className="card noselect mt-3">
+                <ul className="list-group list-group-flush">
+                    <li className="list-group-item very-small text-gray">Embed</li>
+
+                    <SettingTile
+                        title="Disable embed to message url"
                         options={(
                             <Toggle
                                 className='d-inline-flex'

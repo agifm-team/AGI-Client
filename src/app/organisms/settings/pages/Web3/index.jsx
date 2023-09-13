@@ -8,6 +8,7 @@ import { toggleActionLocal } from '../../Api';
 import { getWeb3Cfg, deleteWeb3Cfg, setWeb3Cfg } from '../../../../../util/web3';
 import Web3Item from './Web3Item';
 import { objType, tinyConfirm, tinyPrompt } from '../../../../../util/tools';
+import { ethereumUpdate } from '../../../../../client/action/navigation';
 
 function Web3Section() {
 
@@ -55,6 +56,26 @@ function Web3Section() {
                     )}
                     content={<div className="very-small text-gray">All Pony House web3 features require this setting enabled. If you disable this option, everything related to web3 will be limited to native Pony House features only.</div>}
                 />
+
+            </ul>
+        </div>
+
+        <div className="card noselect mb-3">
+            <ul className="list-group list-group-flush">
+
+                <li className="list-group-item very-small text-gray">Integration Settings</li>
+
+                <li className="list-group-item very-small text-gray">
+
+                </li>
+
+            </ul>
+        </div>
+
+        <div className="card noselect mb-3">
+            <ul className="list-group list-group-flush">
+
+                <li className="list-group-item very-small text-gray">Network Settings</li>
 
                 <li className="list-group-item very-small text-gray">
 

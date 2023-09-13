@@ -4,6 +4,7 @@ import { marked } from 'marked';
 import { objType, toast } from '../../../../src/util/tools';
 import { copyToClipboard } from '../../../../src/util/common';
 import initMatrix from '../../../../src/client/initMatrix';
+import openTinyURL from '../../../../src/util/message/urlProtection';
 
 const labelCreator = (icon, props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label).prepend(icon);
 const displayOptions = (props, id) => $('<div>', { class: `${!props.visible ? 'd-none ' : ''}my-2`, component: id, component_type: props.name }).data('gradio_props', props);
@@ -32,6 +33,7 @@ const rowsList = {
 const htmlAllowed = {
 
     transformTags: {
+
         img: (tagName, attribs) => {
 
             const mx = initMatrix.matrixClient;
@@ -57,6 +59,15 @@ const htmlAllowed = {
             };
 
         },
+
+        a: (tagName, attribs) => ({
+            tagName,
+            attribs: {
+                ...attribs,
+                target: '_blank',
+            },
+        }),
+
     },
 
     allowedTags: [
@@ -80,6 +91,38 @@ const htmlAllowed = {
 
 // Components
 const components = {
+
+    html: (props, compId) => {
+
+        const finalResult = displayOptions(props, compId);
+        finalResult.data('gradio_props', props);
+
+        const html = $(sanitizeHtml(props.value, htmlAllowed));
+        html.find('a').on('click', (event) => {
+            const e = event.originalEvent;
+            e.preventDefault(); openTinyURL($(event.currentTarget).attr('href'), $(event.currentTarget).attr('href')); return false;
+        });
+
+        finalResult.append(html);
+        return finalResult;
+
+    },
+
+    markdown: (props, compId) => {
+
+        const finalResult = displayOptions(props, compId);
+        finalResult.data('gradio_props', props);
+
+        const html = $(sanitizeHtml(marked.parse(props.value), htmlAllowed));
+        html.find('a').on('click', (event) => {
+            const e = event.originalEvent;
+            e.preventDefault(); openTinyURL($(event.currentTarget).attr('href'), $(event.currentTarget).attr('href')); return false;
+        });
+
+        finalResult.append(html);
+        return finalResult;
+
+    },
 
     audio: (props, compId) => {
         console.log(`Audio`, props, compId);
@@ -279,8 +322,6 @@ const components = {
 
     },
 
-    html: (props, compId) => displayOptions(props, compId).append($(sanitizeHtml(props.value, htmlAllowed))).data('gradio_props', props),
-
     highlightedtext: (props, compId) => {
         console.log(`HighlightedText`, props, compId);
     },
@@ -342,8 +383,6 @@ const components = {
     logoutbutton: (props, compId) => {
         console.log(`LogoutButton`, props, compId);
     },
-
-    markdown: (props, compId) => displayOptions(props, compId).append($(sanitizeHtml(marked.parse(props.value), htmlAllowed))).data('gradio_props', props),
 
     model3d: (props, compId) => {
         console.log(`Model3D`, props, compId);

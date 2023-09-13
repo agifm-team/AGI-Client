@@ -638,6 +638,20 @@ const components = {
 
     },
 
+    group: (props, compId) => {
+
+        const finalResult = displayOptions(props, compId);
+        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        finalResult.attr('id', id).addClass('group').addClass('my-3');
+
+        if (props.show_label && typeof props.label === 'string') {
+            finalResult.append($('<div>', { id }).text(props.label));
+        }
+
+        return finalResult;
+
+    },
+
 };
 
 // Children

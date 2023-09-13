@@ -255,11 +255,24 @@
       }
     }
 
+    /* Accordion */
+    .accordion {
+      .collapse-button {
+        position: relative;
+        top: 3px;
+      }
+    }
+
     /* H1 */
     h1 {
       img {
         max-height: 72px;
       }
+    }
+
+    /* H3 */
+    h3 {
+      font-size: 17px;
     }
   }
 }

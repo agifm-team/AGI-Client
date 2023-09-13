@@ -513,15 +513,22 @@ const components = {
 
         const finalResult = displayOptions(props, compId);
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
-        finalResult.attr('id', id).addClass('form');
+        finalResult.attr('id', id).addClass('accordion');
 
         const collapseId = `${id}_collapse_${compId}`;
 
         if (typeof props.label === 'string') {
 
             const collapse = $('<div>', { class: 'collapse', id: collapseId });
-            const button = $('<button>', { class: 'ms-2 btn ic-btn ic-btn-link btn-bg btn-link btn-bg btn-text-link btn-bg', type: 'button', 'data-bs-toggle': 'collapse', 'aria-expanded': props.open ? 'true' : 'false', 'aria-controls': collapseId, 'data-bs-target': `#${collapseId}` }).append(
-                $('<i>', { class: `ic-base ic-fa ic-fa-normal fa-solid fa-caret-${props.open ? 'down' : 'left'}` })
+            const button = $('<button>', {
+                class: 'btn ic-btn ic-btn-link btn-bg btn-link btn-bg btn-text-link btn-bg',
+                type: 'button',
+                'data-bs-toggle': 'collapse',
+                'aria-expanded': props.open ? 'true' : 'false',
+                'aria-controls': collapseId,
+                'data-bs-target': `#${collapseId}`
+            }).text(props.label).append(
+                $('<i>', { class: `collapse-button float-end ms-2 ic-base ic-fa ic-fa-normal fa-solid fa-caret-${props.open ? 'down' : 'left'}` })
             );
 
             collapse.on('hide.bs.collapse', () => {
@@ -535,7 +542,7 @@ const components = {
             });
 
             finalResult.append($('<div>', { id, class: 'card' }).append($('<div>', { class: 'card-body p-2' }).append(
-                $('<span>').text(props.label).append(button),
+                $('<span>', { class: 'd-grid' }).append(button),
                 collapse
             )));
 

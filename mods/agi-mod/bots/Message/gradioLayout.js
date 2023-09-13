@@ -9,12 +9,6 @@ import openTinyURL from '../../../../src/util/message/urlProtection';
 const labelCreator = (icon, props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label).prepend(icon);
 const displayOptions = (props, id) => $('<div>', { class: `${!props.visible ? 'd-none ' : ''}my-2`, component: id, component_type: props.name }).data('gradio_props', props);
 
-/*
-
-   Soon I will add another security script here, which is the href detector, to add a layer of warning that the user is going to a third-party page. 
-
-*/
-
 const rowsList = {
     1: [12],
     2: [6, 6],

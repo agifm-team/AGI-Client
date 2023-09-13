@@ -86,12 +86,12 @@ const htmlAllowed = {
 // Components
 const components = {
 
-    html: (props, compId) => {
+    html: (component, compId) => {
 
-        const finalResult = displayOptions(props, compId);
-        finalResult.data('gradio_props', props);
+        const finalResult = displayOptions(component.props, compId);
+        finalResult.data('gradio_props', component.props);
 
-        const html = $(sanitizeHtml(props.value, htmlAllowed));
+        const html = $(sanitizeHtml(component.props.value, htmlAllowed));
         html.find('a').on('click', (event) => {
             const e = event.originalEvent;
             e.preventDefault(); openTinyURL($(event.currentTarget).attr('href'), $(event.currentTarget).attr('href')); return false;
@@ -102,12 +102,12 @@ const components = {
 
     },
 
-    markdown: (props, compId) => {
+    markdown: (component, compId) => {
 
-        const finalResult = displayOptions(props, compId);
-        finalResult.data('gradio_props', props);
+        const finalResult = displayOptions(component.props, compId);
+        finalResult.data('gradio_props', component.props);
 
-        const html = $(sanitizeHtml(marked.parse(props.value), htmlAllowed));
+        const html = $(sanitizeHtml(marked.parse(component.props.value), htmlAllowed));
         html.find('a').on('click', (event) => {
             const e = event.originalEvent;
             e.preventDefault(); openTinyURL($(event.currentTarget).attr('href'), $(event.currentTarget).attr('href')); return false;
@@ -118,26 +118,26 @@ const components = {
 
     },
 
-    audio: (props, compId) => {
-        console.log(`Audio`, props, compId);
+    audio: (component, compId) => {
+        console.log(`Audio`, component, compId);
     },
 
-    barplot: (props, compId) => {
-        console.log(`BarPlot`, props, compId);
+    barplot: (component, compId) => {
+        console.log(`BarPlot`, component, compId);
     },
 
 
-    button: (props, compId) => {
+    button: (component, compId) => {
 
-        const finalResult = displayOptions(props, compId);
-        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        const finalResult = displayOptions(component.props, compId);
+        const id = component.props.elem_id ? `gradio_${component.props.elem_id}` : null;
         finalResult.attr('id', id).addClass('button').addClass('d-grid');
 
         finalResult.append($('<button>', {
-            class: `btn btn-${props.variant ? props.variant : 'bg'}${typeof props.size === 'string' && props.size.length > 0 ? ` btn-${props.size}` : ''}`,
-        }).text(props.value));
+            class: `btn btn-${component.props.variant ? component.props.variant : 'bg'}${typeof component.props.size === 'string' && component.props.size.length > 0 ? ` btn-${component.props.size}` : ''}`,
+        }).text(component.props.value));
 
-        if (props.interactive) {
+        if (component.props.interactive) {
 
         }
 
@@ -145,32 +145,32 @@ const components = {
 
     },
 
-    chatbot: (props, compId) => {
-        console.log(`Chatbot`, props, compId);
+    chatbot: (component, compId) => {
+        console.log(`Chatbot`, component, compId);
     },
 
-    checkbox: (props, compId) => {
-        console.log(`Checkbox`, props, compId);
+    checkbox: (component, compId) => {
+        console.log(`Checkbox`, component, compId);
     },
 
-    checkboxgroup: (props, compId) => {
+    checkboxgroup: (component, compId) => {
 
-        const finalResult = displayOptions(props, compId);
-        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        const finalResult = displayOptions(component.props, compId);
+        const id = component.props.elem_id ? `gradio_${component.props.elem_id}` : null;
         finalResult.attr('id', id).addClass('checkboxgroup');
 
-        if (props.show_label && props.label) {
-            finalResult.append(labelCreator(null, props));
+        if (component.props.show_label && component.props.label) {
+            finalResult.append(labelCreator(null, component.props));
         }
 
-        if (Array.isArray(props.choices) && props.choices.length > 0) {
+        if (Array.isArray(component.props.choices) && component.props.choices.length > 0) {
 
-            for (const item in props.choices) {
-                if (typeof props.choices[item] === 'string') {
+            for (const item in component.props.choices) {
+                if (typeof component.props.choices[item] === 'string') {
 
                     const input = $(`<div>`, { class: 'form-check' }).append(
-                        $('<input>', { id: id !== null ? id + item : null, class: 'form-check-input', type: 'checkbox', value: props.choices[item] }).prop('checked', (Array.isArray(props.value) && props.value.length > 0 && props.value.indexOf(props.choices[item]) > -1)),
-                        $('<label>', { for: id !== null ? id + item : null, class: 'form-check-label' }).text(props.choices[item]),
+                        $('<input>', { id: id !== null ? id + item : null, class: 'form-check-input', type: 'checkbox', value: component.props.choices[item] }).prop('checked', (Array.isArray(component.props.value) && component.props.value.length > 0 && component.props.value.indexOf(component.props.choices[item]) > -1)),
+                        $('<label>', { for: id !== null ? id + item : null, class: 'form-check-label' }).text(component.props.choices[item]),
                     );
 
                     finalResult.append(input);
@@ -184,34 +184,34 @@ const components = {
 
     },
 
-    clearbutton: (props, compId) => {
-        console.log(`ClearButton`, props, compId);
+    clearbutton: (component, compId) => {
+        console.log(`ClearButton`, component, compId);
     },
 
-    code: (props, compId) => {
-        console.log(`Code`, props, compId);
+    code: (component, compId) => {
+        console.log(`Code`, component, compId);
     },
 
-    colorpicker: (props, compId) => {
-        console.log(`ColorPicker`, props, compId);
+    colorpicker: (component, compId) => {
+        console.log(`ColorPicker`, component, compId);
     },
 
-    dataframe: (props, compId) => {
-        console.log(`Dataframe`, props, compId);
+    dataframe: (component, compId) => {
+        console.log(`Dataframe`, component, compId);
     },
 
-    dataset: (props, compId) => {
-        console.log(`Dataset`, props, compId);
+    dataset: (component, compId) => {
+        console.log(`Dataset`, component, compId);
     },
 
-    dropdown: (props, compId) => {
+    dropdown: (component, compId) => {
 
-        const finalResult = displayOptions(props, compId);
-        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        const finalResult = displayOptions(component.props, compId);
+        const id = component.props.elem_id ? `gradio_${component.props.elem_id}` : null;
         finalResult.addClass('dropdown')
 
-        if (props.show_label && props.label) {
-            finalResult.append(labelCreator(null, props, id));
+        if (component.props.show_label && component.props.label) {
+            finalResult.append(labelCreator(null, component.props, id));
         }
 
         const dropdown = $(`<select>`, {
@@ -219,22 +219,22 @@ const components = {
             class: 'form-control form-control-bg'
         });
 
-        if (Array.isArray(props.choices) && props.choices.length > 0) {
+        if (Array.isArray(component.props.choices) && component.props.choices.length > 0) {
 
-            for (const item in props.choices) {
-                if (typeof props.choices[item] === 'string') {
-                    dropdown.append($('<option>', { value: props.choices[item] }).text(props.choices[item]));
+            for (const item in component.props.choices) {
+                if (typeof component.props.choices[item] === 'string') {
+                    dropdown.append($('<option>', { value: component.props.choices[item] }).text(component.props.choices[item]));
                 }
             }
 
-            if (props.allow_custom_value) {
+            if (component.props.allow_custom_value) {
                 dropdown.append($('<option>', { value: 'custom' }).text('Custom'));
             }
 
-            dropdown.val(props.value);
+            dropdown.val(component.props.value);
 
-            if (props.allow_custom_value) {
-                dropdown.append($('<input>', { type: 'text', value: props.value, readonly: (props.choices.indexOf(props.value) > -1) }));
+            if (component.props.allow_custom_value) {
+                dropdown.append($('<input>', { type: 'text', value: component.props.value, readonly: (component.props.choices.indexOf(component.props.value) > -1) }));
             }
 
             finalResult.append(dropdown);
@@ -245,19 +245,19 @@ const components = {
 
     },
 
-    duplicatebutton: (props, compId) => {
-        console.log(`DuplicateButton`, props, compId);
+    duplicatebutton: (component, compId) => {
+        console.log(`DuplicateButton`, component, compId);
     },
 
-    file: (props, compId) => {
-        console.log(`File`, props, compId);
+    file: (component, compId) => {
+        console.log(`File`, component, compId);
     },
 
-    gallery: (props, compId, url) => {
+    gallery: (component, compId, url) => {
 
         let tinyUrl = url;
-        const finalResult = displayOptions(props, compId);
-        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        const finalResult = displayOptions(component.props, compId);
+        const id = component.props.elem_id ? `gradio_${component.props.elem_id}` : null;
         finalResult.attr('id', id).addClass('gallery').addClass('card').addClass('p-3');
 
         if (typeof tinyUrl === 'string' && tinyUrl.length > 0) {
@@ -268,39 +268,39 @@ const components = {
             }
         } else { tinyUrl = ''; }
 
-        if (props.show_label && props.label) {
-            finalResult.append(labelCreator(null, props, `${id}_image`));
+        if (component.props.show_label && component.props.label) {
+            finalResult.append(labelCreator(null, component.props, `${id}_image`));
         }
 
         const gallery = $('<div>', { class: 'row' });
 
-        if (typeof props.grid_cols === 'number' && !Number.isNaN(props.grid_cols) && Number.isFinite(props.grid_cols) && props.grid_cols <= 12 && rowsList[props.grid_cols]) {
+        if (typeof component.props.grid_cols === 'number' && !Number.isNaN(component.props.grid_cols) && Number.isFinite(component.props.grid_cols) && component.props.grid_cols <= 12 && rowsList[component.props.grid_cols]) {
 
-            if (Array.isArray(rowsList[props.grid_cols]) && Array.isArray(props.value)) {
+            if (Array.isArray(rowsList[component.props.grid_cols]) && Array.isArray(component.props.value)) {
 
                 let rowNumber = 0;
 
-                for (const item in props.value) {
+                for (const item in component.props.value) {
 
-                    let imgUrl = props.value[item][0].name;
+                    let imgUrl = component.props.value[item][0].name;
                     if (!imgUrl.startsWith('https://') && !imgUrl.startsWith('http://')) {
                         imgUrl = `${tinyUrl}${imgUrl}`;
                     }
 
-                    gallery.append($('<div>', { class: `col-${rowsList[props.grid_cols][rowNumber]}` }).append(
+                    gallery.append($('<div>', { class: `col-${rowsList[component.props.grid_cols][rowNumber]}` }).append(
 
                         $('<button>', { class: 'w-100' }).append(
 
-                            objType(props.value[item][0], 'object') && typeof props.value[item][0].name === 'string' && props.value[item][0].name.length > 0 ?
-                                $('<div>', { class: 'avatar border border-bg' }).css({ 'background-image': `url('${imgUrl}')` }).data('gradio_props_gallery_item', props.value[item]) : null,
-                            typeof props.value[item][1] === 'string' ? $('<div>', { class: 'text-bg' }).text(props.value[item][1]) : null
+                            objType(component.props.value[item][0], 'object') && typeof component.props.value[item][0].name === 'string' && component.props.value[item][0].name.length > 0 ?
+                                $('<div>', { class: 'avatar border border-bg' }).css({ 'background-image': `url('${imgUrl}')` }).data('gradio_props_gallery_item', component.props.value[item]) : null,
+                            typeof component.props.value[item][1] === 'string' ? $('<div>', { class: 'text-bg' }).text(component.props.value[item][1]) : null
 
                         )
 
                     ));
 
                     rowNumber++;
-                    if (typeof rowsList[props.grid_cols][rowNumber] !== 'number') {
+                    if (typeof rowsList[component.props.grid_cols][rowNumber] !== 'number') {
                         rowNumber = 0;
                     }
 
@@ -312,7 +312,7 @@ const components = {
 
         finalResult.append(gallery);
 
-        if (props.show_share_button) {
+        if (component.props.show_share_button) {
 
         }
 
@@ -320,25 +320,25 @@ const components = {
 
     },
 
-    highlightedtext: (props, compId) => {
-        console.log(`HighlightedText`, props, compId);
+    highlightedtext: (component, compId) => {
+        console.log(`HighlightedText`, component, compId);
     },
 
-    image: (props, compId) => {
+    image: (component, compId) => {
 
-        const finalResult = displayOptions(props, compId);
-        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        const finalResult = displayOptions(component.props, compId);
+        const id = component.props.elem_id ? `gradio_${component.props.elem_id}` : null;
         finalResult.attr('id', id).addClass('image');
 
         const img = $('<div>', { class: 'image-preview ratio ratio-16x9 border border-bg' });
 
-        if (props.show_label && props.label) {
-            finalResult.append(labelCreator(null, props, `${id}_image`));
+        if (component.props.show_label && component.props.label) {
+            finalResult.append(labelCreator(null, component.props, `${id}_image`));
         }
 
-        if (props.tool === 'editor' && props.source === 'upload') {
+        if (component.props.tool === 'editor' && component.props.source === 'upload') {
 
-            if (props.interactive !== false) {
+            if (component.props.interactive !== false) {
                 finalResult.append($('<input>', { class: 'form-control', type: 'file', id: `${id}_image` }));
             }
 
@@ -346,11 +346,11 @@ const components = {
 
         }
 
-        if (props.show_share_button) {
+        if (component.props.show_share_button) {
 
         }
 
-        if (props.show_download_button) {
+        if (component.props.show_download_button) {
 
         }
 
@@ -358,60 +358,60 @@ const components = {
 
     },
 
-    interpretation: (props, compId) => {
-        console.log(`Interpretation`, props, compId);
+    interpretation: (component, compId) => {
+        console.log(`Interpretation`, component, compId);
     },
 
-    json: (props, compId) => {
-        console.log(`JSON`, props, compId);
+    json: (component, compId) => {
+        console.log(`JSON`, component, compId);
     },
 
-    label: (props, compId) => {
-        console.log(`Label`, props, compId);
+    label: (component, compId) => {
+        console.log(`Label`, component, compId);
     },
 
-    lineplot: (props, compId) => {
-        console.log(`LinePlot`, props, compId);
+    lineplot: (component, compId) => {
+        console.log(`LinePlot`, component, compId);
     },
 
-    loginbutton: (props, compId) => {
-        console.log(`LoginButton`, props, compId);
+    loginbutton: (component, compId) => {
+        console.log(`LoginButton`, component, compId);
     },
 
-    logoutbutton: (props, compId) => {
-        console.log(`LogoutButton`, props, compId);
+    logoutbutton: (component, compId) => {
+        console.log(`LogoutButton`, component, compId);
     },
 
-    model3d: (props, compId) => {
-        console.log(`Model3D`, props, compId);
+    model3d: (component, compId) => {
+        console.log(`Model3D`, component, compId);
     },
 
-    number: (props, compId) => {
-        console.log(`Number`, props, compId);
+    number: (component, compId) => {
+        console.log(`Number`, component, compId);
     },
 
-    plot: (props, compId) => {
-        console.log(`Plot`, props, compId);
+    plot: (component, compId) => {
+        console.log(`Plot`, component, compId);
     },
 
-    radio: (props, compId) => {
+    radio: (component, compId) => {
 
-        const finalResult = displayOptions(props, compId);
-        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        const finalResult = displayOptions(component.props, compId);
+        const id = component.props.elem_id ? `gradio_${component.props.elem_id}` : null;
         finalResult.attr('id', id).addClass('radio');
 
-        if (props.show_label && props.label) {
-            finalResult.append(labelCreator(null, props, id));
+        if (component.props.show_label && component.props.label) {
+            finalResult.append(labelCreator(null, component.props, id));
         }
 
-        if (Array.isArray(props.choices) && props.choices.length > 0) {
+        if (Array.isArray(component.props.choices) && component.props.choices.length > 0) {
 
-            for (const item in props.choices) {
-                if (typeof props.choices[item] === 'string') {
+            for (const item in component.props.choices) {
+                if (typeof component.props.choices[item] === 'string') {
 
                     const input = $(`<div>`, { class: 'form-check' }).append(
-                        $('<input>', { id: id !== null ? id + item : null, class: 'form-check-input', type: 'radio', value: props.choices[item], name: id, }),
-                        $('<label>', { for: id !== null ? id + item : null, class: 'form-check-label' }).text(props.choices[item]),
+                        $('<input>', { id: id !== null ? id + item : null, class: 'form-check-input', type: 'radio', value: component.props.choices[item], name: id, }),
+                        $('<label>', { for: id !== null ? id + item : null, class: 'form-check-label' }).text(component.props.choices[item]),
                     );
 
                     finalResult.append(input);
@@ -421,7 +421,7 @@ const components = {
 
             const $radios = finalResult.find(`input:radio[name="${id}"]`);
             if ($radios.is(':checked') === false) {
-                $radios.filter(`[value="${props.value}"]`).prop('checked', true);
+                $radios.filter(`[value="${component.props.value}"]`).prop('checked', true);
             }
 
         }
@@ -430,22 +430,22 @@ const components = {
 
     },
 
-    scatterplot: (props, compId) => {
-        console.log(`ScatterPlot`, props, compId);
+    scatterplot: (component, compId) => {
+        console.log(`ScatterPlot`, component, compId);
     },
 
-    slider: (props, compId) => {
+    slider: (component, compId) => {
 
-        const finalResult = displayOptions(props, compId);
-        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        const finalResult = displayOptions(component.props, compId);
+        const id = component.props.elem_id ? `gradio_${component.props.elem_id}` : null;
         finalResult.attr('id', id).addClass('slider');
 
-        if (props.show_label && props.label) {
-            finalResult.append(labelCreator(null, props, id));
+        if (component.props.show_label && component.props.label) {
+            finalResult.append(labelCreator(null, component.props, id));
         }
 
-        const input = $('<input>', { type: 'range', class: 'form-range', max: props.maximum, min: props.minimum, step: props.step });
-        const numberInput = $('<input>', { class: 'form-control form-control-bg form-control-slider float-end', type: 'number', max: props.maximum, min: props.minimum, step: props.step });
+        const input = $('<input>', { type: 'range', class: 'form-range', max: component.props.maximum, min: component.props.minimum, step: component.props.step });
+        const numberInput = $('<input>', { class: 'form-control form-control-bg form-control-slider float-end', type: 'number', max: component.props.maximum, min: component.props.minimum, step: component.props.step });
         finalResult.append(numberInput);
 
         numberInput.on('change keypress keydown keyup', () => {
@@ -478,28 +478,28 @@ const components = {
 
         finalResult.append(input);
 
-        input.val(props.value);
-        numberInput.val(props.value);
+        input.val(component.props.value);
+        numberInput.val(component.props.value);
 
         return finalResult;
 
     },
 
-    state: (props, compId) => {
-        console.log(`State`, props, compId);
+    state: (component, compId) => {
+        console.log(`State`, component, compId);
     },
 
-    textbox: (props, compId) => {
+    textbox: (component, compId) => {
 
-        const finalResult = displayOptions(props, compId);
-        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        const finalResult = displayOptions(component.props, compId);
+        const id = component.props.elem_id ? `gradio_${component.props.elem_id}` : null;
         finalResult.addClass('textbox')
 
-        if (props.show_label && props.label) {
-            finalResult.append(labelCreator(null, props, `${id}_textbox`));
+        if (component.props.show_label && component.props.label) {
+            finalResult.append(labelCreator(null, component.props, `${id}_textbox`));
         }
 
-        const isTextInput = (props.lines === 1 && props.max_lines === 1);
+        const isTextInput = (component.props.lines === 1 && component.props.max_lines === 1);
 
         const tinyNoteSpacing = (event) => {
             if (!isTextInput) {
@@ -510,16 +510,16 @@ const components = {
 
         const textarea = $(`<${isTextInput ? 'input' : 'textarea'}>`, {
             id: id !== null ? `${id}_textbox` : null,
-            rows: props.lines,
-            maxrows: props.max_lines,
-            placeholder: props.placeholder,
+            rows: component.props.lines,
+            maxrows: component.props.max_lines,
+            placeholder: component.props.placeholder,
             class: 'form-control form-control-bg'
         }).on('keypress keyup keydown', tinyNoteSpacing);
 
-        textarea.val(props.value);
+        textarea.val(component.props.value);
         finalResult.append(textarea);
 
-        if (props.show_copy_button) {
+        if (component.props.show_copy_button) {
             finalResult.append($('<button>', { class: `btn btn-primary` }).text('Copy text')).on('click', () => {
                 try {
 
@@ -541,66 +541,66 @@ const components = {
 
     },
 
-    timeseries: (props, compId) => {
-        console.log(`Timeseries`, props, compId);
+    timeseries: (component, compId) => {
+        console.log(`Timeseries`, component, compId);
     },
 
-    uploadbutton: (props, compId) => {
-        console.log(`UploadButton`, props, compId);
+    uploadbutton: (component, compId) => {
+        console.log(`UploadButton`, component, compId);
     },
 
-    video: (props, compId) => {
-        console.log(`Video`, props, compId);
+    video: (component, compId) => {
+        console.log(`Video`, component, compId);
     },
 
-    column: (props, compId) => {
+    column: (component, compId) => {
 
-        const finalResult = displayOptions(props, compId);
-        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        const finalResult = displayOptions(component.props, compId);
+        const id = component.props.elem_id ? `gradio_${component.props.elem_id}` : null;
         finalResult.attr('id', id).addClass('p-2').addClass('column');
 
-        if (props.show_label && typeof props.label === 'string') {
-            finalResult.append($('<div>', { id }).text(props.label));
+        if (component.props.show_label && typeof component.props.label === 'string') {
+            finalResult.append($('<div>', { id }).text(component.props.label));
         }
 
         return finalResult;
 
     },
 
-    row: (props, compId) => {
+    row: (component, compId) => {
 
-        const finalResult = displayOptions(props, compId);
-        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        const finalResult = displayOptions(component.props, compId);
+        const id = component.props.elem_id ? `gradio_${component.props.elem_id}` : null;
         finalResult.attr('id', id).addClass('row');
 
-        if (props.show_label && typeof props.label === 'string') {
-            finalResult.append($('<div>', { id }).text(props.label));
+        if (component.props.show_label && typeof component.props.label === 'string') {
+            finalResult.append($('<div>', { id }).text(component.props.label));
         }
 
         return finalResult;
 
     },
 
-    accordion: (props, compId) => {
+    accordion: (component, compId) => {
 
-        const finalResult = displayOptions(props, compId);
-        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        const finalResult = displayOptions(component.props, compId);
+        const id = component.props.elem_id ? `gradio_${component.props.elem_id}` : null;
         finalResult.attr('id', id).addClass('accordion');
 
         const collapseId = `${id}_collapse_${compId}`;
 
-        if (typeof props.label === 'string') {
+        if (typeof component.props.label === 'string') {
 
             const collapse = $('<div>', { class: 'collapse', id: collapseId });
             const button = $('<button>', {
                 class: 'btn ic-btn ic-btn-link btn-bg btn-link btn-bg btn-text-link btn-bg',
                 type: 'button',
                 'data-bs-toggle': 'collapse',
-                'aria-expanded': props.open ? 'true' : 'false',
+                'aria-expanded': component.props.open ? 'true' : 'false',
                 'aria-controls': collapseId,
                 'data-bs-target': `#${collapseId}`
-            }).text(props.label).append(
-                $('<i>', { class: `collapse-button float-end ms-2 ic-base ic-fa ic-fa-normal fa-solid fa-caret-${props.open ? 'down' : 'left'}` })
+            }).text(component.props.label).append(
+                $('<i>', { class: `collapse-button float-end ms-2 ic-base ic-fa ic-fa-normal fa-solid fa-caret-${component.props.open ? 'down' : 'left'}` })
             );
 
             collapse.on('hide.bs.collapse', () => {
@@ -624,14 +624,14 @@ const components = {
 
     },
 
-    form: (props, compId) => {
+    form: (component, compId) => {
 
-        const finalResult = displayOptions(props, compId);
-        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        const finalResult = displayOptions(component.props, compId);
+        const id = component.props.elem_id ? `gradio_${component.props.elem_id}` : null;
         finalResult.attr('id', id).addClass('form');
 
-        if (props.show_label && typeof props.label === 'string') {
-            finalResult.append($('<div>', { id }).text(props.label));
+        if (component.props.show_label && typeof component.props.label === 'string') {
+            finalResult.append($('<div>', { id }).text(component.props.label));
         }
 
         return finalResult;
@@ -678,7 +678,7 @@ const childrenLoader = (items, config, url) => {
                         page = newPage;
                     }
 
-                    const tinyHtml = components[component.type](component.props, component.id, url);
+                    const tinyHtml = components[component.type](component, component.id, url);
                     if (component.type === 'accordion') {
                         tinyHtml.find('.card .card-body .collapse').append(newPage);
                     }

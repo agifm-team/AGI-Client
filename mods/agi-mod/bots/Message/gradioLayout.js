@@ -133,7 +133,7 @@ const components = {
         if (props.interactive !== false) {
 
             if (props.source === 'upload') {
-                finalResult.append($('<input>', { class: 'form-control', type: 'file', id: `${id}_image`, accept: 'audio/*' }));
+                finalResult.append($('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_image`, accept: 'audio/*' }));
             }
 
         }
@@ -369,7 +369,7 @@ const components = {
         if (props.interactive !== false) {
 
             if (props.source === 'upload') {
-                finalResult.append($('<input>', { class: 'form-control', type: 'file', id: `${id}_image`, accept: 'image/*' }));
+                finalResult.append($('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_image`, accept: 'image/*' }));
             }
 
         }

@@ -273,9 +273,12 @@
 
     /* Radio */
     .radio {
-      .radio-group:hover label {
-        font-weight: bold;
+      .radio-group:hover {
         cursor: pointer;
+        label {
+          cursor: pointer;
+          font-weight: bold;
+        }
       }
     }
 

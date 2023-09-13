@@ -134,8 +134,12 @@ const components = {
         finalResult.attr('id', id).addClass('button').addClass('d-grid');
 
         finalResult.append($('<button>', {
-            class: `btn btn-${props.variant ? props.variant : 'bg'}`,
+            class: `btn btn-${props.variant ? props.variant : 'bg'}${typeof props.size === 'string' && props.size.length > 0 ? ` btn-${props.size}` : ''}`,
         }).text(props.value));
+
+        if (props.interactive) {
+
+        }
 
         return finalResult;
 

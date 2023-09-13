@@ -271,6 +271,14 @@
       }
     }
 
+    /* Radio */
+    .radio {
+      .radio-group:hover label {
+        font-weight: bold;
+        cursor: pointer;
+      }
+    }
+
     /* H1 */
     h1 {
       font-size: 32px;

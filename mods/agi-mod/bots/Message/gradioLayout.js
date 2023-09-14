@@ -553,6 +553,9 @@ const components = {
         const tinyNoteSpacing = (event) => {
             if (!isTextInput) {
 
+                // Textarea reset
+                textarea.css('height', 0);
+
                 // Target
                 const element = event.target;
 

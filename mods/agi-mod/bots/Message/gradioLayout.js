@@ -8,7 +8,7 @@ import openTinyURL from '../../../../src/util/message/urlProtection';
 
 const labelCreator = (icon, props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label).prepend(icon);
 const displayOptions = (props, id, appId) => {
-    props.appId = appId;
+    props.app_id = appId;
     return $('<div>', { class: `${!props.visible ? 'd-none ' : ''}my-2`, component: id, place_id: appId, component_type: props.name }).data('gradio_props', props);
 };
 
@@ -757,20 +757,6 @@ const components = {
 
     },
 
-    form: (props, compId, appId) => {
-
-        const finalResult = displayOptions(props, compId, appId);
-        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
-        finalResult.attr('id', id).addClass('form');
-
-        if (props.show_label && typeof props.label === 'string') {
-            finalResult.append($('<div>', { id }).text(props.label));
-        }
-
-        return finalResult;
-
-    },
-
     group: (props, compId, appId) => {
 
         const finalResult = displayOptions(props, compId, appId);
@@ -802,16 +788,21 @@ const childrenLoader = (items, config, url, appId) => {
                 let page = [];
                 let newPage;
                 const existChildrens = (Array.isArray(items[item].children) && items[item].children.length > 0);
+                const component = config.components.find(c => c.id === items[item].id);
+
+                // New Children
                 if (existChildrens) newPage = childrenLoader(items[item].children, config, url, appId);
 
                 // Componet
-                const component = config.components.find(c => c.id === items[item].id);
-                if (objType(component, 'object') && objType(component.props, 'object') && typeof component.type === 'string' && typeof components[component.type] === 'function') {
+                if (objType(component, 'object') && objType(component.props, 'object') && typeof component.type === 'string' && (typeof components[component.type] === 'function' || component.type === 'form')) {
 
+                    // Row and Accordion
                     if (existChildrens && (component.type === 'row' || component.type === 'accordion')) {
 
+                        // Row
                         if (component.type === 'row') {
 
+                            // Create Row Items
                             const rowItems = rowsList[items[item].children.length];
                             let rowItem = 0;
                             newPage.forEach(item2 => {
@@ -821,18 +812,37 @@ const childrenLoader = (items, config, url, appId) => {
 
                         }
 
-                    } else {
+                    }
+
+                    // Others
+                    else {
                         page = newPage;
                     }
 
-                    const tinyHtml = components[component.type](component.props, component.id, appId, url);
-                    if (component.type === 'accordion') {
-                        tinyHtml.find('.card .card-body .collapse').append(newPage);
+                    // Others
+                    if (component.type !== 'form') {
+
+                        const tinyHtml = components[component.type](component.props, component.id, appId, url);
+                        if (component.type === 'accordion') {
+                            tinyHtml.find('.card .card-body .collapse').append(newPage);
+                        }
+
+                        if (typeof tinyHtml !== 'undefined') {
+                            if (page) tinyHtml.append(page);
+                            html.push(tinyHtml);
+                        }
+
                     }
 
-                    if (typeof tinyHtml !== 'undefined') {
-                        if (page) tinyHtml.append(page);
-                        html.push(tinyHtml);
+                    // Build Form Data
+                    else if (page) {
+                        page.forEach(item2 => {
+
+                            component.props.app_id = appId;
+                            item2.attr('form-component-id', component.id).attr('form-element-id', component.props.elem_id).data('gradio_form_data', component);
+                            html.push(item2);
+
+                        });
                     }
 
                 }

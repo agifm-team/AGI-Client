@@ -181,6 +181,7 @@
 
 /* Gradio Embed */
 .agi-client-embed {
+  background-color: var(--bg-surface);
   max-width: 1200px;
   iframe {
     width: 100%;
@@ -191,6 +192,7 @@
 
     /* Gallery */
     .gallery {
+      background-color: var(--bg-surface-low);
       max-height: 500px;
       overflow-y: auto;
 

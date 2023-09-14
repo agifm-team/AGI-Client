@@ -339,7 +339,7 @@ const components = {
         let tinyUrl = url;
         const finalResult = displayOptions(props, compId, appId);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
-        finalResult.attr('id', id).addClass('gallery').addClass('card').addClass('p-3');
+        finalResult.attr('id', id).addClass('gallery').addClass('border').addClass('border-bg').addClass('p-3');
 
         if (typeof tinyUrl === 'string' && tinyUrl.length > 0) {
             if (tinyUrl.startsWith('/')) {

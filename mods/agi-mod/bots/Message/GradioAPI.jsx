@@ -35,7 +35,7 @@ function GradioEmbed({ agiData }) {
                     const id = app.config.space_id.replace('/', '_');
 
                     // Read Template
-                    const page = $('<gradio-embed>', { class: 'text-center', space: id }).append(getHtml(app.config, `gradio-embed[space='${id}']`, agiData.url)).data('gladio_app', app);
+                    const page = $('<gradio-embed>', { class: 'text-center', space: id }).append(getHtml(app.config, `gradio-embed[space='${id}']`, agiData.url, id)).data('gladio_app', app);
                     embed.append(page);
 
                     return () => {

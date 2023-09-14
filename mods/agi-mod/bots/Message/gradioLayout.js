@@ -765,7 +765,7 @@ const childrenLoader = (items, config, url) => {
                             const rowItems = rowsList[items[item].children.length];
                             let rowItem = 0;
                             newPage.forEach(item2 => {
-                                page.push($('<div>', { class: `col-md-${rowItems[rowItem]}` }).append(item2));
+                                page.push($('<div>', { class: `col-md-${rowItems[rowItem]} border border-bg` }).append(item2));
                                 if (rowItem > rowItems) rowItem = 0;
                             });
 

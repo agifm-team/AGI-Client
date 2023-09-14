@@ -803,10 +803,18 @@ const childrenLoader = (items, config, url, appId) => {
                         if (component.type === 'row') {
 
                             // Create Row Items
-                            const rowItems = rowsList[items[item].children.length];
+                            let newPageLength = 0;
+                            newPage.forEach(item2 => {
+                                if (item2.text().trim().length > 0 && !item2.hasClass('d-none')) newPageLength++;
+                            });
+
+                            // Get row list item
+                            const rowItems = rowsList[newPageLength];
+
+                            // Insert Row items
                             let rowItem = 0;
                             newPage.forEach(item2 => {
-                                page.push($('<div>', { class: `col-md-${rowItems[rowItem]}` }).append(item2));
+                                page.push($('<div>', { class: `col-md-${rowItems[rowItem]}${item2.hasClass('d-none') ? ' d-none' : ''}` }).append(item2));
                                 if (rowItem > rowItems) rowItem = 0;
                             });
 
@@ -822,11 +830,15 @@ const childrenLoader = (items, config, url, appId) => {
                     // Others
                     if (component.type !== 'form') {
 
+                        // Get Component
                         const tinyHtml = components[component.type](component.props, component.id, appId, url);
+
+                        // Fix Accordion
                         if (component.type === 'accordion') {
                             tinyHtml.find('.card .card-body .collapse').append(newPage);
                         }
 
+                        // Check html data
                         if (typeof tinyHtml !== 'undefined') {
                             if (page) tinyHtml.append(page);
                             html.push(tinyHtml);
@@ -837,11 +849,9 @@ const childrenLoader = (items, config, url, appId) => {
                     // Build Form Data
                     else if (page) {
                         page.forEach(item2 => {
-
                             component.props.app_id = appId;
                             item2.attr('form-component-id', component.id).attr('form-element-id', component.props.elem_id).data('gradio_form_data', component);
                             html.push(item2);
-
                         });
                     }
 

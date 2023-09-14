@@ -508,7 +508,7 @@ const components = {
 
         });
 
-        input.on('change keypress keydown keyup', () => {
+        input.on('change keypress keydown keyup input', () => {
             const value = Number(numberInput.val());
             const value2 = Number(input.val());
             if (value !== value2) numberInput.val(value2);
@@ -529,6 +529,8 @@ const components = {
 
     textbox: (props, compId) => {
 
+        // values
+        let textboxStopHeight = false;
         const finalResult = displayOptions(props, compId);
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
         finalResult.addClass('textbox')
@@ -537,22 +539,62 @@ const components = {
             finalResult.append(labelCreator(null, props, `${id}_textbox`));
         }
 
+        // Textarea Value
         const isTextInput = (props.lines === 1 && props.max_lines === 1);
-
-        const tinyNoteSpacing = (event) => {
-            if (!isTextInput) {
-                const element = event.target;
-                element.style.height = `${Number(element.scrollHeight)}px`;
-            }
-        };
-
         const textarea = $(`<${isTextInput ? 'input' : 'textarea'}>`, {
             id: id !== null ? `${id}_textbox` : null,
             rows: props.lines,
             maxrows: props.max_lines,
             placeholder: props.placeholder,
             class: 'form-control form-control-bg'
-        }).on('keypress keyup keydown', tinyNoteSpacing);
+        });
+
+        // Spacing Detector
+        const tinyNoteSpacing = (event) => {
+            if (!isTextInput) {
+
+                // Target
+                const element = event.target;
+
+                // First Numbers
+                const textHeight = Number(element.scrollHeight);
+                const spacesCount = textarea.val().split('\n').length;
+                const maxLines = Number(textarea.attr('maxrows'));
+
+                // Cache
+                let finalHeight = textHeight;
+
+                // Space Count
+                const heightPerSpace = textHeight / spacesCount;
+                const heightMaxPerSpace = textHeight / maxLines;
+
+                // Space Count + Space Count Limit
+                const spacePerCalculator = heightPerSpace - heightMaxPerSpace;
+
+                // Active Limit Size
+                if (spacesCount > maxLines) {
+                    finalHeight = heightPerSpace * maxLines;
+                }
+
+                // Insert new height
+                textarea.css('height', `${finalHeight}px`);
+
+                // Scroll Protection
+                if (spacesCount > maxLines) {
+                    textarea.animate({ scrollTop: 9999999 }, 0);
+                }
+
+                // Stop Size Detector
+                if (spacePerCalculator === 0) {
+                    textboxStopHeight = true;
+                } else {
+                    textboxStopHeight = false;
+                }
+
+            }
+        };
+
+        textarea.on('keypress keyup keydown change input', tinyNoteSpacing);
 
         textarea.val(props.value);
         finalResult.append(textarea);

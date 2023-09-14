@@ -232,7 +232,54 @@ const components = {
     },
 
     dataset: (props, compId) => {
-        console.log(`Dataset`, props, compId);
+
+        const finalResult = displayOptions(props, compId);
+        const id = props.elem_id ? `gradio_${props.elem_id}` : null;
+        finalResult.attr('id', id).addClass('dataset');
+
+        if (props.show_label && typeof props.label === 'string') {
+            finalResult.append($('<div>', { id }).text(props.label));
+        }
+
+        const table = $('<table>', { class: 'table table-hover table-bordered border border-bg' });
+
+        if (Array.isArray(props.headers) && props.headers.length > 0) {
+
+            const thead = $('<thead>');
+            const tr = $('<tr>');
+
+            for (const item in props.headers) {
+                if (typeof props.headers[item] === 'string') tr.append($('<th>', { class: 'text-bg-force' }).text(props.headers[item]));
+            }
+
+            thead.append(tr);
+            table.append(thead);
+
+        }
+
+        if (Array.isArray(props.samples) && props.samples.length > 0) {
+
+            const tbody = $('<tbody>');
+
+            for (const item in props.samples) {
+                const tr = $('<tr>');
+
+                for (const item2 in props.samples[item]) {
+                    if (Array.isArray(props.samples[item]) && props.samples[item].length > 0) {
+                        if (typeof props.samples[item][item2] === 'string') tr.append($('<td>', { class: 'text-bg-force' }).text(props.samples[item][item2]));
+                    }
+                }
+
+                tbody.append(tr);
+            }
+
+            table.append(tbody);
+
+        }
+
+        finalResult.append(table);
+        return finalResult;
+
     },
 
     dropdown: (props, compId) => {
@@ -765,7 +812,7 @@ const childrenLoader = (items, config, url) => {
                             const rowItems = rowsList[items[item].children.length];
                             let rowItem = 0;
                             newPage.forEach(item2 => {
-                                page.push($('<div>', { class: `col-md-${rowItems[rowItem]} border border-bg` }).append(item2));
+                                page.push($('<div>', { class: `col-md-${rowItems[rowItem]}` }).append(item2));
                                 if (rowItem > rowItems) rowItem = 0;
                             });
 

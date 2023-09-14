@@ -248,6 +248,13 @@
       resize: none;
     }
 
+    /* Dataset */
+    .dataset {
+      td {
+        cursor: pointer;
+      }
+    }
+
     /* File Inputs */
     .audio .audio-preview,
     .image .image-preview {

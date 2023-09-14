@@ -124,7 +124,7 @@ const components = {
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
         finalResult.attr('id', id).addClass('audio');
 
-        const img = $('<div>', { class: 'audio-preview ratio ratio-16x9 border border-bg' });
+        const img = $('<div>', { class: 'audio-preview border border-bg' });
 
         if (props.show_label && props.label) {
             finalResult.append(labelCreator(null, props, `${id}_image`));
@@ -360,7 +360,7 @@ const components = {
         const id = props.elem_id ? `gradio_${props.elem_id}` : null;
         finalResult.attr('id', id).addClass('image');
 
-        const img = $('<div>', { class: 'image-preview ratio ratio-16x9 border border-bg' });
+        const img = $('<div>', { class: 'image-preview border border-bg' });
 
         if (props.show_label && props.label) {
             finalResult.append(labelCreator(null, props, `${id}_image`));

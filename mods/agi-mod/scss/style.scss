@@ -294,13 +294,29 @@
       }
     }
 
-    /* Radio */
-    .radio {
-      .radio-group:hover {
-        cursor: pointer;
-        label {
+    /* Radio and Checkbox group */
+    .radio,
+    .checkboxgroup {
+      .checkboxradio-group {
+        padding: 5px;
+
+        input[type='checkbox'],
+        input[type='radio'] {
+          position: relative;
+          left: 32px;
           cursor: pointer;
-          font-weight: bold;
+        }
+
+        label {
+          padding-left: 37px;
+          width: 100%;
+        }
+
+        &:hover {
+          label {
+            cursor: pointer;
+            font-weight: bold;
+          }
         }
       }
     }

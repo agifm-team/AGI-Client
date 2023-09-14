@@ -202,7 +202,7 @@ const components = {
             for (const item in props.choices) {
                 if (typeof props.choices[item] === 'string') {
 
-                    const input = $(`<div>`, { class: 'form-check' }).append(
+                    const input = $(`<div>`, { class: 'form-check border border-bg checkboxradio-group' }).append(
                         $('<input>', { id: id !== null ? id + item : null, class: 'form-check-input', type: 'checkbox', value: props.choices[item] }).prop('checked', (Array.isArray(props.value) && props.value.length > 0 && props.value.indexOf(props.choices[item]) > -1)),
                         $('<label>', { for: id !== null ? id + item : null, class: 'form-check-label' }).text(props.choices[item]),
                     );
@@ -486,7 +486,7 @@ const components = {
             finalResult.append(labelCreator(null, props, id));
         }
 
-        const radioGroup = $('<div>', { class: 'border border-bg p-2' });
+        const radioGroup = $('<div>');
 
         if (Array.isArray(props.choices) && props.choices.length > 0) {
 
@@ -496,9 +496,9 @@ const components = {
 
                     const tinyId = `gradio_radio_item_${id !== null ? id : null}_${item}`;
 
-                    const input = $(`<div>`, { class: 'form-check py-2 radio-group' }).append(
+                    const input = $(`<div>`, { class: 'form-check border border-bg checkboxradio-group' }).append(
                         $('<input>', { id: tinyId, class: 'form-check-input', type: 'radio', value: props.choices[item], name: tinyName, }),
-                        $('<label>', { for: tinyId, class: 'form-check-label w-100' }).text(props.choices[item]),
+                        $('<label>', { for: tinyId, class: 'form-check-label' }).text(props.choices[item]),
                     );
 
                     radioGroup.append(input);

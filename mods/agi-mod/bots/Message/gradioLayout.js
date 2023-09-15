@@ -172,11 +172,7 @@ const components = {
 
         finalResult.append($('<button>', {
             class: `btn btn-${props.variant ? props.variant : 'bg'}${typeof props.size === 'string' && props.size.length > 0 ? ` btn-${props.size}` : ''}`,
-        }).text(props.value)).prop('disabled', (props.interactive === false));
-
-        if (props.interactive) {
-
-        }
+        }).text(props.value).prop('disabled', (props.interactive === false)));
 
         return finalResult;
 
@@ -267,7 +263,19 @@ const components = {
     },
 
     colorpicker: (props, compId, appId) => {
-        console.log(`ColorPicker`, props, compId);
+
+        const finalResult = displayOptions(props, compId, appId);
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        finalResult.attr('id', id).addClass('button').addClass('d-grid');
+
+        if (props.show_label && props.label) {
+            finalResult.append(labelCreator(null, props, id));
+        }
+
+        finalResult.append($('<input>', { id, class: 'form-control form-control-bg form-control-color', type: 'color' }).prop('disabled', (props.interactive === false)).val(props.value));
+
+        return finalResult;
+
     },
 
     dataframe: (props, compId, appId) => {

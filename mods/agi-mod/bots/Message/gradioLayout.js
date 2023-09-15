@@ -1,3 +1,4 @@
+import hljs from 'highlight.js';
 import sanitizeHtml from 'sanitize-html';
 import { marked } from 'marked';
 
@@ -445,7 +446,23 @@ const components = {
     },
 
     json: (props, compId, appId) => {
-        console.log(`JSON`, props, compId);
+
+        const finalResult = displayOptions(props, compId, appId);
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        finalResult.attr('id', id).addClass('json');
+
+        if (props.show_label && props.label) {
+            finalResult.append(labelCreator(null, props, id));
+        }
+
+        const tinyJson = $('<div>', { class: 'text-start text-freedom border border-bg p-3 bg-bg2' }).append(props.value ? hljs.highlight(
+            JSON.stringify(props.value, null, 4),
+            { language: 'json' }
+        ).value : '');
+
+        finalResult.append(tinyJson);
+        return finalResult;
+
     },
 
     label: (props, compId, appId) => {
@@ -571,10 +588,6 @@ const components = {
 
         return finalResult;
 
-    },
-
-    state: (props, compId, appId) => {
-        console.log(`State`, props, compId);
     },
 
     textbox: (props, compId, appId) => {

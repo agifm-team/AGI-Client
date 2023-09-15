@@ -172,7 +172,7 @@ const components = {
 
         finalResult.append($('<button>', {
             class: `btn btn-${props.variant ? props.variant : 'bg'}${typeof props.size === 'string' && props.size.length > 0 ? ` btn-${props.size}` : ''}`,
-        }).text(props.value));
+        }).text(props.value)).prop('disabled', (props.interactive === false));
 
         if (props.interactive) {
 
@@ -193,7 +193,7 @@ const components = {
         finalResult.attr('id', id).addClass('checkbox').addClass('w-100').addClass('text-start').addClass('h-100');
 
         const input = $(`<div>`, { class: 'form-check border border-bg checkboxradio-group w-100 p-2' }).append(
-            $('<input>', { id: `${id}_individual`, class: 'form-check-input', type: 'checkbox' }).prop('checked', (props.value === true)),
+            $('<input>', { id: `${id}_individual`, class: 'form-check-input', type: 'checkbox' }).prop('checked', (props.value === true)).prop('disabled', (props.interactive === false)),
             $('<label>', { for: `${id}_individual`, class: 'form-check-label' }).text(props.show_label && typeof props.label === 'string' ? props.label : 'Checkbox'),
         );
 
@@ -219,7 +219,7 @@ const components = {
                 if (typeof props.choices[item] === 'string') {
 
                     const input = $(`<div>`, { class: 'form-check border border-bg checkboxradio-group' }).append(
-                        $('<input>', { id: id !== null ? id + item : null, class: 'form-check-input', type: 'checkbox', value: props.choices[item] }).prop('checked', (Array.isArray(props.value) && props.value.length > 0 && props.value.indexOf(props.choices[item]) > -1)),
+                        $('<input>', { id: id !== null ? id + item : null, class: 'form-check-input', type: 'checkbox', value: props.choices[item] }).prop('checked', (Array.isArray(props.value) && props.value.length > 0 && props.value.indexOf(props.choices[item]) > -1)).prop('disabled', (props.interactive === false)),
                         $('<label>', { for: id !== null ? id + item : null, class: 'form-check-label' }).text(props.choices[item]),
                     );
 
@@ -355,7 +355,7 @@ const components = {
             dropdown.val(props.value);
 
             if (props.allow_custom_value) {
-                dropdown.append($('<input>', { type: 'text', value: props.value, readonly: (props.choices.indexOf(props.value) > -1) }));
+                dropdown.append($('<input>', { type: 'text', value: props.value }).prop('readonly', (props.choices.indexOf(props.value) > -1)));
             }
 
             finalResult.append(dropdown);
@@ -579,7 +579,7 @@ const components = {
             finalResult.append(labelCreator(null, props, id));
         }
 
-        const numberInput = $('<input>', { class: 'form-control form-control-bg', type: 'number', max: props.maximum, min: props.minimum, step: props.step });
+        const numberInput = $('<input>', { class: 'form-control form-control-bg', type: 'number', max: props.maximum, min: props.minimum, step: props.step }).prop('readonly', (props.interactive === false));
         finalResult.append(numberInput);
 
         numberInput.on('change keypress keydown keyup', () => {
@@ -631,7 +631,7 @@ const components = {
                     const tinyId = `gradio_radio_item_${id !== null ? id : null}_${item}`;
 
                     const input = $(`<div>`, { class: 'form-check border border-bg checkboxradio-group' }).append(
-                        $('<input>', { id: tinyId, class: 'form-check-input', type: 'radio', value: props.choices[item], name: tinyName, }),
+                        $('<input>', { id: tinyId, class: 'form-check-input', type: 'radio', value: props.choices[item], name: tinyName, }).prop('disabled', (props.interactive === false)),
                         $('<label>', { for: tinyId, class: 'form-check-label' }).text(props.choices[item]),
                     );
 
@@ -666,8 +666,8 @@ const components = {
             finalResult.append(labelCreator(null, props, id));
         }
 
-        const input = $('<input>', { type: 'range', class: 'form-range', max: props.maximum, min: props.minimum, step: props.step });
-        const numberInput = $('<input>', { class: 'form-control form-control-bg form-control-slider float-end', type: 'number', max: props.maximum, min: props.minimum, step: props.step });
+        const input = $('<input>', { type: 'range', class: 'form-range', max: props.maximum, min: props.minimum, step: props.step }).prop('disabled', (props.interactive === false));
+        const numberInput = $('<input>', { class: 'form-control form-control-bg form-control-slider float-end', type: 'number', max: props.maximum, min: props.minimum, step: props.step }).prop('readonly', (props.interactive === false));
         finalResult.append(numberInput);
 
         numberInput.on('change keypress keydown keyup', () => {
@@ -779,7 +779,7 @@ const components = {
 
         textarea.on('keypress keyup keydown change input', tinyNoteSpacing);
 
-        textarea.val(props.value);
+        textarea.val(props.value).prop('readonly', (props.interactive === false));
         finalResult.append(textarea);
 
         if (props.show_copy_button) {

@@ -531,7 +531,40 @@ const components = {
     },
 
     number: (props, compId, appId) => {
-        console.log(`Number`, props, compId);
+
+        const finalResult = displayOptions(props, compId, appId);
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        finalResult.attr('id', id).addClass('number');
+
+        if (props.show_label && props.label) {
+            finalResult.append(labelCreator(null, props, id));
+        }
+
+        const numberInput = $('<input>', { class: 'form-control form-control-bg', type: 'number', max: props.maximum, min: props.minimum, step: props.step });
+        finalResult.append(numberInput);
+
+        numberInput.on('change keypress keydown keyup', () => {
+
+            const value = Number(numberInput.val());
+            const max = Number(numberInput.attr('max'));
+            const min = Number(numberInput.attr('min'));
+
+            if (!Number.isNaN(max) && Number.isFinite(max) && !Number.isNaN(min) && Number.isFinite(min)) {
+
+                if (!Number.isNaN(value) && Number.isFinite(value)) {
+                    if (value > max) numberInput.val(max);
+                    if (value < min) numberInput.val(min);
+                } else {
+                    numberInput.val(min);
+                }
+
+            }
+
+        });
+
+        numberInput.val(typeof props.value === 'number' && !Number.isNaN(props.value) && Number.isFinite(props.value) ? props.value : 0);
+        return finalResult;
+
     },
 
     plot: (props, compId, appId) => {

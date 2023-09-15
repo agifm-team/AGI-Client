@@ -283,6 +283,10 @@
     /* Label */
     .label {
       .confidence {
+        &:hover {
+          color: var(--tc-link) !important;
+        }
+
         .progress,
         .progress-bar {
           height: 5px;

@@ -88,6 +88,7 @@ const htmlAllowed = {
 };
 
 // Components
+// https://www.gradio.app/docs
 const components = {
 
     html: (props, compId, appId) => {
@@ -157,6 +158,7 @@ const components = {
 
     },
 
+    // https://www.chartjs.org/docs/latest/charts/bar.html
     barplot: (props, compId, appId) => {
         console.log(`BarPlot`, props, compId);
     },
@@ -185,7 +187,20 @@ const components = {
     },
 
     checkbox: (props, compId, appId) => {
-        console.log(`Checkbox`, props, compId);
+
+        const finalResult = displayOptions(props, compId, appId);
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        finalResult.attr('id', id).addClass('checkbox').addClass('w-100').addClass('text-start').addClass('h-100');
+
+        const input = $(`<div>`, { class: 'form-check border border-bg checkboxradio-group w-100 p-2' }).append(
+            $('<input>', { id: `${id}_individual`, class: 'form-check-input', type: 'checkbox' }).prop('checked', (props.value === true)),
+            $('<label>', { for: `${id}_individual`, class: 'form-check-label' }).text(props.show_label && typeof props.label === 'string' ? props.label : 'Checkbox'),
+        );
+
+        finalResult.append(input);
+
+        return finalResult;
+
     },
 
     checkboxgroup: (props, compId, appId) => {

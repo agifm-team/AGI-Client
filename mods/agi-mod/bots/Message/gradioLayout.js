@@ -466,7 +466,52 @@ const components = {
     },
 
     label: (props, compId, appId) => {
-        console.log(`Label`, props, compId);
+
+        const finalResult = displayOptions(props, compId, appId);
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        finalResult.attr('id', id).addClass('label');
+
+        if (props.show_label && props.label) {
+            finalResult.append(labelCreator(null, props, id));
+        }
+
+        const tinyLabel = $('<div>', { class: 'border border-bg p-3 bg-bg2' });
+        if (objType(props.value, 'object')) {
+
+            if (typeof props.value.label === 'string' && props.value.label.length > 0) {
+                tinyLabel.append($('<h2>').text(props.value.label));
+            }
+
+            if (Array.isArray(props.value.confidences) && props.value.confidences.length > 0) {
+                for (const item in props.value.confidences) {
+
+                    let confidence = Number(props.value.confidences[item].confidence) * 100;
+                    if (Number.isNaN(confidence) || !Number.isFinite(confidence) || confidence < 0) confidence = 0;
+                    if (confidence > 100) confidence = 100;
+
+                    tinyLabel.append($('<div>', { class: 'mt-2 text-start confidence' }).append(
+
+                        $('<div>', { class: 'progress', role: 'progressbar', 'aria-valuenow': confidence, 'aria-valuemin': 0, 'aria-valuemax': 100 }).append(
+                            $('<div>', { class: 'progress-bar' }).css('width', `${confidence}%`)
+                        ),
+
+                        $('<table>', { class: 'sub-label' }).append(
+                            $('<tbody>').append($('<tr>').append(
+                                $('<td>', { class: 'sub-label-title' }).text(props.value.confidences[item].label),
+                                $('<td>', { class: 'sub-label-confidence' }).text(`${confidence}%`)
+                            ))
+                        )
+
+                    ));
+
+                }
+            }
+
+        }
+
+        finalResult.append(tinyLabel);
+        return finalResult;
+
     },
 
     lineplot: (props, compId, appId) => {

@@ -280,6 +280,24 @@
       }
     }
 
+    /* Label */
+    .label {
+      .confidence {
+        .progress,
+        .progress-bar {
+          height: 5px;
+        }
+
+        .sub-label {
+          width: 100%;
+
+          .sub-label-confidence {
+            width: 40px;
+          }
+        }
+      }
+    }
+
     /* Accordion */
     .accordion {
       .collapse-button {

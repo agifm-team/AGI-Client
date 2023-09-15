@@ -2,7 +2,7 @@ import hljs from 'highlight.js';
 import sanitizeHtml from 'sanitize-html';
 import { marked } from 'marked';
 
-import { objType, toast } from '../../../../src/util/tools';
+import { hljsFixer, objType, toast } from '../../../../src/util/tools';
 import { copyToClipboard } from '../../../../src/util/common';
 import initMatrix from '../../../../src/client/initMatrix';
 import openTinyURL from '../../../../src/util/message/urlProtection';
@@ -239,7 +239,31 @@ const components = {
     },
 
     code: (props, compId, appId) => {
-        console.log(`Code`, props, compId);
+        try {
+
+            const finalResult = displayOptions(props, compId, appId);
+            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            finalResult.attr('id', id).addClass('code');
+
+            if (props.show_label && props.label) {
+                finalResult.append(labelCreator(null, props, id));
+            }
+
+            const tinyCode = $('<code>', { class: `language-${props.language} hljs text-start` }).append(props.value ? hljs.highlight(
+                props.value,
+                { language: props.language }
+            ).value : '');
+
+            const tinyResult = $('<pre>').append(tinyCode);
+            hljsFixer(tinyCode, 'MessageBody');
+
+            finalResult.append(tinyResult);
+            return finalResult;
+
+        } catch (err) {
+            console.error(err);
+            return null;
+        }
     },
 
     colorpicker: (props, compId, appId) => {

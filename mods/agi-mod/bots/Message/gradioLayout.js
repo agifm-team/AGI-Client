@@ -251,10 +251,6 @@ const components = {
 
     },
 
-    clearbutton: (props, compId, appId) => {
-        console.log(`ClearButton`, props, compId);
-    },
-
     code: (props, compId, appId) => {
         try {
 

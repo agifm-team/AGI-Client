@@ -171,10 +171,27 @@ const components = {
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('button').addClass('d-grid');
 
-        finalResult.append($('<button>', {
-            class: `btn btn-${props.variant ? props.variant : 'bg'}${typeof props.size === 'string' && props.size.length > 0 ? ` btn-${props.size}` : ''}`,
-        }).text(props.value).prop('disabled', (props.interactive === false)));
+        const sizes = {
+            normal: 20,
+            sm: 15,
+            lg: 30,
+        };
 
+        const sizeSelected = typeof props.size === 'string' && props.size.length > 0 ? props.size : 'normal';
+
+        const button = $('<button>', {
+            class: `btn btn-${props.variant ? props.variant : 'bg'}${typeof props.size === 'string' && props.size.length > 0 ? ` btn-${props.size}` : ''}`,
+        }).text(props.value);
+
+        if (typeof props.icon === 'string' && props.icon.length > 0) {
+            button.prepend(
+                $('<img>', { src: props.icon, alt: 'icon', class: 'img-fluid me-2' }).css('height', sizes[sizeSelected])
+            );
+        }
+
+        button.prop('disabled', (props.interactive === false));
+
+        finalResult.append(button);
         return finalResult;
 
     },
@@ -373,10 +390,6 @@ const components = {
 
         return finalResult;
 
-    },
-
-    duplicatebutton: (props, compId, appId) => {
-        console.log(`DuplicateButton`, props, compId);
     },
 
     file: (props, compId, appId) => {
@@ -602,14 +615,6 @@ const components = {
 
     lineplot: (props, compId, appId) => {
         console.log(`LinePlot`, props, compId);
-    },
-
-    loginbutton: (props, compId, appId) => {
-        console.log(`LoginButton`, props, compId);
-    },
-
-    logoutbutton: (props, compId, appId) => {
-        console.log(`LogoutButton`, props, compId);
     },
 
     model3d: (props, compId, appId) => {

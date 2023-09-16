@@ -1,3 +1,29 @@
+const bootstrapItems = {
+
+    normal: [
+        'primary',
+        'secondary',
+        'success',
+        'danger',
+        'warning',
+        'info',
+        'light',
+        'dark',
+    ],
+
+    outline: [
+        'outline-primary',
+        'outline-secondary',
+        'outline-success',
+        'outline-danger',
+        'outline-warning',
+        'outline-info',
+        'outline-light',
+        'outline-dark'
+    ]
+
+};
+
 const arrayItems = [
 
     'bg',
@@ -6,27 +32,15 @@ const arrayItems = [
     'outline-bg',
     'outline-bg2',
 
-    'primary',
-    'secondary',
-    'success',
-    'danger',
-    'warning',
-    'info',
-    'light',
-    'dark',
-
     'link',
     'link btn-bg',
 
-    'outline-primary',
-    'outline-secondary',
-    'outline-success',
-    'outline-danger',
-    'outline-warning',
-    'outline-info',
-    'outline-light',
-    'outline-dark'
-
 ];
 
-export { arrayItems }
+for (const where in bootstrapItems) {
+    for (const item in bootstrapItems[where]) {
+        arrayItems.push(bootstrapItems[where][item]);
+    }
+}
+
+export { arrayItems, bootstrapItems };

@@ -6,6 +6,7 @@ import { hljsFixer, objType, toast } from '../../../../src/util/tools';
 import { copyToClipboard } from '../../../../src/util/common';
 import initMatrix from '../../../../src/client/initMatrix';
 import openTinyURL from '../../../../src/util/message/urlProtection';
+import { bootstrapItems } from '../../../../src/util/styles-bootstrap';
 
 const labelCreator = (icon, props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label).prepend(icon);
 const displayOptions = (props, id, appId) => {
@@ -450,7 +451,45 @@ const components = {
     },
 
     highlightedtext: (props, compId, appId) => {
-        console.log(`HighlightedText`, props, compId);
+
+        const finalResult = displayOptions(props, compId, appId);
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        finalResult.attr('id', id).addClass('highlightedtext');
+
+        if (props.selectable) {
+
+        }
+
+        if (Array.isArray(props.value) && Array.isArray(props.value)) {
+            let colorIndex = 0;
+            for (const item in props.value) {
+                if (Array.isArray(props.value[item])) {
+
+                    const highlight = $('<span>', { class: `border border-bg p-1 mx-1 bg-${bootstrapItems.normal[colorIndex]} bg-opacity-25` });
+
+                    if (typeof props.value[item][0] === 'string' && props.value[item][0].length > 0) {
+                        highlight.text(props.value[item][0]);
+                    }
+
+                    if (typeof props.value[item][1] === 'string' && props.value[item][1].length > 0 && props.show_label) {
+                        highlight.append($('<span>', { class: `ms-2 badge bg-${bootstrapItems.normal[colorIndex]}` }).text(props.value[item][1]));
+                    }
+
+                    if (props.show_legend) {
+
+                    }
+
+                    finalResult.append(highlight);
+
+                    colorIndex++;
+                    if (typeof bootstrapItems.normal[colorIndex] !== 'string') colorIndex = 0;
+
+                }
+            }
+        }
+
+        return finalResult;
+
     },
 
     image: (props, compId, appId) => {

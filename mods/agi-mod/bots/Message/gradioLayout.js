@@ -108,13 +108,13 @@ const fileUrlGenerator = (url) => {
 
 const datasetComponents = {
 
-    video: (fileName, url) => {
+    video: (fileName, url, td) => {
 
         const video = $('<video>', { src: `${fileUrlGenerator(url)}${fileName}`, class: 'img-fluid' });
         video.prop('muted', true).prop('playsinline', true);
 
-        video.on('mouseover', () => video.get(0).play());
-        video.on('mouseout', () => video.get(0).pause());
+        td.on('mouseover', () => video.get(0).play());
+        td.on('mouseout', () => video.get(0).pause());
         return video;
 
     }
@@ -371,7 +371,8 @@ const components = {
                             if (typeof datasetComponents[props.components[item2]] !== 'function') {
                                 tr.append($('<td>', { class: 'text-bg-force' }).text(props.samples[item][item2]));
                             } else {
-                                tr.append(datasetComponents[props.components[item2]](props.samples[item][item2], url, props, compId, appId));
+                                const td = $('<td>', { class: 'text-bg-force' });
+                                tr.append(td.append(datasetComponents[props.components[item2]](props.samples[item][item2], url, td, props, compId, appId)));
                             }
 
                         }

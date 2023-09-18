@@ -254,6 +254,10 @@
     .dataset {
       td {
         cursor: pointer;
+        video {
+          max-height: 100px;
+          max-width: 165px;
+        }
       }
     }
 

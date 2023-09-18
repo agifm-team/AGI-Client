@@ -344,7 +344,17 @@ const components = {
 
         const table = $('<table>', { class: 'table table-hover table-bordered border border-bg' });
 
-        if (Array.isArray(props.headers) && props.headers.length > 0) {
+        let isSingle = true;
+
+        if (Array.isArray(props.samples) && props.samples.length > 0) {
+            for (const item in props.samples) {
+                if (Array.isArray(props.samples[item]) && props.samples[item].length > 1) {
+                    isSingle = false;
+                }
+            }
+        }
+
+        if (!isSingle && Array.isArray(props.headers) && props.headers.length > 0) {
 
             const thead = $('<thead>');
             const tr = $('<tr>');
@@ -356,30 +366,57 @@ const components = {
             thead.append(tr);
             table.append(thead);
 
+        } else {
+            table.removeClass('table-hover').addClass('table-td-hover');
         }
 
         if (Array.isArray(props.samples) && props.samples.length > 0) {
 
             const tbody = $('<tbody>');
 
-            for (const item in props.samples) {
-                const tr = $('<tr>');
-                if (Array.isArray(props.samples[item]) && props.samples[item].length > 0) {
-                    for (const item2 in props.samples[item]) {
-                        if (typeof props.samples[item][item2] === 'string') {
+            if (!isSingle) {
+                for (const item in props.samples) {
 
-                            if (typeof datasetComponents[props.components[item2]] !== 'function') {
-                                tr.append($('<td>', { class: 'text-bg-force' }).text(props.samples[item][item2]));
-                            } else {
-                                const td = $('<td>', { class: 'text-bg-force' });
-                                tr.append(td.append(datasetComponents[props.components[item2]](props.samples[item][item2], url, td, props, compId, appId)));
+                    const tr = $('<tr>');
+                    if (Array.isArray(props.samples[item]) && props.samples[item].length > 0) {
+                        for (const item2 in props.samples[item]) {
+                            if (typeof props.samples[item][item2] === 'string') {
+
+                                if (typeof datasetComponents[props.components[item2]] !== 'function') {
+                                    tr.append($('<td>', { class: 'text-bg-force' }).text(props.samples[item][item2]));
+                                } else {
+                                    const td = $('<td>', { class: 'text-bg-force' });
+                                    tr.append(td.append(datasetComponents[props.components[item2]](props.samples[item][item2], url, td, props, compId, appId)));
+                                }
+
                             }
+                        }
+                    }
 
+                    tbody.append(tr);
+
+                }
+            } else {
+
+                const tr = $('<tr>');
+                for (const item in props.samples) {
+                    if (Array.isArray(props.samples[item]) && props.samples[item].length > 0) {
+                        for (const item2 in props.samples[item]) {
+                            if (typeof props.samples[item][item2] === 'string') {
+
+                                if (typeof datasetComponents[props.components[item2]] !== 'function') {
+                                    tr.append($('<td>', { class: 'text-bg-force' }).text(props.samples[item][item2]));
+                                } else {
+                                    const td = $('<td>', { class: 'text-bg-force' });
+                                    tr.append(td.append(datasetComponents[props.components[item2]](props.samples[item][item2], url, td, props, compId, appId)));
+                                }
+
+                            }
                         }
                     }
                 }
-
                 tbody.append(tr);
+
             }
 
             table.append(tbody);

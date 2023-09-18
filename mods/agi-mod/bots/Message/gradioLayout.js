@@ -88,6 +88,39 @@ const htmlAllowed = {
 
 };
 
+const fileUrlGenerator = (url) => {
+
+    let tinyUrl = url;
+
+    if (typeof tinyUrl === 'string' && tinyUrl.length > 0) {
+        if (tinyUrl.startsWith('/')) {
+            tinyUrl = `${tinyUrl.substring(0, tinyUrl.length - 1)}/file=`;
+        } else {
+            tinyUrl = `${tinyUrl}/file=`;
+        }
+    } else { tinyUrl = ''; }
+
+    if (tinyUrl.endsWith('//file=')) tinyUrl = `${tinyUrl.substring(0, tinyUrl.length - 7)}/file=`;
+
+    return tinyUrl;
+
+}
+
+const datasetComponents = {
+
+    video: (fileName, url) => {
+
+        const video = $('<video>', { src: `${fileUrlGenerator(url)}${fileName}`, class: 'img-fluid' });
+        video.prop('muted', true).prop('playsinline', true);
+
+        video.on('mouseover', () => video.get(0).play());
+        video.on('mouseout', () => video.get(0).pause());
+        return video;
+
+    }
+
+};
+
 // Components
 // https://www.gradio.app/docs
 const components = {
@@ -299,7 +332,7 @@ const components = {
         console.log(`Dataframe`, props, compId);
     },
 
-    dataset: (props, compId, appId) => {
+    dataset: (props, compId, appId, url) => {
 
         const finalResult = displayOptions(props, compId, appId);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -331,10 +364,17 @@ const components = {
 
             for (const item in props.samples) {
                 const tr = $('<tr>');
+                if (Array.isArray(props.samples[item]) && props.samples[item].length > 0) {
+                    for (const item2 in props.samples[item]) {
+                        if (typeof props.samples[item][item2] === 'string') {
 
-                for (const item2 in props.samples[item]) {
-                    if (Array.isArray(props.samples[item]) && props.samples[item].length > 0) {
-                        if (typeof props.samples[item][item2] === 'string') tr.append($('<td>', { class: 'text-bg-force' }).text(props.samples[item][item2]));
+                            if (typeof datasetComponents[props.components[item2]] !== 'function') {
+                                tr.append($('<td>', { class: 'text-bg-force' }).text(props.samples[item][item2]));
+                            } else {
+                                tr.append(datasetComponents[props.components[item2]](props.samples[item][item2], url, props, compId, appId));
+                            }
+
+                        }
                     }
                 }
 
@@ -397,19 +437,11 @@ const components = {
 
     gallery: (props, compId, appId, url) => {
 
-        let tinyUrl = url;
         const finalResult = displayOptions(props, compId, appId);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('gallery').addClass('border').addClass('border-bg').addClass('p-3');
 
-        if (typeof tinyUrl === 'string' && tinyUrl.length > 0) {
-            if (tinyUrl.startsWith('/')) {
-                tinyUrl = `${tinyUrl.substring(0, tinyUrl.length - 1)}/file=`;
-            } else {
-                tinyUrl = `${tinyUrl}/file=`;
-            }
-        } else { tinyUrl = ''; }
-
+        const tinyUrl = fileUrlGenerator(url);
         if (props.show_label && props.label) {
             finalResult.append(labelCreator(null, props, `${id}_image`));
         }

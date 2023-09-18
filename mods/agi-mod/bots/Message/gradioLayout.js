@@ -934,7 +934,53 @@ const components = {
     },
 
     video: (props, compId, appId) => {
+
         console.log(`Video`, props, compId);
+
+
+        const finalResult = displayOptions(props, compId, appId);
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        finalResult.attr('id', id).addClass('image');
+
+        const exampleIcon = $('<i>', { class: 'fa-solid fa-video' });
+        const img = $('<div>', { class: 'image-preview border border-bg' }).append(exampleIcon);
+
+        if (props.show_label && props.label) {
+            finalResult.append(labelCreator(null, props, `${id}_image`));
+        }
+
+        if (props.interactive !== false) {
+
+            if (props.source === 'upload') {
+                finalResult.append($('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_image`, accept: 'video/*' }));
+            }
+
+        }
+
+        finalResult.append(img);
+
+        if (props.show_share_button) {
+
+        }
+
+        if (props.show_download_button) {
+
+        }
+
+        if (props.autoplay) {
+
+        }
+
+        if (props.mirror_webcam) {
+
+        }
+
+        if (props.include_audio) {
+
+        }
+
+        return finalResult;
+
     },
 
     column: (props, compId, appId) => {

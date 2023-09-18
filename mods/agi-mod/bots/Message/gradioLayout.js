@@ -926,7 +926,34 @@ const components = {
     },
 
     timeseries: (props, compId, appId) => {
-        console.log(`Timeseries`, props, compId);
+
+        const finalResult = displayOptions(props, compId, appId);
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        finalResult.attr('id', id).addClass('timeseries');
+
+        const exampleIcon = $('<i>', { class: 'fa-solid fa-file-csv' });
+        const csv = $('<div>', { class: 'timeseries-preview border border-bg' }).append(exampleIcon);
+
+        if (props.show_label && props.label) {
+            finalResult.append(labelCreator(null, props, `${id}_image`));
+        }
+
+        if (props.interactive !== false) {
+            finalResult.append($('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_image`, accept: 'text/csv' }));
+        }
+
+        finalResult.append(csv);
+
+        if (props.show_share_button) {
+
+        }
+
+        if (props.show_download_button) {
+
+        }
+
+        return finalResult;
+
     },
 
     uploadbutton: (props, compId, appId) => {
@@ -935,15 +962,12 @@ const components = {
 
     video: (props, compId, appId) => {
 
-        console.log(`Video`, props, compId);
-
-
         const finalResult = displayOptions(props, compId, appId);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
-        finalResult.attr('id', id).addClass('image');
+        finalResult.attr('id', id).addClass('video');
 
         const exampleIcon = $('<i>', { class: 'fa-solid fa-video' });
-        const img = $('<div>', { class: 'image-preview border border-bg' }).append(exampleIcon);
+        const video = $('<div>', { class: 'video-preview border border-bg' }).append(exampleIcon);
 
         if (props.show_label && props.label) {
             finalResult.append(labelCreator(null, props, `${id}_image`));
@@ -957,7 +981,7 @@ const components = {
 
         }
 
-        finalResult.append(img);
+        finalResult.append(video);
 
         if (props.show_share_button) {
 

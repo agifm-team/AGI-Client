@@ -263,16 +263,32 @@
 
     /* File Inputs */
     .audio .audio-preview,
+    .video .video-preview,
+    .timeseries .timeseries-preview,
     .image .image-preview {
       display: grid;
       align-items: center;
       font-size: 16px;
     }
 
+    /* Timeseries */
+    .timeseries {
+      .timeseries-preview {
+        height: 250px;
+      }
+    }
+
     /* Audio */
     .audio {
       .audio-preview {
         height: 130px;
+      }
+    }
+
+    /* Video */
+    .video {
+      .video-preview {
+        height: 250px;
       }
     }
 

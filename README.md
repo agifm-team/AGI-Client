@@ -18,11 +18,6 @@
 
 A Cinny fork Matrix client focusing primarily on AI Agent utility with a simple, elegant and secure interface. The main goal is to build an Agent platform that is easy to use and has a pro tools for ai assisted productivity and fun.
 
-## Motivation
-I am someone who is definitely tired of seeing censorship spread across the internet. As I write this message on May 01 2023, it has been one of the most difficult days to have privacy, especially in Brazil due to the current political scenario.
-
-I see the Matrix project as one of the best alternatives to maintain at least try to keep communities and groups of friends on the internet. So my goal is to make this fork as good as possible so that not only can I be happy, but also all the people who are having a similar situation to me.
-
 ## Getting started
 Web app is available at https://client.pony.house/ and gets updated on each new release.
 
@@ -30,39 +25,11 @@ To host Pony House on your own, download tarball of the app from [GitHub release
 You can serve the application with a webserver of your choice by simply copying `dist/` directory to the webroot. 
 To set default Homeserver on login and register page, place a customized [`config.json`](config.json) in webroot of your choice.
 
-## Custom App Style
-Would you like to customize your login page to your website? Then you can check out some values available in the `config/custom-css.scss` file.
-
-Replace this value to change the appID: `immagine-ai-matrix`
-
-Replace some values in the file: `electron-builder.json5`
-
-App title in `electron/main/index.ts`.
-
-If you would like to edit the version checker url, you can edit the `src/client/state/cons.js` file.
-
-If you would like to edit the homeservers list, you can edit the `config/config.json` file.
-
-If you want to put a custom name or welcome message for the app, edit the .env file. (This will only affect the application within react.)
-
-If you want to change some more information about the application's HTML, you'll be looking for the `index.html` file.
-
-If you are trying to edit application image files, you are looking for the `public/img/` folder.
-
-If you want to modify the manifest file, it is present in `public/manifest.json`.
-
-Things more related to the mobile version of the application I recommend you use the <a href="https://marketplace.visualstudio.com/items?itemName=ionic.ionic" target="_blank">Ionic extension</a> from Visual Studio Code.
-
 ## Auto select custom domain
 
 Example: https://pony.house/#matrix.org
 
 When the page loads, the application will automatically try to load the selected custom homeserver. This is useful if you want to refer a friend directly using your homeserver url.
-
-## Mod and patch support
-You can freely develop mods for users to install on the Pony House. The application will also support you to build a version of Pony House with pre-installed mods.
-
-For more information see the folder `/mods`.
 
 ## Local development
 > We recommend using a version manager as versions change very quickly. You will likely need to switch 

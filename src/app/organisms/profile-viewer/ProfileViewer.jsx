@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import clone from 'clone';
 
 import { twemojifyReact, twemojify } from '../../../util/twemojify';
 import { getUserStatus, updateUserStatusIcon } from '../../../util/onlineStatus';
@@ -31,6 +32,7 @@ import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import { addToDataFolder, getDataList } from '../../../util/selectedRoom';
 import { toast } from '../../../util/tools';
+import { getUserWeb3Account } from '../../../util/web3';
 
 function ModerationTools({
   roomId, userId,
@@ -365,16 +367,22 @@ function useRerenderOnProfileChange(roomId, userId) {
 function ProfileViewer() {
 
   // Prepare
+  const menubarRef = useRef(null);
   const profileAvatar = useRef(null);
   const bioRef = useRef(null);
   const noteRef = useRef(null);
   const customStatusRef = useRef(null);
   const statusRef = useRef(null);
   const profileBanner = useRef(null);
+
+  const customPlaceRef = useRef(null);
+
   const [isOpen, roomId, userId, closeDialog, handleAfterClose] = useToggleDialog();
   const [lightbox, setLightbox] = useState(false);
+
   const userNameRef = useRef(null);
   const displayNameRef = useRef(null);
+
   useRerenderOnProfileChange(roomId, userId);
 
   // Get Data
@@ -387,16 +395,65 @@ function ProfileViewer() {
   useEffect(() => {
     if (user) {
 
+      // Menu Bar
+      const menubar = $(menubarRef.current);
+
+      // Create menu
+      const menuItem = (name, openItem = null) => $('<li>', { class: 'nav-item' }).append(
+        $('<a>', { class: `nav-link ${typeof openItem !== 'function' ? ' active text-bg-force' : ''}`, href: '#' }).on('click', () => {
+
+          // Get refs
+          const bioPlace = $(bioRef.current);
+          const customPlace = $(customPlaceRef.current);
+
+          // Hide items
+          bioPlace.addClass('d-none');
+          customPlace.addClass('d-none');
+
+          // Show items back
+          if (typeof openItem === 'function') {
+            customPlace.find('#insert-custom-place').empty().append(openItem()).removeClass('d-none');
+          } else {
+            bioPlace.removeClass('d-none');
+          }
+
+        }).text(name)
+      );
+
+      // Create Menu Bar Time
+      const enableMenuBar = (menubarReasons = 0) => {
+
+        // Clear Menu bar
+        menubar.empty().removeClass('d-none');
+
+        // Start functions
+        if (menubarReasons > 0) {
+
+          // User info
+          menubar.append(menuItem('User info'));
+
+        }
+
+        // Nope
+        else {
+          menubar.addClass('d-none');
+        }
+
+      };
+
       // Update Status Profile
       const updateProfileStatus = (mEvent, tinyData) => {
 
         // Get Status
+        let menubarReasons = 0;
         const tinyUser = tinyData;
         const status = $(statusRef.current);
 
         // Is You
         if (tinyUser.userId === mx.getUserId()) {
-          const yourData = mx.getAccountData('pony.house.profile')?.getContent() ?? {};
+          const yourData = clone(mx.getAccountData('pony.house.profile')?.getContent() ?? {});
+          yourData.ethereum = getUserWeb3Account();
+          if (typeof yourData.ethereum.valid !== 'undefined') delete yourData.ethereum.valid;
           tinyUser.presenceStatusMsg = JSON.stringify(yourData);
         }
 
@@ -404,14 +461,42 @@ function ProfileViewer() {
         const content = updateUserStatusIcon(status, tinyUser);
         if (content && content.presenceStatusMsg) {
 
+          // Ethereum
+          if (content.presenceStatusMsg.ethereum && content.presenceStatusMsg.ethereum.valid) {
+
+            // menubarReasons++;
+            const displayName = $(displayNameRef.current);
+            let ethereumIcon = displayName.find('#ethereum-icon');
+            if (ethereumIcon.length < 1) {
+
+              ethereumIcon = $('<span>', { id: 'ethereum-icon', class: 'ms-2', title: content.presenceStatusMsg.ethereum.address }).append(
+                $('<i>', { class: 'fa-brands fa-ethereum' })
+              );
+
+              ethereumIcon.on('click', () => {
+                try {
+                  copyToClipboard(content.presenceStatusMsg.ethereum.address);
+                  toast('Ethereum address successfully copied to the clipboard.');
+                } catch (err) {
+                  console.error(err);
+                  alert(err.message);
+                }
+              }).tooltip();
+
+              displayName.append(ethereumIcon);
+
+            }
+
+          }
+
           // Get Banner Data
           const bannerDOM = $(profileBanner.current);
 
           if (bannerDOM.length > 0) {
             if (typeof content.presenceStatusMsg.banner === 'string' && content.presenceStatusMsg.banner.length > 0) {
-              bannerDOM.css('background-image', `url("${content.presenceStatusMsg.banner}")`);
+              bannerDOM.css('background-image', `url("${content.presenceStatusMsg.banner}")`).addClass('exist-banner');
             } else {
-              bannerDOM.css('background-image', '');
+              bannerDOM.css('background-image', '').removeClass('exist-banner');
             }
           }
 
@@ -469,6 +554,8 @@ function ProfileViewer() {
           }
 
         }
+
+        enableMenuBar(menubarReasons);
 
       };
 
@@ -535,16 +622,17 @@ function ProfileViewer() {
       user.on('User.lastPresenceTs', updateProfileStatus);
       user.on('User.presence', updateProfileStatus);
 
-      $(displayNameRef.current).on('click', copyUsername.display);
-      $(userNameRef.current).on('click', copyUsername.tag);
+      $(displayNameRef.current).find('> .button').on('click', copyUsername.display);
+      $(userNameRef.current).find('> .button').on('click', copyUsername.tag);
 
       $(profileAvatar.current).on('click', tinyAvatarPreview);
       $(noteRef.current).on('change', tinyNoteUpdate).on('keypress keyup keydown', tinyNoteSpacing).val(tinyNote);
       tinyNoteSpacing({ target: noteRef.current });
 
       return () => {
-        $(displayNameRef.current).off('click', copyUsername.display);
-        $(userNameRef.current).off('click', copyUsername.tag);
+        menubar.empty();
+        $(displayNameRef.current).find('> .button').off('click', copyUsername.display);
+        $(userNameRef.current).find('> .button').off('click', copyUsername.tag);
         $(noteRef.current).off('change', tinyNoteUpdate).off('keypress keyup keydown', tinyNoteSpacing);
         $(profileAvatar.current).off('click', tinyAvatarPreview);
         user.removeListener('User.currentlyActive', updateProfileStatus);
@@ -658,10 +746,16 @@ function ProfileViewer() {
                 </Button>
               </div>
 
-              <h6 ref={displayNameRef} className='emoji-size-fix m-0 mb-1 fw-bold display-name'>{twemojifyReact(username)}</h6>
-              <small ref={userNameRef} className='text-gray emoji-size-fix username'>{twemojifyReact(userId)}</small>
+              <h6 ref={displayNameRef} className='emoji-size-fix m-0 mb-1 fw-bold display-name'><span className='button'>{twemojifyReact(username)}</span></h6>
+              <small ref={userNameRef} className='text-gray emoji-size-fix username'><span className='button'>{twemojifyReact(userId)}</span></small>
 
               <div ref={customStatusRef} className='d-none mt-2 emoji-size-fix small user-custom-status' />
+              <ul ref={menubarRef} id='usertabs' className='nav nav-underline mt-2 small' />
+
+              <div ref={customPlaceRef} className='d-none'>
+                <hr />
+                <div id='insert-custom-place' />
+              </div>
 
               <div ref={bioRef} className='d-none'>
 
@@ -696,7 +790,7 @@ function ProfileViewer() {
   return (
     <Dialog
       bodyClass='bg-bg2 p-0'
-      className="modal-dialog-scrollable modal-lg noselect user-profile"
+      className="modal-dialog-scrollable modal-dialog-centered modal-lg noselect modal-dialog-user-profile"
       isOpen={isOpen}
       title='User Profile'
       onAfterClose={handleAfterClose}

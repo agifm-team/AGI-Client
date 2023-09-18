@@ -33,9 +33,20 @@ function Welcome() {
 
                 if (newData.data) setData(newData.data);
                 else {
-                    alert(newData?.message);
-                    console.error(newData?.message);
+
+                    console.error(newData);
+                    if (newData?.message) {
+                        alert(`Agi-Mod - ${newData.message}`);
+                        console.error(newData.message);
+                    } else {
+                        alert(`Agi-Mod - ${newData.detail}`);
+                        console.error(newData.detail);
+                    }
+
                     console.error(newData?.status);
+
+                    setData({});
+
                 }
 
                 setLoadingData(false);

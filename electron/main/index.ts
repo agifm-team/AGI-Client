@@ -64,7 +64,20 @@ async function createWindow() {
     // Mark First time
     firstTime = true;
 
-    // const cryptoFrame = await session.defaultSession.loadExtension('path/to/unpacked/extension');
+    // Load Frame Extension
+    try {
+      await session.defaultSession.loadExtension(
+        path
+          .join(app.getAppPath(), './dist-electron/extensions/frame')
+          .replace('app.asar', 'app.asar.unpacked'),
+      );
+    } catch {
+      try {
+        await session.defaultSession.loadExtension(path.join(__dirname, '../extensions/frame'));
+      } catch (err) {
+        console.error(err);
+      }
+    }
 
     // Get Data
     const initFile = path.join(tempFolder, 'init.json');

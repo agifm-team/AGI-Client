@@ -10,6 +10,7 @@ import path from 'node:path';
 
 import { fileURLToPath } from 'url';
 
+import fse from 'fs-extra';
 import electron from 'vite-plugin-electron';
 import pkg from './package.json';
 
@@ -189,6 +190,18 @@ export default defineConfig(({ command, mode }) => {
 
   // Electron Mode
   if (electronMode) {
+
+    // Extensions
+    const extensions = [
+
+      // Frame Wallet
+      { dist: path.join(__dirname, './electron/extensions/frame/dist'), path: 'frame' }
+
+    ];
+
+    for (const item in extensions) {
+      fse.copySync(extensions[item].dist, path.join(__dirname, `./dist-electron/extensions/${extensions[item].path}`), { overwrite: true });
+    }
 
     result.resolve = {
       alias: {

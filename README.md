@@ -37,7 +37,7 @@ between multiple Node.js versions based on the needs of different projects you'r
 
 Execute the following commands to start a development server (or a Ionic environment):
 ```sh
-yarn # Installs all dependencies
+yarn setup # Installs all dependencies
 yarn start # Serve a development version
 ```
 
@@ -53,7 +53,7 @@ The application has only been tested on the linux platform. But that won't stop 
 
 Execute the following commands to start a development server (or a Ionic environment):
 ```sh
-yarn # Installs all dependencies
+yarn setup # Installs all dependencies
 yarn electron:start # Serve a development version
 ```
 

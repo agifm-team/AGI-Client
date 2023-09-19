@@ -225,7 +225,6 @@ const components = {
         console.log(`BarPlot`, props, compId);
     },
 
-
     button: (props, compId, appId) => {
 
         const finalResult = displayOptions(props, compId, appId);

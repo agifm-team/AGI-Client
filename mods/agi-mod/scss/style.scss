@@ -263,6 +263,8 @@
 
     /* Chatbox */
     .chatbot {
+      max-height: 500px;
+      overflow-y: auto;
       .avatar {
         width: 45px;
         height: 100%;

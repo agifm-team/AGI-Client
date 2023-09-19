@@ -1,6 +1,7 @@
 import hljs from 'highlight.js';
 import sanitizeHtml from 'sanitize-html';
 import { marked } from 'marked';
+import clone from 'clone';
 
 import { hljsFixer, objType, toast } from '../../../../src/util/tools';
 import { copyToClipboard } from '../../../../src/util/common';
@@ -87,6 +88,30 @@ const htmlAllowed = {
     },
 
 };
+
+// File Input Accept Generator
+const fileInputAccept = (file_types) => {
+    if (Array.isArray(file_types) && file_types.length > 0) {
+
+        const filesList = clone(file_types);
+        for (const item in filesList) {
+            if (typeof filesList[item] === 'string') {
+
+                const mime = filesList[item].split('/');
+                if (mime.length < 2) {
+                    filesList[item] = `${filesList[item]}/*`;
+                }
+
+            } else {
+                filesList[item] = '';
+            }
+        }
+
+        return filesList.join(', ');
+
+    }
+    return null;
+}
 
 // File Url fixer
 const fileUrlGenerator = (url) => {
@@ -215,7 +240,6 @@ const components = {
         };
 
         const sizeSelected = typeof props.size === 'string' && props.size.length > 0 ? props.size : 'normal';
-
 
         const button = $('<button>', {
             class: `btn btn-${props.variant ? props.variant : 'bg'}${typeof props.size === 'string' && props.size.length > 0 ? ` btn-${props.size}` : ''}`,
@@ -482,7 +506,7 @@ const components = {
 
         if (props.interactive !== false) {
             finalResult.append(
-                $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_file`, accept: Array.isArray(props.file_types) && props.file_types.length > 0 ? props.file_types.join(', ') : null })
+                $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_file`, accept: fileInputAccept(props.file_types) })
                     .prop('multiple', props.file_count === 'multiple')
                     .prop('webkitdirectory', props.file_count === 'directory')
                     .prop('directory', props.file_count === 'directory')
@@ -705,8 +729,6 @@ const components = {
     },
 
     model3d: (props, compId, appId) => {
-
-        console.log(`Model3D`, props, compId);
 
         const finalResult = displayOptions(props, compId, appId);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -996,7 +1018,42 @@ const components = {
     },
 
     uploadbutton: (props, compId, appId) => {
-        console.log(`UploadButton`, props, compId);
+
+        const finalResult = displayOptions(props, compId, appId);
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        finalResult.attr('id', id).addClass('uploadbutton').addClass('d-grid');
+
+        if (props.variant === 'stop') props.variant = 'danger';
+
+        const sizes = {
+            normal: 20,
+            sm: 15,
+            lg: 30,
+        };
+
+        const sizeSelected = typeof props.size === 'string' && props.size.length > 0 ? props.size : 'normal';
+
+        const fileInput = $('<input>', { class: 'd-none', type: 'file', id: `${id}_uploadbutton`, accept: fileInputAccept(props.file_types) })
+            .prop('multiple', props.file_count === 'multiple')
+            .prop('webkitdirectory', props.file_count === 'directory')
+            .prop('directory', props.file_count === 'directory');
+
+        const button = $('<button>', {
+            class: `btn btn-${props.variant ? props.variant : 'bg'}${typeof props.size === 'string' && props.size.length > 0 ? ` btn-${props.size}` : ''}`,
+
+        }).text(props.label).on('click', () => fileInput.trigger('click'));
+
+        if (typeof props.icon === 'string' && props.icon.length > 0) {
+            button.prepend(
+                $('<img>', { src: props.icon, alt: 'icon', class: 'img-fluid me-2' }).css('height', sizes[sizeSelected])
+            );
+        }
+
+        button.prop('disabled', (props.interactive === false));
+
+        finalResult.append([button, fileInput]);
+        return finalResult;
+
     },
 
     video: (props, compId, appId) => {

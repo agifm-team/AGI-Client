@@ -845,7 +845,7 @@ const components = {
 
                 if (typeof props.value.plot === 'string' && isBase64(props.value.plot, { allowMime: true, mimeRequired: true, allowEmpty: false })) {
                     finalResult.append(
-                        $('<img>', { alt: 'matplotlib', src: props.value.plot, class: 'img-fluid' })
+                        $('<img>', { alt: 'matplotlib', src: props.value.plot, class: 'img-fluid' }).prop('draggable', false)
                     );
                 }
 

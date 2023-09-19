@@ -870,8 +870,6 @@ const components = {
                     props.value.plot = {};
                 }
 
-                console.log(`Plot`, props, compId);
-
             }
 
         }

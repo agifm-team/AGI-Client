@@ -8,6 +8,7 @@ import { copyToClipboard } from '../../../../src/util/common';
 import initMatrix from '../../../../src/client/initMatrix';
 import openTinyURL from '../../../../src/util/message/urlProtection';
 import { bootstrapItems } from '../../../../src/util/styles-bootstrap';
+import { twemojify } from '../../../../src/util/twemojify';
 
 const labelCreator = (icon, props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label).prepend(icon);
 const displayOptions = (props, id, appId) => {
@@ -278,7 +279,7 @@ const components = {
                     base.append($('<img>', { src: props.avatar_images[index], alt: `avatar ${index}`, class: 'avatar ms-2' }));
                 }
 
-                base.append($('<span>').text(message));
+                base.append(twemojify(message));
 
                 if (props.rtl && index === 1 && Array.isArray(props.avatar_images) && typeof props.avatar_images[index] === 'string' && props.avatar_images[index].length > 0) {
                     base.append($('<img>', { src: props.avatar_images[index], alt: `avatar ${index}`, class: 'avatar me-2' }));

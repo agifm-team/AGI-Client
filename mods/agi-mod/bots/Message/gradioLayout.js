@@ -2,6 +2,7 @@ import hljs from 'highlight.js';
 import sanitizeHtml from 'sanitize-html';
 import { marked } from 'marked';
 import clone from 'clone';
+import isBase64 from 'is-base64';
 
 import { hljsFixer, objType, toast } from '../../../../src/util/tools';
 import { copyToClipboard } from '../../../../src/util/common';
@@ -218,11 +219,6 @@ const components = {
 
         return finalResult;
 
-    },
-
-    // https://www.chartjs.org/docs/latest/charts/bar.html
-    barplot: (props, compId, appId) => {
-        console.log(`BarPlot`, props, compId);
     },
 
     button: (props, compId, appId) => {
@@ -771,10 +767,6 @@ const components = {
 
     },
 
-    lineplot: (props, compId, appId) => {
-        console.log(`LinePlot`, props, compId);
-    },
-
     model3d: (props, compId, appId) => {
 
         const finalResult = displayOptions(props, compId, appId);
@@ -835,8 +827,46 @@ const components = {
 
     },
 
+    // https://www.chartjs.org/docs/latest/charts/bar.html
     plot: (props, compId, appId) => {
-        console.log(`Plot`, props, compId);
+
+        const finalResult = displayOptions(props, compId, appId);
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        finalResult.attr('id', id).addClass('plot');
+
+        if (props.show_label && props.label) {
+            finalResult.append(labelCreator(null, props, id));
+        }
+
+        if (objType(props.value, 'object')) {
+
+            if (props.value.type === 'matplotlib') {
+
+                if (typeof props.value.plot === 'string' && isBase64(props.value.plot, { allowMime: true, mimeRequired: true, allowEmpty: false })) {
+                    finalResult.append(
+                        $('<img>', { alt: 'matplotlib', src: props.value.plot, class: 'img-fluid' })
+                    );
+                }
+
+            }
+
+            if (props.value.type === 'altair') {
+
+                try {
+                    props.value.plot = JSON.parse(props.value.plot);
+                } catch (err) {
+                    console.error(err);
+                    props.value.plot = {};
+                }
+
+                console.log(`Plot`, props, compId);
+
+            }
+
+        }
+
+        return finalResult;
+
     },
 
     radio: (props, compId, appId) => {
@@ -879,10 +909,6 @@ const components = {
         finalResult.append(radioGroup);
         return finalResult;
 
-    },
-
-    scatterplot: (props, compId, appId) => {
-        console.log(`ScatterPlot`, props, compId);
     },
 
     slider: (props, compId, appId) => {

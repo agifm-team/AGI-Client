@@ -260,10 +260,9 @@ const components = {
 
     chatbot: (props, compId, appId) => {
 
-        console.log(`Chatbot`, props, compId);
         const finalResult = displayOptions(props, compId, appId);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
-        finalResult.attr('id', id).addClass('chatbot').addClass('border').addClass('border-bg').addClass('bg-bg2').addClass('p-3').addClass('text-start');
+        finalResult.attr('id', id).addClass('chatbot').addClass('border').addClass('border-bg').addClass('bg-bg2').addClass('p-3');
 
         if (props.show_label && props.label) {
             finalResult.append(labelCreator(null, props, `${id}_chatbot`));
@@ -271,20 +270,18 @@ const components = {
 
         if (Array.isArray(props.value) && props.value.length > 0) {
 
-            const createUserMessage = (index, item, message) => {
+            const createUserMessage = (index, message) => {
 
-                const base = $('<div>', { class: `d-flex flex-row justify-content-start chatbot-base${props.rtl ? ' chatbot-rtl' : ''}` });
+                const base = $('<div>', { class: `small d-flex flex-row justify-content-start chatbot-base${props.rtl ? ' chatbot-rtl' : ''} chatbot-base-${index} py-3${props.rtl ? index === 0 ? ' ps-4 pe-3 text-start' : ' pe-4 ps-3 text-end' : 'px-3 text-start'}` });
 
                 if ((!props.rtl || index === 0) && Array.isArray(props.avatar_images) && typeof props.avatar_images[index] === 'string' && props.avatar_images[index].length > 0) {
-                    base.append($('<img>', { src: props.avatar_images[index], alt: `avatar ${index}`, class: 'avatar' }));
+                    base.append($('<img>', { src: props.avatar_images[index], alt: `avatar ${index}`, class: 'avatar ms-2' }));
                 }
 
-                base.append($('<div>', { class: `p-3${props.rtl ? index === 0 ? ' ms-3' : ' me-3' : ''} chatbot-message chatbot-message-${index}` }).append(
-                    $('<p>', { class: 'small mb-0' }).text(message)
-                ));
+                base.append($('<span>').text(message));
 
                 if (props.rtl && index === 1 && Array.isArray(props.avatar_images) && typeof props.avatar_images[index] === 'string' && props.avatar_images[index].length > 0) {
-                    base.append($('<img>', { src: props.avatar_images[index], alt: `avatar ${index}`, class: 'avatar' }));
+                    base.append($('<img>', { src: props.avatar_images[index], alt: `avatar ${index}`, class: 'avatar me-2' }));
                 }
 
                 finalResult.append(base);
@@ -293,8 +290,8 @@ const components = {
 
             for (const item in props.value) {
                 if (Array.isArray(props.value[item]) && props.value[item].length > 0) {
-                    if (typeof props.value[item][0] === 'string' && props.value[item][0].length > 0) createUserMessage(0, item, props.value[item][0]);
-                    if (typeof props.value[item][1] === 'string' && props.value[item][1].length > 0) createUserMessage(1, item, props.value[item][1]);
+                    if (typeof props.value[item][0] === 'string' && props.value[item][0].length > 0) createUserMessage(0, props.value[item][0]);
+                    if (typeof props.value[item][1] === 'string' && props.value[item][1].length > 0) createUserMessage(1, props.value[item][1]);
                 }
             }
 

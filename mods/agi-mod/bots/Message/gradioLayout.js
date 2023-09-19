@@ -828,7 +828,6 @@ const components = {
 
     },
 
-    // https://www.chartjs.org/docs/latest/charts/bar.html
     plot: (props, compId, appId) => {
 
         const finalResult = displayOptions(props, compId, appId);

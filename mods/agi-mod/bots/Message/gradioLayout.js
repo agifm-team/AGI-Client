@@ -272,7 +272,7 @@ const components = {
 
             const createUserMessage = (index, message) => {
 
-                const base = $('<div>', { class: `small d-flex flex-row justify-content-start chatbot-base${props.rtl ? ' chatbot-rtl' : ''} chatbot-base-${index} py-3${props.rtl ? index === 0 ? ' ps-4 pe-3 text-start' : ' pe-4 ps-3 text-end' : 'px-3 text-start'}` });
+                const base = $('<div>', { class: `small d-flex flex-row justify-content-start chatbot-base${props.rtl ? ' chatbot-rtl' : ''} chatbot-base-${index} py-3${props.rtl ? index === 0 ? ' ps-4 pe-3 text-start' : ' pe-4 ps-3 text-end' : ' px-3 text-start'}` });
 
                 if ((!props.rtl || index === 0) && Array.isArray(props.avatar_images) && typeof props.avatar_images[index] === 'string' && props.avatar_images[index].length > 0) {
                     base.append($('<img>', { src: props.avatar_images[index], alt: `avatar ${index}`, class: 'avatar ms-2' }));

@@ -88,6 +88,7 @@ const htmlAllowed = {
 
 };
 
+// File Url fixer
 const fileUrlGenerator = (url) => {
 
     let tinyUrl = url;
@@ -106,6 +107,7 @@ const fileUrlGenerator = (url) => {
 
 }
 
+// Dataset Components
 const datasetComponents = {
 
     video: (fileName, url, td) => {
@@ -326,10 +328,6 @@ const components = {
 
         return finalResult;
 
-    },
-
-    dataframe: (props, compId, appId) => {
-        console.log(`Dataframe`, props, compId);
     },
 
     dataset: (props, compId, appId, url) => {
@@ -607,10 +605,6 @@ const components = {
 
         return finalResult;
 
-    },
-
-    interpretation: (props, compId, appId) => {
-        console.log(`Interpretation`, props, compId);
     },
 
     json: (props, compId, appId) => {

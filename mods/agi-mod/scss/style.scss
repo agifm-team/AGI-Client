@@ -261,6 +261,38 @@
       }
     }
 
+    /* Chatbox */
+    .chatbot {
+      .avatar {
+        width: 45px;
+        height: 100%;
+      }
+
+      .chatbot-message {
+        border-radius: 15px;
+        min-width: 100%;
+      }
+
+      .chatbot-rtl {
+        min-width: 90%;
+      }
+
+      .chatbot-message-0 {
+        background-color: var(--bg-surface-active);
+      }
+
+      .chatbot-message-1 {
+        background-color: var(--bg-surface);
+      }
+
+      .chatbot-base {
+        margin-bottom: 15px;
+        &:last-child {
+          margin-bottom: 0px;
+        }
+      }
+    }
+
     /* File Inputs */
     .audio .audio-preview,
     .video .video-preview,

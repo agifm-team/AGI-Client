@@ -259,7 +259,57 @@ const components = {
     },
 
     chatbot: (props, compId, appId) => {
+
         console.log(`Chatbot`, props, compId);
+        const finalResult = displayOptions(props, compId, appId);
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        finalResult.attr('id', id).addClass('chatbot').addClass('border').addClass('border-bg').addClass('bg-bg2').addClass('p-3').addClass('text-start');
+
+        if (props.show_label && props.label) {
+            finalResult.append(labelCreator(null, props, `${id}_chatbot`));
+        }
+
+        if (Array.isArray(props.value) && props.value.length > 0) {
+
+            const createUserMessage = (index, item, message) => {
+
+                const base = $('<div>', { class: `d-flex flex-row justify-content-start chatbot-base${props.rtl ? ' chatbot-rtl' : ''}` });
+
+                if ((!props.rtl || index === 0) && Array.isArray(props.avatar_images) && typeof props.avatar_images[index] === 'string' && props.avatar_images[index].length > 0) {
+                    base.append($('<img>', { src: props.avatar_images[index], alt: `avatar ${index}`, class: 'avatar' }));
+                }
+
+                base.append($('<div>', { class: `p-3${props.rtl ? index === 0 ? ' ms-3' : ' me-3' : ''} chatbot-message chatbot-message-${index}` }).append(
+                    $('<p>', { class: 'small mb-0' }).text(message)
+                ));
+
+                if (props.rtl && index === 1 && Array.isArray(props.avatar_images) && typeof props.avatar_images[index] === 'string' && props.avatar_images[index].length > 0) {
+                    base.append($('<img>', { src: props.avatar_images[index], alt: `avatar ${index}`, class: 'avatar' }));
+                }
+
+                finalResult.append(base);
+
+            };
+
+            for (const item in props.value) {
+                if (Array.isArray(props.value[item]) && props.value[item].length > 0) {
+                    if (typeof props.value[item][0] === 'string' && props.value[item][0].length > 0) createUserMessage(0, item, props.value[item][0]);
+                    if (typeof props.value[item][1] === 'string' && props.value[item][1].length > 0) createUserMessage(1, item, props.value[item][1]);
+                }
+            }
+
+        }
+
+        if (props.show_share_button) {
+
+        }
+
+        if (props.show_copy_button) {
+
+        }
+
+        return finalResult;
+
     },
 
     checkbox: (props, compId, appId) => {

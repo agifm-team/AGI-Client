@@ -10,6 +10,7 @@ import initMatrix from '../../../../src/client/initMatrix';
 import openTinyURL from '../../../../src/util/message/urlProtection';
 import { bootstrapItems } from '../../../../src/util/styles-bootstrap';
 import { twemojify } from '../../../../src/util/twemojify';
+import { selectButton as selectTheme } from '../../../../src/util/checkTheme';
 
 const labelCreator = (icon, props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label).prepend(icon);
 const displayOptions = (props, id, appId) => {
@@ -853,7 +854,17 @@ const components = {
             if (props.value.type === 'altair') {
 
                 try {
+
                     props.value.plot = JSON.parse(props.value.plot);
+                    const vegaItem = $('<div>', { class: 'vega-chart' });
+                    finalResult.append(vegaItem);
+
+                    const theme = selectTheme();
+
+                    vegaEmbed(vegaItem.get(0), props.value.plot, {
+                        theme: theme === 'dark' || theme === 'secondary' ? 'dark' : 'default'
+                    });
+
                 } catch (err) {
                     console.error(err);
                     props.value.plot = {};

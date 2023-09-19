@@ -471,10 +471,10 @@ const components = {
 
         const finalResult = displayOptions(props, compId, appId);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
-        finalResult.attr('id', id).addClass('timeseries');
+        finalResult.attr('id', id).addClass('file');
 
         const exampleIcon = $('<i>', { class: 'fa-solid fa-file' });
-        const csv = $('<div>', { class: 'timeseries-preview border border-bg' }).append(exampleIcon);
+        const csv = $('<div>', { class: 'file-preview border border-bg' }).append(exampleIcon);
 
         if (props.show_label && props.label) {
             finalResult.append(labelCreator(null, props, `${id}_file`));
@@ -705,7 +705,28 @@ const components = {
     },
 
     model3d: (props, compId, appId) => {
+
         console.log(`Model3D`, props, compId);
+
+        const finalResult = displayOptions(props, compId, appId);
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        finalResult.attr('id', id).addClass('model3d');
+
+        const exampleIcon = $('<i>', { class: 'fa-solid fa-cubes' });
+        const model3d = $('<div>', { class: 'model3d-preview border border-bg' }).append(exampleIcon);
+
+        if (props.show_label && props.label) {
+            finalResult.append(labelCreator(null, props, `${id}_model3d`));
+        }
+
+        if (props.interactive !== false) {
+            finalResult.append($('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_model3d`, accept: 'model/*' }));
+        }
+
+        finalResult.append(model3d);
+
+        return finalResult;
+
     },
 
     number: (props, compId, appId) => {

@@ -264,6 +264,8 @@
     /* File Inputs */
     .audio .audio-preview,
     .video .video-preview,
+    .model3d .model3d-preview,
+    .file .file-preview,
     .timeseries .timeseries-preview,
     .image .image-preview {
       display: grid;
@@ -274,6 +276,20 @@
     /* Timeseries */
     .timeseries {
       .timeseries-preview {
+        height: 250px;
+      }
+    }
+
+    /* Model 3D */
+    .model3d {
+      .model3d-preview {
+        height: 250px;
+      }
+    }
+
+    /* File */
+    .file {
+      .file-preview {
         height: 250px;
       }
     }

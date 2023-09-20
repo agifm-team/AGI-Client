@@ -35,10 +35,32 @@ function GradioEmbed({ agiData }) {
                     const id = app.config.space_id.replace('/', '_');
 
                     // Read Template
+                    console.log(app.config);
                     const page = $('<gradio-embed>', { class: 'text-center', space: id }).append(getHtml(app.config, `gradio-embed[space='${id}']`, agiData.url, id)).data('gladio_app', app);
                     embed.append(page);
 
+                    /*
+
+                        https://www.gradio.app/docs/js-client#submit
+                        app.submit('/predict', payload);
+
+                        const dataResult = (data) => {
+
+                            data = { queue: boolean; code?: string; success?: boolean; stage: "pending" | "error" | "complete" | "generating"; size?: number; position?: number; eta?: number; message?: string; progress_data?: Array<{ progress: number | null; index: number | null; length: number | null; unit: string | null; desc: string | null; }>; time?: Date; };
+
+                        };
+
+                        app.on('data', () => {
+
+                        });
+
+                        app.on('status', dataResult);
+                        app.off('status', dataResult);
+
+                    */
+
                     return () => {
+                        if (app && typeof app.destroy === 'function') app.destroy();
                         page.remove();
                     };
 

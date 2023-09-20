@@ -1383,8 +1383,6 @@ export function getHtml(config, cssBase, url = '', appId = '') {
 
         }
 
-        console.log(config, page);
-
         // Complete
         return page;
 

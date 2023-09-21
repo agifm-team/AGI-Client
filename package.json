@@ -107,7 +107,8 @@
     "vega": "5.25.0",
     "vega-embed": "6.22.2",
     "vega-lite": "5.15.0",
-    "web3": "4.1.2"
+    "web3": "4.1.2",
+    "yjs": "13.6.8"
   },
   "devDependencies": {
     "@babel/core": "^7.22.20",

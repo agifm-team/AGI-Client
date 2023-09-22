@@ -8,6 +8,7 @@ function GradioEmbed({ agiData }) {
     // Prepare Data
     const embedRef = useRef(null);
     const [app, setApp] = useState(null);
+    const [api, setApi] = useState(null);
     const [appError, setAppError] = useState(null);
 
     useEffect(() => {
@@ -24,6 +25,10 @@ function GradioEmbed({ agiData }) {
                 client(agiData.url).then(newApp => setApp(newApp)).catch(tinyError);
             }
 
+            else if (!api) {
+                app.view_api().then(newInfo => setApi(newInfo)).catch(tinyError);
+            }
+
             // Execute Data
             else {
 
@@ -33,11 +38,21 @@ function GradioEmbed({ agiData }) {
 
                     // Id
                     const id = app.config.space_id.replace('/', '_');
+                    const config = app.config;
 
                     // Read Template
-                    console.log(app.config);
-                    const page = $('<gradio-embed>', { class: 'text-center', space: id }).append(getHtml(app.config, `gradio-embed[space='${id}']`, agiData.url, id)).data('gladio_app', app);
+                    const embedData = getHtml(config, `gradio-embed[space='${id}']`, agiData.url, id);
+                    const page = $('<gradio-embed>', { class: 'text-center', space: id }).append(embedData).data('gladio_app', app);
                     embed.append(page);
+
+                    // Read dependencies
+                    if (Array.isArray(config.dependencies) && config.dependencies.length > 0) {
+                        for (const item in config.dependencies) {
+
+                        }
+                    }
+
+                    console.log(config, api, page);
 
                     /*
 

@@ -2,7 +2,7 @@
   "name": "immagine-ai-matrix",
   "version": "1.3.20",
   "short_name": "Immagine.AI",
-  "description": "The open source house, your house, the house for all matrix ponies",
+  "description": "Immagine.AI: AI Agents for Power Users",
   "main": "dist-electron/main/index.js",
   "engines": {
     "node": ">=16.0.0"

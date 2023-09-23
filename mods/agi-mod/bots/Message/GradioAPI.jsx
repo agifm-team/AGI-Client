@@ -48,10 +48,10 @@ function GradioEmbed({ agiData }) {
                             if (typeof config.dependencies[item].trigger === 'string') {
 
                                 // Get Js Values
-                                if (typeof config.dependencies[item].js === 'string') {
+                                if (typeof config.dependencies[item].js === 'string' && config.dependencies[item].js.length > 0) {
                                     try {
 
-                                        if (config.dependencies[item].js.startsWith(`() => { window.open(\``).endsWith(`\`, '_blank') }`)) {
+                                        if (config.dependencies[item].js.startsWith(`() => { window.open(\``) && config.dependencies[item].js.endsWith(`\`, '_blank') }`)) {
                                             config.dependencies[item].js = { openUrl: config.dependencies[item].js.substring(21, config.dependencies[item].js.length - 14) };
                                         } else {
                                             config.dependencies[item].js = JSON.parse(config.dependencies[item].js.trim().replace('() => ', ''));
@@ -61,6 +61,8 @@ function GradioEmbed({ agiData }) {
                                         console.error(err, config.dependencies[item].js);
                                         config.dependencies[item].js = null;
                                     }
+                                } else {
+                                    config.dependencies[item].js = null;
                                 }
 
                                 // Cancel Parts

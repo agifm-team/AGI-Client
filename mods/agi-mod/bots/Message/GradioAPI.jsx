@@ -90,6 +90,7 @@ function GradioEmbed({ agiData }) {
                                 if (Array.isArray(config.dependencies[item].targets) && config.dependencies[item].targets.length > 0) {
                                     for (const index in config.dependencies[item].targets) {
 
+                                        // console.log(embedData.getInput(config.dependencies[item].targets[index]));
                                         // console.log(embedData.getComponent(config.dependencies[item].targets[index]));
                                         // html.data('gradio_update')();
                                         // html.data('gradio_values');

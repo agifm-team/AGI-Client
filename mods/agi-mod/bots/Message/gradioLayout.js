@@ -440,14 +440,17 @@ const components = {
 
             const thead = $('<thead>');
             const tr = $('<tr>');
+            const tds = [];
 
             for (const item in props.headers) {
                 if (typeof props.headers[item] === 'string') {
                     const td = $('<th>', { class: 'text-bg-force' }).text(props.headers[item]);
-                    inputs.push(td);
+                    tds.push(td);
                     tr.append(td);
                 }
             }
+
+            inputs.push(tds);
 
             thead.append(tr);
             table.append(thead);
@@ -464,6 +467,8 @@ const components = {
                 for (const item in props.samples) {
 
                     const tr = $('<tr>');
+                    const tds = [];
+
                     if (Array.isArray(props.samples[item]) && props.samples[item].length > 0) {
                         for (const item2 in props.samples[item]) {
                             if (typeof props.samples[item][item2] === 'string') {
@@ -476,19 +481,22 @@ const components = {
                                     td.append(datasetComponents[props.components[item2]](props.samples[item][item2], url, td, props, compId, appId));
                                 }
 
-                                inputs.push(td);
+                                tds.push(td);
                                 tr.append(td);
 
                             }
                         }
                     }
 
+                    inputs.push(tds);
                     tbody.append(tr);
 
                 }
             } else {
 
                 const tr = $('<tr>');
+                const tds = [];
+
                 for (const item in props.samples) {
                     if (Array.isArray(props.samples[item]) && props.samples[item].length > 0) {
                         for (const item2 in props.samples[item]) {
@@ -502,13 +510,15 @@ const components = {
                                     td.append(datasetComponents[props.components[item2]](props.samples[item][item2], url, td, props, compId, appId));
                                 }
 
-                                inputs.push(td);
+                                tds.push(td);
                                 tr.append(td);
 
                             }
                         }
                     }
                 }
+
+                inputs.push(tds);
                 tbody.append(tr);
 
             }
@@ -1455,6 +1465,10 @@ class GradioLayout {
     // Get Component
     getComponent(id) {
         return this.page.find(`[component='${String(id)}']`);
+    }
+
+    getInput(id) {
+        return this.getComponent(id).data('gradio_input');
     }
 
     // Get Values

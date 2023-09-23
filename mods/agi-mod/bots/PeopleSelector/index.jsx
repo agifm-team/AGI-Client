@@ -1,8 +1,7 @@
-import React, { useEffect, useRef } from 'react';
-
 import defaultAvatar from '../../../../src/app/atoms/avatar/defaultAvatar';
 import { serverAddress } from '../../socket';
 import PeopleSelector from './Item';
+import tinyAPI from '../../../../src/util/mods';
 
 let tinyData = null;
 function updateAgentsList() {

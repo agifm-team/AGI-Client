@@ -5,6 +5,7 @@ import startPeopleSelector from './bots/PeopleSelector';
 import buttons, { addRoomOptions } from './menu/Buttons';
 import Welcome from './bots/Welcome';
 import startMessage from './bots/Message';
+import tinyAPI from '../../src/util/mods';
 
 export default function startAgiMod(firstTime) {
 

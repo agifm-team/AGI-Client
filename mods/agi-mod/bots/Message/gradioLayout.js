@@ -256,7 +256,7 @@ const components = {
         button.prop('disabled', (props.interactive === false));
 
         finalResult.append(button);
-        finalResult.data('gradio_input', button);
+        finalResult.data('gradio_target', button);
         return finalResult;
 
     },
@@ -1469,6 +1469,14 @@ class GradioLayout {
 
     getInput(id) {
         return this.getComponent(id).data('gradio_input');
+    }
+
+    getDropdown(id) {
+        return this.getComponent(id).data('gradio_dropdown');
+    }
+
+    getTarget(id) {
+        return this.getComponent(id).data('gradio_target');
     }
 
     // Get Values

@@ -162,7 +162,7 @@ function GradioEmbed({ agiData }) {
                         }
                     }
 
-                    console.log(app, config, page);
+                    console.log(config);
                     return () => {
                         if (app && typeof app.destroy === 'function') app.destroy();
                         page.remove();

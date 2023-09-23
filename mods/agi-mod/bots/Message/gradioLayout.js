@@ -197,7 +197,7 @@ const components = {
         finalResult.attr('id', id).addClass('audio');
 
         const exampleIcon = $('<i>', { class: 'fa-solid fa-music' });
-        const img = $('<div>', { class: 'audio-preview border border-bg' }).append(exampleIcon);
+        const audio = $('<div>', { class: 'audio-preview border border-bg' }).append(exampleIcon);
 
         if (props.show_label && props.label) {
             finalResult.append(labelCreator(null, props, `${id}_audio`));
@@ -206,12 +206,14 @@ const components = {
         if (props.interactive !== false) {
 
             if (props.source === 'upload') {
-                finalResult.append($('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_audio`, accept: 'audio/*' }));
+                const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_audio`, accept: 'audio/*' });
+                finalResult.data('gradio_input', input);
+                finalResult.append(input);
             }
 
         }
 
-        finalResult.append(img);
+        finalResult.append(audio);
 
         if (props.show_share_button) {
 
@@ -254,6 +256,7 @@ const components = {
         button.prop('disabled', (props.interactive === false));
 
         finalResult.append(button);
+        finalResult.data('gradio_input', button);
         return finalResult;
 
     },
@@ -315,11 +318,13 @@ const components = {
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('checkbox').addClass('w-100').addClass('text-start').addClass('h-100');
 
+        const checkbox = $('<input>', { id: `${id}_individual`, class: 'form-check-input', type: 'checkbox' }).prop('checked', (props.value === true)).prop('disabled', (props.interactive === false));
         const input = $(`<div>`, { class: 'form-check border border-bg checkboxradio-group w-100 p-2' }).append(
-            $('<input>', { id: `${id}_individual`, class: 'form-check-input', type: 'checkbox' }).prop('checked', (props.value === true)).prop('disabled', (props.interactive === false)),
+            checkbox,
             $('<label>', { for: `${id}_individual`, class: 'form-check-label' }).text(props.show_label && typeof props.label === 'string' ? props.label : 'Checkbox'),
         );
 
+        finalResult.data('gradio_input', checkbox);
         finalResult.append(input);
 
         return finalResult;
@@ -336,16 +341,19 @@ const components = {
             finalResult.append(labelCreator(null, props));
         }
 
+        const inputs = [];
         if (Array.isArray(props.choices) && props.choices.length > 0) {
 
             for (const item in props.choices) {
                 if (typeof props.choices[item] === 'string') {
 
+                    const checkbox = $('<input>', { id: id !== null ? id + item : null, class: 'form-check-input', type: 'checkbox', value: props.choices[item] }).prop('checked', (Array.isArray(props.value) && props.value.length > 0 && props.value.indexOf(props.choices[item]) > -1)).prop('disabled', (props.interactive === false));
                     const input = $(`<div>`, { class: 'form-check border border-bg checkboxradio-group' }).append(
-                        $('<input>', { id: id !== null ? id + item : null, class: 'form-check-input', type: 'checkbox', value: props.choices[item] }).prop('checked', (Array.isArray(props.value) && props.value.length > 0 && props.value.indexOf(props.choices[item]) > -1)).prop('disabled', (props.interactive === false)),
+                        checkbox,
                         $('<label>', { for: id !== null ? id + item : null, class: 'form-check-label' }).text(props.choices[item]),
                     );
 
+                    inputs.push(checkbox);
                     finalResult.append(input);
 
                 }
@@ -353,6 +361,7 @@ const components = {
 
         }
 
+        finalResult.data('gradio_input', inputs);
         return finalResult;
 
     },
@@ -395,7 +404,10 @@ const components = {
             finalResult.append(labelCreator(null, props, id));
         }
 
-        finalResult.append($('<input>', { id, class: 'form-control form-control-bg form-control-color', type: 'color' }).prop('disabled', (props.interactive === false)).val(props.value));
+        const input = $('<input>', { id, class: 'form-control form-control-bg form-control-color', type: 'color' }).prop('disabled', (props.interactive === false)).val(props.value);
+
+        finalResult.data('gradio_input', input);
+        finalResult.append(input);
 
         return finalResult;
 
@@ -411,6 +423,7 @@ const components = {
             finalResult.append($('<div>', { id }).text(props.label));
         }
 
+        const inputs = [];
         const table = $('<table>', { class: 'table table-hover table-bordered border border-bg' });
 
         let isSingle = true;
@@ -429,7 +442,11 @@ const components = {
             const tr = $('<tr>');
 
             for (const item in props.headers) {
-                if (typeof props.headers[item] === 'string') tr.append($('<th>', { class: 'text-bg-force' }).text(props.headers[item]));
+                if (typeof props.headers[item] === 'string') {
+                    const td = $('<th>', { class: 'text-bg-force' }).text(props.headers[item]);
+                    inputs.push(td);
+                    tr.append(td);
+                }
             }
 
             thead.append(tr);
@@ -451,12 +468,16 @@ const components = {
                         for (const item2 in props.samples[item]) {
                             if (typeof props.samples[item][item2] === 'string') {
 
+                                let td;
                                 if (typeof datasetComponents[props.components[item2]] !== 'function') {
-                                    tr.append($('<td>', { class: 'text-bg-force' }).text(props.samples[item][item2]));
+                                    td = $('<td>', { class: 'text-bg-force' }).text(props.samples[item][item2]);
                                 } else {
-                                    const td = $('<td>', { class: 'text-bg-force' });
-                                    tr.append(td.append(datasetComponents[props.components[item2]](props.samples[item][item2], url, td, props, compId, appId)));
+                                    td = $('<td>', { class: 'text-bg-force' });
+                                    td.append(datasetComponents[props.components[item2]](props.samples[item][item2], url, td, props, compId, appId));
                                 }
+
+                                inputs.push(td);
+                                tr.append(td);
 
                             }
                         }
@@ -473,12 +494,16 @@ const components = {
                         for (const item2 in props.samples[item]) {
                             if (typeof props.samples[item][item2] === 'string') {
 
+                                let td;
                                 if (typeof datasetComponents[props.components[item2]] !== 'function') {
-                                    tr.append($('<td>', { class: 'text-bg-force' }).text(props.samples[item][item2]));
+                                    td = $('<td>', { class: 'text-bg-force' }).text(props.samples[item][item2]);
                                 } else {
-                                    const td = $('<td>', { class: 'text-bg-force' });
-                                    tr.append(td.append(datasetComponents[props.components[item2]](props.samples[item][item2], url, td, props, compId, appId)));
+                                    td = $('<td>', { class: 'text-bg-force' });
+                                    td.append(datasetComponents[props.components[item2]](props.samples[item][item2], url, td, props, compId, appId));
                                 }
+
+                                inputs.push(td);
+                                tr.append(td);
 
                             }
                         }
@@ -492,6 +517,7 @@ const components = {
 
         }
 
+        finalResult.data('gradio_input', inputs);
         finalResult.append(table);
         return finalResult;
 
@@ -526,9 +552,10 @@ const components = {
 
             dropdown.val(props.value);
 
-            if (props.allow_custom_value) {
-                dropdown.append($('<input>', { type: 'text', value: props.value }).prop('readonly', (props.choices.indexOf(props.value) > -1)));
-            }
+            const input = $('<input>', { class: `form-control form-control-bg${!props.allow_custom_value ? ' d-none' : ''}`, type: 'text', value: props.value }).prop('readonly', (props.choices.indexOf(props.value) > -1));
+            dropdown.append(input);
+            finalResult.data('gradio_input', input);
+            finalResult.data('gradio_dropdown', dropdown);
 
             finalResult.append(dropdown);
 
@@ -552,12 +579,15 @@ const components = {
         }
 
         if (props.interactive !== false) {
-            finalResult.append(
-                $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_file`, accept: fileInputAccept(props.file_types) })
-                    .prop('multiple', props.file_count === 'multiple')
-                    .prop('webkitdirectory', props.file_count === 'directory')
-                    .prop('directory', props.file_count === 'directory')
-            );
+
+            const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_file`, accept: fileInputAccept(props.file_types) })
+                .prop('multiple', props.file_count === 'multiple')
+                .prop('webkitdirectory', props.file_count === 'directory')
+                .prop('directory', props.file_count === 'directory');
+
+            finalResult.append(input);
+            finalResult.data('gradio_input', input);
+
         }
 
         finalResult.append(csv);
@@ -578,6 +608,7 @@ const components = {
         }
 
         const gallery = $('<div>', { class: 'row' });
+        const input = $('<input>', { class: 'd-none', type: 'text' });
 
         if (typeof props.grid_cols === 'number' && !Number.isNaN(props.grid_cols) && Number.isFinite(props.grid_cols) && props.grid_cols <= 12 && rowsList[props.grid_cols]) {
 
@@ -598,9 +629,10 @@ const components = {
 
                             objType(props.value[item][0], 'object') && typeof props.value[item][0].name === 'string' && props.value[item][0].name.length > 0 ?
                                 $('<div>', { class: 'avatar border border-bg' }).css({ 'background-image': `url('${imgUrl}')` }).data('gradio_props_gallery_item', props.value[item]) : null,
+
                             typeof props.value[item][1] === 'string' ? $('<div>', { class: 'text-bg' }).text(props.value[item][1]) : null
 
-                        )
+                        ).on('click', () => input.val(props.value[item][1]))
 
                     ));
 
@@ -616,6 +648,7 @@ const components = {
         }
 
         finalResult.append(gallery);
+        finalResult.data('gradio_input', input);
 
         if (props.show_share_button) {
 
@@ -683,7 +716,9 @@ const components = {
         if (props.interactive !== false) {
 
             if (props.source === 'upload') {
-                finalResult.append($('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_image`, accept: 'image/*' }));
+                const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_image`, accept: 'image/*' });
+                finalResult.append(input);
+                finalResult.data('gradio_input', input);
             }
 
         }
@@ -785,7 +820,9 @@ const components = {
         }
 
         if (props.interactive !== false) {
-            finalResult.append($('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_model3d`, accept: 'model/*' }));
+            const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_model3d`, accept: 'model/*' });
+            finalResult.append(input);
+            finalResult.data('gradio_input', input);
         }
 
         finalResult.append(model3d);
@@ -826,6 +863,7 @@ const components = {
 
         });
 
+        finalResult.data('gradio_input', numberInput);
         numberInput.val(typeof props.value === 'number' && !Number.isNaN(props.value) && Number.isFinite(props.value) ? props.value : 0);
         return finalResult;
 
@@ -915,6 +953,8 @@ const components = {
                 $radios.filter(`[value="${props.value}"]`).prop('checked', true);
             }
 
+            finalResult.data('gradio_input', $radios);
+
         }
 
         finalResult.append(radioGroup);
@@ -968,6 +1008,7 @@ const components = {
 
         input.val(props.value);
         numberInput.val(props.value);
+        finalResult.data('gradio_input', numberInput);
 
         return finalResult;
 
@@ -1046,6 +1087,7 @@ const components = {
         textarea.on('keypress keyup keydown change input', tinyNoteSpacing);
 
         textarea.val(props.value).prop('readonly', (props.interactive === false));
+        finalResult.data('gradio_input', textarea);
         finalResult.append(textarea);
 
         if (props.show_copy_button) {
@@ -1084,7 +1126,9 @@ const components = {
         }
 
         if (props.interactive !== false) {
-            finalResult.append($('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_timeseries`, accept: 'text/csv' }));
+            const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_timeseries`, accept: 'text/csv' });
+            finalResult.append(input);
+            finalResult.data('gradio_input', input);
         }
 
         finalResult.append(csv);
@@ -1135,6 +1179,7 @@ const components = {
 
         button.prop('disabled', (props.interactive === false));
 
+        finalResult.data('gradio_input', fileInput);
         finalResult.append([button, fileInput]);
         return finalResult;
 
@@ -1156,7 +1201,9 @@ const components = {
         if (props.interactive !== false) {
 
             if (props.source === 'upload') {
-                finalResult.append($('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_video`, accept: 'video/*' }));
+                const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_video`, accept: 'video/*' });
+                finalResult.append(input);
+                finalResult.data('gradio_input', input);
             }
 
         }

@@ -8,7 +8,6 @@ function GradioEmbed({ agiData }) {
     // Prepare Data
     const embedRef = useRef(null);
     const [app, setApp] = useState(null);
-    const [api, setApi] = useState(null);
     const [appError, setAppError] = useState(null);
 
     useEffect(() => {
@@ -25,10 +24,6 @@ function GradioEmbed({ agiData }) {
                 client(agiData.url).then(newApp => setApp(newApp)).catch(tinyError);
             }
 
-            else if (!api) {
-                app.view_api().then(newInfo => setApi(newInfo)).catch(tinyError);
-            }
-
             // Execute Data
             else {
 
@@ -42,9 +37,8 @@ function GradioEmbed({ agiData }) {
 
                     // Read Template
                     const embedData = new GradioLayout(config, `gradio-embed[space='${id}']`, agiData.url, id);
-                    const page = $('<gradio-embed>', { class: 'text-center', space: id }).data('gladio_app', app);
+                    const page = $('<gradio-embed>', { class: 'text-center', space: id });
                     embedData.insertHtml(page);
-
                     embed.append(page);
 
                     // Read dependencies
@@ -56,9 +50,15 @@ function GradioEmbed({ agiData }) {
                                 // Get Js Values
                                 if (typeof config.dependencies[item].js === 'string') {
                                     try {
-                                        config.dependencies[item].js = JSON.parse(config.dependencies[item].js.trim().replace('() => ', ''));
+
+                                        if (config.dependencies[item].js.startsWith(`() => { window.open(\``).endsWith(`\`, '_blank') }`)) {
+                                            config.dependencies[item].js = { openUrl: config.dependencies[item].js.substring(21, config.dependencies[item].js.length - 14) };
+                                        } else {
+                                            config.dependencies[item].js = JSON.parse(config.dependencies[item].js.trim().replace('() => ', ''));
+                                        }
+
                                     } catch (err) {
-                                        console.error(err);
+                                        console.error(err, config.dependencies[item].js);
                                         config.dependencies[item].js = null;
                                     }
                                 }
@@ -88,7 +88,7 @@ function GradioEmbed({ agiData }) {
                                 if (Array.isArray(config.dependencies[item].targets) && config.dependencies[item].targets.length > 0) {
                                     for (const index in config.dependencies[item].targets) {
 
-                                        console.log(embedData.getComponent(config.dependencies[item].targets[index]));
+                                        // console.log(embedData.getComponent(config.dependencies[item].targets[index]));
                                         // html.data('gradio_update')();
                                         // html.data('gradio_values');
 
@@ -116,7 +116,7 @@ function GradioEmbed({ agiData }) {
                         }
                     }
 
-                    console.log(config, api, page);
+                    console.log(config, page);
 
                     /*
 

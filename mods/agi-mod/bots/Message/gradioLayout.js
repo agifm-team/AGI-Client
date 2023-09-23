@@ -1371,7 +1371,7 @@ const childrenLoader = (items, config, url, appId) => {
     }
 };
 
-export default class GradioLayout {
+class GradioLayout {
 
     // Constructor
     constructor(config, cssBase, url = '', appId = '') {
@@ -1422,3 +1422,5 @@ export default class GradioLayout {
     }
 
 };
+
+export default GradioLayout;

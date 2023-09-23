@@ -528,6 +528,7 @@ const components = {
         }
 
         finalResult.data('gradio_input', inputs);
+        finalResult.data('gradio_target', inputs);
         finalResult.append(table);
         return finalResult;
 

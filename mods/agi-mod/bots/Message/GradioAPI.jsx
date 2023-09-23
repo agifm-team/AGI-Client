@@ -41,6 +41,8 @@ function GradioEmbed({ agiData }) {
                     embedData.insertHtml(page);
                     embed.append(page);
 
+                    console.log(id);
+
                     // Read dependencies
                     if (Array.isArray(config.dependencies) && config.dependencies.length > 0) {
                         for (const item in config.dependencies) {
@@ -65,35 +67,30 @@ function GradioEmbed({ agiData }) {
                                     config.dependencies[item].js = null;
                                 }
 
-                                // Cancel Parts
-                                if (Array.isArray(config.dependencies[item].cancels) && config.dependencies[item].cancels.length > 0) {
-                                    for (const index in config.dependencies[item].cancels) {
-
-                                    }
-                                }
-
                                 // Inputs list
                                 if (Array.isArray(config.dependencies[item].inputs) && config.dependencies[item].inputs.length > 0) {
                                     for (const index in config.dependencies[item].inputs) {
-
-                                    }
-                                }
-
-                                // Outputs list
-                                if (Array.isArray(config.dependencies[item].outputs) && config.dependencies[item].outputs.length > 0) {
-                                    for (const index in config.dependencies[item].outputs) {
-
+                                        console.log('Input Component', embedData.getInput(config.dependencies[item].inputs[index]));
                                     }
                                 }
 
                                 // Target to execute the action
                                 if (Array.isArray(config.dependencies[item].targets) && config.dependencies[item].targets.length > 0) {
                                     for (const index in config.dependencies[item].targets) {
+                                        console.log('Target', embedData.getTarget(config.dependencies[item].targets[index]));
+                                    }
+                                }
 
-                                        // console.log(embedData.getInput(config.dependencies[item].targets[index]));
-                                        // console.log(embedData.getComponent(config.dependencies[item].targets[index]));
-                                        // html.data('gradio_update')();
-                                        // html.data('gradio_values');
+                                // Outputs list
+                                if (Array.isArray(config.dependencies[item].outputs) && config.dependencies[item].outputs.length > 0) {
+                                    for (const index in config.dependencies[item].outputs) {
+                                        console.log('Output', embedData.getComponent(config.dependencies[item].targets[index]));
+                                    }
+                                }
+
+                                // Cancel Parts
+                                if (Array.isArray(config.dependencies[item].cancels) && config.dependencies[item].cancels.length > 0) {
+                                    for (const index in config.dependencies[item].cancels) {
 
                                     }
                                 }
@@ -113,6 +110,9 @@ function GradioEmbed({ agiData }) {
                                 if (config.dependencies[item].collects_event_data) {
 
                                 }
+
+                                // embedData.updateHtml();
+                                // embedData.getComponentValue();
 
                             }
 

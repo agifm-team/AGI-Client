@@ -41,6 +41,29 @@ function GradioEmbed({ agiData }) {
                     embedData.insertHtml(page);
                     embed.append(page);
 
+                    // Submit
+                    const tinySubmit = (payload) => {
+
+                        // https://www.gradio.app/docs/js-client#submit
+                        const job = app.submit('/predict', payload);
+
+                        // Sockets
+                        job.on('data', (data) => {
+                            console.log(data);
+                        });
+
+                        job.on('status', (data) => {
+
+                            console.log(data);
+                            // data = { queue: boolean; code?: string; success?: boolean; stage: "pending" | "error" | "complete" | "generating"; size?: number; position?: number; eta?: number; message?: string; progress_data?: Array < { progress: number | null; index: number | null; length: number | null; unit: string | null; desc: string | null; } >; time?: Date; };
+
+                        });
+
+                        // Complete
+                        return job;
+
+                    };
+
                     console.log(id);
 
                     // Read dependencies
@@ -139,28 +162,7 @@ function GradioEmbed({ agiData }) {
                         }
                     }
 
-                    console.log(config, page);
-
-                    /*
-
-                        https://www.gradio.app/docs/js-client#submit
-                        app.submit('/predict', payload);
-
-                        const dataResult = (data) => {
-
-                            data = { queue: boolean; code?: string; success?: boolean; stage: "pending" | "error" | "complete" | "generating"; size?: number; position?: number; eta?: number; message?: string; progress_data?: Array<{ progress: number | null; index: number | null; length: number | null; unit: string | null; desc: string | null; }>; time?: Date; };
-
-                        };
-
-                        app.on('data', () => {
-
-                        });
-
-                        app.on('status', dataResult);
-                        app.off('status', dataResult);
-
-                    */
-
+                    console.log(app, config, page);
                     return () => {
                         if (app && typeof app.destroy === 'function') app.destroy();
                         page.remove();

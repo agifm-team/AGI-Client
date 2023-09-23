@@ -70,28 +70,31 @@ function GradioEmbed({ agiData }) {
                                 // Inputs list
                                 if (Array.isArray(config.dependencies[item].inputs) && config.dependencies[item].inputs.length > 0) {
                                     for (const index in config.dependencies[item].inputs) {
-                                        console.log('Input Component', embedData.getInput(config.dependencies[item].inputs[index]));
+                                        const depId = config.dependencies[item].inputs[index];
+                                        console.log('Input Component', depId, embedData.getInput(depId));
                                     }
                                 }
 
                                 // Target to execute the action
                                 if (Array.isArray(config.dependencies[item].targets) && config.dependencies[item].targets.length > 0) {
                                     for (const index in config.dependencies[item].targets) {
-                                        console.log('Target', embedData.getTarget(config.dependencies[item].targets[index]));
+                                        const depId = config.dependencies[item].targets[index];
+                                        console.log('Target', depId, embedData.getTarget(depId));
                                     }
                                 }
 
                                 // Outputs list
                                 if (Array.isArray(config.dependencies[item].outputs) && config.dependencies[item].outputs.length > 0) {
                                     for (const index in config.dependencies[item].outputs) {
-                                        console.log('Output', embedData.getComponent(config.dependencies[item].targets[index]));
+                                        const depId = config.dependencies[item].outputs[index];
+                                        console.log('Output', depId, embedData.getComponent(depId));
                                     }
                                 }
 
                                 // Cancel Parts
                                 if (Array.isArray(config.dependencies[item].cancels) && config.dependencies[item].cancels.length > 0) {
                                     for (const index in config.dependencies[item].cancels) {
-
+                                        const depId = config.dependencies[item].cancels[index];
                                     }
                                 }
 

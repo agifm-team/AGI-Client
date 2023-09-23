@@ -1247,7 +1247,7 @@ const components = {
 
     column: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url).attr('component_type', 'column');
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('p-2').addClass('column');
 
@@ -1261,7 +1261,7 @@ const components = {
 
     row: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url).attr('component_type', 'row');
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('row');
 
@@ -1275,7 +1275,7 @@ const components = {
 
     accordion: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url).attr('component_type', 'accordion');
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('accordion');
 
@@ -1318,7 +1318,7 @@ const components = {
 
     group: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url).attr('component_type', 'group');
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('group').addClass('my-3');
 
@@ -1465,29 +1465,38 @@ class GradioLayout {
 
     // Get Component
     getComponent(id) {
-        return this.page.find(`[component='${String(id)}']`);
+
+        const comp = { value: this.page.find(`[component='${String(id)}']`) };
+        if (comp.value.length > 0) {
+            comp.type = comp.value.attr('component_type');
+        } else {
+            comp.type = null;
+        }
+
+        return comp;
+
     }
 
     getInput(id) {
-        return this.getComponent(id).data('gradio_input');
+        return this.getComponent(id).value.data('gradio_input');
     }
 
     getDropdown(id) {
-        return this.getComponent(id).data('gradio_dropdown');
+        return this.getComponent(id).value.data('gradio_dropdown');
     }
 
     getTarget(id) {
-        return this.getComponent(id).data('gradio_target');
+        return this.getComponent(id).value.data('gradio_target');
     }
 
     // Get Values
     getComponentValue(id) {
-        return this.getComponent(id).data('gradio_values');
+        return this.getComponent(id).value.data('gradio_values');
     }
 
     // Update Html
     updateHtml(id) {
-        const updateGradio = this.getComponent(id).data('gradio_update');
+        const updateGradio = this.getComponent(id).value.data('gradio_update');
         if (typeof updateGradio === 'function') updateGradio();
     }
 

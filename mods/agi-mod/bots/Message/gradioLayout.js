@@ -13,9 +13,14 @@ import { twemojify } from '../../../../src/util/twemojify';
 import { selectButton as selectTheme } from '../../../../src/util/checkTheme';
 
 const labelCreator = (icon, props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label).prepend(icon);
-const displayOptions = (props, id, appId) => {
+const displayOptions = (props, id, appId, url) => {
     props.app_id = appId;
-    return $('<div>', { class: `${!props.visible ? 'd-none ' : ''}my-2`, component: id, place_id: appId, component_type: props.name }).data('gradio_props', props);
+    return $('<div>', { class: `${!props.visible ? 'd-none ' : ''}my-2`, component: id, place_id: appId, component_type: props.name }).data('gradio_values', {
+        props: clone(props),
+        id: clone(id),
+        appId: clone(appId),
+        url: clone(url),
+    });
 };
 
 const rowsList = {
@@ -155,10 +160,9 @@ const datasetComponents = {
 // https://www.gradio.app/docs
 const components = {
 
-    html: (props, compId, appId) => {
+    html: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
-        finalResult.data('gradio_props', props);
+        const finalResult = displayOptions(props, compId, appId, url);
 
         const html = $(sanitizeHtml(props.value, htmlAllowed));
         html.find('a').on('click', (event) => {
@@ -171,10 +175,9 @@ const components = {
 
     },
 
-    markdown: (props, compId, appId) => {
+    markdown: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
-        finalResult.data('gradio_props', props);
+        const finalResult = displayOptions(props, compId, appId, url);
 
         const html = $(sanitizeHtml(marked.parse(props.value), htmlAllowed));
         html.find('a').on('click', (event) => {
@@ -187,9 +190,9 @@ const components = {
 
     },
 
-    audio: (props, compId, appId) => {
+    audio: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('audio');
 
@@ -222,9 +225,9 @@ const components = {
 
     },
 
-    button: (props, compId, appId) => {
+    button: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('button').addClass('d-grid');
 
@@ -255,9 +258,9 @@ const components = {
 
     },
 
-    chatbot: (props, compId, appId) => {
+    chatbot: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('chatbot').addClass('border').addClass('border-bg').addClass('bg-bg2').addClass('p-3');
 
@@ -306,9 +309,9 @@ const components = {
 
     },
 
-    checkbox: (props, compId, appId) => {
+    checkbox: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('checkbox').addClass('w-100').addClass('text-start').addClass('h-100');
 
@@ -323,9 +326,9 @@ const components = {
 
     },
 
-    checkboxgroup: (props, compId, appId) => {
+    checkboxgroup: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('checkboxgroup');
 
@@ -354,10 +357,10 @@ const components = {
 
     },
 
-    code: (props, compId, appId) => {
+    code: (props, compId, appId, url) => {
         try {
 
-            const finalResult = displayOptions(props, compId, appId);
+            const finalResult = displayOptions(props, compId, appId, url);
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
             finalResult.attr('id', id).addClass('code');
 
@@ -382,9 +385,9 @@ const components = {
         }
     },
 
-    colorpicker: (props, compId, appId) => {
+    colorpicker: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('button').addClass('d-grid');
 
@@ -400,7 +403,7 @@ const components = {
 
     dataset: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('dataset');
 
@@ -494,9 +497,9 @@ const components = {
 
     },
 
-    dropdown: (props, compId, appId) => {
+    dropdown: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.addClass('dropdown')
 
@@ -535,9 +538,9 @@ const components = {
 
     },
 
-    file: (props, compId, appId) => {
+    file: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('file');
 
@@ -565,7 +568,7 @@ const components = {
 
     gallery: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('gallery').addClass('border').addClass('border-bg').addClass('p-3');
 
@@ -622,9 +625,9 @@ const components = {
 
     },
 
-    highlightedtext: (props, compId, appId) => {
+    highlightedtext: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('highlightedtext');
 
@@ -664,9 +667,9 @@ const components = {
 
     },
 
-    image: (props, compId, appId) => {
+    image: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('image');
 
@@ -699,9 +702,9 @@ const components = {
 
     },
 
-    json: (props, compId, appId) => {
+    json: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('json');
 
@@ -719,9 +722,9 @@ const components = {
 
     },
 
-    label: (props, compId, appId) => {
+    label: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('label');
 
@@ -768,9 +771,9 @@ const components = {
 
     },
 
-    model3d: (props, compId, appId) => {
+    model3d: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('model3d');
 
@@ -791,9 +794,9 @@ const components = {
 
     },
 
-    number: (props, compId, appId) => {
+    number: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('number');
 
@@ -828,9 +831,9 @@ const components = {
 
     },
 
-    plot: (props, compId, appId) => {
+    plot: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('plot');
 
@@ -877,9 +880,9 @@ const components = {
 
     },
 
-    radio: (props, compId, appId) => {
+    radio: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('radio');
 
@@ -919,9 +922,9 @@ const components = {
 
     },
 
-    slider: (props, compId, appId) => {
+    slider: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('slider');
 
@@ -970,11 +973,11 @@ const components = {
 
     },
 
-    textbox: (props, compId, appId) => {
+    textbox: (props, compId, appId, url) => {
 
         // values
         let textboxStopHeight = false;
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.addClass('textbox')
 
@@ -1067,9 +1070,9 @@ const components = {
 
     },
 
-    timeseries: (props, compId, appId) => {
+    timeseries: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('timeseries');
 
@@ -1098,9 +1101,9 @@ const components = {
 
     },
 
-    uploadbutton: (props, compId, appId) => {
+    uploadbutton: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('uploadbutton').addClass('d-grid');
 
@@ -1137,9 +1140,9 @@ const components = {
 
     },
 
-    video: (props, compId, appId) => {
+    video: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('video');
 
@@ -1184,9 +1187,9 @@ const components = {
 
     },
 
-    column: (props, compId, appId) => {
+    column: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('p-2').addClass('column');
 
@@ -1198,9 +1201,9 @@ const components = {
 
     },
 
-    row: (props, compId, appId) => {
+    row: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('row');
 
@@ -1212,9 +1215,9 @@ const components = {
 
     },
 
-    accordion: (props, compId, appId) => {
+    accordion: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('accordion');
 
@@ -1255,9 +1258,9 @@ const components = {
 
     },
 
-    group: (props, compId, appId) => {
+    group: (props, compId, appId, url) => {
 
-        const finalResult = displayOptions(props, compId, appId);
+        const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
         finalResult.attr('id', id).addClass('group').addClass('my-3');
 
@@ -1330,6 +1333,10 @@ const childrenLoader = (items, config, url, appId) => {
 
                         // Get Component
                         const tinyHtml = components[component.type](component.props, component.id, appId, url);
+                        tinyHtml.data('gradio_update', () => {
+                            const values = tinyHtml.data('gradio_values');
+                            tinyHtml.replaceWith(components[component.type](values.props, values.id, values.appId, values.url));
+                        });
 
                         // Fix Accordion
                         if (component.type === 'accordion') {

@@ -51,30 +51,45 @@ function GradioEmbed({ agiData }) {
 
                             if (typeof config.dependencies[item].trigger === 'string') {
 
+                                // Get Js Values
                                 if (typeof config.dependencies[item].js === 'string') {
-
+                                    try {
+                                        config.dependencies[item].js = JSON.parse(config.dependencies[item].js.trim().replace('() => ', ''));
+                                    } catch (err) {
+                                        console.error(err);
+                                        config.dependencies[item].js = null;
+                                    }
+                                    console.log(config.dependencies[item].js);
                                 }
 
+                                // Cancel Parts
                                 if (Array.isArray(config.dependencies[item].cancels) && config.dependencies[item].cancels.length > 0) {
                                     for (const index in config.dependencies[item].cancels) {
 
                                     }
                                 }
 
+                                // Inputs list
                                 if (Array.isArray(config.dependencies[item].inputs) && config.dependencies[item].inputs.length > 0) {
-                                    for (const index in config.dependencies[item].cancels) {
+                                    for (const index in config.dependencies[item].inputs) {
 
                                     }
                                 }
 
+                                // Outputs list
                                 if (Array.isArray(config.dependencies[item].outputs) && config.dependencies[item].outputs.length > 0) {
-                                    for (const index in config.dependencies[item].cancels) {
+                                    for (const index in config.dependencies[item].outputs) {
 
                                     }
                                 }
 
+                                // Target to execute the action
                                 if (Array.isArray(config.dependencies[item].targets) && config.dependencies[item].targets.length > 0) {
-                                    for (const index in config.dependencies[item].cancels) {
+                                    for (const index in config.dependencies[item].targets) {
+
+                                        // console.log(embedData.find('[component=[]'));
+                                        // html.data('gradio_update')();
+                                        // html.data('gradio_values');
 
                                     }
                                 }

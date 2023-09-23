@@ -42,10 +42,10 @@ function GradioEmbed({ agiData }) {
                     embed.append(page);
 
                     // Submit
-                    const tinySubmit = (payload) => {
+                    const tinySubmit = (apiName = '', inputs = []) => {
 
                         // https://www.gradio.app/docs/js-client#submit
-                        const job = app.submit('/predict', payload);
+                        const job = app.submit(apiName, inputs);
 
                         /*
 

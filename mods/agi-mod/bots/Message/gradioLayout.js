@@ -98,10 +98,10 @@ const htmlAllowed = {
 };
 
 // File Input Accept Generator
-const fileInputAccept = (file_types) => {
-    if (Array.isArray(file_types) && file_types.length > 0) {
+const fileInputAccept = (fileTypes) => {
+    if (Array.isArray(fileTypes) && fileTypes.length > 0) {
 
-        const filesList = clone(file_types);
+        const filesList = clone(fileTypes);
         for (const item in filesList) {
             if (typeof filesList[item] === 'string') {
 

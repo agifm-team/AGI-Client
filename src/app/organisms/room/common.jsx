@@ -5,144 +5,59 @@ import { twemojifyReact } from '../../../util/twemojify';
 import initMatrix from '../../../client/initMatrix';
 import { getUsername, getUsernameOfRoomMember } from '../../../util/matrixUtil';
 
+import JoinMessage from './chat-messages/Join';
+import LeaveMessage from './chat-messages/Leave';
+
+import InviteMessage from './chat-messages/Invite';
+import CancelInviteMessage from './chat-messages/CancelInvite';
+import RejectInviteMessage from './chat-messages/RejectInvite';
+
+import BanMessage from './chat-messages/Ban';
+import UnbanMessage from './chat-messages/Unban';
+
+import AvatarSetsMessage from './chat-messages/AvatarSets';
+import AvatarChangedMessage from './chat-messages/AvatarChanged';
+import AvatarRemovedMessage from './chat-messages/AvatarRemoved';
+
+import NameSetsMessage from './chat-messages/NameSets';
+import NameChangedMessage from './chat-messages/NameChanged';
+import NameRemovedMessage from './chat-messages/NameRemoved';
+
 function getTimelineJSXMessages() {
+
   return {
-    join(user) {
-      return (
-        <>
-          <strong>{twemojifyReact(user)}</strong>
-          {' joined the room'}
-        </>
-      );
-    },
-    leave(user, reason) {
-      const reasonMsg = (typeof reason === 'string') ? `: ${reason}` : '';
-      return (
-        <>
-          <strong>{twemojifyReact(user)}</strong>
-          {' left the room'}
-          {twemojifyReact(reasonMsg)}
-        </>
-      );
-    },
-    invite(inviter, user) {
-      return (
-        <>
-          <strong>{twemojifyReact(inviter)}</strong>
-          {' invited '}
-          <strong>{twemojifyReact(user)}</strong>
-        </>
-      );
-    },
-    cancelInvite(inviter, user) {
-      return (
-        <>
-          <strong>{twemojifyReact(inviter)}</strong>
-          {' canceled '}
-          <strong>{twemojifyReact(user)}</strong>
-          {'\'s invite'}
-        </>
-      );
-    },
-    rejectInvite(user) {
-      return (
-        <>
-          <strong>{twemojifyReact(user)}</strong>
-          {' rejected the invitation'}
-        </>
-      );
-    },
-    kick(actor, user, reason) {
-      const reasonMsg = (typeof reason === 'string') ? `: ${reason}` : '';
-      return (
-        <>
-          <strong>{twemojifyReact(actor)}</strong>
-          {' kicked '}
-          <strong>{twemojifyReact(user)}</strong>
-          {twemojifyReact(reasonMsg)}
-        </>
-      );
-    },
-    ban(actor, user, reason) {
-      const reasonMsg = (typeof reason === 'string') ? `: ${reason}` : '';
-      return (
-        <>
-          <strong>{twemojifyReact(actor)}</strong>
-          {' banned '}
-          <strong>{twemojifyReact(user)}</strong>
-          {twemojifyReact(reasonMsg)}
-        </>
-      );
-    },
-    unban(actor, user) {
-      return (
-        <>
-          <strong>{twemojifyReact(actor)}</strong>
-          {' unbanned '}
-          <strong>{twemojifyReact(user)}</strong>
-        </>
-      );
-    },
-    avatarSets(user) {
-      return (
-        <>
-          <strong>{twemojifyReact(user)}</strong>
-          {' set a avatar'}
-        </>
-      );
-    },
-    avatarChanged(user) {
-      return (
-        <>
-          <strong>{twemojifyReact(user)}</strong>
-          {' changed their avatar'}
-        </>
-      );
-    },
-    avatarRemoved(user) {
-      return (
-        <>
-          <strong>{twemojifyReact(user)}</strong>
-          {' removed their avatar'}
-        </>
-      );
-    },
-    nameSets(user, newName) {
-      return (
-        <>
-          <strong>{twemojifyReact(user)}</strong>
-          {' set display name to '}
-          <strong>{twemojifyReact(newName)}</strong>
-        </>
-      );
-    },
-    nameChanged(user, newName) {
-      return (
-        <>
-          <strong>{twemojifyReact(user)}</strong>
-          {' changed their display name to '}
-          <strong>{twemojifyReact(newName)}</strong>
-        </>
-      );
-    },
-    nameRemoved(user, lastName) {
-      return (
-        <>
-          <strong>{twemojifyReact(user)}</strong>
-          {' removed their display name '}
-          <strong>{twemojifyReact(lastName)}</strong>
-        </>
-      );
-    },
+
+    join(date, user) { return <JoinMessage date={date} user={user} />; },
+    leave(date, user, reason) { return <LeaveMessage date={date} user={user} reason={reason} />; },
+
+    invite(date, inviter, user) { return <InviteMessage date={date} user={user} inviter={inviter} />; },
+    cancelInvite(date, inviter, user) { return <CancelInviteMessage date={date} user={user} inviter={inviter} />; },
+    rejectInvite(date, user) { return <RejectInviteMessage date={date} user={user} />; },
+
+    kick(date, actor, user, reason) { return <RejectInviteMessage date={date} actor={actor} user={user} reason={reason} />; },
+    ban(date, actor, user, reason) { return <BanMessage date={date} actor={actor} user={user} reason={reason} />; },
+    unban(date, actor, user) { return <UnbanMessage date={date} actor={actor} user={user} />; },
+
+    avatarSets(date, user) { return <AvatarSetsMessage date={date} user={user} />; },
+    avatarChanged(date, user) { return <AvatarChangedMessage date={date} user={user} />; },
+    avatarRemoved(date, user) { return <AvatarRemovedMessage date={date} user={user} />; },
+
+    nameSets(date, user, newName) { return <NameSetsMessage date={date} newName={newName} user={user} />; },
+    nameChanged(date, user, newName) { return <NameChangedMessage date={date} newName={newName} user={user} />; },
+    nameRemoved(date, user, lastName) { return <NameRemovedMessage date={date} lastName={lastName} user={user} />; },
+
   };
+
 }
 
 function getUsersActionJsx(roomId, userIds, actionStr) {
+
   const room = initMatrix.matrixClient.getRoom(roomId);
   const getUserDisplayName = (userId) => {
     if (room?.getMember(userId)) return getUsernameOfRoomMember(room.getMember(userId));
     return getUsername(userId);
   };
+
   const getUserJSX = (userId) => <strong>{twemojifyReact(getUserDisplayName(userId))}</strong>;
   if (!Array.isArray(userIds)) return 'Idle';
   if (userIds.length === 0) return 'Idle';
@@ -165,14 +80,18 @@ function getUsersActionJsx(roomId, userIds, actionStr) {
   const othersCount = userIds.length - MAX_VISIBLE_COUNT;
   // eslint-disable-next-line react/jsx-one-expression-per-line
   return <>{u1Jsx}, {u2Jsx}, {u3Jsx} and {othersCount} others are {actionStr}</>;
+
 }
 
 function parseTimelineChange(mEvent) {
+
   const tJSXMsgs = getTimelineJSXMessages();
   const makeReturnObj = (variant, content) => ({
     variant,
     content,
   });
+
+  const date = mEvent.getDate();
   const content = mEvent.getContent();
   const prevContent = mEvent.getPrevContent();
   const sender = mEvent.getSender();
@@ -180,39 +99,45 @@ function parseTimelineChange(mEvent) {
   const userName = getUsername(mEvent.getStateKey());
 
   switch (content.membership) {
-    case 'invite': return makeReturnObj('invite', tJSXMsgs.invite(senderName, userName));
-    case 'ban': return makeReturnObj('leave', tJSXMsgs.ban(senderName, userName, content.reason));
+
+    case 'invite': return makeReturnObj('invite', tJSXMsgs.invite(date, senderName, userName));
+    case 'ban': return makeReturnObj('leave', tJSXMsgs.ban(date, senderName, userName, content.reason));
+
     case 'join':
       if (prevContent.membership === 'join') {
         if (content.displayname !== prevContent.displayname) {
-          if (typeof content.displayname === 'undefined') return makeReturnObj('avatar', tJSXMsgs.nameRemoved(sender, prevContent.displayname));
-          if (typeof prevContent.displayname === 'undefined') return makeReturnObj('avatar', tJSXMsgs.nameSets(sender, content.displayname));
-          return makeReturnObj('avatar', tJSXMsgs.nameChanged(prevContent.displayname, content.displayname));
+          if (typeof content.displayname === 'undefined') return makeReturnObj(date, 'avatar', tJSXMsgs.nameRemoved(date, sender, prevContent.displayname));
+          if (typeof prevContent.displayname === 'undefined') return makeReturnObj(date, 'avatar', tJSXMsgs.nameSets(date, sender, content.displayname));
+          return makeReturnObj('avatar', tJSXMsgs.nameChanged(date, prevContent.displayname, content.displayname));
         }
         if (content.avatar_url !== prevContent.avatar_url) {
-          if (typeof content.avatar_url === 'undefined') return makeReturnObj('avatar', tJSXMsgs.avatarRemoved(content.displayname));
-          if (typeof prevContent.avatar_url === 'undefined') return makeReturnObj('avatar', tJSXMsgs.avatarSets(content.displayname));
-          return makeReturnObj('avatar', tJSXMsgs.avatarChanged(content.displayname));
+          if (typeof content.avatar_url === 'undefined') return makeReturnObj('avatar', tJSXMsgs.avatarRemoved(date, content.displayname));
+          if (typeof prevContent.avatar_url === 'undefined') return makeReturnObj('avatar', tJSXMsgs.avatarSets(date, content.displayname));
+          return makeReturnObj('avatar', tJSXMsgs.avatarChanged(date, content.displayname));
         }
         return null;
       }
-      return makeReturnObj('join', tJSXMsgs.join(senderName));
+      return makeReturnObj('join', tJSXMsgs.join(date, senderName));
+
     case 'leave':
       if (sender === mEvent.getStateKey()) {
         switch (prevContent.membership) {
-          case 'invite': return makeReturnObj('invite-cancel', tJSXMsgs.rejectInvite(senderName));
-          default: return makeReturnObj('leave', tJSXMsgs.leave(senderName, content.reason));
+          case 'invite': return makeReturnObj('invite-cancel', tJSXMsgs.rejectInvite(date, senderName));
+          default: return makeReturnObj('leave', tJSXMsgs.leave(date, senderName, content.reason));
         }
       }
       switch (prevContent.membership) {
-        case 'invite': return makeReturnObj('invite-cancel', tJSXMsgs.cancelInvite(senderName, userName));
-        case 'ban': return makeReturnObj('other', tJSXMsgs.unban(senderName, userName));
+        case 'invite': return makeReturnObj('invite-cancel', tJSXMsgs.cancelInvite(date, senderName, userName));
+        case 'ban': return makeReturnObj('other', tJSXMsgs.unban(date, senderName, userName));
         // sender is not target and made the target leave,
         // if not from invite/ban then this is a kick
-        default: return makeReturnObj('leave', tJSXMsgs.kick(senderName, userName, content.reason));
+        default: return makeReturnObj('leave', tJSXMsgs.kick(date, senderName, userName, content.reason));
       }
+
     default: return null;
+
   }
+
 }
 
 export {

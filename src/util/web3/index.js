@@ -6,6 +6,9 @@ import Web3WsProvider from 'web3-providers-ws';
 import { objType } from '../tools';
 import startStatus from './status';
 import initMatrix from '../../client/initMatrix';
+import isDevMode from '../isDevMode';
+
+const tinyCrypto = {};
 
 // Signature Template
 const web3SignTemplate = (userId, unix, title = 'Matrix Client - Ethereum Account') => `${title}
@@ -17,8 +20,8 @@ unix: ${unix || moment().unix()}`;
 export function signUserWeb3Account(unix) {
   return new Promise((resolve, reject) => {
 
-    if (global.tinyCrypto.call && typeof global.tinyCrypto.call.sign === 'function') {
-      global.tinyCrypto.call.sign(web3SignTemplate(initMatrix.matrixClient.getUserId(), unix)).then(resolve).catch(reject);
+    if (tinyCrypto.call && typeof tinyCrypto.call.sign === 'function') {
+      tinyCrypto.call.sign(web3SignTemplate(initMatrix.matrixClient.getUserId(), unix)).then(resolve).catch(reject);
     } else {
       resolve(null);
     }
@@ -48,7 +51,7 @@ export function validateWeb3Account(ethereumData, userId) {
         ethereumData.address = ethereumData.address.toLowerCase();
 
         // Final Validate
-        ethereumData.valid = global.tinyCrypto.recover(web3SignTemplate(userId, ethereumData.register_time), ethereumData.sign);
+        ethereumData.valid = tinyCrypto.recover(web3SignTemplate(userId, ethereumData.register_time), ethereumData.sign);
         if (typeof ethereumData.valid === 'string') {
           ethereumData.valid = (ethereumData.valid.toLowerCase() === ethereumData.address);
           return ethereumData.valid;
@@ -120,7 +123,7 @@ export function setUserWeb3Account() {
       const ethereumData = getUserWeb3Account();
 
       ethereumData.sign = sign;
-      ethereumData.address = global.tinyCrypto.address;
+      ethereumData.address = tinyCrypto.address;
       ethereumData.register_time = now;
       if (typeof ethereumData.valid !== 'undefined') delete ethereumData.valid;
 
@@ -327,71 +330,67 @@ export function deleteWeb3Cfg(folder) {
 };
 
 // Tiny Crypto Place
-const tinyCrypto = {
+tinyCrypto.warn = {};
 
-  warn: {},
+tinyCrypto.connected = false;
+tinyCrypto.providerConnected = false;
+tinyCrypto.protocol = null;
 
-  connected: false,
-  providerConnected: false,
-  protocol: null,
+tinyCrypto.config = Object.freeze({
 
-  config: Object.freeze({
+  // USD Tokens
+  usd: {
 
-    // USD Tokens
-    usd: {
-
-      dai: {
-        ethereum: '0x6b175474e89094c44da98b954eedeac495271d0f',
-        polygon: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
-        bsc: '0x1af3f329e8be154074d8769d1ffa4ee058b1dbc3'
-      },
-
-      usdt: {
-        ethereum: '0xdac17f958d2ee523a2206206994597c13d831ec7',
-        polygon: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f'
-      },
-
-      usdc: {
-        ethereum: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-        polygon: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
-        bsc: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d'
-      }
-
+    dai: {
+      ethereum: '0x6b175474e89094c44da98b954eedeac495271d0f',
+      polygon: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+      bsc: '0x1af3f329e8be154074d8769d1ffa4ee058b1dbc3'
     },
 
-    // Networks List
-    networks: getWeb3Cfg()?.networks ?? {},
+    usdt: {
+      ethereum: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+      polygon: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f'
+    },
 
-  }),
+    usdc: {
+      ethereum: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      polygon: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+      bsc: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d'
+    }
 
-  constants: Object.freeze({
-    HexZero: '0x0000000000000000000000000000000000000000000000000000000000000000'
-  }),
+  },
 
-  call: {},
-  get: {},
-  contracts: {},
+  // Networks List
+  networks: getWeb3Cfg()?.networks ?? {},
 
-  errors: Object.freeze({
-    noWallet: () => new Error('No wallet connected detected.'),
-    noProvider: () => new Error('No provider connected detected.'),
-  }),
+});
 
-  decimals: Object.freeze({
-    0: 'wei',
-    3: 'kwei',
-    6: 'mwei',
-    9: 'gwei',
-    12: 'microether',
-    15: 'milliether',
-    18: 'ether',
-    21: 'kether',
-    24: 'mether',
-    27: 'gether',
-    30: 'tether',
-  }),
+tinyCrypto.constants = Object.freeze({
+  HexZero: '0x0000000000000000000000000000000000000000000000000000000000000000'
+});
 
-};
+tinyCrypto.call = {};
+tinyCrypto.get = {};
+tinyCrypto.contracts = {};
+
+tinyCrypto.errors = Object.freeze({
+  noWallet: () => new Error('No wallet connected detected.'),
+  noProvider: () => new Error('No provider connected detected.'),
+});
+
+tinyCrypto.decimals = Object.freeze({
+  0: 'wei',
+  3: 'kwei',
+  6: 'mwei',
+  9: 'gwei',
+  12: 'microether',
+  15: 'milliether',
+  18: 'ether',
+  21: 'kether',
+  24: 'mether',
+  27: 'gether',
+  30: 'tether',
+});
 
 // Module
 const startWeb3 = () => {
@@ -856,6 +855,7 @@ const startWeb3 = () => {
   tinyCrypto.call = Object.freeze(tinyCrypto.call);
   tinyCrypto.get = Object.freeze(tinyCrypto.get);
 
+  // Functions
   tinyCrypto.getCfg = getWeb3Cfg;
   tinyCrypto.setCfg = setWeb3Cfg;
   tinyCrypto.deleteCfg = deleteWeb3Cfg;
@@ -867,8 +867,32 @@ const startWeb3 = () => {
   tinyCrypto.setUser = setUserWeb3Account;
   tinyCrypto.resetUser = resetUserWeb3Account;
 
-  // Insert into global
-  global.tinyCrypto = tinyCrypto;
+  // Providers
+  tinyCrypto.updateProviders = () => {
+
+    const config = tinyCrypto.getCfg();
+    tinyCrypto.networks = config?.networks;
+
+    if (objType(tinyCrypto.userProviders, 'object')) {
+      for (const item in tinyCrypto.userProviders) {
+        if (typeof tinyCrypto.userProviders[item] !== 'undefined') delete tinyCrypto.userProviders[item];
+      }
+    }
+
+    tinyCrypto.userProviders = {};
+
+    if (config.web3Enabled && objType(tinyCrypto.networks, 'object')) {
+      for (const item in tinyCrypto.networks) {
+        if (Array.isArray(tinyCrypto.networks[item].rpcUrls) && typeof tinyCrypto.networks[item].rpcUrls[0] === 'string') {
+          tinyCrypto.userProviders[item] = new Web3(tinyCrypto.networks[item].rpcUrls[0]);
+        }
+      }
+    }
+
+  };
+
+  tinyCrypto.updateProviders();
+  if (isDevMode) global.tinyCrypto = tinyCrypto;
 
   // Start Status
   startStatus();

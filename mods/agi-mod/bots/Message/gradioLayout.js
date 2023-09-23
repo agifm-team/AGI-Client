@@ -1371,27 +1371,54 @@ const childrenLoader = (items, config, url, appId) => {
     }
 };
 
-export function getHtml(config, cssBase, url = '', appId = '') {
-    if (
-        objType(config, 'object') && objType(config.layout, 'object') &&
-        Array.isArray(config.layout.children) && config.layout.children.length > 0 &&
-        Array.isArray(config.components) && config.components.length > 0
-    ) {
+export default class GradioLayout {
 
-        // Get Children
-        const page = childrenLoader(config.layout.children, config, url, appId);
-        if (typeof config.css === 'string' && config.css.length > 0 && typeof cssBase === 'string' && cssBase.length > 0) {
+    // Constructor
+    constructor(config, cssBase, url = '', appId = '') {
+        if (
+            objType(config, 'object') && objType(config.layout, 'object') &&
+            Array.isArray(config.layout.children) && config.layout.children.length > 0 &&
+            Array.isArray(config.components) && config.components.length > 0
+        ) {
 
-            const tinyStyle = sass.compileString(`${cssBase} {
-                ${config.css}
-            }`);
+            // Get Children
+            const page = childrenLoader(config.layout.children, config, url, appId);
+            if (typeof config.css === 'string' && config.css.length > 0 && typeof cssBase === 'string' && cssBase.length > 0) {
 
-            if (typeof tinyStyle.css === 'string') page.push($('<style>').append(tinyStyle.css));
+                const tinyStyle = sass.compileString(`${cssBase} {
+                        ${config.css}
+                    }`);
+
+                if (typeof tinyStyle.css === 'string') page.push($('<style>').append(tinyStyle.css));
+
+            }
+
+            // Complete
+            this.html = page;
 
         }
-
-        // Complete
-        return page;
-
     }
+
+    // Insert Html
+    insertHtml(html, mode = 'append') { this.page = html[mode](this.html); }
+
+    // Get Html
+    getHtml() { return this.page ? this.page : $('<div>'); }
+
+    // Get Component
+    getComponent(id) {
+        return this.page.find(`[component='${String(id)}']`);
+    }
+
+    // Get Values
+    getComponentValue(id) {
+        return this.getComponent(id).data('gradio_values');
+    }
+
+    // Update Html
+    updateHtml(id) {
+        const updateGradio = this.getComponent(id).data('gradio_update');
+        if (typeof updateGradio === 'function') updateGradio();
+    }
+
 };

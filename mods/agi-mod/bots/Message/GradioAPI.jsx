@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { client } from '@gradio/client';
-import { getHtml } from './gradioLayout';
+import GradioLayout from './gradioLayout';
 import { objType } from '../../../../src/util/tools';
 
 function GradioEmbed({ agiData }) {
@@ -41,8 +41,10 @@ function GradioEmbed({ agiData }) {
                     const config = app.config;
 
                     // Read Template
-                    const embedData = getHtml(config, `gradio-embed[space='${id}']`, agiData.url, id);
-                    const page = $('<gradio-embed>', { class: 'text-center', space: id }).append(embedData).data('gladio_app', app);
+                    const embedData = new GradioLayout(config, `gradio-embed[space='${id}']`, agiData.url, id);
+                    const page = $('<gradio-embed>', { class: 'text-center', space: id }).data('gladio_app', app);
+                    embedData.insertHtml(page);
+
                     embed.append(page);
 
                     // Read dependencies
@@ -59,7 +61,6 @@ function GradioEmbed({ agiData }) {
                                         console.error(err);
                                         config.dependencies[item].js = null;
                                     }
-                                    console.log(config.dependencies[item].js);
                                 }
 
                                 // Cancel Parts
@@ -87,7 +88,7 @@ function GradioEmbed({ agiData }) {
                                 if (Array.isArray(config.dependencies[item].targets) && config.dependencies[item].targets.length > 0) {
                                     for (const index in config.dependencies[item].targets) {
 
-                                        // console.log(embedData.find('[component=[]'));
+                                        console.log(embedData.getComponent(config.dependencies[item].targets[index]));
                                         // html.data('gradio_update')();
                                         // html.data('gradio_values');
 

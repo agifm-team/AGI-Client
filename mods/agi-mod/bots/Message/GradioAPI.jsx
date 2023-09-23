@@ -47,6 +47,18 @@ function GradioEmbed({ agiData }) {
                         // https://www.gradio.app/docs/js-client#submit
                         const job = app.submit('/predict', payload);
 
+                        /*
+
+                        api_name ==> named_endpoints
+                        api_name null (use the dependencies index) ==> unnamed_endpoints
+
+                        inputs ==> parameters
+                        returns ==> outputs
+
+                        target ==> button
+
+                        */
+
                         // Sockets
                         job.on('data', (data) => {
                             console.log(data);

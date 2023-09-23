@@ -207,7 +207,7 @@ const components = {
 
             if (props.source === 'upload') {
                 const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_audio`, accept: 'audio/*' });
-                finalResult.data('gradio_input', input);
+                finalResult.data('gradio_input', { type: 'jquery', value: input });
                 finalResult.append(input);
             }
 
@@ -256,7 +256,7 @@ const components = {
         button.prop('disabled', (props.interactive === false));
 
         finalResult.append(button);
-        finalResult.data('gradio_target', button);
+        finalResult.data('gradio_target', { type: 'jquery', value: button });
         return finalResult;
 
     },
@@ -324,7 +324,7 @@ const components = {
             $('<label>', { for: `${id}_individual`, class: 'form-check-label' }).text(props.show_label && typeof props.label === 'string' ? props.label : 'Checkbox'),
         );
 
-        finalResult.data('gradio_input', checkbox);
+        finalResult.data('gradio_input', { type: 'jquery', value: checkbox });
         finalResult.append(input);
 
         return finalResult;
@@ -361,7 +361,7 @@ const components = {
 
         }
 
-        finalResult.data('gradio_input', inputs);
+        finalResult.data('gradio_input', { type: 'array', value: inputs });
         return finalResult;
 
     },
@@ -406,7 +406,7 @@ const components = {
 
         const input = $('<input>', { id, class: 'form-control form-control-bg form-control-color', type: 'color' }).prop('disabled', (props.interactive === false)).val(props.value);
 
-        finalResult.data('gradio_input', input);
+        finalResult.data('gradio_input', { type: 'jquery', value: input });
         finalResult.append(input);
 
         return finalResult;
@@ -527,8 +527,8 @@ const components = {
 
         }
 
-        finalResult.data('gradio_input', inputs);
-        finalResult.data('gradio_target', inputs);
+        finalResult.data('gradio_input', { type: 'array', value: inputs });
+        finalResult.data('gradio_target', { type: 'array', value: inputs });
         finalResult.append(table);
         return finalResult;
 
@@ -565,8 +565,8 @@ const components = {
 
             const input = $('<input>', { class: `form-control form-control-bg${!props.allow_custom_value ? ' d-none' : ''}`, type: 'text', value: props.value }).prop('readonly', (props.choices.indexOf(props.value) > -1));
             dropdown.append(input);
-            finalResult.data('gradio_input', input);
-            finalResult.data('gradio_dropdown', dropdown);
+            finalResult.data('gradio_input', { type: 'jquery', value: input });
+            finalResult.data('gradio_dropdown', { type: 'jquery', value: dropdown });
 
             finalResult.append(dropdown);
 
@@ -597,7 +597,7 @@ const components = {
                 .prop('directory', props.file_count === 'directory');
 
             finalResult.append(input);
-            finalResult.data('gradio_input', input);
+            finalResult.data('gradio_input', { type: 'jquery', value: input });
 
         }
 
@@ -659,7 +659,7 @@ const components = {
         }
 
         finalResult.append(gallery);
-        finalResult.data('gradio_input', input);
+        finalResult.data('gradio_input', { type: 'jquery', value: input });
 
         if (props.show_share_button) {
 
@@ -729,7 +729,7 @@ const components = {
             if (props.source === 'upload') {
                 const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_image`, accept: 'image/*' });
                 finalResult.append(input);
-                finalResult.data('gradio_input', input);
+                finalResult.data('gradio_input', { type: 'jquery', value: input });
             }
 
         }
@@ -833,7 +833,7 @@ const components = {
         if (props.interactive !== false) {
             const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_model3d`, accept: 'model/*' });
             finalResult.append(input);
-            finalResult.data('gradio_input', input);
+            finalResult.data('gradio_input', { type: 'jquery', value: input });
         }
 
         finalResult.append(model3d);
@@ -874,7 +874,7 @@ const components = {
 
         });
 
-        finalResult.data('gradio_input', numberInput);
+        finalResult.data('gradio_input', { type: 'jquery', value: numberInput });
         numberInput.val(typeof props.value === 'number' && !Number.isNaN(props.value) && Number.isFinite(props.value) ? props.value : 0);
         return finalResult;
 
@@ -964,7 +964,7 @@ const components = {
                 $radios.filter(`[value="${props.value}"]`).prop('checked', true);
             }
 
-            finalResult.data('gradio_input', $radios);
+            finalResult.data('gradio_input', { type: 'jquery', value: $radios });
 
         }
 
@@ -1019,7 +1019,7 @@ const components = {
 
         input.val(props.value);
         numberInput.val(props.value);
-        finalResult.data('gradio_input', numberInput);
+        finalResult.data('gradio_input', { type: 'jquery', value: numberInput });
 
         return finalResult;
 
@@ -1098,7 +1098,7 @@ const components = {
         textarea.on('keypress keyup keydown change input', tinyNoteSpacing);
 
         textarea.val(props.value).prop('readonly', (props.interactive === false));
-        finalResult.data('gradio_input', textarea);
+        finalResult.data('gradio_input', { type: 'jquery', value: textarea });
         finalResult.append(textarea);
 
         if (props.show_copy_button) {
@@ -1139,7 +1139,7 @@ const components = {
         if (props.interactive !== false) {
             const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_timeseries`, accept: 'text/csv' });
             finalResult.append(input);
-            finalResult.data('gradio_input', input);
+            finalResult.data('gradio_input', { type: 'jquery', value: input });
         }
 
         finalResult.append(csv);
@@ -1190,7 +1190,7 @@ const components = {
 
         button.prop('disabled', (props.interactive === false));
 
-        finalResult.data('gradio_input', fileInput);
+        finalResult.data('gradio_input', { type: 'jquery', value: fileInput });
         finalResult.append([button, fileInput]);
         return finalResult;
 
@@ -1214,7 +1214,7 @@ const components = {
             if (props.source === 'upload') {
                 const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_video`, accept: 'video/*' });
                 finalResult.append(input);
-                finalResult.data('gradio_input', input);
+                finalResult.data('gradio_input', { type: 'jquery', value: input });
             }
 
         }

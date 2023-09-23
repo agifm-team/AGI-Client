@@ -70,31 +70,48 @@ function GradioEmbed({ agiData }) {
                                 // Inputs list
                                 if (Array.isArray(config.dependencies[item].inputs) && config.dependencies[item].inputs.length > 0) {
                                     for (const index in config.dependencies[item].inputs) {
+
                                         const depId = config.dependencies[item].inputs[index];
-                                        console.log('Input Component', depId, embedData.getInput(depId));
+                                        const input = embedData.getInput(depId);
+
+                                        console.log('Input Component', depId, input);
+
                                     }
                                 }
 
                                 // Target to execute the action
                                 if (Array.isArray(config.dependencies[item].targets) && config.dependencies[item].targets.length > 0) {
                                     for (const index in config.dependencies[item].targets) {
+
                                         const depId = config.dependencies[item].targets[index];
-                                        console.log('Target', depId, embedData.getTarget(depId));
+                                        const target = embedData.getTarget(depId);
+
+                                        console.log('Target', depId, target);
+
                                     }
                                 }
 
                                 // Outputs list
                                 if (Array.isArray(config.dependencies[item].outputs) && config.dependencies[item].outputs.length > 0) {
                                     for (const index in config.dependencies[item].outputs) {
+
                                         const depId = config.dependencies[item].outputs[index];
-                                        console.log('Output', depId, embedData.getComponent(depId));
+                                        const output = embedData.getComponent(depId);
+
+                                        console.log('Output', depId, output);
+
                                     }
                                 }
 
                                 // Cancel Parts
                                 if (Array.isArray(config.dependencies[item].cancels) && config.dependencies[item].cancels.length > 0) {
                                     for (const index in config.dependencies[item].cancels) {
+
                                         const depId = config.dependencies[item].cancels[index];
+                                        const cancel = embedData.getComponent(depId);
+
+                                        console.log('Cancel', depId, cancel);
+
                                     }
                                 }
 

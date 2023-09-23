@@ -49,6 +49,42 @@ function GradioEmbed({ agiData }) {
                     if (Array.isArray(config.dependencies) && config.dependencies.length > 0) {
                         for (const item in config.dependencies) {
 
+                            if (typeof config.dependencies[item].trigger === 'string') {
+
+                                if (Array.isArray(config.dependencies[item].cancels) && config.dependencies[item].cancels.length > 0) {
+
+                                }
+
+                                if (Array.isArray(config.dependencies[item].inputs) && config.dependencies[item].inputs.length > 0) {
+
+                                }
+
+                                if (Array.isArray(config.dependencies[item].outputs) && config.dependencies[item].outputs.length > 0) {
+
+                                }
+
+                                if (Array.isArray(config.dependencies[item].targets) && config.dependencies[item].targets.length > 0) {
+
+                                }
+
+                                if (config.dependencies[item].show_progress !== 'hidden') {
+
+                                }
+
+                                if (config.dependencies[item].trigger_only_on_success) {
+
+                                }
+
+                                if (config.dependencies[item].trigger_after) {
+
+                                }
+
+                                if (config.dependencies[item].collects_event_data) {
+
+                                }
+
+                            }
+
                         }
                     }
 

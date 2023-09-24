@@ -32,6 +32,7 @@ const MAX_MSG_DIFF_MINUTES = 5;
 const PLACEHOLDER_COUNT = 2;
 const PLACEHOLDERS_HEIGHT = 96 * PLACEHOLDER_COUNT;
 const SCROLL_TRIGGER_POS = PLACEHOLDERS_HEIGHT * 4;
+let scrollProtection = null;
 
 function loadingMsgPlaceholders(key, count = 2) {
   const pl = [];
@@ -517,22 +518,23 @@ function RoomViewContent({ eventId, roomTimeline }) {
 
     const tinyScroll = $('#chatbox-scroll');
     const body = $('body');
+    if (!body.hasClass('fo-cb-top-render')) body.addClass('cb-temp-noscroll');
 
-    if (!body.hasClass('force-no-chatbox-top-page') && !body.hasClass('force-no-chatbox-top-page-render')) {
+    if (!body.hasClass('fo-cb-top') && !body.hasClass('fo-cb-top-render')) {
       if (tinyScroll.length > 0) {
 
         const scrollSize = tinyScroll.prop('scrollHeight') - $(window).height();
         if (tinyScroll.scrollTop() >= scrollSize - 300) {
-          body.addClass('chatbox-top-page');
+          body.addClass('cb-top-page');
         } else {
-          body.removeClass('chatbox-top-page');
+          body.removeClass('cb-top-page');
         }
 
       } else {
-        body.addClass('chatbox-top-page');
+        body.addClass('cb-top-page');
       }
     } else {
-      body.removeClass('chatbox-top-page');
+      body.removeClass('cb-top-page');
     }
 
     const timelineScroll = timelineScrollRef.current;
@@ -544,6 +546,8 @@ function RoomViewContent({ eventId, roomTimeline }) {
       if (typeof backwards !== 'boolean') return;
       handleScroll(backwards);
     }, 200)();
+
+    scrollProtection = setTimeout(() => body.removeClass('cb-temp-noscroll'), 100);
 
   };
 
@@ -639,12 +643,12 @@ function RoomViewContent({ eventId, roomTimeline }) {
     }
 
     if (renderingHolders) {
-      body.addClass('force-no-chatbox-top-page-render');
+      body.addClass('fo-cb-top-render');
     } else {
-      body.removeClass('force-no-chatbox-top-page-render');
+      body.removeClass('fo-cb-top-render');
     }
 
-    body.removeClass('chatbox-top-page');
+    body.removeClass('cb-top-page');
 
     return tl;
 

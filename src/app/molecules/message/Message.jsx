@@ -3,7 +3,6 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 
-import * as colors from 'console-log-colors';
 import clone from 'clone';
 import hljs from 'highlight.js';
 import * as linkify from "linkifyjs";
@@ -271,7 +270,7 @@ const MessageBody = React.memo(({
       }
 
     } catch {
-      console.error(`${colors.grey('[matrix]')} ${colors.blue('[msg]')} Malformed custom html: `, body);
+      console.error(`[matrix] [msg] Malformed custom html: `, body);
       msgData = twemojifyReact(body, undefined);
     }
   } else if (!isSystem) {
@@ -1168,7 +1167,7 @@ function Message({
 
   }
 
-  chatboxScrollToBottom();
+  setTimeout(() => chatboxScrollToBottom(), 400);
 
   // Bad Message
   const errorMessage = `<i class="bi bi-key-fill text-warning"></i> <strong>Unable to decrypt message.</strong>`;

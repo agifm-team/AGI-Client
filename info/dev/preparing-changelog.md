@@ -5,3 +5,5 @@
 - Matrix SDK updated.
 - About page updated.
 - Fun join messages added.
+- Tiny issues on the scroll was fixed.
+- Console Colors removed.

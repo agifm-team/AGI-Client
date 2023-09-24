@@ -1,9 +1,1 @@
-- Sass Browser Version added.
-- Ethereum support added.
-- Frame wallet support added.
-- Profile tabs added.
-- Matrix SDK updated.
-- About page updated.
-- Fun join messages added.
-- Tiny issues on the scroll was fixed.
-- Console Colors removed.
+- homeserver list - using .env now

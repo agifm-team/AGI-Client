@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import clone from 'clone';
 
-import { twemojifyReact, twemojify } from '../../../util/twemojify';
+import { twemojifyReact } from '../../../util/twemojify';
 import { getUserStatus, updateUserStatusIcon } from '../../../util/onlineStatus';
 
 import imageViewer from '../../../util/imageViewer';
@@ -16,7 +16,7 @@ import * as roomActions from '../../../client/action/room';
 import {
   getUsername, getUsernameOfRoomMember, getPowerLabel, hasDMWith, hasDevices, getCurrentState,
 } from '../../../util/matrixUtil';
-import { copyToClipboard, getEventCords } from '../../../util/common';
+import { getEventCords } from '../../../util/common';
 import { colorMXID, cssColorMXID } from '../../../util/colorMXID';
 
 import Text from '../../atoms/text/Text';
@@ -31,8 +31,13 @@ import Dialog from '../../molecules/dialog/Dialog';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import { addToDataFolder, getDataList } from '../../../util/selectedRoom';
-import { toast } from '../../../util/tools';
-import { getUserWeb3Account } from '../../../util/web3';
+import { getUserWeb3Account, getWeb3Cfg } from '../../../util/web3';
+
+import renderAbout from './tabs/main';
+import renderEthereum from './tabs/ethereum';
+// import renderUd from './tabs/unstoppableDomains';
+
+import copyText from './copyText';
 
 function ModerationTools({
   roomId, userId,
@@ -364,6 +369,7 @@ function useRerenderOnProfileChange(roomId, userId) {
 }
 
 // Read Profile
+let tinyMenuId = 'default';
 function ProfileViewer() {
 
   // Prepare
@@ -392,36 +398,67 @@ function ProfileViewer() {
   let avatarUrl;
   let username;
 
+  if (!isOpen) tinyMenuId = 'default';
+
   useEffect(() => {
     if (user) {
 
       // Menu Bar
       const menubar = $(menubarRef.current);
+      const menuBarItems = [];
+
+      // Get refs
+      const bioPlace = $(bioRef.current);
+      const customPlace = $(customPlaceRef.current);
+
+      // Actions
+      const actions = {
+        ethereum: renderEthereum,
+        // ud: renderUd,
+      };
+
+      // Execute Menu
+      const executeMenu = (where, tinyData) => {
+
+        // Hide items
+        bioPlace.addClass('d-none');
+        customPlace.addClass('d-none');
+
+        // Show items back
+        if (typeof actions[where] === 'function') {
+          const tinyPlace = customPlace.find('#insert-custom-place');
+          tinyPlace.empty().append(actions[where](tinyPlace, user, tinyData.content?.presenceStatusMsg, tinyData.ethereumValid));
+          customPlace.removeClass('d-none');
+        } else {
+          bioPlace.removeClass('d-none');
+        }
+
+      };
 
       // Create menu
-      const menuItem = (name, openItem = null) => $('<li>', { class: 'nav-item' }).append(
-        $('<a>', { class: `nav-link ${typeof openItem !== 'function' ? ' active text-bg-force' : ''}`, href: '#' }).on('click', () => {
+      const menuItem = (name, openItem = null, tinyData = {}) => {
 
-          // Get refs
-          const bioPlace = $(bioRef.current);
-          const customPlace = $(customPlaceRef.current);
+        const button = $('<a>', { class: `nav-link text-bg-force${openItem === tinyMenuId ? ' active' : ''}${openItem !== 'default' ? ' ms-3' : ''}`, href: '#' }).on('click', () => {
 
-          // Hide items
-          bioPlace.addClass('d-none');
-          customPlace.addClass('d-none');
-
-          // Show items back
-          if (typeof openItem === 'function') {
-            customPlace.find('#insert-custom-place').empty().append(openItem()).removeClass('d-none');
-          } else {
-            bioPlace.removeClass('d-none');
+          for (const item in menuBarItems) {
+            menuBarItems[item].removeClass('active');
           }
 
-        }).text(name)
-      );
+          button.addClass('active');
+
+          executeMenu(openItem, tinyData);
+          tinyMenuId = openItem;
+          return false;
+
+        });
+
+        menuBarItems.push(button);
+        return $('<li>', { class: 'nav-item' }).append(button.text(name));
+
+      };
 
       // Create Menu Bar Time
-      const enableMenuBar = (menubarReasons = 0) => {
+      const enableMenuBar = (content, ethereumValid, menubarReasons = 0) => {
 
         // Clear Menu bar
         menubar.empty().removeClass('d-none');
@@ -429,8 +466,19 @@ function ProfileViewer() {
         // Start functions
         if (menubarReasons > 0) {
 
+          const tinyData = { content, ethereumValid };
+
           // User info
-          menubar.append(menuItem('User info'));
+          menubar.append(menuItem('User info', 'default', tinyData));
+
+          // Ethereum
+          if (ethereumValid) {
+            menubar.append(menuItem('Ethereum', 'ethereum', tinyData));
+            // menubar.append(menuItem('UD', 'ud', tinyData));
+          }
+
+          // First Execute
+          executeMenu(tinyMenuId, tinyData);
 
         }
 
@@ -443,6 +491,9 @@ function ProfileViewer() {
 
       // Update Status Profile
       const updateProfileStatus = (mEvent, tinyData) => {
+
+        // Ethereum Config
+        const ethConfig = getWeb3Cfg();
 
         // Get Status
         let menubarReasons = 0;
@@ -459,143 +510,28 @@ function ProfileViewer() {
 
         // Update Status Icon
         const content = updateUserStatusIcon(status, tinyUser);
-        if (content && content.presenceStatusMsg) {
+        const existPresence = (content && content.presenceStatusMsg);
+        const ethereumValid = (existPresence && content.presenceStatusMsg.ethereum && content.presenceStatusMsg.ethereum.valid);
+        if (existPresence) {
 
           // Ethereum
-          if (content.presenceStatusMsg.ethereum && content.presenceStatusMsg.ethereum.valid) {
-
-            // menubarReasons++;
-            const displayName = $(displayNameRef.current);
-            let ethereumIcon = displayName.find('#ethereum-icon');
-            if (ethereumIcon.length < 1) {
-
-              ethereumIcon = $('<span>', { id: 'ethereum-icon', class: 'ms-2', title: content.presenceStatusMsg.ethereum.address }).append(
-                $('<i>', { class: 'fa-brands fa-ethereum' })
-              );
-
-              ethereumIcon.on('click', () => {
-                try {
-                  copyToClipboard(content.presenceStatusMsg.ethereum.address);
-                  toast('Ethereum address successfully copied to the clipboard.');
-                } catch (err) {
-                  console.error(err);
-                  alert(err.message);
-                }
-              }).tooltip();
-
-              displayName.append(ethereumIcon);
-
-            }
-
+          if (ethConfig.web3Enabled && ethereumValid) {
+            menubarReasons++;
           }
 
-          // Get Banner Data
-          const bannerDOM = $(profileBanner.current);
-
-          if (bannerDOM.length > 0) {
-            if (typeof content.presenceStatusMsg.banner === 'string' && content.presenceStatusMsg.banner.length > 0) {
-              bannerDOM.css('background-image', `url("${content.presenceStatusMsg.banner}")`).addClass('exist-banner');
-            } else {
-              bannerDOM.css('background-image', '').removeClass('exist-banner');
-            }
-          }
-
-          // Get Bio Data
-          if (bioRef.current) {
-
-            const bioDOM = $(bioRef.current);
-            const tinyBio = $('#tiny-bio');
-
-            if (tinyBio.length > 0) {
-
-              bioDOM.removeClass('d-none');
-              if (typeof content.presenceStatusMsg.bio === 'string' && content.presenceStatusMsg.bio.length > 0) {
-                tinyBio.html(twemojify(content.presenceStatusMsg.bio.substring(0, 190), undefined, true, false));
-              } else {
-                bioDOM.addClass('d-none');
-                tinyBio.html('');
-              }
-
-            } else {
-              bioDOM.addClass('d-none');
-            }
-
-          }
-
-          // Get Custom Status Data
-          const customStatusDOM = $(customStatusRef.current);
-          customStatusDOM.removeClass('d-none').removeClass('custom-status-emoji-only').addClass('emoji-size-fix');
-          const htmlStatus = [];
-          let isAloneEmojiCustomStatus = false;
-
-          if (
-            content && content.presenceStatusMsg &&
-            content.presence !== 'offline' && content.presence !== 'unavailable' && (
-              (typeof content.presenceStatusMsg.msg === 'string' && content.presenceStatusMsg.msg.length > 0) ||
-              (typeof content.presenceStatusMsg.msgIcon === 'string' && content.presenceStatusMsg.msgIcon.length > 0)
-            )
-          ) {
-
-            if (typeof content.presenceStatusMsg.msgIcon === 'string' && content.presenceStatusMsg.msgIcon.length > 0) {
-              htmlStatus.push($('<img>', { src: content.presenceStatusMsg.msgIcon, alt: 'icon', class: 'emoji me-1' }));
-            }
-
-            if (typeof content.presenceStatusMsg.msg === 'string' && content.presenceStatusMsg.msg.length > 0) {
-              htmlStatus.push($('<span>', { class: 'text-truncate cs-text' }).html(twemojify(content.presenceStatusMsg.msg.substring(0, 100))));
-            } else { isAloneEmojiCustomStatus = true; }
-
-          } else {
-            customStatusDOM.addClass('d-none');
-          }
-
-          customStatusDOM.html(htmlStatus);
-          if (isAloneEmojiCustomStatus) {
-            customStatusDOM.addClass('custom-status-emoji-only').removeClass('emoji-size-fix');
-          }
+          // About Page
+          renderAbout(ethereumValid, displayNameRef, customStatusRef, profileBanner, bioRef, content);
 
         }
 
-        enableMenuBar(menubarReasons);
+        enableMenuBar(content, ethereumValid, menubarReasons);
 
       };
 
       // Copy Profile Username
       const copyUsername = {
-
-        tag: (event) => {
-          try {
-
-            const target = $(event.target);
-            const tinyUsername = target.text().trim();
-
-            if (tinyUsername.length > 0) {
-              copyToClipboard(tinyUsername);
-              toast('Username successfully copied to the clipboard.');
-            }
-
-          } catch (err) {
-            console.error(err);
-            alert(err.message);
-          }
-        },
-
-        display: (event) => {
-          try {
-
-            const target = $(event.target);
-            const displayName = target.text().trim();
-
-            if (displayName.length > 0) {
-              copyToClipboard(displayName);
-              toast('Display name successfully copied to the clipboard.');
-            }
-
-          } catch (err) {
-            console.error(err);
-            alert(err.message);
-          }
-        }
-
+        tag: (event) => copyText(event, 'Username successfully copied to the clipboard.'),
+        display: (event) => copyText(event, 'Display name successfully copied to the clipboard.'),
       };
 
       // Avatar Preview
@@ -615,7 +551,6 @@ function ProfileViewer() {
       };
 
       // Read Events
-      updateProfileStatus(null, user);
       const tinyNote = getDataList('user_cache', 'note', userId);
 
       user.on('User.currentlyActive', updateProfileStatus);
@@ -627,7 +562,9 @@ function ProfileViewer() {
 
       $(profileAvatar.current).on('click', tinyAvatarPreview);
       $(noteRef.current).on('change', tinyNoteUpdate).on('keypress keyup keydown', tinyNoteSpacing).val(tinyNote);
+
       tinyNoteSpacing({ target: noteRef.current });
+      updateProfileStatus(null, user);
 
       return () => {
         menubar.empty();

@@ -44,7 +44,7 @@ function GradioEmbed({ agiData }) {
                         embed.append(page);
 
                         // Submit
-                        const tinySubmit = (comps) => {
+                        const tinySubmit = (comps, tinyIndex) => {
 
                             // Input Values
                             const inputs = [];
@@ -56,7 +56,7 @@ function GradioEmbed({ agiData }) {
                                 if (comps.input[index].data.type === 'jquery') {
                                     try {
 
-                                        const value = comps.input[index].data.val();
+                                        const value = comps.input[index].data.value.val();
                                         if (typeof value === 'string' && value.length > 0) {
                                             inputs.push(value);
                                         } else {
@@ -76,7 +76,38 @@ function GradioEmbed({ agiData }) {
 
                             }
 
-                            console.log(inputs);
+                            // https://www.gradio.app/docs/js-client#submit
+                            const submitName = String(comps.api_name ? comps.api_name : tinyIndex);
+                            console.log(submitName, inputs);
+
+                            const job = app.submit(submitName, inputs);
+
+                            /*
+    
+                            api_name ==> named_endpoints
+                            api_name null (use the dependencies index) ==> unnamed_endpoints
+    
+                            inputs ==> parameters
+                            returns ==> outputs
+    
+                            target ==> button
+    
+                            */
+
+                            // Sockets
+                            job.on('data', (data) => {
+                                console.log(data);
+                            });
+
+                            job.on('status', (data) => {
+
+                                console.log(data);
+                                // data = { queue: boolean; code?: string; success?: boolean; stage: "pending" | "error" | "complete" | "generating"; size?: number; position?: number; eta?: number; message?: string; progress_data?: Array < { progress: number | null; index: number | null; length: number | null; unit: string | null; desc: string | null; } >; time?: Date; };
+
+                            });
+
+                            // Complete
+                            return job;
 
                         };
 

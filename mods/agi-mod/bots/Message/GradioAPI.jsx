@@ -111,6 +111,7 @@ function GradioEmbed({ agiData }) {
                                     const tinyAction = function () {
 
                                         const tinyTarget = $(this);
+                                        console.log(comps);
 
                                         // Inputs list
                                         for (const index in comps.input) {

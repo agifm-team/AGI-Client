@@ -44,37 +44,39 @@ function GradioEmbed({ agiData }) {
                         embed.append(page);
 
                         // Submit
-                        const tinySubmit = (apiName = '', inputs = []) => {
+                        const tinySubmit = (comps) => {
 
-                            // https://www.gradio.app/docs/js-client#submit
-                            const job = app.submit(apiName, inputs);
+                            // Input Values
+                            const inputs = [];
 
-                            /*
-    
-                            api_name ==> named_endpoints
-                            api_name null (use the dependencies index) ==> unnamed_endpoints
-    
-                            inputs ==> parameters
-                            returns ==> outputs
-    
-                            target ==> button
-    
-                            */
+                            // Read data
+                            for (const index in comps.input) {
 
-                            // Sockets
-                            job.on('data', (data) => {
-                                console.log(data);
-                            });
+                                // jQuery
+                                if (comps.input[index].data.type === 'jquery') {
+                                    try {
 
-                            job.on('status', (data) => {
+                                        const value = comps.input[index].data.val();
+                                        if (typeof value === 'string' && value.length > 0) {
+                                            inputs.push(value);
+                                        } else {
+                                            inputs.push(null);
+                                        }
 
-                                console.log(data);
-                                // data = { queue: boolean; code?: string; success?: boolean; stage: "pending" | "error" | "complete" | "generating"; size?: number; position?: number; eta?: number; message?: string; progress_data?: Array < { progress: number | null; index: number | null; length: number | null; unit: string | null; desc: string | null; } >; time?: Date; };
+                                    } catch (err) {
+                                        console.error(err);
+                                        inputs.push(null);
+                                    }
+                                }
 
-                            });
+                                // Others
+                                else {
+                                    console.log('Input Component', comps.input[index].depId, comps.input[index].data);
+                                }
 
-                            // Complete
-                            return job;
+                            }
+
+                            console.log(inputs);
 
                         };
 
@@ -110,14 +112,6 @@ function GradioEmbed({ agiData }) {
                                     // Action Base
                                     const tinyAction = function () {
 
-                                        const tinyTarget = $(this);
-                                        console.log(comps);
-
-                                        // Inputs list
-                                        for (const index in comps.input) {
-                                            console.log('Input Component', comps.input[index].depId, comps.input[index].data);
-                                        }
-
                                         // Outputs list
                                         for (const index in comps.output) {
 
@@ -140,6 +134,10 @@ function GradioEmbed({ agiData }) {
                                             console.log('Cancel Component', comps.cancel[index].depId, comps.cancel[index].data);
                                         }
 
+                                        if (comps.scroll_to_output) {
+
+                                        }
+
                                         if (comps.show_progress !== 'hidden') {
 
                                         }
@@ -155,6 +153,9 @@ function GradioEmbed({ agiData }) {
                                         if (comps.collects_event_data) {
 
                                         }
+
+                                        // Inputs list
+                                        if (comps.backend_fn) tinySubmit(comps, item);
 
                                     };
 
@@ -188,6 +189,7 @@ function GradioEmbed({ agiData }) {
                                     comps.trigger_only_on_success = depItem.trigger_only_on_success;
                                     comps.trigger_after = depItem.trigger_after;
                                     comps.collects_event_data = depItem.collects_event_data;
+                                    comps.backend_fn = depItem.backend_fn;
 
                                     // Target to execute the action
                                     if (Array.isArray(depItem.targets) && depItem.targets.length > 0) {

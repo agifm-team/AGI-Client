@@ -124,28 +124,25 @@ function GradioEmbed({ agiData }) {
                                             const target = embedData.getTarget(depId);
                                             if (target) {
 
-                                                const tinyAction = (event, type) => {
+                                                const tinyAction = function () {
 
-                                                    const targetItem = $(event.target);
-                                                    const component = targetItem.attr('component').length > 0 ? Number(targetItem.attr('component')) : null;
-                                                    console.log(component);
-                                                    if (!Number.isNaN(component) && Number.isFinite(component)) {
-
-
-                                                    }
+                                                    const tinyTarget = $(this);
+                                                    console.log(tinyTarget);
 
                                                 };
 
-                                                if (target.type === 'jquery') target.value.on('click', (event) => tinyAction(event, 'jquery'));
+                                                if (target.type === 'jquery') {
+                                                    target.value.on('click', tinyAction);
+                                                }
 
                                                 else if (target.type === 'array') {
                                                     for (const item2 in target.value) {
 
                                                         if (!Array.isArray(target.value[item2])) {
-                                                            target.value[item2].on('click', (event) => tinyAction(event, 'array'));
+                                                            target.value[item2].on('click', tinyAction);
                                                         } else {
                                                             for (const item3 in target.value[item2]) {
-                                                                target.value[item2][item3].on('click', (event) => tinyAction(event, 'array2'));
+                                                                target.value[item2][item3].on('click', tinyAction);
                                                             }
                                                         }
 

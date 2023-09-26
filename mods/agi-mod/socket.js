@@ -1,8 +1,10 @@
-import socketIOClient from 'socket.io-client';
+// import socketIOClient from 'socket.io-client';
 
 const serverAddress = 'https://flow.immagine.ai/';
 
 export { serverAddress };
+
+/*
 
 // https://docs.flowiseai.com/how-to-use#streaming
 const socket = socketIOClient(serverAddress, {
@@ -33,3 +35,5 @@ socket.connect();
 export function getSocket() {
     return socket;
 };
+
+*/

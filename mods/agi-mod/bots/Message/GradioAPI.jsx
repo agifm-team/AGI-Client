@@ -111,7 +111,6 @@ function GradioEmbed({ agiData }) {
                                     const tinyAction = function () {
 
                                         const tinyTarget = $(this);
-                                        console.log(tinyTarget, comps);
 
                                         // Inputs list
                                         for (const index in comps.input) {
@@ -120,7 +119,12 @@ function GradioEmbed({ agiData }) {
 
                                         // Outputs list
                                         for (const index in comps.output) {
-                                            console.log('Output Component', comps.output[index].depId, comps.output[index].data);
+
+                                            console.log('Output Component - 1', comps.output[index].depId, comps.output[index].data);
+                                            if (Array.isArray(depItem.js) && typeof depItem.js[index] !== 'undefined') {
+                                                console.log('Output Component - 2', comps.output[index].depId, depItem.js[index]);
+                                            }
+
                                         }
 
                                         // Cancel Parts

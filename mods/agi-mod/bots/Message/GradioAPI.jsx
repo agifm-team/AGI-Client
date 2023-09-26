@@ -120,9 +120,16 @@ function GradioEmbed({ agiData }) {
                                         // Outputs list
                                         for (const index in comps.output) {
 
-                                            console.log('Output Component - 1', comps.output[index].depId, comps.output[index].data);
-                                            if (Array.isArray(depItem.js) && typeof depItem.js[index] !== 'undefined') {
-                                                console.log('Output Component - 2', comps.output[index].depId, depItem.js[index]);
+                                            // Output send result
+                                            const output = comps.output[index];
+                                            if (
+                                                Array.isArray(depItem.js) &&
+                                                typeof depItem.js[index] !== 'undefined' &&
+                                                output.data.type !== 'column'
+                                            ) {
+                                                const data = embedData.getComponentValue(output.depId);
+                                                data.props.value = depItem.js[index];
+                                                embedData.updateHtml(output.depId);
                                             }
 
                                         }
@@ -147,9 +154,6 @@ function GradioEmbed({ agiData }) {
                                         if (comps.collects_event_data) {
 
                                         }
-
-                                        // embedData.updateHtml();
-                                        // embedData.getComponentValue();
 
                                     };
 

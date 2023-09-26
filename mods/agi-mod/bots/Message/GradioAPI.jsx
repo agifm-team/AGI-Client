@@ -87,7 +87,7 @@ function GradioEmbed({ agiData }) {
                                 if (typeof config.dependencies[item].trigger === 'string') {
 
                                     const depItem = config.dependencies[item];
-                                    const comps = { output: {}, input: {}, cancel: {} };
+                                    const comps = { output: [], input: [], cancel: [] };
 
                                     // Get Js Values
                                     if (typeof depItem.js === 'string' && depItem.js.length > 0) {
@@ -111,21 +111,21 @@ function GradioEmbed({ agiData }) {
                                     const tinyAction = function () {
 
                                         const tinyTarget = $(this);
-                                        console.log(tinyTarget);
+                                        console.log(tinyTarget, comps);
 
                                         // Inputs list
                                         for (const index in comps.input) {
-                                            console.log('Input Component', index, comps.input[index]);
+                                            console.log('Input Component', comps.input[index].depId, comps.input[index].data);
                                         }
 
                                         // Outputs list
                                         for (const index in comps.output) {
-                                            console.log('Output Component', index, comps.output[index]);
+                                            console.log('Output Component', comps.output[index].depId, comps.output[index].data);
                                         }
 
                                         // Cancel Parts
                                         for (const index in comps.cancel) {
-                                            console.log('Cancel Component', index, comps.cancel[index]);
+                                            console.log('Cancel Component', comps.cancel[index].depId, comps.cancel[index].data);
                                         }
 
                                         if (comps.show_progress !== 'hidden') {
@@ -154,7 +154,7 @@ function GradioEmbed({ agiData }) {
                                     if (Array.isArray(depItem.inputs) && depItem.inputs.length > 0) {
                                         for (const index in depItem.inputs) {
                                             const depId = depItem.inputs[index];
-                                            comps.input[depId] = embedData.getInput(depId);
+                                            comps.input.push({ depId, data: embedData.getInput(depId) });
                                         }
                                     }
 
@@ -163,7 +163,7 @@ function GradioEmbed({ agiData }) {
                                     if (Array.isArray(depItem.outputs) && depItem.outputs.length > 0) {
                                         for (const index in depItem.outputs) {
                                             const depId = depItem.outputs[index];
-                                            comps.output[depId] = embedData.getComponent(depId);
+                                            comps.output.push({ depId, data: embedData.getComponent(depId) });
                                         }
                                     }
 
@@ -171,7 +171,7 @@ function GradioEmbed({ agiData }) {
                                     if (Array.isArray(depItem.cancels) && depItem.cancels.length > 0) {
                                         for (const index in depItem.cancels) {
                                             const depId = depItem.cancels[index];
-                                            comps.cancel[depId] = embedData.getComponent(depId);
+                                            comps.cancel.push({ depId, data: embedData.getComponent(depId) });
                                         }
                                     }
 

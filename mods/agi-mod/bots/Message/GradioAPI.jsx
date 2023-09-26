@@ -86,22 +86,25 @@ function GradioEmbed({ agiData }) {
 
                                 if (typeof config.dependencies[item].trigger === 'string') {
 
+                                    const depItem = config.dependencies[item];
+                                    const comps = { output: {}, input: {}, cancel: {} };
+
                                     // Get Js Values
-                                    if (typeof config.dependencies[item].js === 'string' && config.dependencies[item].js.length > 0) {
+                                    if (typeof depItem.js === 'string' && depItem.js.length > 0) {
                                         try {
 
-                                            if (config.dependencies[item].js.startsWith(`() => { window.open(\``) && config.dependencies[item].js.endsWith(`\`, '_blank') }`)) {
-                                                config.dependencies[item].js = { openUrl: config.dependencies[item].js.substring(21, config.dependencies[item].js.length - 14) };
+                                            if (depItem.js.startsWith(`() => { window.open(\``) && depItem.js.endsWith(`\`, '_blank') }`)) {
+                                                depItem.js = { openUrl: depItem.js.substring(21, depItem.js.length - 14) };
                                             } else {
-                                                config.dependencies[item].js = JSON.parse(config.dependencies[item].js.trim().replace('() => ', ''));
+                                                depItem.js = JSON.parse(depItem.js.trim().replace('() => ', ''));
                                             }
 
                                         } catch (err) {
-                                            console.error(err, config.dependencies[item].js);
-                                            config.dependencies[item].js = null;
+                                            console.error(err, depItem.js);
+                                            depItem.js = null;
                                         }
                                     } else {
-                                        config.dependencies[item].js = null;
+                                        depItem.js = null;
                                     }
 
                                     // Action Base
@@ -111,55 +114,33 @@ function GradioEmbed({ agiData }) {
                                         console.log(tinyTarget);
 
                                         // Inputs list
-                                        if (Array.isArray(config.dependencies[item].inputs) && config.dependencies[item].inputs.length > 0) {
-                                            for (const index in config.dependencies[item].inputs) {
-
-                                                const depId = config.dependencies[item].inputs[index];
-                                                const input = embedData.getInput(depId);
-
-                                                console.log('Input Component', depId, input);
-
-                                            }
+                                        for (const index in comps.input) {
+                                            console.log('Input Component', index, comps.input[index]);
                                         }
 
-
                                         // Outputs list
-                                        if (Array.isArray(config.dependencies[item].outputs) && config.dependencies[item].outputs.length > 0) {
-                                            for (const index in config.dependencies[item].outputs) {
-
-                                                const depId = config.dependencies[item].outputs[index];
-                                                const output = embedData.getComponent(depId);
-
-                                                console.log('Output', depId, output);
-
-                                            }
+                                        for (const index in comps.output) {
+                                            console.log('Output Component', index, comps.output[index]);
                                         }
 
                                         // Cancel Parts
-                                        if (Array.isArray(config.dependencies[item].cancels) && config.dependencies[item].cancels.length > 0) {
-                                            for (const index in config.dependencies[item].cancels) {
-
-                                                const depId = config.dependencies[item].cancels[index];
-                                                const cancel = embedData.getComponent(depId);
-
-                                                console.log('Cancel', depId, cancel);
-
-                                            }
+                                        for (const index in comps.cancel) {
+                                            console.log('Cancel Component', index, comps.cancel[index]);
                                         }
 
-                                        if (config.dependencies[item].show_progress !== 'hidden') {
+                                        if (comps.show_progress !== 'hidden') {
 
                                         }
 
-                                        if (config.dependencies[item].trigger_only_on_success) {
+                                        if (comps.trigger_only_on_success) {
 
                                         }
 
-                                        if (config.dependencies[item].trigger_after) {
+                                        if (comps.trigger_after) {
 
                                         }
 
-                                        if (config.dependencies[item].collects_event_data) {
+                                        if (comps.collects_event_data) {
 
                                         }
 
@@ -168,12 +149,43 @@ function GradioEmbed({ agiData }) {
 
                                     };
 
+
+                                    // Inputs list
+                                    if (Array.isArray(depItem.inputs) && depItem.inputs.length > 0) {
+                                        for (const index in depItem.inputs) {
+                                            const depId = depItem.inputs[index];
+                                            comps.input[depId] = embedData.getInput(depId);
+                                        }
+                                    }
+
+
+                                    // Outputs list
+                                    if (Array.isArray(depItem.outputs) && depItem.outputs.length > 0) {
+                                        for (const index in depItem.outputs) {
+                                            const depId = depItem.outputs[index];
+                                            comps.output[depId] = embedData.getComponent(depId);
+                                        }
+                                    }
+
+                                    // Cancel Parts
+                                    if (Array.isArray(depItem.cancels) && depItem.cancels.length > 0) {
+                                        for (const index in depItem.cancels) {
+                                            const depId = depItem.cancels[index];
+                                            comps.cancel[depId] = embedData.getComponent(depId);
+                                        }
+                                    }
+
+                                    comps.show_progress = depItem.show_progress;
+                                    comps.trigger_only_on_success = depItem.trigger_only_on_success;
+                                    comps.trigger_after = depItem.trigger_after;
+                                    comps.collects_event_data = depItem.collects_event_data;
+
                                     // Target to execute the action
-                                    if (Array.isArray(config.dependencies[item].targets) && config.dependencies[item].targets.length > 0) {
-                                        for (const index in config.dependencies[item].targets) {
+                                    if (Array.isArray(depItem.targets) && depItem.targets.length > 0) {
+                                        for (const index in depItem.targets) {
 
                                             // Get Id
-                                            const depId = config.dependencies[item].targets[index];
+                                            const depId = depItem.targets[index];
                                             const target = embedData.getTarget(depId);
                                             if (target) {
 

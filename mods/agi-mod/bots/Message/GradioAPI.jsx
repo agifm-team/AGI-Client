@@ -104,43 +104,95 @@ function GradioEmbed({ agiData }) {
                                         config.dependencies[item].js = null;
                                     }
 
-                                    // Inputs list
-                                    if (Array.isArray(config.dependencies[item].inputs) && config.dependencies[item].inputs.length > 0) {
-                                        for (const index in config.dependencies[item].inputs) {
+                                    // Action Base
+                                    const tinyAction = function () {
 
-                                            const depId = config.dependencies[item].inputs[index];
-                                            const input = embedData.getInput(depId);
+                                        const tinyTarget = $(this);
+                                        console.log(tinyTarget);
 
-                                            console.log('Input Component', depId, input);
+                                        // Inputs list
+                                        if (Array.isArray(config.dependencies[item].inputs) && config.dependencies[item].inputs.length > 0) {
+                                            for (const index in config.dependencies[item].inputs) {
+
+                                                const depId = config.dependencies[item].inputs[index];
+                                                const input = embedData.getInput(depId);
+
+                                                console.log('Input Component', depId, input);
+
+                                            }
+                                        }
+
+
+                                        // Outputs list
+                                        if (Array.isArray(config.dependencies[item].outputs) && config.dependencies[item].outputs.length > 0) {
+                                            for (const index in config.dependencies[item].outputs) {
+
+                                                const depId = config.dependencies[item].outputs[index];
+                                                const output = embedData.getComponent(depId);
+
+                                                console.log('Output', depId, output);
+
+                                            }
+                                        }
+
+                                        // Cancel Parts
+                                        if (Array.isArray(config.dependencies[item].cancels) && config.dependencies[item].cancels.length > 0) {
+                                            for (const index in config.dependencies[item].cancels) {
+
+                                                const depId = config.dependencies[item].cancels[index];
+                                                const cancel = embedData.getComponent(depId);
+
+                                                console.log('Cancel', depId, cancel);
+
+                                            }
+                                        }
+
+                                        if (config.dependencies[item].show_progress !== 'hidden') {
 
                                         }
-                                    }
+
+                                        if (config.dependencies[item].trigger_only_on_success) {
+
+                                        }
+
+                                        if (config.dependencies[item].trigger_after) {
+
+                                        }
+
+                                        if (config.dependencies[item].collects_event_data) {
+
+                                        }
+
+                                        // embedData.updateHtml();
+                                        // embedData.getComponentValue();
+
+                                    };
 
                                     // Target to execute the action
                                     if (Array.isArray(config.dependencies[item].targets) && config.dependencies[item].targets.length > 0) {
                                         for (const index in config.dependencies[item].targets) {
 
+                                            // Get Id
                                             const depId = config.dependencies[item].targets[index];
                                             const target = embedData.getTarget(depId);
                                             if (target) {
 
-                                                const tinyAction = function () {
-
-                                                    const tinyTarget = $(this);
-                                                    console.log(tinyTarget);
-
-                                                };
-
+                                                // jQuery
                                                 if (target.type === 'jquery') {
                                                     target.value.on('click', tinyAction);
                                                 }
 
+                                                // Array
                                                 else if (target.type === 'array') {
                                                     for (const item2 in target.value) {
 
+                                                        // Mode 1
                                                         if (!Array.isArray(target.value[item2])) {
                                                             target.value[item2].on('click', tinyAction);
-                                                        } else {
+                                                        }
+
+                                                        // Mode 2
+                                                        else {
                                                             for (const item3 in target.value[item2]) {
                                                                 target.value[item2][item3].on('click', tinyAction);
                                                             }
@@ -149,55 +201,13 @@ function GradioEmbed({ agiData }) {
                                                     }
                                                 }
 
+                                                // Target
                                                 console.log('Target', depId, target);
 
                                             }
 
                                         }
                                     }
-
-                                    // Outputs list
-                                    if (Array.isArray(config.dependencies[item].outputs) && config.dependencies[item].outputs.length > 0) {
-                                        for (const index in config.dependencies[item].outputs) {
-
-                                            const depId = config.dependencies[item].outputs[index];
-                                            const output = embedData.getComponent(depId);
-
-                                            console.log('Output', depId, output);
-
-                                        }
-                                    }
-
-                                    // Cancel Parts
-                                    if (Array.isArray(config.dependencies[item].cancels) && config.dependencies[item].cancels.length > 0) {
-                                        for (const index in config.dependencies[item].cancels) {
-
-                                            const depId = config.dependencies[item].cancels[index];
-                                            const cancel = embedData.getComponent(depId);
-
-                                            console.log('Cancel', depId, cancel);
-
-                                        }
-                                    }
-
-                                    if (config.dependencies[item].show_progress !== 'hidden') {
-
-                                    }
-
-                                    if (config.dependencies[item].trigger_only_on_success) {
-
-                                    }
-
-                                    if (config.dependencies[item].trigger_after) {
-
-                                    }
-
-                                    if (config.dependencies[item].collects_event_data) {
-
-                                    }
-
-                                    // embedData.updateHtml();
-                                    // embedData.getComponentValue();
 
                                 }
 

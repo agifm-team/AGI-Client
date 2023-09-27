@@ -77,22 +77,10 @@ function GradioEmbed({ agiData }) {
                             }
 
                             // https://www.gradio.app/docs/js-client#submit
-                            const submitName = String(comps.api_name ? `/${comps.api_name}` : Number(tinyIndex));
-                            console.log(submitName, inputs);
+                            const submitName = comps.api_name ? `/${comps.api_name}` : Number(tinyIndex);
+                            console.log(submitName, typeof submitName, inputs);
 
                             const job = app.submit(submitName, inputs);
-
-                            /*
-    
-                            api_name ==> named_endpoints
-                            api_name null (use the dependencies index) ==> unnamed_endpoints
-    
-                            inputs ==> parameters
-                            returns ==> outputs
-    
-                            target ==> button
-    
-                            */
 
                             // Sockets
                             job.on('data', (data) => {
@@ -105,9 +93,6 @@ function GradioEmbed({ agiData }) {
                                 // data = { queue: boolean; code?: string; success?: boolean; stage: "pending" | "error" | "complete" | "generating"; size?: number; position?: number; eta?: number; message?: string; progress_data?: Array < { progress: number | null; index: number | null; length: number | null; unit: string | null; desc: string | null; } >; time?: Date; };
 
                             });
-
-                            // Complete
-                            return job;
 
                         };
 

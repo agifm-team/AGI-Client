@@ -156,7 +156,7 @@ const datasetComponents = {
 
 };
 
-const fileManagerEditor = (finalResult, id, type, props, fileAccept) => {
+const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept) => {
 
     const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_${type}`, accept: typeof fileAccept === 'string' ? fileAccept : fileInputAccept(props.file_types) })
         .prop('multiple', props.file_count === 'multiple')
@@ -219,7 +219,7 @@ const components = {
         if (props.interactive !== false) {
 
             if (props.source === 'upload') {
-                const input = fileManagerEditor(finalResult, id, 'audio', props, 'audio/*');
+                const input = fileManagerEditor(audio, finalResult, id, 'audio', props, 'audio/*');
                 finalResult.append(input);
             }
 
@@ -603,7 +603,7 @@ const components = {
 
         if (props.interactive !== false) {
 
-            const input = fileManagerEditor(finalResult, id, 'file', props);
+            const input = fileManagerEditor(csv, finalResult, id, 'file', props);
             finalResult.append(input);
 
         }
@@ -734,7 +734,7 @@ const components = {
         if (props.interactive !== false) {
 
             if (props.source === 'upload') {
-                const input = fileManagerEditor(finalResult, id, 'image', props, 'image/*');
+                const input = fileManagerEditor(img, finalResult, id, 'image', props, 'image/*');
                 finalResult.append(input);
             }
 
@@ -837,7 +837,7 @@ const components = {
         }
 
         if (props.interactive !== false) {
-            const input = fileManagerEditor(finalResult, id, 'model3d', props, 'model/*');
+            const input = fileManagerEditor(model3d, finalResult, id, 'model3d', props, 'model/*');
             finalResult.append(input);
         }
 
@@ -1142,7 +1142,7 @@ const components = {
         }
 
         if (props.interactive !== false) {
-            const input = fileManagerEditor(finalResult, id, 'timeseries', props, 'text/csv');
+            const input = fileManagerEditor(csv, finalResult, id, 'timeseries', props, 'text/csv');
             finalResult.append(input);
             finalResult.data('gradio_input', { type: 'jquery', value: input });
         }
@@ -1176,7 +1176,7 @@ const components = {
         };
 
         const sizeSelected = typeof props.size === 'string' && props.size.length > 0 ? props.size : 'normal';
-        const fileInput = fileManagerEditor(finalResult, id, 'uploadbutton', props);
+        const fileInput = fileManagerEditor(null, finalResult, id, 'uploadbutton', props);
 
         const button = $('<button>', {
             class: `btn btn-${props.variant ? props.variant : 'bg'}${typeof props.size === 'string' && props.size.length > 0 ? ` btn-${props.size}` : ''}`,
@@ -1213,7 +1213,7 @@ const components = {
         if (props.interactive !== false) {
 
             if (props.source === 'upload') {
-                const input = fileManagerEditor(finalResult, id, 'video', props, 'video/*');
+                const input = fileManagerEditor(video, finalResult, id, 'video', props, 'video/*');
                 finalResult.append(input);
             }
 

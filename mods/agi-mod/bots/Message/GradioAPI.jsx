@@ -84,7 +84,18 @@ function GradioEmbed({ agiData }) {
 
                             // Sockets
                             job.on('data', (data) => {
+
+                                // Convert to momentjs
+                                data.time = moment(data.time);
+
+                                // Data
+                                if (typeof data.data !== 'undefined') {
+
+                                }
+
+                                // More test
                                 console.log('data', data);
+
                             });
 
                             job.on('status', (data) => {

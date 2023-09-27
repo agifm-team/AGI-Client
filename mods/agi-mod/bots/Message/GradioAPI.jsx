@@ -77,10 +77,10 @@ function GradioEmbed({ agiData }) {
                             }
 
                             // https://www.gradio.app/docs/js-client#submit
-                            const submitName = String(comps.api_name ? comps.api_name : tinyIndex);
+                            const submitName = String(comps.api_name ? `/${comps.api_name}` : Number(tinyIndex));
                             console.log(submitName, inputs);
 
-                            const job = app.submit(`/${submitName}`, inputs);
+                            const job = app.submit(submitName, inputs);
 
                             /*
     

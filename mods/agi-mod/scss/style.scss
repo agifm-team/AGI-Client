@@ -294,9 +294,18 @@
     .file .file-preview,
     .timeseries .timeseries-preview,
     .image .image-preview {
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: auto 90%;
       display: grid;
       align-items: center;
       font-size: 16px;
+
+      &.with-image {
+        i {
+          display: none !important;
+        }
+      }
     }
 
     /* Timeseries */

@@ -156,6 +156,23 @@ const datasetComponents = {
 
 };
 
+const fileManagerReader = {
+
+    image: (previewBase, blob) => {
+        const blobUrl = URL.createObjectURL(blob);
+        previewBase.css('background-image', `url('${blobUrl}')`).addClass('with-image');
+    },
+
+    video: null,
+
+    audio: null,
+
+    file: null,
+    model3d: null,
+    timeseries: null,
+
+};
+
 const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept) => {
 
     const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_${type}`, accept: typeof fileAccept === 'string' ? fileAccept : fileInputAccept(props.file_types) })
@@ -164,6 +181,34 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
         .prop('directory', props.file_count === 'directory');
 
     finalResult.data('gradio_input', { type: 'jquery', value: input });
+
+    const fileInput = input.get(0);
+    input.get(0).addEventListener('change', () => {
+
+        const reader = new FileReader();
+        reader.onload = function () {
+
+            const arr = this.result.split(',');
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+
+            const blob = new Blob([u8arr], { type: mime });
+
+            if (previewBase && typeof fileManagerReader[type] === 'function') {
+                fileManagerReader[type](previewBase, blob);
+            }
+
+        };
+
+        reader.readAsDataURL(fileInput.files[0]);
+
+    }, false);
 
     return input;
 

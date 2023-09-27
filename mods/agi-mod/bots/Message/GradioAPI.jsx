@@ -110,11 +110,15 @@ function GradioEmbed({ agiData }) {
 
                                 // Pending
                                 if (data.stage === 'pending') {
-
+                                    $.LoadingOverlay('hide');
+                                    $.LoadingOverlay('show', { text: 'Pending...' });
                                 }
 
                                 // Complete
-                                if (data.stage === 'complete') {
+                                else if (data.stage === 'complete') {
+
+                                    // Loading
+                                    $.LoadingOverlay('hide');
 
                                     // Success?
                                     if (data.success) {
@@ -129,14 +133,21 @@ function GradioEmbed({ agiData }) {
                                 }
 
                                 // Error
-                                if (data.stage === 'error') {
+                                else if (data.stage === 'error') {
+                                    $.LoadingOverlay('hide');
+                                    toast(data.message);
                                     console.error(data.message, data.code);
                                 }
 
                                 // Generating
-                                if (data.stage === 'generating') {
+                                else if (data.stage === 'generating') {
+
+                                    $.LoadingOverlay('hide');
+                                    $.LoadingOverlay('show', { text: 'Generating...' });
+
                                     console.log(data.eta);
                                     console.log(data.progress_data);
+
                                 }
 
                                 // Test

@@ -224,7 +224,6 @@ function GradioEmbed({ agiData }) {
 
                                     // jQuery
                                     if (target.type === 'jquery') {
-                                        console.log('jquery', target.value);
                                         target.value.on('click', tinyAction);
                                     }
 
@@ -234,14 +233,12 @@ function GradioEmbed({ agiData }) {
 
                                             // Mode 1
                                             if (!Array.isArray(target.value[item2])) {
-                                                console.log('array', target.value[item2]);
                                                 target.value[item2].on('click', tinyAction);
                                             }
 
                                             // Mode 2
                                             else {
                                                 for (const item3 in target.value[item2]) {
-                                                    console.log('array2', target.value[item2][item3]);
                                                     target.value[item2][item3].on('click', tinyAction);
                                                 }
                                             }
@@ -275,8 +272,21 @@ function GradioEmbed({ agiData }) {
                                         }
 
                                         // Array
-                                        else {
+                                        else if (Array.isArray(depItem.targets[index]) && depItem.targets[index].length > 0) {
+                                            if (typeof depItem.targets[index][0] === 'number' && typeof depItem.targets[index][1] === 'string' && depItem.targets[index][1] === 'click') {
 
+                                                // Get Id
+                                                const depId = depItem.targets[index][0];
+                                                const target = embedData.getTarget(depId);
+                                                if (target) {
+
+                                                    // Target
+                                                    clickAction(target);
+                                                    console.log('Target', depId, target);
+
+                                                }
+
+                                            }
                                         }
 
                                     }

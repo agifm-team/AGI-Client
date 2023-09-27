@@ -84,13 +84,52 @@ function GradioEmbed({ agiData }) {
 
                             // Sockets
                             job.on('data', (data) => {
-                                console.log(data);
+                                console.log('data', data);
                             });
 
                             job.on('status', (data) => {
 
-                                console.log(data);
-                                // data = { queue: boolean; code?: string; success?: boolean; stage: "pending" | "error" | "complete" | "generating"; size?: number; position?: number; eta?: number; message?: string; progress_data?: Array < { progress: number | null; index: number | null; length: number | null; unit: string | null; desc: string | null; } >; time?: Date; };
+                                // Convert to momentjs
+                                data.time = moment(data.time);
+
+                                // Queue
+                                if (data.queue) {
+
+                                }
+
+                                // Pending
+                                if (data.stage === 'pending') {
+
+                                }
+
+                                // Complete
+                                if (data.stage === 'complete') {
+
+                                    // Success?
+                                    if (data.success) {
+
+                                    }
+
+                                    // Nope
+                                    else {
+
+                                    }
+
+                                }
+
+                                // Error
+                                if (data.stage === 'error') {
+                                    console.error(data.message, data.code);
+                                }
+
+                                // Generating
+                                if (data.stage === 'generating') {
+                                    console.log(data.eta);
+                                    console.log(data.progress_data);
+                                }
+
+                                // Test
+                                console.log('status', data);
 
                             });
 

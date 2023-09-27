@@ -125,11 +125,6 @@ function GradioEmbed({ agiData }) {
 
                                     }
 
-                                    // Nope
-                                    else {
-
-                                    }
-
                                 }
 
                                 // Error

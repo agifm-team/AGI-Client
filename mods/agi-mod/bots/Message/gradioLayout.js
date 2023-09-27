@@ -156,6 +156,19 @@ const datasetComponents = {
 
 };
 
+const fileManagerEditor = (finalResult, id, type, props, fileAccept) => {
+
+    const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_${type}`, accept: typeof fileAccept === 'string' ? fileAccept : fileInputAccept(props.file_types) })
+        .prop('multiple', props.file_count === 'multiple')
+        .prop('webkitdirectory', props.file_count === 'directory')
+        .prop('directory', props.file_count === 'directory');
+
+    finalResult.data('gradio_input', { type: 'jquery', value: input });
+
+    return input;
+
+};
+
 // Components
 // https://www.gradio.app/docs
 const components = {
@@ -206,8 +219,7 @@ const components = {
         if (props.interactive !== false) {
 
             if (props.source === 'upload') {
-                const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_audio`, accept: 'audio/*' });
-                finalResult.data('gradio_input', { type: 'jquery', value: input });
+                const input = fileManagerEditor(finalResult, id, 'audio', props, 'audio/*');
                 finalResult.append(input);
             }
 
@@ -591,13 +603,8 @@ const components = {
 
         if (props.interactive !== false) {
 
-            const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_file`, accept: fileInputAccept(props.file_types) })
-                .prop('multiple', props.file_count === 'multiple')
-                .prop('webkitdirectory', props.file_count === 'directory')
-                .prop('directory', props.file_count === 'directory');
-
+            const input = fileManagerEditor(finalResult, id, 'file', props);
             finalResult.append(input);
-            finalResult.data('gradio_input', { type: 'jquery', value: input });
 
         }
 
@@ -727,9 +734,8 @@ const components = {
         if (props.interactive !== false) {
 
             if (props.source === 'upload') {
-                const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_image`, accept: 'image/*' });
+                const input = fileManagerEditor(finalResult, id, 'image', props, 'image/*');
                 finalResult.append(input);
-                finalResult.data('gradio_input', { type: 'jquery', value: input });
             }
 
         }
@@ -831,9 +837,8 @@ const components = {
         }
 
         if (props.interactive !== false) {
-            const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_model3d`, accept: 'model/*' });
+            const input = fileManagerEditor(finalResult, id, 'model3d', props, 'model/*');
             finalResult.append(input);
-            finalResult.data('gradio_input', { type: 'jquery', value: input });
         }
 
         finalResult.append(model3d);
@@ -1137,7 +1142,7 @@ const components = {
         }
 
         if (props.interactive !== false) {
-            const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_timeseries`, accept: 'text/csv' });
+            const input = fileManagerEditor(finalResult, id, 'timeseries', props, 'text/csv');
             finalResult.append(input);
             finalResult.data('gradio_input', { type: 'jquery', value: input });
         }
@@ -1171,11 +1176,7 @@ const components = {
         };
 
         const sizeSelected = typeof props.size === 'string' && props.size.length > 0 ? props.size : 'normal';
-
-        const fileInput = $('<input>', { class: 'd-none', type: 'file', id: `${id}_uploadbutton`, accept: fileInputAccept(props.file_types) })
-            .prop('multiple', props.file_count === 'multiple')
-            .prop('webkitdirectory', props.file_count === 'directory')
-            .prop('directory', props.file_count === 'directory');
+        const fileInput = fileManagerEditor(finalResult, id, 'uploadbutton', props);
 
         const button = $('<button>', {
             class: `btn btn-${props.variant ? props.variant : 'bg'}${typeof props.size === 'string' && props.size.length > 0 ? ` btn-${props.size}` : ''}`,
@@ -1212,9 +1213,8 @@ const components = {
         if (props.interactive !== false) {
 
             if (props.source === 'upload') {
-                const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_video`, accept: 'video/*' });
+                const input = fileManagerEditor(finalResult, id, 'video', props, 'video/*');
                 finalResult.append(input);
-                finalResult.data('gradio_input', { type: 'jquery', value: input });
             }
 
         }

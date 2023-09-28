@@ -167,7 +167,6 @@ const fileManagerReader = {
 
     video: (previewBase, blob) => {
 
-        console.log(blob);
         const blobUrl = URL.createObjectURL(blob);
         let videoPlace = previewBase.find('video');
 

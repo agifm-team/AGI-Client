@@ -48,12 +48,19 @@ function GradioEmbed({ agiData }) {
 
                             // Output send result
                             if (
+                                objType(output, 'object') &&
+                                objType(output.data, 'object') &&
                                 typeof value !== 'undefined' &&
                                 output.data.type !== 'column'
                             ) {
+
                                 const data = embedData.getComponentValue(output.depId);
-                                data.props.value = value;
-                                embedData.updateHtml(output.depId);
+
+                                if (data) {
+                                    data.props.value = value;
+                                    embedData.updateHtml(output.depId);
+                                }
+
                             }
 
                         };
@@ -110,6 +117,7 @@ function GradioEmbed({ agiData }) {
                             // https://www.gradio.app/docs/js-client#submit
                             const submitName = comps.api_name ? `/${comps.api_name}` : Number(tinyIndex);
 
+                            $.LoadingOverlay('show', { text: 'Starting gradio...' });
                             const job = app.submit(submitName, inputs);
 
                             // Sockets
@@ -121,7 +129,7 @@ function GradioEmbed({ agiData }) {
                                 // Data
                                 if (Array.isArray(data.data) && data.data.length > 0) {
                                     for (const item in data.data) {
-                                        for (const index in data.data) {
+                                        for (const index in data.data[item]) {
 
                                             const tinyData = data.data[item][index];
 

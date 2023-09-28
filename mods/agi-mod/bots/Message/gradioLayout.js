@@ -160,14 +160,10 @@ const datasetComponents = {
 
 const fileManagerReader = {
 
-    image: (previewBase, blob) => {
-        const blobUrl = URL.createObjectURL(blob);
-        previewBase.css('background-image', `url('${blobUrl}')`).addClass('with-image');
-    },
+    image: (previewBase, blobUrl) => previewBase.css('background-image', `url('${blobUrl}')`).addClass('with-image'),
 
-    video: (previewBase, blob) => {
+    video: (previewBase, blobUrl) => {
 
-        const blobUrl = URL.createObjectURL(blob);
         let videoPlace = previewBase.find('video');
 
         if (videoPlace.length < 1) {
@@ -216,7 +212,7 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
 
             blob = new Blob([u8arr], { type: mime });
             if (previewBase && typeof fileManagerReader[type] === 'function') {
-                fileManagerReader[type](previewBase, blob);
+                fileManagerReader[type](previewBase, URL.createObjectURL(blob));
             }
 
         };
@@ -224,6 +220,11 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
         reader.readAsDataURL(fileInput.files[0]);
 
     }, false);
+
+    console.log(props);
+    if (typeof props.value === 'string' && previewBase && typeof fileManagerReader[type] === 'function') {
+        fileManagerReader[type](previewBase, props.value);
+    }
 
     return input;
 

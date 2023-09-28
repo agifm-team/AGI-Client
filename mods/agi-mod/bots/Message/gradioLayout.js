@@ -277,10 +277,10 @@ const components = {
             finalResult.append(labelCreator(null, props, `${id}_audio`));
         }
 
+        const input = fileManagerEditor(audio, finalResult, id, 'audio', props, 'audio/*');
         if (props.interactive !== false) {
 
             if (props.source === 'upload') {
-                const input = fileManagerEditor(audio, finalResult, id, 'audio', props, 'audio/*');
                 finalResult.append(input);
             }
 
@@ -662,11 +662,9 @@ const components = {
             finalResult.append(labelCreator(null, props, `${id}_file`));
         }
 
+        const input = fileManagerEditor(csv, finalResult, id, 'file', props);
         if (props.interactive !== false) {
-
-            const input = fileManagerEditor(csv, finalResult, id, 'file', props);
             finalResult.append(input);
-
         }
 
         finalResult.append(csv);
@@ -792,10 +790,10 @@ const components = {
             finalResult.append(labelCreator(null, props, `${id}_image`));
         }
 
+        const input = fileManagerEditor(img, finalResult, id, 'image', props, 'image/*');
         if (props.interactive !== false) {
 
             if (props.source === 'upload') {
-                const input = fileManagerEditor(img, finalResult, id, 'image', props, 'image/*');
                 finalResult.append(input);
             }
 
@@ -897,8 +895,8 @@ const components = {
             finalResult.append(labelCreator(null, props, `${id}_model3d`));
         }
 
+        const input = fileManagerEditor(model3d, finalResult, id, 'model3d', props, 'model/*');
         if (props.interactive !== false) {
-            const input = fileManagerEditor(model3d, finalResult, id, 'model3d', props, 'model/*');
             finalResult.append(input);
         }
 
@@ -1202,8 +1200,8 @@ const components = {
             finalResult.append(labelCreator(null, props, `${id}_timeseries`));
         }
 
+        const input = fileManagerEditor(csv, finalResult, id, 'timeseries', props, 'text/csv');
         if (props.interactive !== false) {
-            const input = fileManagerEditor(csv, finalResult, id, 'timeseries', props, 'text/csv');
             finalResult.append(input);
             finalResult.data('gradio_input', { type: 'jquery', value: input });
         }
@@ -1271,10 +1269,10 @@ const components = {
             finalResult.append(labelCreator(null, props, `${id}_video`));
         }
 
+        const input = fileManagerEditor(video, finalResult, id, 'video', props, 'video/*');
         if (props.interactive !== false) {
 
             if (props.source === 'upload') {
-                const input = fileManagerEditor(video, finalResult, id, 'video', props, 'video/*');
                 finalResult.append(input);
             }
 

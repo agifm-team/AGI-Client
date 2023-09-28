@@ -34,17 +34,18 @@ function GradioEmbed({ agiData }) {
                     if (embed.find('gladio-embed').length < 1 && objType(app, 'object') && objType(app.config, 'object') && typeof app.config.space_id === 'string' && app.config.space_id.length > 0) {
 
                         // Id
+                        const embedCache = {};
                         const id = app.config.space_id.replace('/', '_');
                         const config = app.config;
 
                         // Read Template
-                        const embedData = new GradioLayout(config, `gradio-embed[space='${id}']`, agiData.url, id);
+                        const embedData = new GradioLayout(config, `gradio-embed[space='${id}']`, agiData.url, id, embedCache);
                         const page = $('<gradio-embed>', { class: 'text-center', space: id });
                         embedData.insertHtml(page);
                         embed.append(page);
 
                         // Send Update
-                        const sendTinyUpdate = (output, value) => {
+                        const sendTinyUpdate = (index, output, value) => {
 
                             // Output send result
                             if (
@@ -54,11 +55,16 @@ function GradioEmbed({ agiData }) {
                                 output.data.type !== 'column'
                             ) {
 
+                                // Get data
                                 const data = embedData.getComponentValue(output.depId);
-
                                 if (value || value === null) {
+
+                                    // Insert new data
                                     data.props.value = value;
-                                    embedData.updateHtml(output.depId);
+
+                                    // Update data and send the dependencie array index
+                                    embedData.updateHtml(output.depId, index);
+
                                 }
 
                             }
@@ -134,6 +140,7 @@ function GradioEmbed({ agiData }) {
                                             const tinyData = data.data[item][index];
 
                                             sendTinyUpdate(
+                                                tinyIndex,
                                                 comps.output[index],
                                                 objType(tinyData, 'object') && typeof tinyData.name === 'string' && tinyData.is_file ? `${fileUrlGenerator(agiData.url)}${tinyData.name}` : null
                                             );
@@ -194,175 +201,180 @@ function GradioEmbed({ agiData }) {
 
                         console.log(id);
 
-                        // Read dependencies
-                        if (Array.isArray(config.dependencies) && config.dependencies.length > 0) {
-                            for (const item in config.dependencies) {
+                        embedCache.genDeps = (item) => {
 
-                                const depItem = config.dependencies[item];
-                                const comps = { output: [], input: [], cancel: [] };
+                            const depItem = config.dependencies[item];
+                            const comps = { output: [], input: [], cancel: [] };
 
-                                // Get Js Values
-                                if (typeof depItem.js === 'string' && depItem.js.length > 0) {
-                                    try {
+                            // Get Js Values
+                            if (typeof depItem.js === 'string' && depItem.js.length > 0) {
+                                try {
 
-                                        if (depItem.js.startsWith(`() => { window.open(\``) && depItem.js.endsWith(`\`, '_blank') }`)) {
-                                            depItem.js = { openUrl: depItem.js.substring(21, depItem.js.length - 14) };
-                                        } else {
-                                            depItem.js = JSON.parse(depItem.js.trim().replace('() => ', ''));
-                                        }
-
-                                    } catch (err) {
-                                        console.error(err, depItem.js);
-                                        depItem.js = null;
+                                    if (depItem.js.startsWith(`() => { window.open(\``) && depItem.js.endsWith(`\`, '_blank') }`)) {
+                                        depItem.js = { openUrl: depItem.js.substring(21, depItem.js.length - 14) };
+                                    } else {
+                                        depItem.js = JSON.parse(depItem.js.trim().replace('() => ', ''));
                                     }
-                                } else {
+
+                                } catch (err) {
+                                    console.error(err, depItem.js);
                                     depItem.js = null;
                                 }
+                            } else {
+                                depItem.js = null;
+                            }
 
-                                // Action Base
-                                const tinyAction = function () {
-
-                                    // Outputs list
-                                    for (const index in comps.output) {
-                                        sendTinyUpdate(
-                                            comps.output[index],
-                                            Array.isArray(depItem.js) && typeof depItem.js[index] !== 'undefined' ? depItem.js[index] : null
-                                        );
-                                    }
-
-                                    // Cancel Parts
-                                    for (const index in comps.cancel) {
-                                        console.log('Cancel Component', comps.cancel[index].depId, comps.cancel[index].data);
-                                    }
-
-                                    if (comps.scroll_to_output) {
-
-                                    }
-
-                                    if (comps.show_progress !== 'hidden') {
-
-                                    }
-
-                                    if (comps.trigger_only_on_success) {
-
-                                    }
-
-                                    if (comps.trigger_after) {
-
-                                    }
-
-                                    if (comps.collects_event_data) {
-
-                                    }
-
-                                    // Inputs list
-                                    if (comps.backend_fn) tinySubmit(comps, item);
-
-                                };
-
-
-                                // Inputs list
-                                if (Array.isArray(depItem.inputs) && depItem.inputs.length > 0) {
-                                    for (const index in depItem.inputs) {
-                                        const depId = depItem.inputs[index];
-                                        comps.input.push({ depId, data: embedData.getInput(depId) });
-                                    }
-                                }
-
+                            // Action Base
+                            const tinyAction = function () {
 
                                 // Outputs list
-                                if (Array.isArray(depItem.outputs) && depItem.outputs.length > 0) {
-                                    for (const index in depItem.outputs) {
-                                        const depId = depItem.outputs[index];
-                                        comps.output.push({ depId, data: embedData.getComponent(depId) });
-                                    }
+                                for (const index in comps.output) {
+                                    sendTinyUpdate(
+                                        item,
+                                        comps.output[index],
+                                        Array.isArray(depItem.js) && typeof depItem.js[index] !== 'undefined' ? depItem.js[index] : null
+                                    );
                                 }
 
                                 // Cancel Parts
-                                if (Array.isArray(depItem.cancels) && depItem.cancels.length > 0) {
-                                    for (const index in depItem.cancels) {
-                                        const depId = depItem.cancels[index];
-                                        comps.cancel.push({ depId, data: embedData.getComponent(depId) });
+                                for (const index in comps.cancel) {
+                                    console.log('Cancel Component', comps.cancel[index].depId, comps.cancel[index].data);
+                                }
+
+                                if (comps.scroll_to_output) {
+
+                                }
+
+                                if (comps.show_progress !== 'hidden') {
+
+                                }
+
+                                if (comps.trigger_only_on_success) {
+
+                                }
+
+                                if (comps.trigger_after) {
+
+                                }
+
+                                if (comps.collects_event_data) {
+
+                                }
+
+                                // Inputs list
+                                if (comps.backend_fn) tinySubmit(comps, item);
+
+                            };
+
+
+                            // Inputs list
+                            if (Array.isArray(depItem.inputs) && depItem.inputs.length > 0) {
+                                for (const index in depItem.inputs) {
+                                    const depId = depItem.inputs[index];
+                                    comps.input.push({ depId, data: embedData.getInput(depId) });
+                                }
+                            }
+
+
+                            // Outputs list
+                            if (Array.isArray(depItem.outputs) && depItem.outputs.length > 0) {
+                                for (const index in depItem.outputs) {
+                                    const depId = depItem.outputs[index];
+                                    comps.output.push({ depId, data: embedData.getComponent(depId) });
+                                }
+                            }
+
+                            // Cancel Parts
+                            if (Array.isArray(depItem.cancels) && depItem.cancels.length > 0) {
+                                for (const index in depItem.cancels) {
+                                    const depId = depItem.cancels[index];
+                                    comps.cancel.push({ depId, data: embedData.getComponent(depId) });
+                                }
+                            }
+
+                            comps.show_progress = depItem.show_progress;
+                            comps.trigger_only_on_success = depItem.trigger_only_on_success;
+                            comps.trigger_after = depItem.trigger_after;
+                            comps.collects_event_data = depItem.collects_event_data;
+                            comps.backend_fn = depItem.backend_fn;
+
+                            const clickAction = (target) => {
+
+                                // jQuery
+                                if (target.type === 'jquery') {
+                                    target.value.on('click', tinyAction);
+                                }
+
+                                // Array
+                                else if (target.type === 'array') {
+                                    for (const item2 in target.value) {
+
+                                        // Mode 1
+                                        if (!Array.isArray(target.value[item2])) {
+                                            target.value[item2].on('click', tinyAction);
+                                        }
+
+                                        // Mode 2
+                                        else {
+                                            for (const item3 in target.value[item2]) {
+                                                target.value[item2][item3].on('click', tinyAction);
+                                            }
+                                        }
+
                                     }
                                 }
 
-                                comps.show_progress = depItem.show_progress;
-                                comps.trigger_only_on_success = depItem.trigger_only_on_success;
-                                comps.trigger_after = depItem.trigger_after;
-                                comps.collects_event_data = depItem.collects_event_data;
-                                comps.backend_fn = depItem.backend_fn;
+                            };
 
-                                const clickAction = (target) => {
+                            // Trigger
+                            const trigger = config.dependencies[item].trigger;
 
-                                    // jQuery
-                                    if (target.type === 'jquery') {
-                                        target.value.on('click', tinyAction);
+                            // Target to execute the action
+                            if (Array.isArray(depItem.targets) && depItem.targets.length > 0) {
+                                for (const index in depItem.targets) {
+
+                                    // String
+                                    if (typeof trigger === 'string') {
+
+                                        // Get Id
+                                        const depId = depItem.targets[index];
+                                        const target = embedData.getTarget(depId);
+                                        if (target) {
+
+                                            // Target
+                                            clickAction(target);
+
+                                        }
+
                                     }
 
                                     // Array
-                                    else if (target.type === 'array') {
-                                        for (const item2 in target.value) {
-
-                                            // Mode 1
-                                            if (!Array.isArray(target.value[item2])) {
-                                                target.value[item2].on('click', tinyAction);
-                                            }
-
-                                            // Mode 2
-                                            else {
-                                                for (const item3 in target.value[item2]) {
-                                                    target.value[item2][item3].on('click', tinyAction);
-                                                }
-                                            }
-
-                                        }
-                                    }
-
-                                };
-
-                                // Trigger
-                                const trigger = config.dependencies[item].trigger;
-
-                                // Target to execute the action
-                                if (Array.isArray(depItem.targets) && depItem.targets.length > 0) {
-                                    for (const index in depItem.targets) {
-
-                                        // String
-                                        if (typeof trigger === 'string') {
+                                    else if (Array.isArray(depItem.targets[index]) && depItem.targets[index].length > 0) {
+                                        if (typeof depItem.targets[index][0] === 'number' && typeof depItem.targets[index][1] === 'string' && depItem.targets[index][1] === 'click') {
 
                                             // Get Id
-                                            const depId = depItem.targets[index];
+                                            const depId = depItem.targets[index][0];
                                             const target = embedData.getTarget(depId);
                                             if (target) {
 
                                                 // Target
                                                 clickAction(target);
+                                                console.log('Target', depId, target);
 
                                             }
 
                                         }
-
-                                        // Array
-                                        else if (Array.isArray(depItem.targets[index]) && depItem.targets[index].length > 0) {
-                                            if (typeof depItem.targets[index][0] === 'number' && typeof depItem.targets[index][1] === 'string' && depItem.targets[index][1] === 'click') {
-
-                                                // Get Id
-                                                const depId = depItem.targets[index][0];
-                                                const target = embedData.getTarget(depId);
-                                                if (target) {
-
-                                                    // Target
-                                                    clickAction(target);
-                                                    console.log('Target', depId, target);
-
-                                                }
-
-                                            }
-                                        }
-
                                     }
-                                }
 
+                                }
+                            }
+
+                        };
+
+                        // Read dependencies
+                        if (Array.isArray(config.dependencies) && config.dependencies.length > 0) {
+                            for (const item in config.dependencies) {
+                                embedCache.genDeps(item);
                             }
                         }
 

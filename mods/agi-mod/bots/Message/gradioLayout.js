@@ -1501,7 +1501,7 @@ const childrenLoader = (items, config, url, appId) => {
 class GradioLayout {
 
     // Constructor
-    constructor(config, cssBase, url = '', appId = '') {
+    constructor(config, cssBase, url = '', appId = '', embedCache = {}) {
         if (
             objType(config, 'object') && objType(config.layout, 'object') &&
             Array.isArray(config.layout.children) && config.layout.children.length > 0 &&
@@ -1521,6 +1521,7 @@ class GradioLayout {
             }
 
             // Complete
+            this.cache = objType(embedCache, 'object') ? embedCache : {};
             this.html = page;
 
         }
@@ -1564,9 +1565,10 @@ class GradioLayout {
     }
 
     // Update Html
-    updateHtml(id) {
+    updateHtml(id, index) {
         const updateGradio = this.getComponent(id).value.data('gradio_update');
         if (typeof updateGradio === 'function') updateGradio();
+        if (objType(this.cache, 'object') && typeof this.cache.genDeps === 'function') this.cache.genDeps(index);
     }
 
 };

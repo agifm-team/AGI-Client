@@ -140,6 +140,8 @@ const fileUrlGenerator = (url) => {
 
 }
 
+export { fileUrlGenerator };
+
 // Dataset Components
 const datasetComponents = {
 
@@ -165,6 +167,7 @@ const fileManagerReader = {
 
     video: (previewBase, blob) => {
 
+        console.log(blob);
         const blobUrl = URL.createObjectURL(blob);
         let videoPlace = previewBase.find('video');
 
@@ -174,7 +177,7 @@ const fileManagerReader = {
         }
 
         previewBase.addClass('with-video');
-        videoPlace.attr('src', blobUrl);
+        videoPlace.attr('src', blobUrl).attr('controls', true);
 
     },
 
@@ -193,7 +196,8 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
         .prop('webkitdirectory', props.file_count === 'directory')
         .prop('directory', props.file_count === 'directory');
 
-    finalResult.data('gradio_input', { type: 'jquery', value: input });
+    let blob;
+    finalResult.data('gradio_input', { type: 'blob', value: () => blob });
 
     const fileInput = input.get(0);
     input.get(0).addEventListener('change', () => {
@@ -211,8 +215,7 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
                 u8arr[n] = bstr.charCodeAt(n);
             }
 
-            const blob = new Blob([u8arr], { type: mime });
-
+            blob = new Blob([u8arr], { type: mime });
             if (previewBase && typeof fileManagerReader[type] === 'function') {
                 fileManagerReader[type](previewBase, blob);
             }

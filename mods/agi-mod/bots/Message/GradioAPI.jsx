@@ -56,7 +56,7 @@ function GradioEmbed({ agiData }) {
 
                                 const data = embedData.getComponentValue(output.depId);
 
-                                if (value) {
+                                if (value || value === null) {
                                     data.props.value = value;
                                     embedData.updateHtml(output.depId);
                                 }
@@ -337,7 +337,6 @@ function GradioEmbed({ agiData }) {
 
                                                 // Target
                                                 clickAction(target);
-                                                console.log('Target', depId, target);
 
                                             }
 

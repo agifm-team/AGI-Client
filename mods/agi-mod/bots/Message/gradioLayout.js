@@ -163,7 +163,20 @@ const fileManagerReader = {
         previewBase.css('background-image', `url('${blobUrl}')`).addClass('with-image');
     },
 
-    video: null,
+    video: (previewBase, blob) => {
+
+        const blobUrl = URL.createObjectURL(blob);
+        let videoPlace = previewBase.find('video');
+
+        if (videoPlace.length < 1) {
+            videoPlace = $('<video>', { class: 'img-fluid' });
+            previewBase.append(videoPlace);
+        }
+
+        previewBase.addClass('with-video');
+        videoPlace.attr('src', blobUrl);
+
+    },
 
     audio: null,
 

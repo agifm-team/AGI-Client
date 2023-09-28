@@ -290,7 +290,7 @@ function GradioEmbed({ agiData }) {
                                 };
 
                                 // Trigger
-                                let trigger = config.dependencies[item].trigger;
+                                const trigger = config.dependencies[item].trigger;
 
                                 // Target to execute the action
                                 if (Array.isArray(depItem.targets) && depItem.targets.length > 0) {

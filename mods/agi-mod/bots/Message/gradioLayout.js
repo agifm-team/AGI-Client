@@ -1449,10 +1449,20 @@ const childrenLoader = (items, config, url, appId) => {
 
                         // Get Component
                         const tinyHtml = components[component.type](component.props, component.id, appId, url);
-                        tinyHtml.data('gradio_update', () => {
-                            const values = tinyHtml.data('gradio_values');
-                            tinyHtml.replaceWith(components[component.type](values.props, values.id, values.appId, values.url));
-                        });
+                        const addUpdateData = (theHtml) => {
+                            theHtml.data('gradio_update', () => {
+
+                                const values = theHtml.data('gradio_values');
+                                const newHtml = components[component.type](values.props, values.id, values.appId, values.url);
+
+                                theHtml.replaceWith(newHtml);
+                                addUpdateData(newHtml);
+
+                            });
+                        };
+
+                        // Add data updater
+                        addUpdateData(tinyHtml);
 
                         // Fix Accordion
                         if (component.type === 'accordion') {

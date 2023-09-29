@@ -189,7 +189,41 @@ const fileManagerReader = {
 
     },
 
-    audio: null,
+    audio: (previewBase, blobUrl) => {
+
+        if (typeof blobUrl === 'string') {
+
+            let audioPlace = previewBase.find('audio');
+            let source;
+
+            if (audioPlace.length < 1) {
+
+                audioPlace = $('<audio>');
+                source = $('<source>');
+
+                audioPlace.append(source);
+                previewBase.append(audioPlace);
+
+            } else {
+                source = audioPlace.find('source');
+            }
+
+            previewBase.addClass('with-audio');
+            audioPlace.attr('controls', true);
+            source.attr('src', blobUrl);
+
+        } else {
+
+            const audioPlace = previewBase.find('audio');
+            if (audioPlace.length > 0) {
+                audioPlace.remove();
+            }
+
+            previewBase.removeClass('with-audio');
+
+        }
+
+    },
 
     file: null,
     model3d: null,

@@ -302,7 +302,8 @@
       font-size: 16px;
 
       &.with-image,
-      &.with-video {
+      &.with-video,
+      &.with-audio {
         i {
           display: none !important;
         }

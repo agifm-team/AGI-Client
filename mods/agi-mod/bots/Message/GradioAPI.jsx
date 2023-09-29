@@ -48,6 +48,7 @@ function GradioEmbed({ agiData }) {
                         const sendTinyUpdate = (index, output, value) => {
 
                             // Output send result
+                            console.log('Tiny Update', index, output, value);
                             if (
                                 objType(output, 'object') &&
                                 objType(output.data, 'object') &&
@@ -338,10 +339,13 @@ function GradioEmbed({ agiData }) {
                                         // Get Id
                                         const depId = depItem.targets[index];
                                         const target = embedData.getTarget(depId);
+                                        console.log('Target', trigger, depId, target);
                                         if (target) {
 
-                                            // Target
-                                            clickAction(target);
+                                            // Click
+                                            if (trigger === 'click') {
+                                                clickAction(target);
+                                            }
 
                                         }
 
@@ -349,16 +353,18 @@ function GradioEmbed({ agiData }) {
 
                                     // Array
                                     else if (Array.isArray(depItem.targets[index]) && depItem.targets[index].length > 0) {
-                                        if (typeof depItem.targets[index][0] === 'number' && typeof depItem.targets[index][1] === 'string' && depItem.targets[index][1] === 'click') {
+                                        if (typeof depItem.targets[index][0] === 'number' && typeof depItem.targets[index][1] === 'string') {
 
                                             // Get Id
                                             const depId = depItem.targets[index][0];
                                             const target = embedData.getTarget(depId);
+                                            console.log('Target', depItem.targets[index][1], depId, target);
                                             if (target) {
 
-                                                // Target
-                                                clickAction(target);
-                                                console.log('Target', depId, target);
+                                                // Click
+                                                if (depItem.targets[index][1] === 'click') {
+                                                    clickAction(target);
+                                                }
 
                                             }
 
@@ -396,7 +402,7 @@ function GradioEmbed({ agiData }) {
 
     // Temp result. (I'm using this only to have a preview. This will be removed later.)
     // <iframe title='gradio' src={agiData.url} />
-    return <div ref={embedRef} className='mt-2 agi-client-embed border border-bg p-4' />;
+    return <div ref={embedRef} className='mt-2 agi-client-embed border border-bg p-4'> <iframe title='gradio' src={agiData.url} /></div>;
 
 };
 

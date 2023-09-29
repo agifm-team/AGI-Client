@@ -126,14 +126,12 @@ function GradioEmbed({ agiData }) {
                             // https://www.gradio.app/docs/js-client#submit
                             const submitName = comps.api_name ? `/${comps.api_name}` : Number(tinyIndex);
 
+                            let status = 'starting';
                             $.LoadingOverlay('show', { text: 'Starting gradio...' });
                             const job = app.submit(submitName, inputs);
 
                             // Sockets
                             job.on('data', (data) => {
-
-                                // Loading
-                                $.LoadingOverlay('hide');
 
                                 // Convert to momentjs
                                 data.time = moment(data.time);
@@ -144,11 +142,12 @@ function GradioEmbed({ agiData }) {
                                         for (const index in data.data[item]) {
 
                                             const tinyData = data.data[item][index];
+                                            const value = objType(tinyData, 'object') && typeof tinyData.name === 'string' && tinyData.is_file ? `${fileUrlGenerator(agiData.url)}${tinyData.name}` : null;
 
                                             sendTinyUpdate(
                                                 tinyIndex,
                                                 comps.output[index],
-                                                objType(tinyData, 'object') && typeof tinyData.name === 'string' && tinyData.is_file ? `${fileUrlGenerator(agiData.url)}${tinyData.name}` : null
+                                                value
                                             );
 
                                         }
@@ -168,15 +167,18 @@ function GradioEmbed({ agiData }) {
                                 }
 
                                 // Pending
-                                if (data.stage === 'pending') {
+                                if (data.stage === 'pending' && status !== 'pending') {
+                                    status = 'pending';
                                     $.LoadingOverlay('hide');
                                     $.LoadingOverlay('show', { text: 'Pending...' });
                                 }
 
                                 // Complete
-                                else if (data.stage === 'complete') {
+                                else if (data.stage === 'complete' && status !== 'complete') {
 
                                     // Success?
+                                    status = 'complete';
+                                    $.LoadingOverlay('hide');
                                     if (data.success) {
 
                                     }
@@ -184,18 +186,18 @@ function GradioEmbed({ agiData }) {
                                 }
 
                                 // Error
-                                else if (data.stage === 'error') {
+                                else if (data.stage === 'error' && status !== 'error') {
+                                    status = 'error';
                                     $.LoadingOverlay('hide');
                                     toast(data.message);
                                     console.error(data.message, data.code);
                                 }
 
                                 // Generating
-                                else if (data.stage === 'generating') {
-
+                                else if (data.stage === 'generating' && status !== 'generating') {
+                                    status = 'generating';
                                     $.LoadingOverlay('hide');
                                     $.LoadingOverlay('show', { text: 'Generating...' });
-
                                 }
 
                             });

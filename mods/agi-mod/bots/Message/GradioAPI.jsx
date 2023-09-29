@@ -52,19 +52,24 @@ function GradioEmbed({ agiData }) {
                                 objType(output, 'object') &&
                                 objType(output.data, 'object') &&
                                 typeof value !== 'undefined' &&
-                                output.data.type !== 'column'
+                                (value || value === null)
                             ) {
 
-                                // Get data
                                 const data = embedData.getComponentValue(output.depId);
-                                if (value || value === null) {
 
-                                    // Insert new data
+                                if (output.data.type !== 'column' && !objType(value, 'object')) {
                                     data.props.value = value;
+                                } else if (objType(value, 'object')) {
+                                    for (const item in value) {
+                                        if (!item.startsWith('_')) {
+                                            data.props[item] = value[item];
+                                        }
+                                    }
+                                }
 
-                                    // Update data and send the dependencie array index
+                                // Update data and send the dependencie array index
+                                if (output.data.type !== 'column') {
                                     embedData.updateHtml(output.depId, index);
-
                                 }
 
                             }

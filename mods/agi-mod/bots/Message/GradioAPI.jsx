@@ -126,7 +126,6 @@ function GradioEmbed({ agiData }) {
                             // https://www.gradio.app/docs/js-client#submit
                             const submitName = comps.api_name ? `/${comps.api_name}` : Number(tinyIndex);
 
-                            let status = 'starting';
                             $.LoadingOverlay('show', { text: 'Starting gradio...' });
                             const job = app.submit(submitName, inputs);
 
@@ -168,16 +167,14 @@ function GradioEmbed({ agiData }) {
                                 }
 
                                 // Pending
-                                if (data.stage === 'pending' && status !== 'pending') {
-                                    status = 'pending';
+                                if (data.stage === 'pending') {
                                     loadPage.text('Pending...');
                                 }
 
                                 // Complete
-                                else if (data.stage === 'complete' && status !== 'complete') {
+                                else if (data.stage === 'complete') {
 
                                     // Success?
-                                    status = 'complete';
                                     $.LoadingOverlay('hide');
                                     if (data.success) {
 
@@ -186,16 +183,14 @@ function GradioEmbed({ agiData }) {
                                 }
 
                                 // Error
-                                else if (data.stage === 'error' && status !== 'error') {
-                                    status = 'error';
+                                else if (data.stage === 'error') {
                                     $.LoadingOverlay('hide');
                                     toast(data.message);
                                     console.error(data.message, data.code);
                                 }
 
                                 // Generating
-                                else if (data.stage === 'generating' && status !== 'generating') {
-                                    status = 'generating';
+                                else if (data.stage === 'generating') {
                                     loadPage.text('Generating...');
                                 }
 

@@ -346,10 +346,6 @@
       .video-preview {
         height: 250px;
 
-        &.with-video {
-          background-color: #000;
-        }
-
         video {
           max-height: 240px;
           margin: auto;

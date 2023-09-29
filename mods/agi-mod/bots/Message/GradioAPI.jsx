@@ -119,7 +119,7 @@ function GradioEmbed({ agiData }) {
 
                                 // Others
                                 else {
-                                    console.log('Input Component', comps.input[index].depId, comps.input[index].data);
+                                    // console.log('Input Component', comps.input[index].depId, comps.input[index].data);
                                 }
 
                             }
@@ -199,8 +199,6 @@ function GradioEmbed({ agiData }) {
 
                         };
 
-                        console.log(id);
-
                         embedCache.genDeps = (item) => {
 
                             const depItem = config.dependencies[item];
@@ -238,7 +236,7 @@ function GradioEmbed({ agiData }) {
 
                                 // Cancel Parts
                                 for (const index in comps.cancel) {
-                                    console.log('Cancel Component', comps.cancel[index].depId, comps.cancel[index].data);
+                                    // console.log('Cancel Component', comps.cancel[index].depId, comps.cancel[index].data);
                                 }
 
                                 if (comps.scroll_to_output) {
@@ -298,32 +296,34 @@ function GradioEmbed({ agiData }) {
                             comps.collects_event_data = depItem.collects_event_data;
                             comps.backend_fn = depItem.backend_fn;
 
-                            const clickAction = (target) => {
+                            const clickAction = (target, type, triggerAfter) => {
+                                if (!triggerAfter) {
 
-                                // jQuery
-                                if (target.type === 'jquery') {
-                                    target.value.on('click', tinyAction);
-                                }
-
-                                // Array
-                                else if (target.type === 'array') {
-                                    for (const item2 in target.value) {
-
-                                        // Mode 1
-                                        if (!Array.isArray(target.value[item2])) {
-                                            target.value[item2].on('click', tinyAction);
-                                        }
-
-                                        // Mode 2
-                                        else {
-                                            for (const item3 in target.value[item2]) {
-                                                target.value[item2][item3].on('click', tinyAction);
-                                            }
-                                        }
-
+                                    // jQuery
+                                    if (target.type === 'jquery') {
+                                        target.value.on(type, tinyAction);
                                     }
-                                }
 
+                                    // Array
+                                    else if (target.type === 'array') {
+                                        for (const item2 in target.value) {
+
+                                            // Mode 1
+                                            if (!Array.isArray(target.value[item2])) {
+                                                target.value[item2].on(type, tinyAction);
+                                            }
+
+                                            // Mode 2
+                                            else {
+                                                for (const item3 in target.value[item2]) {
+                                                    target.value[item2][item3].on(type, tinyAction);
+                                                }
+                                            }
+
+                                        }
+                                    }
+
+                                }
                             };
 
                             // Trigger
@@ -339,12 +339,22 @@ function GradioEmbed({ agiData }) {
                                         // Get Id
                                         const depId = depItem.targets[index];
                                         const target = embedData.getTarget(depId);
-                                        console.log('Target', trigger, depId, target);
+                                        // console.log('Target', trigger, depId, target);
                                         if (target) {
 
                                             // Click
                                             if (trigger === 'click') {
-                                                clickAction(target);
+                                                clickAction(target, 'click');
+                                            }
+
+                                            // Change
+                                            else if (trigger === 'change') {
+                                                clickAction(target, 'change');
+                                            }
+
+                                            // Then
+                                            else if (trigger === 'then') {
+                                                clickAction(target, 'then', config.dependencies[item].trigger_after);
                                             }
 
                                         }
@@ -358,12 +368,22 @@ function GradioEmbed({ agiData }) {
                                             // Get Id
                                             const depId = depItem.targets[index][0];
                                             const target = embedData.getTarget(depId);
-                                            console.log('Target', depItem.targets[index][1], depId, target);
+                                            // console.log('Target', depItem.targets[index][1], depId, target);
                                             if (target) {
 
                                                 // Click
                                                 if (depItem.targets[index][1] === 'click') {
-                                                    clickAction(target);
+                                                    clickAction(target, 'click');
+                                                }
+
+                                                // Change
+                                                else if (depItem.targets[index][1] === 'change') {
+                                                    clickAction(target, 'change');
+                                                }
+
+                                                // Then
+                                                else if (depItem.targets[index][1] === 'then') {
+                                                    clickAction(target, 'then', config.dependencies[item].trigger_after);
                                                 }
 
                                             }

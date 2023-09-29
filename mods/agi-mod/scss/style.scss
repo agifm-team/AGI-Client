@@ -335,6 +335,9 @@
     .audio {
       .audio-preview {
         height: 130px;
+        audio {
+          margin: auto;
+        }
       }
     }
 

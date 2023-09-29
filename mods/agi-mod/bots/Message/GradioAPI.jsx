@@ -84,6 +84,8 @@ function GradioEmbed({ agiData }) {
                             // Read data
                             for (const index in comps.input) {
 
+                                console.log('Submit test item', comps.input[index]);
+
                                 // jQuery
                                 if (comps.input[index].data.type === 'jquery') {
                                     try {

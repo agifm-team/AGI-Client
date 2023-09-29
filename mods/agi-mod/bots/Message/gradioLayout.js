@@ -164,15 +164,28 @@ const fileManagerReader = {
 
     video: (previewBase, blobUrl) => {
 
-        let videoPlace = previewBase.find('video');
+        if (typeof blobUrl === 'string') {
 
-        if (videoPlace.length < 1) {
-            videoPlace = $('<video>', { class: 'img-fluid' });
-            previewBase.append(videoPlace);
+            let videoPlace = previewBase.find('video');
+
+            if (videoPlace.length < 1) {
+                videoPlace = $('<video>', { class: 'img-fluid' });
+                previewBase.append(videoPlace);
+            }
+
+            previewBase.addClass('with-video');
+            videoPlace.attr('src', blobUrl).attr('controls', true);
+
+        } else {
+
+            const videoPlace = previewBase.find('video');
+            if (videoPlace.length > 0) {
+                videoPlace.remove();
+            }
+
+            previewBase.removeClass('with-video');
+
         }
-
-        previewBase.addClass('with-video');
-        videoPlace.attr('src', blobUrl).attr('controls', true);
 
     },
 
@@ -192,7 +205,21 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
         .prop('directory', props.file_count === 'directory');
 
     let blob;
-    finalResult.data('gradio_input', { type: 'blob', value: () => blob });
+    finalResult.data('gradio_input', {
+        type: 'blob', value: (value) => {
+
+            if (typeof value === 'undefined') {
+                return blob;
+            }
+
+            input.val('');
+
+            if (previewBase && typeof fileManagerReader[type] === 'function') {
+                fileManagerReader[type](previewBase, value);
+            }
+
+        }
+    });
 
     const fileInput = input.get(0);
     input.get(0).addEventListener('change', () => {
@@ -221,7 +248,6 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
 
     }, false);
 
-    console.log(props);
     if (typeof props.value === 'string' && previewBase && typeof fileManagerReader[type] === 'function') {
         fileManagerReader[type](previewBase, props.value);
     }

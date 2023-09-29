@@ -56,20 +56,18 @@ function GradioEmbed({ agiData }) {
                             ) {
 
                                 const data = embedData.getComponentValue(output.depId);
+                                const input = embedData.getInput(output.depId);
+                                if (objType(input, 'object')) {
 
-                                if (output.data.type !== 'column' && !objType(value, 'object')) {
                                     data.props.value = value;
-                                } else if (objType(value, 'object')) {
-                                    for (const item in value) {
-                                        if (!item.startsWith('_')) {
-                                            data.props[item] = value[item];
-                                        }
+                                    if (input.type === 'jquery') {
+                                        input.value.val(value);
                                     }
-                                }
 
-                                // Update data and send the dependencie array index
-                                if (output.data.type !== 'column') {
-                                    embedData.updateHtml(output.depId, index);
+                                    if (input.type === 'blob') {
+                                        input.value(value);
+                                    }
+
                                 }
 
                             }
@@ -134,6 +132,9 @@ function GradioEmbed({ agiData }) {
                             // Sockets
                             job.on('data', (data) => {
 
+                                // Loading
+                                $.LoadingOverlay('hide');
+
                                 // Convert to momentjs
                                 data.time = moment(data.time);
 
@@ -174,9 +175,6 @@ function GradioEmbed({ agiData }) {
 
                                 // Complete
                                 else if (data.stage === 'complete') {
-
-                                    // Loading
-                                    $.LoadingOverlay('hide');
 
                                     // Success?
                                     if (data.success) {

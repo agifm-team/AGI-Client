@@ -684,6 +684,8 @@ const components = {
 
         if (Array.isArray(props.choices) && props.choices.length > 0) {
 
+            const customValue = 'custom_CUSTOM_VALUE_2d32d23dwafw32';
+
             for (const item in props.choices) {
                 if (typeof props.choices[item] === 'string') {
                     dropdown.append($('<option>', { value: props.choices[item] }).text(props.choices[item]));
@@ -691,13 +693,26 @@ const components = {
             }
 
             if (props.allow_custom_value) {
-                dropdown.append($('<option>', { value: 'custom' }).text('Custom'));
+                dropdown.append($('<option>', { value: customValue }).text('Custom'));
             }
 
             dropdown.val(props.value);
 
-            const input = $('<input>', { class: `form-control form-control-bg${!props.allow_custom_value ? ' d-none' : ''}`, type: 'text', value: props.value }).prop('readonly', (props.choices.indexOf(props.value) > -1));
+            const input = $('<input>', { class: `form-control form-control-bg${!props.allow_custom_value ? ' d-none' : ''}`, type: 'text', value: props.value });
             dropdown.append(input);
+
+            dropdown.change(() => {
+
+                const value = dropdown.val();
+                if (value !== customValue) {
+                    input.val(value);
+                    input.prop('readonly', true);
+                } else {
+                    input.prop('readonly', false);
+                }
+
+            });
+
             finalResult.data('gradio_input', { type: 'jquery', value: input });
             finalResult.data('gradio_dropdown', { type: 'jquery', value: dropdown });
 

@@ -250,6 +250,7 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
 
             if (previewBase && typeof fileManagerReader[type] === 'function') {
                 fileManagerReader[type](previewBase, value);
+                blob = value;
             }
 
             return null;

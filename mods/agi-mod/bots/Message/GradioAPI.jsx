@@ -53,7 +53,6 @@ function GradioEmbed({ agiData }) {
                         const sendTinyUpdate = (index, output, value, dataset) => {
 
                             // Output send result
-                            console.log('Tiny Dataset', dataset);
                             console.log('Tiny Update', index, output, value);
                             if (
                                 objType(output, 'object') &&
@@ -77,6 +76,16 @@ function GradioEmbed({ agiData }) {
 
                                 }
 
+                            }
+
+                            // Dataset
+                            if (dataset && Array.isArray(dataset.props.samples)) {
+                                const sample = dataset.props.samples[dataset.index];
+                                if (sample) {
+
+                                    console.log('Tiny Dataset', sample, dataset.props.components);
+
+                                }
                             }
 
                         };

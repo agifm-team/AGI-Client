@@ -149,18 +149,26 @@ function GradioEmbed({ agiData }) {
                                 // Data
                                 if (Array.isArray(data.data) && data.data.length > 0) {
                                     for (const item in data.data) {
-                                        for (const index in data.data[item]) {
 
-                                            const tinyData = data.data[item][index];
-                                            const value = objType(tinyData, 'object') && typeof tinyData.name === 'string' && tinyData.is_file ? `${fileUrlGenerator(agiData.url)}${tinyData.name}` : null;
+                                        const finalResultSend = (tinyData, index) => {
+
+                                            const value = objType(tinyData, 'object') && typeof tinyData.name === 'string' && tinyData.is_file ? `${fileUrlGenerator(agiData.url)}${tinyData.name}` : typeof tinyData === 'string' ? tinyData : null;
 
                                             sendTinyUpdate(
                                                 tinyIndex,
                                                 comps.output[index],
                                                 value
                                             );
+                                        };
 
+                                        if (Array.isArray(data.data[item]) && data.data[item].length > 0) {
+                                            for (const index in data.data[item]) {
+                                                finalResultSend(data.data[item][index], index);
+                                            }
+                                        } else {
+                                            finalResultSend(data.data[item], item);
                                         }
+
                                     }
                                 }
 

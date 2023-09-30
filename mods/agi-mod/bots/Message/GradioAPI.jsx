@@ -50,9 +50,10 @@ function GradioEmbed({ agiData }) {
                         embed.append(page);
 
                         // Send Update
-                        const sendTinyUpdate = (index, output, value) => {
+                        const sendTinyUpdate = (index, output, value, dataset) => {
 
                             // Output send result
+                            console.log('Tiny Dataset', dataset);
                             console.log('Tiny Update', index, output, value);
                             if (
                                 objType(output, 'object') &&
@@ -157,7 +158,8 @@ function GradioEmbed({ agiData }) {
                                             sendTinyUpdate(
                                                 tinyIndex,
                                                 comps.output[index],
-                                                value
+                                                value,
+                                                null
                                             );
                                         };
 
@@ -245,12 +247,16 @@ function GradioEmbed({ agiData }) {
 
                                 // Outputs list
                                 const dataset = config.components.find(comp => comp.id === depId);
-                                console.log(item, depItem, dataset, dataId);
                                 for (const index in comps.output) {
                                     sendTinyUpdate(
                                         item,
                                         comps.output[index],
-                                        Array.isArray(depItem.js) && typeof depItem.js[index] !== 'undefined' ? depItem.js[index] : null
+                                        Array.isArray(depItem.js) && typeof depItem.js[index] !== 'undefined' ? depItem.js[index] : null,
+                                        objType(dataset, 'object') && objType(dataset.props, 'object') ? {
+                                            props: dataset.props,
+                                            index: Array.isArray(dataset.props.headers) && dataset.props.headers.length > 1 ? dataId - 1 : dataId
+                                        } : null,
+
                                     );
                                 }
 

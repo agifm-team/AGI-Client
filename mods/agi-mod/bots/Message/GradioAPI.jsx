@@ -241,11 +241,11 @@ function GradioEmbed({ agiData }) {
                             }
 
                             // Action Base
-                            const tinyAction = function (depId) {
+                            const tinyAction = function (depId, dataId) {
 
                                 // Outputs list
                                 const dataset = config.components.find(comp => comp.id === depId);
-                                console.log(item, depItem, dataset);
+                                console.log(item, depItem, dataset, dataId);
                                 for (const index in comps.output) {
                                     sendTinyUpdate(
                                         item,
@@ -319,29 +319,35 @@ function GradioEmbed({ agiData }) {
                             const clickAction = (target, type, depId, triggerAfter) => {
                                 if (!triggerAfter) {
 
-                                    // jQuery
-                                    if (target.type === 'jquery') {
-                                        target.value.on(type, () => tinyAction(depId));
-                                    }
+                                    const executeArray = (value, targetType, targetId) => {
 
-                                    // Array
-                                    else if (target.type === 'array') {
-                                        for (const item2 in target.value) {
-
-                                            // Mode 1
-                                            if (!Array.isArray(target.value[item2])) {
-                                                target.value[item2].on(type, () => tinyAction(depId));
-                                            }
-
-                                            // Mode 2
-                                            else {
-                                                for (const item3 in target.value[item2]) {
-                                                    target.value[item2][item3].on(type, () => tinyAction(depId));
-                                                }
-                                            }
-
+                                        // jQuery
+                                        if (targetType === 'jquery') {
+                                            value.on(type, () => tinyAction(depId, targetId));
                                         }
-                                    }
+
+                                        // Array
+                                        else if (targetType === 'array') {
+                                            for (const item2 in value) {
+
+                                                // Mode 1
+                                                if (!Array.isArray(value[item2])) {
+                                                    value[item2].on(type, () => tinyAction(depId, item2));
+                                                }
+
+                                                // Mode 2
+                                                else {
+                                                    for (const item3 in value[item2]) {
+                                                        executeArray(value[item2][item3], 'jquery', item3);
+                                                    }
+                                                }
+
+                                            }
+                                        }
+
+                                    };
+
+                                    executeArray(target.value, target.type);
 
                                 }
                             };

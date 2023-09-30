@@ -78,19 +78,30 @@ function GradioEmbed({ agiData }) {
 
                             }
 
+                            // Insert Database
+                            const insertDataset = (tinyIndex, compValue, type, component) => {
+                                console.log(
+                                    `Tiny Dataset Index ${tinyIndex}`,
+                                    compValue,
+                                    type,
+                                    component
+                                );
+                            };
+
                             // Dataset
                             if (dataset && Array.isArray(dataset.props.samples)) {
                                 const sample = dataset.props.samples[dataset.index];
                                 if (sample) {
 
+                                    // Using Component Id
                                     if (Array.isArray(dataset.props.component_ids) && dataset.props.component_ids.length > 0) {
                                         for (const tinyIndex in dataset.props.component_ids) {
 
                                             const compId = dataset.props.component_ids[tinyIndex];
                                             const component = embedData.getComponent(compId);
 
-                                            console.log(
-                                                `Tiny Dataset Index ${tinyIndex}`,
+                                            insertDataset(
+                                                tinyIndex,
                                                 sample[tinyIndex],
                                                 dataset.props.components[tinyIndex],
                                                 component

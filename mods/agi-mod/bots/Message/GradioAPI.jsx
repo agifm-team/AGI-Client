@@ -338,7 +338,7 @@ function GradioEmbed({ agiData }) {
                                                 // Mode 2
                                                 else {
                                                     for (const item3 in value[item2]) {
-                                                        executeArray(value[item2][item3], 'jquery', item3);
+                                                        executeArray(value[item2][item3], 'jquery', value.length < 2 ? item3 : item2);
                                                     }
                                                 }
 

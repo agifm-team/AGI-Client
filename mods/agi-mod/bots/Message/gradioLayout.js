@@ -238,7 +238,7 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
         .prop('webkitdirectory', props.file_count === 'directory')
         .prop('directory', props.file_count === 'directory');
 
-    let blob;
+    let blob = null;
     finalResult.data('gradio_input', {
         type: 'blob', value: (value) => {
 
@@ -251,6 +251,8 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
             if (previewBase && typeof fileManagerReader[type] === 'function') {
                 fileManagerReader[type](previewBase, value);
             }
+
+            return null;
 
         }
     });

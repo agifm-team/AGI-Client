@@ -91,7 +91,7 @@ function GradioEmbed({ agiData }) {
                                     try {
 
                                         const value = comps.input[index].data.value.val();
-                                        if (typeof value === 'string' && value.length > 0) {
+                                        if (typeof value === 'string') {
                                             inputs.push(value);
                                         } else {
                                             inputs.push(null);
@@ -121,7 +121,8 @@ function GradioEmbed({ agiData }) {
 
                                 // Others
                                 else {
-                                    // console.log('Input Component', comps.input[index].depId, comps.input[index].data);
+                                    inputs.push(null);
+                                    console.log('Input Component', comps.input[index].depId, comps.input[index].data);
                                 }
 
                             }

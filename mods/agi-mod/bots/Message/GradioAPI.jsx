@@ -50,10 +50,10 @@ function GradioEmbed({ agiData }) {
                         embed.append(page);
 
                         // Send Update
-                        const sendTinyUpdate = (index, output, value, dataset) => {
+                        const sendTinyUpdate = (index, output, value, outputs, dataset) => {
 
                             // Output send result
-                            console.log('Tiny Update', index, dataset, output, value);
+                            console.log('Tiny Update', index, dataset, output, outputs, value);
                             if (
                                 objType(output, 'object') &&
                                 objType(output.data, 'object') &&
@@ -108,6 +108,26 @@ function GradioEmbed({ agiData }) {
                                             );
 
                                         }
+                                    }
+
+                                    // Plan B
+                                    else {
+
+                                        /*
+                                            Eu preciso usar o outputs para encontrar o output que deve ser adivinhado para obter o tinyIndex
+                                        */
+                                        const tinyIndex = dataset.props.components.findIndex(tinyData => tinyData === output.data.type);
+                                        if (tinyIndex) {
+
+                                            insertDataset(
+                                                tinyIndex,
+                                                sample[tinyIndex],
+                                                dataset.props.components[tinyIndex],
+                                                output.data
+                                            );
+
+                                        }
+
                                     }
 
                                     console.log('Tiny Dataset', sample, dataset.props.components);
@@ -195,6 +215,7 @@ function GradioEmbed({ agiData }) {
                                                 tinyIndex,
                                                 comps.output[index],
                                                 value,
+                                                null,
                                                 null
                                             );
                                         };
@@ -279,7 +300,7 @@ function GradioEmbed({ agiData }) {
                             }
 
                             // Action Base
-                            const tinyAction = function (depId, dataId) {
+                            const tinyAction = function (depId, dataId, outputs) {
 
                                 // Outputs list
                                 const dataset = config.components.find(comp => comp.id === depId);
@@ -288,6 +309,7 @@ function GradioEmbed({ agiData }) {
                                         item,
                                         comps.output[index],
                                         Array.isArray(depItem.js) && typeof depItem.js[index] !== 'undefined' ? depItem.js[index] : null,
+                                        outputs,
                                         objType(dataset, 'object') && objType(dataset.props, 'object') ? {
                                             props: dataset.props,
                                             index: Array.isArray(dataset.props.headers) && dataset.props.headers.length > 1 ? dataId - 1 : dataId
@@ -358,14 +380,14 @@ function GradioEmbed({ agiData }) {
                             comps.collects_event_data = depItem.collects_event_data;
                             comps.backend_fn = depItem.backend_fn;
 
-                            const clickAction = (target, type, depId, triggerAfter) => {
+                            const clickAction = (target, type, depId, outputs, triggerAfter) => {
                                 if (!triggerAfter) {
 
                                     const executeArray = (value, targetType, targetId) => {
 
                                         // jQuery
                                         if (targetType === 'jquery') {
-                                            value.on(type, () => tinyAction(depId, targetId));
+                                            value.on(type, () => tinyAction(depId, targetId, outputs));
                                         }
 
                                         // Array
@@ -374,7 +396,7 @@ function GradioEmbed({ agiData }) {
 
                                                 // Mode 1
                                                 if (!Array.isArray(value[item2])) {
-                                                    value[item2].on(type, () => tinyAction(depId, item2));
+                                                    value[item2].on(type, () => tinyAction(depId, item2, outputs));
                                                 }
 
                                                 // Mode 2
@@ -412,17 +434,17 @@ function GradioEmbed({ agiData }) {
 
                                             // Click
                                             if (trigger === 'click') {
-                                                clickAction(target, 'click', depId);
+                                                clickAction(target, 'click', depId, depItem.outputs);
                                             }
 
                                             // Change
                                             else if (trigger === 'change') {
-                                                clickAction(target, 'change', depId);
+                                                clickAction(target, 'change', depId, depItem.outputs);
                                             }
 
                                             // Then
                                             else if (trigger === 'then') {
-                                                clickAction(target, 'then', depId, config.dependencies[item].trigger_after);
+                                                clickAction(target, 'then', depId, depItem.outputs, config.dependencies[item].trigger_after);
                                             }
 
                                         }
@@ -441,17 +463,17 @@ function GradioEmbed({ agiData }) {
 
                                                 // Click
                                                 if (depItem.targets[index][1] === 'click') {
-                                                    clickAction(target, 'click', depId);
+                                                    clickAction(target, 'click', depId, depItem.outputs);
                                                 }
 
                                                 // Change
                                                 else if (depItem.targets[index][1] === 'change') {
-                                                    clickAction(target, 'change', depId);
+                                                    clickAction(target, 'change', depId, depItem.outputs);
                                                 }
 
                                                 // Then
                                                 else if (depItem.targets[index][1] === 'then') {
-                                                    clickAction(target, 'then', depId, config.dependencies[item].trigger_after);
+                                                    clickAction(target, 'then', depId, depItem.outputs, config.dependencies[item].trigger_after);
                                                 }
 
                                             }

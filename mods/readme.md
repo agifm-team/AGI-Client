@@ -1,6 +1,6 @@
 # Mod and patch Support (Alpha)
 
-You can freely develop mods for Pony House. Users will have to install these mods by placing files in a separate folder. But if you want, you can build a client with these mods already pre-installed like a patch. The patched version by default does not allow the user to uninstall your mods.
+You can freely develop mods for Pony House. Use the index file in this folder to choose which mods you want to enable or disable.
 
 Features are still under development. I will update this file with more information during the time.
 
@@ -353,6 +353,28 @@ When a connection status occurs in the system, a warning will be emitted.
 ### systemState
 
     systemStatus (object with status value)
+
+`src/app/organisms/profile-viewer/ProfileViewer.jsx`
+
+When a user opens the profile, these events will be called.
+
+tinyPlace is a jQuery script. Use this to insert the html for your profile tab.
+
+### profileTabs
+
+    actions (List of tab functions to be invoked when a user click on this.)
+
+    Example:
+    actions.example_id = function(tinyPlace, user, presenceStatus) {};
+
+### profileTabsSpawn(Ethereum)Before or profileTabs(Ethereum)SpawnAfter
+
+    tinyData (Parsed information about user presence)
+    user (User matrix object)
+    menuItem (Function to add to your script in the profile tab)
+
+    Example:
+    menuItem('Tiny Example', 'example_id')
 
 `others`
 

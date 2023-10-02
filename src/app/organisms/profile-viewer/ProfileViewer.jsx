@@ -35,9 +35,9 @@ import { getUserWeb3Account, getWeb3Cfg } from '../../../util/web3';
 
 import renderAbout from './tabs/main';
 import renderEthereum from './tabs/ethereum';
-// import renderUd from './tabs/unstoppableDomains';
 
 import copyText from './copyText';
+import tinyAPI from '../../../util/mods';
 
 function ModerationTools({
   roomId, userId,
@@ -414,8 +414,9 @@ function ProfileViewer() {
       // Actions
       const actions = {
         ethereum: renderEthereum,
-        // ud: renderUd,
       };
+
+      tinyAPI.emit('profileTabs', actions);
 
       // Execute Menu
       const executeMenu = (where, tinyData) => {
@@ -472,10 +473,13 @@ function ProfileViewer() {
           menubar.append(menuItem('User info', 'default', tinyData));
 
           // Ethereum
+          tinyAPI.emit('profileTabsSpawnBefore', tinyData, user, (name, id) => menubar.append(menuItem(name, id, tinyData)));
           if (ethereumValid) {
+            tinyAPI.emit('profileTabsSpawnEthereumBefore', tinyData, user, (name, id) => menubar.append(menuItem(name, id, tinyData)));
             menubar.append(menuItem('Ethereum', 'ethereum', tinyData));
-            // menubar.append(menuItem('UD', 'ud', tinyData));
+            tinyAPI.emit('profileTabsSpawnEthereumAfter', tinyData, user, (name, id) => menubar.append(menuItem(name, id, tinyData)));
           }
+          tinyAPI.emit('profileTabsSpawnAfter', tinyData, user, (name, id) => menubar.append(menuItem(name, id, tinyData)));
 
           // First Execute
           executeMenu(tinyMenuId, tinyData);

@@ -6,6 +6,7 @@ import Web3WsProvider from 'web3-providers-ws';
 import { objType } from '../tools';
 import startStatus from './status';
 import initMatrix from '../../client/initMatrix';
+import modWeb3Cfg from '../../../mods/web3';
 
 const tinyCrypto = {};
 
@@ -139,149 +140,8 @@ export function resetUserWeb3Account() {
   return ethereumData;
 };
 
-// Networks
-const defaultNetworks = {
-
-  // Ethereum
-  ethereum: {
-
-    chainId: '0x1',
-    chainIdInt: 1,
-    rpcUrls: ['https://cloudflare-eth.com/'],
-    chainName: 'Ethereum Mainnet',
-    nativeCurrency: {
-      name: 'ETH',
-      symbol: 'ETH',
-      decimals: 18
-    },
-    blockExplorerUrls: ['https://etherscan.com/'],
-    blockExplorerApis: ['https://api.etherscan.io/'],
-
-    // https://docs.uniswap.org/contracts/v2/reference/smart-contracts/factory
-    factory: ['0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f'],
-
-  },
-
-  // Polygon (MATIC)
-  polygon: {
-
-    chainId: '0x89',
-    chainIdInt: 137,
-    rpcUrls: ['https://polygon-rpc.com/'],
-    chainName: 'Polygon Mainnet',
-    nativeCurrency: {
-      name: 'MATIC',
-      symbol: 'MATIC',
-      decimals: 18
-    },
-    blockExplorerUrls: ['https://polygonscan.com/'],
-    blockExplorerApis: ['https://api.polygonscan.com/'],
-
-    // https://docs.quickswap.exchange/reference/smart-contracts/v3/01-factory
-    factory: ['0x411b0fAcC3489691f28ad58c47006AF5E3Ab3A28'],
-
-  },
-
-  // Binsnace Smart Chain (BEP20)
-  bsc: {
-
-    chainId: '0x38',
-    chainIdInt: 56,
-    rpcUrls: ['https://bsc-dataseed.binance.org/'],
-    chainName: 'Smart Chain',
-    nativeCurrency: {
-      name: 'BNB',
-      symbol: 'BNB',
-      decimals: 18
-    },
-    blockExplorerUrls: ['https://bscscan.com/'],
-    blockExplorerApis: ['https://api.bscscan.com/'],
-
-    // https://docs.pancakeswap.finance/code/smart-contracts/pancakeswap-exchange/v2/factory-v2
-    factory: ['0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73'],
-
-  },
-
-  // Gnosis Chain (USD)
-  gnosis: {
-
-    chainId: '0x64',
-    chainIdInt: 100,
-    rpcUrls: ['https://rpc.gnosischain.com/'],
-    chainName: 'Gnosis',
-    nativeCurrency: {
-      name: 'xDai',
-      symbol: 'xDAI',
-      decimals: 18
-    },
-    blockExplorerUrls: ['https://gnosisscan.io/'],
-    blockExplorerApis: ['https://api.gnosisscan.io/'],
-
-    factory: [],
-
-  },
-
-  // Avalanche Network
-  avax: {
-
-    chainId: '0xa86a',
-    chainIdInt: 43114,
-    rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
-    chainName: 'Avalanche Network',
-    nativeCurrency: {
-      name: 'AVAX',
-      symbol: 'AVAX',
-      decimals: 18
-    },
-    blockExplorerUrls: ['https://snowtrace.io/'],
-    blockExplorerApis: ['https://api.snowtrace.io/'],
-
-    factory: [],
-
-  },
-
-  // Optimism Mainnet
-  op: {
-
-    chainId: '0xa',
-    chainIdInt: 10,
-    rpcUrls: ['https://mainnet.optimism.io/'],
-    chainName: 'Optimism Mainnet',
-    nativeCurrency: {
-      name: 'ETH',
-      symbol: 'ETH',
-      decimals: 18
-    },
-    blockExplorerUrls: ['https://explorer.optimism.io/'],
-    blockExplorerApis: ['https://api-optimistic.etherscan.io/'],
-
-    factory: [],
-
-  },
-
-  // Base
-  base: {
-
-    chainId: '0x2105',
-    chainIdInt: 8453,
-    rpcUrls: ['https://mainnet.base.org/'],
-    chainName: 'Base Mainnet',
-    nativeCurrency: {
-      name: 'ETH',
-      symbol: 'ETH',
-      decimals: 18
-    },
-    blockExplorerUrls: ['https://basescan.org/'],
-    blockExplorerApis: ['https://api.basescan.org/'],
-
-    factory: [],
-
-  },
-
-};
-
 export function getDefaultNetworks() {
-  return clone(defaultNetworks);
+  return clone(modWeb3Cfg.defaultNetworks);
 };
 
 // Config
@@ -299,9 +159,9 @@ export function getWeb3Cfg(folder, getDefault = true) {
 
     content.web3Enabled = typeof content.web3Enabled === 'boolean' ? content.web3Enabled : true;
     content.networks = objType(content.networks, 'object') ? content.networks : {};
-    for (const item in defaultNetworks) {
+    for (const item in modWeb3Cfg.defaultNetworks) {
       if (!objType(content.networks[item], 'object')) {
-        content.networks[item] = clone(defaultNetworks[item]);
+        content.networks[item] = clone(modWeb3Cfg.defaultNetworks[item]);
       }
     }
 
@@ -336,32 +196,8 @@ tinyCrypto.providerConnected = false;
 tinyCrypto.protocol = null;
 
 tinyCrypto.config = Object.freeze({
-
-  // USD Tokens
-  usd: {
-
-    dai: {
-      ethereum: '0x6b175474e89094c44da98b954eedeac495271d0f',
-      polygon: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
-      bsc: '0x1af3f329e8be154074d8769d1ffa4ee058b1dbc3'
-    },
-
-    usdt: {
-      ethereum: '0xdac17f958d2ee523a2206206994597c13d831ec7',
-      polygon: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f'
-    },
-
-    usdc: {
-      ethereum: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-      polygon: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
-      bsc: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d'
-    }
-
-  },
-
-  // Networks List
+  usd: modWeb3Cfg.usd,
   networks: getWeb3Cfg()?.networks ?? {},
-
 });
 
 tinyCrypto.constants = Object.freeze({

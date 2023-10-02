@@ -1,3 +1,6 @@
+https://help.soundcloud.com/hc/en-us/articles/115003568008-Embedding-a-track-or-playlist-
+https://developer.spotify.com/documentation/embeds/reference/oembed
+
 Made by aisa
 
     1 - Don't mark messages as read if the window isn't focused.
@@ -39,6 +42,14 @@ Made by Me
 
     =======================================================
 
+    --> Adicionar timezone
+
+    --> Shift para deletar mensagem mais rápido.
+
+    --> Quando enviar arquivo para o upload, focus na caixa de digitar mensagem.
+
+    --> Ajeitar o atualizador de Status quando o usuário abre o app.
+
     --> Adicionar opção para suporte de thumbs com parametros de animação.
     --> Fazer a opção para o app iniciar sozinho com o sistema operacional.
 
@@ -57,8 +68,6 @@ Made by Me
 
     --> Opção de desativar ou ativar animação de emojis ou stickers
     (Também ser possível banir animação de usuários individualmente - limite de 600 itens por array) (Opçao alternativa de fazer a animação ser hover)
-
-    --> Criar sistema de alterar o tamanho da fonte do aplicativo
 
     --> Tema https://github.com/catppuccin/cinny
 

@@ -53,7 +53,7 @@ function GradioEmbed({ agiData }) {
                         const sendTinyUpdate = (index, output, value, outputs, dataset) => {
 
                             // Output send result
-                            console.log('Tiny Update', index, dataset, output, outputs, value);
+                            // console.log('Tiny Update', index, dataset, output, outputs, value);
                             if (
                                 objType(output, 'object') &&
                                 objType(output.data, 'object') &&
@@ -110,15 +110,12 @@ function GradioEmbed({ agiData }) {
                                         }
                                     }
 
-                                    // Plan B
-                                    else {
+                                    /* 
 
-                                        /*
-                                            Eu preciso usar o outputs para encontrar o output que deve ser adivinhado para obter o tinyIndex
-                                        */
                                         const tinyIndex = dataset.props.components.findIndex(tinyData => tinyData === output.data.type);
                                         if (tinyIndex) {
 
+                                            // console.log('insertDataset', index, dataset, sample, dataset.props.components, output.data.type);
                                             insertDataset(
                                                 tinyIndex,
                                                 sample[tinyIndex],
@@ -128,9 +125,33 @@ function GradioEmbed({ agiData }) {
 
                                         }
 
+                                    */
+
+                                    // Plan B
+                                    else if (Array.isArray(dataset.props.components) && dataset.props.components.length > 0) {
+                                        for (const tinyNameIndex in dataset.props.components) {
+
+                                            console.log(dataset.index, dataset.props.components[tinyNameIndex], sample[tinyNameIndex]);
+
+                                            /*
+                                            const compName = dataset.props.components[tinyNameIndex];
+                                            const tinyIndex = dataset.props.components.findIndex(tinyData => tinyData === output.data.type);
+
+                                            const compId = dataset.props.component_ids[tinyIndex];
+                                            const component = embedData.getComponent(compId);
+
+                                            insertDataset(
+                                                tinyIndex,
+                                                sample[tinyIndex],
+                                                dataset.props.components[tinyIndex],
+                                                component
+                                            );
+                                            */
+
+                                        }
                                     }
 
-                                    console.log('Tiny Dataset', sample, dataset.props.components);
+                                    // console.log('Tiny Dataset', sample, dataset.props.components);
 
                                 }
                             }

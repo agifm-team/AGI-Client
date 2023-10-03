@@ -376,6 +376,7 @@ function ProfileViewer() {
   const menubarRef = useRef(null);
   const profileAvatar = useRef(null);
   const bioRef = useRef(null);
+  const timezoneRef = useRef(null);
   const noteRef = useRef(null);
   const customStatusRef = useRef(null);
   const statusRef = useRef(null);
@@ -409,6 +410,7 @@ function ProfileViewer() {
 
       // Get refs
       const bioPlace = $(bioRef.current);
+      const timezonePlace = $(timezoneRef.current);
       const customPlace = $(customPlaceRef.current);
 
       // Actions
@@ -422,7 +424,8 @@ function ProfileViewer() {
       const executeMenu = (where, tinyData) => {
 
         // Hide items
-        bioPlace.addClass('d-none');
+        bioPlace.addClass('no-show');
+        timezonePlace.addClass('no-show');
         customPlace.addClass('d-none');
 
         // Show items back
@@ -431,7 +434,8 @@ function ProfileViewer() {
           tinyPlace.empty().append(actions[where](tinyPlace, user, tinyData.content?.presenceStatusMsg, tinyData.ethereumValid));
           customPlace.removeClass('d-none');
         } else {
-          bioPlace.removeClass('d-none');
+          timezonePlace.removeClass('no-show');
+          bioPlace.removeClass('no-show');
         }
 
       };
@@ -524,7 +528,7 @@ function ProfileViewer() {
           }
 
           // About Page
-          renderAbout(ethereumValid, displayNameRef, customStatusRef, profileBanner, bioRef, content);
+          renderAbout(ethereumValid, displayNameRef, customStatusRef, profileBanner, bioRef, timezoneRef, content);
 
         }
 
@@ -696,6 +700,15 @@ function ProfileViewer() {
               <div ref={customPlaceRef} className='d-none'>
                 <hr />
                 <div id='insert-custom-place' />
+              </div>
+
+              <div ref={timezoneRef} className='d-none'>
+
+                <hr />
+
+                <div className='text-gray text-uppercase fw-bold very-small mb-2'>Timezone</div>
+                <div id='tiny-timezone' className='emoji-size-fix small text-freedom' />
+
               </div>
 
               <div ref={bioRef} className='d-none'>

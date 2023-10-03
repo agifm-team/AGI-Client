@@ -110,50 +110,24 @@ function GradioEmbed({ agiData }) {
                                         }
                                     }
 
-                                    /* 
-
-                                        const tinyIndex = dataset.props.components.findIndex(tinyData => tinyData === output.data.type);
-                                        if (tinyIndex) {
-
-                                            // console.log('insertDataset', index, dataset, sample, dataset.props.components, output.data.type);
-                                            insertDataset(
-                                                tinyIndex,
-                                                sample[tinyIndex],
-                                                dataset.props.components[tinyIndex],
-                                                output.data
-                                            );
-
-                                        }
-
-                                    */
-
                                     // Plan B
                                     else if (Array.isArray(dataset.props.components) && dataset.props.components.length > 0) {
-                                        for (const tinyNameIndex in dataset.props.components) {
+                                        for (const tinyIndex in dataset.props.components) {
 
                                             // Get Values
-                                            const comp = dataset.props.components[tinyNameIndex];
-                                            const val = sample[tinyNameIndex];
+                                            const comp = dataset.props.components[tinyIndex];
+                                            const val = sample[tinyIndex];
+                                            const component = output.data.value;
 
                                             // Compare
                                             if (comp === output.data.type) {
-                                                console.log(dataset.index, comp, val, output);
+                                                insertDataset(
+                                                    tinyIndex,
+                                                    val,
+                                                    comp,
+                                                    component
+                                                );
                                             }
-
-                                            /*
-                                            const compName = dataset.props.components[tinyNameIndex];
-                                            const tinyIndex = dataset.props.components.findIndex(tinyData => tinyData === output.data.type);
-
-                                            const compId = dataset.props.component_ids[tinyIndex];
-                                            const component = embedData.getComponent(compId);
-
-                                            insertDataset(
-                                                tinyIndex,
-                                                sample[tinyIndex],
-                                                dataset.props.components[tinyIndex],
-                                                component
-                                            );
-                                            */
 
                                         }
                                     }

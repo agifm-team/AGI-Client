@@ -1614,9 +1614,22 @@ class GradioLayout {
     // Get Component
     getComponent(id) {
 
-        const comp = { value: this.page.find(`[component='${String(id)}']`) };
-        if (comp.value.length > 0) {
-            comp.type = comp.value.attr('component_type');
+        const comp = {};
+
+        if (typeof id === 'number' || typeof id === 'string') {
+            comp.value = this.page.find(`[component='${String(id)}']`);
+        } else if (typeof id !== 'undefined') {
+            comp.value = id;
+        }
+
+        if (comp.value) {
+
+            if (comp.value.length > 0) {
+                comp.type = comp.value.attr('component_type');
+            } else {
+                comp.type = null;
+            }
+
         } else {
             comp.type = null;
         }

@@ -80,12 +80,23 @@ function GradioEmbed({ agiData }) {
 
                             // Insert Database
                             const insertDataset = (tinyIndex, compValue, type, component) => {
-                                console.log(
-                                    `Tiny Dataset Index ${tinyIndex}`,
-                                    compValue,
-                                    type,
-                                    component
-                                );
+
+                                const data = embedData.getComponentValue(component);
+                                const input = embedData.getInput(component);
+
+                                if (objType(input, 'object')) {
+
+                                    data.props.value = compValue;
+                                    if (input.type === 'jquery') {
+                                        input.value.val(compValue);
+                                    }
+
+                                    if (input.type === 'blob') {
+                                        input.value(compValue);
+                                    }
+
+                                }
+
                             };
 
                             // Dataset
@@ -131,8 +142,6 @@ function GradioEmbed({ agiData }) {
 
                                         }
                                     }
-
-                                    // console.log('Tiny Dataset', sample, dataset.props.components);
 
                                 }
                             }

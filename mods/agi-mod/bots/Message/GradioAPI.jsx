@@ -3,6 +3,11 @@ import { client } from '@gradio/client';
 import GradioLayout, { fileUrlGenerator } from './gradioLayout';
 import { objType, toast } from '../../../../src/util/tools';
 
+const updateInputValue = (input, dropdown, value) => {
+    if (dropdown && dropdown.type === 'jquery') dropdown.value.val(value);
+    input.value.val(value);
+};
+
 function GradioEmbed({ agiData }) {
 
     // Prepare Data
@@ -63,11 +68,12 @@ function GradioEmbed({ agiData }) {
 
                                 const data = embedData.getComponentValue(output.depId);
                                 const input = embedData.getInput(output.depId);
+                                const dropdown = embedData.getDropdown(output.depId);
                                 if (objType(input, 'object')) {
 
                                     data.props.value = value;
                                     if (input.type === 'jquery') {
-                                        input.value.val(value);
+                                        updateInputValue(input, dropdown, value);
                                     }
 
                                     if (input.type === 'blob') {
@@ -83,12 +89,15 @@ function GradioEmbed({ agiData }) {
 
                                 const data = embedData.getComponentValue(component);
                                 const input = embedData.getInput(component);
+                                const dropdown = embedData.getDropdown(component);
+
+                                console.log('YAY', tinyIndex, compValue, type, component);
 
                                 if (objType(input, 'object')) {
 
                                     data.props.value = compValue;
                                     if (input.type === 'jquery') {
-                                        input.value.val(compValue);
+                                        updateInputValue(input, dropdown, compValue);
                                     }
 
                                     if (input.type === 'blob') {

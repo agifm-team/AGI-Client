@@ -12,19 +12,26 @@ const updateInputValue = (input, dropdown, value, filePath = '') => {
 
     if (input.type === 'blob') {
 
-        $.LoadingOverlay('show', { text: 'Fetching gladio blog...' });
-        fetch(`${filePath}${typeof value === 'string' ? value.startsWith('/') || !filePath ? value : `/${value}` : ''}`)
-            .then(response => response.blob())
-            .then(blob => {
-                $.LoadingOverlay('hide');
-                const reader = new FileReader();
-                reader.onload = function () { input.value(this.result); }; // <--- `this.result` contains a base64 data URI
-                reader.readAsDataURL(blob);
-            }).catch(err => {
-                $.LoadingOverlay('hide');
-                toast(err.message);
-                console.error(err);
-            });
+        const tinyUrl = `${filePath}${typeof value === 'string' ? value.startsWith('/') || !filePath ? value : `/${value}` : ''}`;
+        if (!tinyUrl.startsWith('data:')) {
+
+            $.LoadingOverlay('show', { text: 'Fetching gladio blog...' });
+            fetch(tinyUrl)
+                .then(response => response.blob())
+                .then(blob => {
+                    $.LoadingOverlay('hide');
+                    const reader = new FileReader();
+                    reader.onload = function () { input.value(this.result); }; // <--- `this.result` contains a base64 data URI
+                    reader.readAsDataURL(blob);
+                }).catch(err => {
+                    $.LoadingOverlay('hide');
+                    toast(err.message);
+                    console.error(err);
+                });
+
+        } else {
+            input.value(tinyUrl);
+        }
 
     }
 

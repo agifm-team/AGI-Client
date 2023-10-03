@@ -76,12 +76,22 @@ function GradioEmbed({ agiData }) {
                                 (value || value === null)
                             ) {
 
+                                let tinyValue = value;
+                                if (
+                                    value === null &&
+                                    dataset && (typeof dataset.index === 'string' || typeof dataset.index === 'number') &&
+                                    Array.isArray(dataset.props.samples) && Array.isArray(dataset.props.samples[dataset.index]) &&
+                                    typeof dataset.props.samples[dataset.index][0] === 'string'
+                                ) {
+                                    tinyValue = `${fileUrlGenerator(config.root)}${dataset.props.samples[dataset.index][0]}`;
+                                }
+
                                 const data = embedData.getComponentValue(output.depId);
                                 const input = embedData.getInput(output.depId);
                                 const dropdown = embedData.getDropdown(output.depId);
                                 if (objType(input, 'object')) {
-                                    data.props.value = value;
-                                    updateInputValue(input, dropdown, value);
+                                    data.props.value = tinyValue;
+                                    updateInputValue(input, dropdown, tinyValue);
                                 }
 
                             }

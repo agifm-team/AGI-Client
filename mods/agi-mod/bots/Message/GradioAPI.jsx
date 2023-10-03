@@ -131,7 +131,14 @@ function GradioEmbed({ agiData }) {
                                     else if (Array.isArray(dataset.props.components) && dataset.props.components.length > 0) {
                                         for (const tinyNameIndex in dataset.props.components) {
 
-                                            console.log(dataset.index, dataset.props.components[tinyNameIndex], sample[tinyNameIndex]);
+                                            // Get Values
+                                            const comp = dataset.props.components[tinyNameIndex];
+                                            const val = sample[tinyNameIndex];
+
+                                            // Compare
+                                            if (comp === output.data.type) {
+                                                console.log(dataset.index, comp, val, output);
+                                            }
 
                                             /*
                                             const compName = dataset.props.components[tinyNameIndex];

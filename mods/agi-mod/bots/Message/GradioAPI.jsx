@@ -5,15 +5,13 @@ import { objType, toast } from '../../../../src/util/tools';
 
 const updateInputValue = (input, dropdown, value, filePath = '') => {
 
-    const newValue = `${filePath}${value}`;
-
     if (input.type === 'jquery') {
-        if (dropdown && dropdown.type === 'jquery') dropdown.value.val(newValue);
-        input.value.val(newValue);
+        if (dropdown && dropdown.type === 'jquery') dropdown.value.val(value);
+        input.value.val(value);
     }
 
     if (input.type === 'blob') {
-        input.value(newValue);
+        input.value(`${filePath}${typeof value === 'string' ? value.startsWith('/') || !filePath ? value : `/${value}` : ''}`);
     }
 
 };

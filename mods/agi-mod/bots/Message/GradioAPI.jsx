@@ -11,7 +11,21 @@ const updateInputValue = (input, dropdown, value, filePath = '') => {
     }
 
     if (input.type === 'blob') {
-        input.value(`${filePath}${typeof value === 'string' ? value.startsWith('/') || !filePath ? value : `/${value}` : ''}`);
+
+        $.LoadingOverlay('show', { text: 'Fetching gladio blog...' });
+        fetch(`${filePath}${typeof value === 'string' ? value.startsWith('/') || !filePath ? value : `/${value}` : ''}`)
+            .then(response => response.blob())
+            .then(blob => {
+                $.LoadingOverlay('hide');
+                const reader = new FileReader();
+                reader.onload = function () { input.value(this.result); }; // <--- `this.result` contains a base64 data URI
+                reader.readAsDataURL(blob);
+            }).catch(err => {
+                $.LoadingOverlay('hide');
+                toast(err.message);
+                console.error(err);
+            });
+
     }
 
 };

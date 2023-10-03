@@ -3,9 +3,19 @@ import { client } from '@gradio/client';
 import GradioLayout, { fileUrlGenerator } from './gradioLayout';
 import { objType, toast } from '../../../../src/util/tools';
 
-const updateInputValue = (input, dropdown, value) => {
-    if (dropdown && dropdown.type === 'jquery') dropdown.value.val(value);
-    input.value.val(value);
+const updateInputValue = (input, dropdown, value, filePath = '') => {
+
+    const newValue = `${filePath}${value}`;
+
+    if (input.type === 'jquery') {
+        if (dropdown && dropdown.type === 'jquery') dropdown.value.val(newValue);
+        input.value.val(newValue);
+    }
+
+    if (input.type === 'blob') {
+        input.value(newValue);
+    }
+
 };
 
 function GradioEmbed({ agiData }) {
@@ -70,16 +80,8 @@ function GradioEmbed({ agiData }) {
                                 const input = embedData.getInput(output.depId);
                                 const dropdown = embedData.getDropdown(output.depId);
                                 if (objType(input, 'object')) {
-
                                     data.props.value = value;
-                                    if (input.type === 'jquery') {
-                                        updateInputValue(input, dropdown, value);
-                                    }
-
-                                    if (input.type === 'blob') {
-                                        input.value(value);
-                                    }
-
+                                    updateInputValue(input, dropdown, value);
                                 }
 
                             }
@@ -91,19 +93,9 @@ function GradioEmbed({ agiData }) {
                                 const input = embedData.getInput(component);
                                 const dropdown = embedData.getDropdown(component);
 
-                                console.log('YAY', tinyIndex, compValue, type, component);
-
                                 if (objType(input, 'object')) {
-
                                     data.props.value = compValue;
-                                    if (input.type === 'jquery') {
-                                        updateInputValue(input, dropdown, compValue);
-                                    }
-
-                                    if (input.type === 'blob') {
-                                        input.value(compValue);
-                                    }
-
+                                    updateInputValue(input, dropdown, compValue, fileUrlGenerator(config.root));
                                 }
 
                             };

@@ -84,10 +84,8 @@ function GradioEmbed({ agiData }) {
                         embed.append(page);
 
                         // Send Update
-                        const sendTinyUpdate = (index, output, value, outputs, dataset) => {
+                        const sendTinyUpdate = (index, output, value, outputs, dataset, isSubmit = false) => {
 
-                            // Output send result
-                            // console.log('Tiny Update', index, dataset, output, outputs, value);
                             if (
                                 objType(output, 'object') &&
                                 objType(output.data, 'object') &&
@@ -174,6 +172,12 @@ function GradioEmbed({ agiData }) {
                                     }
 
                                 }
+                            }
+
+                            // Output send result
+                            if (isSubmit) {
+                                embedData.updateEmbed();
+                                console.log('Tiny Update', index, output, value, outputs, dataset);
                             }
 
                         };
@@ -292,7 +296,8 @@ function GradioEmbed({ agiData }) {
                                                 comps.output[index],
                                                 value,
                                                 null,
-                                                null
+                                                null,
+                                                true
                                             );
                                         };
 

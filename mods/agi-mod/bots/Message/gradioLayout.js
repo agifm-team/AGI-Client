@@ -1460,11 +1460,12 @@ const components = {
 };
 
 // Children
-const childrenLoader = (items, config, url, appId) => {
+const childrenLoader = (items, config, url, appId, comps, tinyIndex = -1) => {
     if (Array.isArray(items)) {
 
         // HTML Items
         const html = [];
+        tinyIndex++;
 
         // Read Data
         for (const item in items) {
@@ -1477,7 +1478,7 @@ const childrenLoader = (items, config, url, appId) => {
                 const component = config.components.find(c => c.id === items[item].id);
 
                 // New Children
-                if (existChildrens) newPage = childrenLoader(items[item].children, config, url, appId);
+                if (existChildrens) newPage = childrenLoader(items[item].children, config, url, appId, comps, clone(tinyIndex));
 
                 // Componet
                 if (objType(component, 'object') && objType(component.props, 'object') && typeof component.type === 'string' && (typeof components[component.type] === 'function' || component.type === 'form')) {
@@ -1561,6 +1562,7 @@ const childrenLoader = (items, config, url, appId) => {
         }
 
         // Complete
+        comps[tinyIndex] = html;
         return html;
 
     }
@@ -1577,7 +1579,8 @@ class GradioLayout {
         ) {
 
             // Get Children
-            const page = childrenLoader(config.layout.children, config, url, appId);
+            this.components = {};
+            const page = childrenLoader(config.layout.children, config, url, appId, this.components);
             if (typeof config.css === 'string' && config.css.length > 0 && typeof cssBase === 'string' && cssBase.length > 0) {
 
                 const tinyStyle = sass.compileString(`${cssBase} {
@@ -1643,6 +1646,10 @@ class GradioLayout {
     // Get Values
     getComponentValue(id) {
         return this.getComponent(id).value.data('gradio_values');
+    }
+
+    updateEmbed() {
+        console.log(this.components);
     }
 
     // Update Html

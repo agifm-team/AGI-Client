@@ -222,6 +222,41 @@ function GradioEmbed({ agiData }) {
                                     }
                                 }
 
+                                // Array
+                                else if (comps.input[index].data.type === 'array') {
+                                    if (Array.isArray(comps.input[index].data.value) && comps.input[index].data.value.length > 0) {
+
+                                        const tinyArray = [];
+
+                                        for (const vi in comps.input[index].data.value) {
+
+                                            let value;
+
+                                            try {
+                                                if (Array.isArray(comps.input[index].data.value[vi]) && comps.input[index].data.value[vi][0]) {
+                                                    if (comps.input[index].data.value[vi][0].is(':checked')) {
+                                                        value = comps.input[index].data.value[vi][0].val();
+                                                    }
+                                                } else if (comps.input[index].data.value[vi]) {
+                                                    if (comps.input[index].data.value[vi].is(':checked')) {
+                                                        value = comps.input[index].data.value[vi].val();
+                                                    }
+                                                }
+                                            } catch {
+                                                value = null;
+                                            }
+
+                                            if (typeof value === 'string' && value.length > 0) {
+                                                tinyArray.push(value);
+                                            }
+
+                                        }
+
+                                        inputs.push(tinyArray);
+
+                                    }
+                                }
+
                                 // Others
                                 else {
                                     inputs.push(null);

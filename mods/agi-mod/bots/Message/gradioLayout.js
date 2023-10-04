@@ -1664,7 +1664,10 @@ class GradioLayout {
 
         for (const item in this.components) {
             for (const index in this.components[item]) {
-                itemsTest.push(this.components[item][index].attr('component'));
+                itemsTest.push([
+                    this.components[item][index].attr('component'),
+                    this.components[item][index].attr('component_type')
+                ]);
             }
         }
 

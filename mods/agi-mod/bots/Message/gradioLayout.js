@@ -4,7 +4,7 @@ import { marked } from 'marked';
 import clone from 'clone';
 import isBase64 from 'is-base64';
 
-import { hljsFixer, objType, toast } from '../../../../src/util/tools';
+import { blobCreator, hljsFixer, objType, toast } from '../../../../src/util/tools';
 import { copyToClipboard } from '../../../../src/util/common';
 import initMatrix from '../../../../src/client/initMatrix';
 import openTinyURL from '../../../../src/util/message/urlProtection';
@@ -249,7 +249,7 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
             input.val('');
 
             if (previewBase && typeof fileManagerReader[type] === 'function') {
-                fileManagerReader[type](previewBase, convertBlob ? URL.createObjectURL(value) : value);
+                fileManagerReader[type](previewBase, convertBlob ? URL.createObjectURL(blobCreator(value)) : value);
                 blob = value;
             }
 

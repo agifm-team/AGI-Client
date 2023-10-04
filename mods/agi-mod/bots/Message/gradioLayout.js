@@ -240,7 +240,7 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
 
     let blob = null;
     finalResult.data('gradio_input', {
-        type: 'blob', value: (value) => {
+        type: 'blob', value: (value, convertBlob = false) => {
 
             if (typeof value === 'undefined') {
                 return blob;
@@ -249,7 +249,7 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
             input.val('');
 
             if (previewBase && typeof fileManagerReader[type] === 'function') {
-                fileManagerReader[type](previewBase, value);
+                fileManagerReader[type](previewBase, convertBlob ? URL.createObjectURL(value) : value);
                 blob = value;
             }
 
@@ -264,17 +264,7 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
         const reader = new FileReader();
         reader.onload = function () {
 
-            const arr = this.result.split(',');
-            const mime = arr[0].match(/:(.*?);/)[1];
-            const bstr = atob(arr[1]);
-            let n = bstr.length;
-            const u8arr = new Uint8Array(n);
-
-            while (n--) {
-                u8arr[n] = bstr.charCodeAt(n);
-            }
-
-            blob = new Blob([u8arr], { type: mime });
+            blob = blobCreator(this.result);
             if (previewBase && typeof fileManagerReader[type] === 'function') {
                 fileManagerReader[type](previewBase, URL.createObjectURL(blob));
             }

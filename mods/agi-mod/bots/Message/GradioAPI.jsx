@@ -15,13 +15,13 @@ const updateInputValue = (input, dropdown, value, filePath = '') => {
         const tinyUrl = `${filePath}${typeof value === 'string' ? value.startsWith('/') || !filePath ? value : `/${value}` : ''}`;
         if (!tinyUrl.startsWith('data:')) {
 
-            $.LoadingOverlay('show', { text: 'Fetching gladio blog...' });
+            $.LoadingOverlay('show', { text: 'Fetching gladio blob...' });
             fetch(tinyUrl)
                 .then(response => response.blob())
                 .then(blob => {
                     $.LoadingOverlay('hide');
                     const reader = new FileReader();
-                    reader.onload = function () { input.value(this.result); }; // <--- `this.result` contains a base64 data URI
+                    reader.onload = function () { input.value(this.result, true); }; // <--- `this.result` contains a base64 data URI
                     reader.readAsDataURL(blob);
                 }).catch(err => {
                     $.LoadingOverlay('hide');
@@ -30,7 +30,7 @@ const updateInputValue = (input, dropdown, value, filePath = '') => {
                 });
 
         } else {
-            input.value(tinyUrl);
+            input.value(tinyUrl, true);
         }
 
     }

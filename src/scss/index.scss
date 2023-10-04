@@ -464,3 +464,15 @@ a {
   filter: opacity(0.7) grayscale(1) !important;
   cursor: not-allowed !important;
 }
+
+body:not(.shiftKey) {
+  .need-shift {
+    display: none !important;
+  }
+}
+
+body:not(.ctrlKey) {
+  .need-ctrl {
+    display: none !important;
+  }
+}

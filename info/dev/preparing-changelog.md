@@ -1,3 +1,5 @@
 - Timezone profile added.
 - Loading icon added to ud tab.
 - Ethereum error window hidden.
+- Faster delete button on shift added.
+- Focus textarea on chatroom added.

@@ -42,9 +42,7 @@ Made by Me
 
     =======================================================
 
-    --> Shift para deletar mensagem mais rápido.
-
-    --> Quando enviar arquivo para o upload, focus na caixa de digitar mensagem.
+    --> Sistema de bordas personalizadas que pode ser facilmente pega em qualquer servidor.
 
     --> Ajeitar o atualizador de Status quando o usuário abre o app.
 

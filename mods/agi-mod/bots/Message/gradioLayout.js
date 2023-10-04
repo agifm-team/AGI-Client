@@ -248,9 +248,9 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
 
             input.val('');
 
+            blob = convertBlob ? blobCreator(value) : value;
             if (previewBase && typeof fileManagerReader[type] === 'function') {
-                fileManagerReader[type](previewBase, convertBlob ? URL.createObjectURL(blobCreator(value)) : value);
-                blob = value;
+                fileManagerReader[type](previewBase, URL.createObjectURL(blob));
             }
 
             return null;

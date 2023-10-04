@@ -42,7 +42,6 @@ function GradioEmbed({ agiData }) {
     // Prepare Data
     const embedRef = useRef(null);
     const [app, setApp] = useState(null);
-    const [api, setApi] = useState(null);
     const [appError, setAppError] = useState(null);
 
     useEffect(() => {
@@ -59,10 +58,6 @@ function GradioEmbed({ agiData }) {
                 // Load App
                 if (!app) {
                     client(agiData.url).then(newApp => setApp(newApp)).catch(tinyError);
-                }
-
-                else if (!api) {
-                    app.view_api().then(newApp => setApi(newApp)).catch(tinyError);
                 }
 
                 // Execute Data
@@ -574,7 +569,7 @@ function GradioEmbed({ agiData }) {
                             }
                         }
 
-                        console.log(id, config, api);
+                        console.log(id, config);
                         return () => {
                             if (app && typeof app.destroy === 'function') app.destroy();
                             page.remove();

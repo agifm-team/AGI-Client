@@ -177,7 +177,7 @@ function GradioEmbed({ agiData }) {
                             // Output send result
                             if (isSubmit) {
                                 embedData.updateEmbed();
-                                console.log('Tiny Update', index, output, value, outputs, dataset);
+                                // console.log('Tiny Update', index, output, value, outputs, dataset);
                             }
 
                         };

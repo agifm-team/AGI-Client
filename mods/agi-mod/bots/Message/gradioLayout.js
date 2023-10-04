@@ -231,7 +231,7 @@ const fileManagerReader = {
 
 };
 
-const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept) => {
+const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept, tinyValue) => {
 
     const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_${type}`, accept: typeof fileAccept === 'string' ? fileAccept : fileInputAccept(props.file_types) })
         .prop('multiple', props.file_count === 'multiple')
@@ -239,24 +239,30 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
         .prop('directory', props.file_count === 'directory');
 
     let blob = null;
-    finalResult.data('gradio_input', {
-        type: 'blob', value: (value, convertBlob = false) => {
 
-            if (typeof value === 'undefined') {
-                return blob;
-            }
+    const valueUpdater = (value, convertBlob = false) => {
 
-            input.val('');
-
-            blob = convertBlob ? blobCreator(value) : value;
-            if (previewBase && typeof fileManagerReader[type] === 'function') {
-                fileManagerReader[type](previewBase, URL.createObjectURL(blob));
-            }
-
-            return null;
-
+        if (typeof value === 'undefined') {
+            return blob;
         }
-    });
+
+        input.val('');
+
+        if (convertBlob) {
+            const resultData = finalResult.data('gradio_values');
+            resultData.props.value = value;
+        }
+
+        blob = convertBlob ? blobCreator(value) : value;
+        if (previewBase && typeof fileManagerReader[type] === 'function') {
+            fileManagerReader[type](previewBase, URL.createObjectURL(blob));
+        }
+
+        return null;
+
+    };
+
+    finalResult.data('gradio_input', { type: 'blob', value: valueUpdater });
 
     const fileInput = input.get(0);
     input.get(0).addEventListener('change', () => {
@@ -277,6 +283,10 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
 
     if (typeof props.value === 'string' && previewBase && typeof fileManagerReader[type] === 'function') {
         fileManagerReader[type](previewBase, props.value);
+    }
+
+    if (typeof tinyValue === 'string' && tinyValue.length > 0) {
+        valueUpdater(tinyValue, true);
     }
 
     return input;
@@ -330,7 +340,7 @@ const components = {
             finalResult.append(labelCreator(null, props, `${id}_audio`));
         }
 
-        const input = fileManagerEditor(audio, finalResult, id, 'audio', props, 'audio/*');
+        const input = fileManagerEditor(audio, finalResult, id, 'audio', props, 'audio/*', props.value);
         if (props.interactive !== false) {
 
             if (props.source === 'upload') {
@@ -730,7 +740,7 @@ const components = {
             finalResult.append(labelCreator(null, props, `${id}_file`));
         }
 
-        const input = fileManagerEditor(csv, finalResult, id, 'file', props);
+        const input = fileManagerEditor(csv, finalResult, id, 'file', props, null, props.value);
         if (props.interactive !== false) {
             finalResult.append(input);
         }
@@ -858,7 +868,7 @@ const components = {
             finalResult.append(labelCreator(null, props, `${id}_image`));
         }
 
-        const input = fileManagerEditor(img, finalResult, id, 'image', props, 'image/*');
+        const input = fileManagerEditor(img, finalResult, id, 'image', props, 'image/*', props.value);
         if (props.interactive !== false) {
 
             if (props.source === 'upload') {
@@ -963,7 +973,7 @@ const components = {
             finalResult.append(labelCreator(null, props, `${id}_model3d`));
         }
 
-        const input = fileManagerEditor(model3d, finalResult, id, 'model3d', props, 'model/*');
+        const input = fileManagerEditor(model3d, finalResult, id, 'model3d', props, 'model/*', props.value);
         if (props.interactive !== false) {
             finalResult.append(input);
         }
@@ -1268,7 +1278,7 @@ const components = {
             finalResult.append(labelCreator(null, props, `${id}_timeseries`));
         }
 
-        const input = fileManagerEditor(csv, finalResult, id, 'timeseries', props, 'text/csv');
+        const input = fileManagerEditor(csv, finalResult, id, 'timeseries', props, 'text/csv', props.value);
         if (props.interactive !== false) {
             finalResult.append(input);
             finalResult.data('gradio_input', { type: 'jquery', value: input });
@@ -1303,7 +1313,7 @@ const components = {
         };
 
         const sizeSelected = typeof props.size === 'string' && props.size.length > 0 ? props.size : 'normal';
-        const fileInput = fileManagerEditor(null, finalResult, id, 'uploadbutton', props);
+        const fileInput = fileManagerEditor(null, finalResult, id, 'uploadbutton', props, null, props.value);
 
         const button = $('<button>', {
             class: `btn btn-${props.variant ? props.variant : 'bg'}${typeof props.size === 'string' && props.size.length > 0 ? ` btn-${props.size}` : ''}`,
@@ -1337,7 +1347,7 @@ const components = {
             finalResult.append(labelCreator(null, props, `${id}_video`));
         }
 
-        const input = fileManagerEditor(video, finalResult, id, 'video', props, 'video/*');
+        const input = fileManagerEditor(video, finalResult, id, 'video', props, 'video/*', props.value);
         if (props.interactive !== false) {
 
             if (props.source === 'upload') {
@@ -1649,7 +1659,17 @@ class GradioLayout {
     }
 
     updateEmbed() {
-        console.log(this.components);
+
+        const itemsTest = [];
+
+        for (const item in this.components) {
+            for (const index in this.components[item]) {
+                itemsTest.push(this.components[item][index].attr('component'));
+            }
+        }
+
+        console.log(this.components, itemsTest);
+
     }
 
     // Update Html

@@ -1662,7 +1662,7 @@ class GradioLayout {
 
         const itemsTest = [];
 
-        // const tinyHtml = components[component.type](component.props, component.id, appId, url, false);
+        // const tinyHtml = components[component.type](component.props, component.id, appId, url, true);
 
         for (const item in this.components) {
             for (const index in this.components[item]) {

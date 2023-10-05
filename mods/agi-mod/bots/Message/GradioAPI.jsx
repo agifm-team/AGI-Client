@@ -174,7 +174,13 @@ function GradioEmbed({ agiData }) {
 
                                 const embedValues = embedData.getComponentValue(output.depId);
                                 if (objType(embedValues, 'object') && objType(embedValues.props, 'object')) {
-                                    embedValues.props.value = value;
+                                    if (objType(value, 'object') && objType(value.value, 'object')) {
+                                        for (const item in value) {
+                                            embedValues.props[item] = value[item];
+                                        }
+                                    } else {
+                                        embedValues.props.value = value;
+                                    }
                                 }
 
                                 embedData.updateEmbed();
@@ -290,7 +296,11 @@ function GradioEmbed({ agiData }) {
 
                                         const finalResultSend = (tinyData, index) => {
 
-                                            const value = objType(tinyData, 'object') && typeof tinyData.name === 'string' && tinyData.is_file ? `${fileUrlGenerator(agiData.url)}${tinyData.name}` : typeof tinyData === 'string' ? tinyData : null;
+                                            const value =
+                                                objType(tinyData, 'object') ?
+                                                    typeof tinyData.name === 'string' && tinyData.is_file ? `${fileUrlGenerator(agiData.url)}${tinyData.name}` :
+                                                        objType(tinyData.value, 'object') ? tinyData : null :
+                                                    typeof tinyData === 'string' ? tinyData : null;
 
                                             sendTinyUpdate(
                                                 tinyIndex,
@@ -300,6 +310,7 @@ function GradioEmbed({ agiData }) {
                                                 null,
                                                 true
                                             );
+
                                         };
 
                                         if (Array.isArray(data.data[item]) && data.data[item].length > 0) {

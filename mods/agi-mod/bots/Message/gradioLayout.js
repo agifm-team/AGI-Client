@@ -297,7 +297,7 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
 // https://www.gradio.app/docs
 const components = {
 
-    html: (props, compId, appId, url, isSubmit) => {
+    html: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
 
@@ -312,7 +312,7 @@ const components = {
 
     },
 
-    markdown: (props, compId, appId, url, isSubmit) => {
+    markdown: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
 
@@ -327,7 +327,7 @@ const components = {
 
     },
 
-    audio: (props, compId, appId, url, isSubmit) => {
+    audio: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -363,7 +363,7 @@ const components = {
 
     },
 
-    button: (props, compId, appId, url, isSubmit) => {
+    button: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -397,7 +397,7 @@ const components = {
 
     },
 
-    chatbot: (props, compId, appId, url, isSubmit) => {
+    chatbot: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -448,7 +448,7 @@ const components = {
 
     },
 
-    checkbox: (props, compId, appId, url, isSubmit) => {
+    checkbox: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -467,7 +467,7 @@ const components = {
 
     },
 
-    checkboxgroup: (props, compId, appId, url, isSubmit) => {
+    checkboxgroup: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -502,7 +502,7 @@ const components = {
 
     },
 
-    code: (props, compId, appId, url, isSubmit) => {
+    code: (props, compId, appId, url, oHtml) => {
         try {
 
             const finalResult = displayOptions(props, compId, appId, url);
@@ -530,7 +530,7 @@ const components = {
         }
     },
 
-    colorpicker: (props, compId, appId, url, isSubmit) => {
+    colorpicker: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -549,7 +549,7 @@ const components = {
 
     },
 
-    dataset: (props, compId, appId, url, isSubmit) => {
+    dataset: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -670,7 +670,7 @@ const components = {
 
     },
 
-    dropdown: (props, compId, appId, url, isSubmit) => {
+    dropdown: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -727,7 +727,7 @@ const components = {
 
     },
 
-    file: (props, compId, appId, url, isSubmit) => {
+    file: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -751,7 +751,7 @@ const components = {
 
     },
 
-    gallery: (props, compId, appId, url, isSubmit) => {
+    gallery: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -813,7 +813,7 @@ const components = {
 
     },
 
-    highlightedtext: (props, compId, appId, url, isSubmit) => {
+    highlightedtext: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -855,7 +855,7 @@ const components = {
 
     },
 
-    image: (props, compId, appId, url, isSubmit) => {
+    image: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -891,7 +891,7 @@ const components = {
 
     },
 
-    json: (props, compId, appId, url, isSubmit) => {
+    json: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -911,7 +911,7 @@ const components = {
 
     },
 
-    label: (props, compId, appId, url, isSubmit) => {
+    label: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -960,7 +960,7 @@ const components = {
 
     },
 
-    model3d: (props, compId, appId, url, isSubmit) => {
+    model3d: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -984,7 +984,7 @@ const components = {
 
     },
 
-    number: (props, compId, appId, url, isSubmit) => {
+    number: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1022,7 +1022,7 @@ const components = {
 
     },
 
-    plot: (props, compId, appId, url, isSubmit) => {
+    plot: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1071,7 +1071,7 @@ const components = {
 
     },
 
-    radio: (props, compId, appId, url, isSubmit) => {
+    radio: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1115,7 +1115,7 @@ const components = {
 
     },
 
-    slider: (props, compId, appId, url, isSubmit) => {
+    slider: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1167,7 +1167,7 @@ const components = {
 
     },
 
-    textbox: (props, compId, appId, url, isSubmit) => {
+    textbox: (props, compId, appId, url, oHtml) => {
 
         // values
         let textboxStopHeight = false;
@@ -1265,7 +1265,7 @@ const components = {
 
     },
 
-    timeseries: (props, compId, appId, url, isSubmit) => {
+    timeseries: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1298,7 +1298,7 @@ const components = {
 
     },
 
-    uploadbutton: (props, compId, appId, url, isSubmit) => {
+    uploadbutton: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1334,7 +1334,7 @@ const components = {
 
     },
 
-    video: (props, compId, appId, url, isSubmit) => {
+    video: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url);
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1382,7 +1382,7 @@ const components = {
 
     },
 
-    column: (props, compId, appId, url, isSubmit) => {
+    column: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url).attr('component_type', 'column');
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1396,7 +1396,7 @@ const components = {
 
     },
 
-    row: (props, compId, appId, url, isSubmit) => {
+    row: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url).attr('component_type', 'row');
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1410,7 +1410,7 @@ const components = {
 
     },
 
-    accordion: (props, compId, appId, url, isSubmit) => {
+    accordion: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url).attr('component_type', 'accordion');
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1453,7 +1453,7 @@ const components = {
 
     },
 
-    group: (props, compId, appId, url, isSubmit) => {
+    group: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url).attr('component_type', 'group');
         const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1528,12 +1528,12 @@ const childrenLoader = (items, config, url, appId, comps, tinyIndex = -1) => {
                     if (component.type !== 'form') {
 
                         // Get Component
-                        const tinyHtml = components[component.type](component.props, component.id, appId, url, false);
+                        const tinyHtml = components[component.type](component.props, component.id, appId, url);
                         const addUpdateData = (theHtml) => {
                             theHtml.data('gradio_update', () => {
 
                                 const values = theHtml.data('gradio_values');
-                                const newHtml = components[component.type](values.props, values.id, values.appId, values.url, false);
+                                const newHtml = components[component.type](values.props, values.id, values.appId, values.url);
 
                                 theHtml.replaceWith(newHtml);
                                 addUpdateData(newHtml);
@@ -1660,28 +1660,18 @@ class GradioLayout {
 
     updateEmbed() {
 
-        const itemsTest = [];
-
         for (const item in this.components) {
             for (const index in this.components[item]) {
 
                 const values = this.components[item][index].data('gradio_values');
-                const comp = this.components[item][index].attr('component');
                 const type = this.components[item][index].attr('component_type');
 
-                const tinyHtml = components[type](values.props, values.id, values.appId, values.url, true);
-
-                itemsTest.push([
-                    values,
-                    comp,
-                    type,
-                    tinyHtml
-                ]);
+                components[type](values.props, values.id, values.appId, values.url, this.components[item][index]);
 
             }
         }
 
-        console.log(this.components, itemsTest);
+        console.log(this.components);
 
     }
 

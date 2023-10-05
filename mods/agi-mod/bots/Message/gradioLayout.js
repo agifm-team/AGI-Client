@@ -312,17 +312,26 @@ const components = {
     html: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
+        const clickEvent = (event) => {
+            const e = event.originalEvent;
+            e.preventDefault(); openTinyURL($(event.currentTarget).attr('href'), $(event.currentTarget).attr('href')); return false;
+        };
+
         if (!oHtml) {
 
             const html = $(sanitizeHtml(props.value, htmlAllowed));
-            html.find('a').on('click', (event) => {
-                const e = event.originalEvent;
-                e.preventDefault(); openTinyURL($(event.currentTarget).attr('href'), $(event.currentTarget).attr('href')); return false;
-            });
+            html.find('a').on('click', clickEvent);
 
             finalResult.append(html);
             return finalResult;
 
+        }
+
+        if (props.value) {
+            oHtml.replaceWith(sanitizeHtml(props.value, htmlAllowed));
+            oHtml.find('a').on('click', clickEvent);
+        } else {
+            oHtml.empty();
         }
 
     },
@@ -330,17 +339,26 @@ const components = {
     markdown: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
+        const clickEvent = (event) => {
+            const e = event.originalEvent;
+            e.preventDefault(); openTinyURL($(event.currentTarget).attr('href'), $(event.currentTarget).attr('href')); return false;
+        };
+
         if (!oHtml) {
 
             const html = $(sanitizeHtml(marked.parse(props.value), htmlAllowed));
-            html.find('a').on('click', (event) => {
-                const e = event.originalEvent;
-                e.preventDefault(); openTinyURL($(event.currentTarget).attr('href'), $(event.currentTarget).attr('href')); return false;
-            });
+            html.find('a').on('click', clickEvent);
 
             finalResult.append(html);
             return finalResult;
 
+        }
+
+        if (props.value) {
+            oHtml.replaceWith(sanitizeHtml(marked.parse(props.value), htmlAllowed));
+            oHtml.find('a').on('click', clickEvent);
+        } else {
+            oHtml.empty();
         }
 
     },
@@ -1792,10 +1810,10 @@ class GradioLayout {
         for (const item in this.components) {
             for (const index in this.components[item]) {
 
-                const values = this.components[item][index].data('gradio_values');
+                const values = this.components[item][index].data('gradio_values') ?? {};
                 const type = this.components[item][index].attr('component_type');
 
-                components[type](values.props, values.id, values.appId, values.url, this.components[item][index]);
+                components[type](values.props ?? {}, values?.id, values?.appId, values?.url, this.components[item][index]);
 
             }
         }

@@ -171,6 +171,12 @@ function GradioEmbed({ agiData }) {
 
                             // Output send result
                             if (isSubmit) {
+
+                                const embedValues = embedData.getComponentValue(output.depId);
+                                if (objType(embedValues, 'object') && objType(embedValues.props, 'object')) {
+                                    embedValues.props.value = value;
+                                }
+
                                 embedData.updateEmbed();
                                 // console.log('Tiny Update', index, output, value, outputs, dataset);
                             }

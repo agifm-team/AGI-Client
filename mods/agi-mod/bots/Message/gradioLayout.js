@@ -13,14 +13,25 @@ import { twemojify } from '../../../../src/util/twemojify';
 import { selectButton as selectTheme } from '../../../../src/util/checkTheme';
 
 const labelCreator = (icon, props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label).prepend(icon);
-const displayOptions = (props, id, appId, url) => {
-    props.app_id = appId;
-    return $('<div>', { class: `${!props.visible ? 'd-none ' : ''}my-2`, component: id, place_id: appId, component_type: props.name }).data('gradio_values', {
-        props: clone(props),
-        id: clone(id),
-        appId: clone(appId),
-        url: clone(url),
-    });
+const displayOptions = (props, id, appId, url, oHtml) => {
+
+    const divData = { class: `${!props.visible ? 'd-none ' : ''}my-2`, component: id, place_id: appId, component_type: props.name };
+
+    if (!oHtml) {
+
+        props.app_id = appId;
+
+        return $('<div>', divData).data('gradio_values', {
+            props: clone(props),
+            id: clone(id),
+            appId: clone(appId),
+            url: clone(url),
+        });
+
+    }
+
+    oHtml.attr('class', divData.class);
+
 };
 
 const rowsList = {
@@ -299,7 +310,7 @@ const components = {
 
     html: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const html = $(sanitizeHtml(props.value, htmlAllowed));
@@ -317,7 +328,7 @@ const components = {
 
     markdown: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const html = $(sanitizeHtml(marked.parse(props.value), htmlAllowed));
@@ -335,7 +346,7 @@ const components = {
 
     audio: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -375,7 +386,7 @@ const components = {
 
     button: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
             finalResult.attr('id', id).addClass('button').addClass('d-grid');
@@ -412,7 +423,7 @@ const components = {
 
     chatbot: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -467,7 +478,7 @@ const components = {
 
     checkbox: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -490,7 +501,7 @@ const components = {
 
     checkboxgroup: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -530,7 +541,7 @@ const components = {
     code: (props, compId, appId, url, oHtml) => {
         try {
 
-            const finalResult = displayOptions(props, compId, appId, url);
+            const finalResult = displayOptions(props, compId, appId, url, oHtml);
             if (!oHtml) {
 
                 const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -561,7 +572,7 @@ const components = {
 
     colorpicker: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -584,7 +595,7 @@ const components = {
 
     dataset: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -709,7 +720,7 @@ const components = {
 
     dropdown: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -770,7 +781,7 @@ const components = {
 
     file: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -798,7 +809,7 @@ const components = {
 
     gallery: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -864,7 +875,7 @@ const components = {
 
     highlightedtext: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -910,7 +921,7 @@ const components = {
 
     image: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -950,7 +961,7 @@ const components = {
 
     json: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -974,7 +985,7 @@ const components = {
 
     label: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1027,7 +1038,7 @@ const components = {
 
     model3d: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1055,7 +1066,7 @@ const components = {
 
     number: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1097,7 +1108,7 @@ const components = {
 
     plot: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1150,7 +1161,7 @@ const components = {
 
     radio: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1198,7 +1209,7 @@ const components = {
 
     slider: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1256,7 +1267,7 @@ const components = {
 
         // values
         let textboxStopHeight = false;
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1356,7 +1367,7 @@ const components = {
 
     timeseries: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1393,7 +1404,7 @@ const components = {
 
     uploadbutton: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1433,7 +1444,7 @@ const components = {
 
     video: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1485,7 +1496,7 @@ const components = {
 
     column: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url).attr('component_type', 'column');
+        const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'column');
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1503,7 +1514,7 @@ const components = {
 
     row: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url).attr('component_type', 'row');
+        const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'row');
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1521,7 +1532,7 @@ const components = {
 
     accordion: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url).attr('component_type', 'accordion');
+        const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'accordion');
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
@@ -1568,7 +1579,7 @@ const components = {
 
     group: (props, compId, appId, url, oHtml) => {
 
-        const finalResult = displayOptions(props, compId, appId, url).attr('component_type', 'group');
+        const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'group');
         if (!oHtml) {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;

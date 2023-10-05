@@ -328,8 +328,9 @@ const components = {
         }
 
         if (props.value) {
-            oHtml.replaceWith(sanitizeHtml(props.value, htmlAllowed));
-            oHtml.find('a').on('click', clickEvent);
+            const html = $(sanitizeHtml(props.value, htmlAllowed));
+            oHtml.replaceWith(html);
+            html.find('a').on('click', clickEvent);
         } else {
             oHtml.empty();
         }
@@ -355,8 +356,9 @@ const components = {
         }
 
         if (props.value) {
-            oHtml.replaceWith(sanitizeHtml(marked.parse(props.value), htmlAllowed));
-            oHtml.find('a').on('click', clickEvent);
+            const html = $(sanitizeHtml(marked.parse(props.value), htmlAllowed));
+            oHtml.replaceWith(html);
+            html.find('a').on('click', clickEvent);
         } else {
             oHtml.empty();
         }

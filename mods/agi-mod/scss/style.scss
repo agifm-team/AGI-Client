@@ -399,6 +399,17 @@
       }
     }
 
+    /* Dataframe */
+    .dataframe {
+      .table {
+        --bs-table-color: var(--tc-surface);
+      }
+
+      .table > tbody > tr > * {
+        --bs-table-color-type: var(--tc-surface-low);
+      }
+    }
+
     /* Radio and Checkbox group */
     .radio,
     .checkboxgroup,

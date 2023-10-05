@@ -365,6 +365,70 @@ const components = {
 
     },
 
+    dataframe: (props, compId, appId, url, oHtml) => {
+
+        const finalResult = displayOptions(props, compId, appId, url, oHtml).addClass('dataframe');
+
+        const thead = $('<thead>');
+        const th = $('<tr>');
+
+        const tbody = $('<tbody>', { class: 'table-group-divider' });
+        const addThead = (headers) => {
+
+            for (const item in headers) {
+                if (typeof headers[item] === 'string') {
+                    th.append($('<th>').text(headers[item]));
+                }
+            }
+
+            thead.append(th);
+
+        };
+
+        if (objType(props.value, 'object')) {
+
+            if (Array.isArray(props.value.headers) && props.value.headers.length > 0) {
+                addThead(props.value.headers);
+            } else if (Array.isArray(props.headers) && props.headers.length > 0) {
+                addThead(props.headers);
+            }
+
+            if (Array.isArray(props.value.data) && props.value.data.length > 0) {
+                for (const item in props.value.data) {
+                    if (Array.isArray(props.value.data[item]) && props.value.data[item].length > 0) {
+
+                        const td = $('<tr>');
+
+                        for (const item2 in props.value.data[item]) {
+                            if (typeof props.value.data[item][item2] === 'string') {
+                                td.append($('<td>').text(props.value.data[item][item2]));
+                            }
+                        }
+
+                        tbody.append(td);
+
+                    }
+                }
+            }
+
+        }
+
+        else if (Array.isArray(props.headers) && props.headers.length > 0) {
+            addThead(props.headers);
+        }
+
+        if (!oHtml) {
+            const table = $('<table>', { class: 'table table-striped' });
+            table.append(thead, tbody);
+            finalResult.append(table);
+            return finalResult;
+        }
+
+        console.log(thead, tbody);
+        oHtml.find('> table').empty().append(thead, tbody);
+
+    },
+
     audio: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);

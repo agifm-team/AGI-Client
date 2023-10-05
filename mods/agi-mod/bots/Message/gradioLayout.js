@@ -31,6 +31,7 @@ const displayOptions = (props, id, appId, url, oHtml) => {
     }
 
     oHtml.attr('class', divData.class);
+    return oHtml;
 
 };
 

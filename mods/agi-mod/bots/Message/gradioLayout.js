@@ -1662,14 +1662,22 @@ class GradioLayout {
 
         const itemsTest = [];
 
-        // const tinyHtml = components[component.type](component.props, component.id, appId, url, true);
-
         for (const item in this.components) {
             for (const index in this.components[item]) {
+
+                const values = this.components[item][index].data('gradio_values');
+                const comp = this.components[item][index].attr('component');
+                const type = this.components[item][index].attr('component_type');
+
+                const tinyHtml = components[type](values.props, values.id, values.appId, values.url, true);
+
                 itemsTest.push([
-                    this.components[item][index].attr('component'),
-                    this.components[item][index].attr('component_type')
+                    values,
+                    comp,
+                    type,
+                    tinyHtml
                 ]);
+
             }
         }
 

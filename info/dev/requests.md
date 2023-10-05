@@ -42,6 +42,8 @@ Made by Me
 
     =======================================================
 
+    --> Philomena.
+
     --> Sistema de bordas personalizadas que pode ser facilmente pega em qualquer servidor.
 
     --> Ajeitar o atualizador de Status quando o usuário abre o app.

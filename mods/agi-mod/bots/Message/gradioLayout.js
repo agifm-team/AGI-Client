@@ -15,22 +15,22 @@ import { selectButton as selectTheme } from '../../../../src/util/checkTheme';
 const labelCreator = (icon, props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label).prepend(icon);
 const displayOptions = (props, id, appId, url, oHtml) => {
 
-    const divData = { class: `${!props.visible ? 'd-none ' : ''}my-2`, component: id, place_id: appId, component_type: props.name };
-
     if (!oHtml) {
-
         props.app_id = appId;
-
-        return $('<div>', divData).data('gradio_values', {
+        return $('<div>', { class: `${!props.visible ? 'd-none ' : ''}my-2`, component: id, place_id: appId, component_type: props.name }).data('gradio_values', {
             props: clone(props),
             id: clone(id),
             appId: clone(appId),
             url: clone(url),
         });
-
     }
 
-    oHtml.attr('class', divData.class);
+    if (!props.visible) {
+        oHtml.addClass('d-none');
+    } else {
+        oHtml.removeClass('d-none');
+    }
+
     return oHtml;
 
 };

@@ -299,7 +299,8 @@ function GradioEmbed({ agiData }) {
                                             const value =
                                                 objType(tinyData, 'object') ?
                                                     typeof tinyData.name === 'string' && tinyData.is_file ? `${fileUrlGenerator(agiData.url)}${tinyData.name}` :
-                                                        objType(tinyData.value, 'object') ? tinyData : null :
+                                                        typeof tinyData.data === 'string' && tinyData.is_file ? tinyData.data :
+                                                            objType(tinyData.value, 'object') ? tinyData : null :
                                                     typeof tinyData === 'string' ? tinyData : null;
 
                                             sendTinyUpdate(

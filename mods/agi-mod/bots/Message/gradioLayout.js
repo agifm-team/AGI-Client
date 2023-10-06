@@ -1000,14 +1000,12 @@ const components = {
 
     },
 
-    ///
     highlightedtext: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        if (!oHtml) {
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
-            finalResult.attr('id', id).addClass('highlightedtext');
+        const highlightedResult = (tinyPlace) => {
 
             if (props.selectable) {
 
@@ -1032,7 +1030,7 @@ const components = {
 
                         }
 
-                        finalResult.append(highlight);
+                        tinyPlace.append(highlight);
 
                         colorIndex++;
                         if (typeof bootstrapItems.normal[colorIndex] !== 'string') colorIndex = 0;
@@ -1041,9 +1039,19 @@ const components = {
                 }
             }
 
+        };
+
+        if (!oHtml) {
+
+            finalResult.attr('id', id).addClass('highlightedtext');
+
+            highlightedResult(finalResult);
             return finalResult;
 
         }
+
+        oHtml.empty();
+        highlightedResult(oHtml);
 
     },
 

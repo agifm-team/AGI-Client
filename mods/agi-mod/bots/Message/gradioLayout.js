@@ -518,18 +518,12 @@ const components = {
 
     },
 
-    ///
     chatbot: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        if (!oHtml) {
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
-            finalResult.attr('id', id).addClass('chatbot').addClass('border').addClass('border-bg').addClass('bg-bg2').addClass('p-3');
-
-            if (props.show_label && props.label) {
-                finalResult.append(labelCreator(null, props, `${id}_chatbot`));
-            }
+        const addChatStuff = (tinyPlace) => {
 
             if (Array.isArray(props.value) && props.value.length > 0) {
 
@@ -547,7 +541,7 @@ const components = {
                         base.append($('<img>', { src: props.avatar_images[index], alt: `avatar ${index}`, class: 'avatar me-2' }));
                     }
 
-                    finalResult.append(base);
+                    tinyPlace.append(base);
 
                 };
 
@@ -568,9 +562,27 @@ const components = {
 
             }
 
+        };
+
+        if (!oHtml) {
+
+            finalResult.attr('id', id).addClass('chatbot').addClass('border').addClass('border-bg').addClass('bg-bg2').addClass('p-3');
+
+            if (props.show_label && props.label) {
+                finalResult.append(labelCreator(null, props, `${id}_chatbot`));
+            }
+
+            addChatStuff(finalResult);
             return finalResult;
 
         }
+
+        oHtml.empty();
+        if (props.show_label && props.label) {
+            oHtml.append(labelCreator(null, props, `${id}_chatbot`));
+        }
+
+        addChatStuff(oHtml);
 
     },
 

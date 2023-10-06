@@ -1095,17 +1095,15 @@ const components = {
 
     },
 
-    ///
     json: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        if (!oHtml) {
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
-            finalResult.attr('id', id).addClass('json');
+        const tinyJsonResult = (tinyPlace) => {
 
             if (props.show_label && props.label) {
-                finalResult.append(labelCreator(null, props, id));
+                tinyPlace.append(labelCreator(null, props, id));
             }
 
             const tinyJson = $('<div>', { class: 'text-start text-freedom border border-bg p-3 bg-bg2' }).append(props.value ? hljs.highlight(
@@ -1113,10 +1111,21 @@ const components = {
                 { language: 'json' }
             ).value : '');
 
-            finalResult.append(tinyJson);
+            tinyPlace.append(tinyJson);
+
+        };
+
+        if (!oHtml) {
+
+            finalResult.attr('id', id).addClass('json');
+
+            tinyJsonResult(oHtml);
             return finalResult;
 
         }
+
+        oHtml.empty();
+        tinyJsonResult(oHtml);
 
     },
 

@@ -1126,17 +1126,15 @@ const components = {
 
     },
 
-    ///
     label: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        if (!oHtml) {
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
-            finalResult.attr('id', id).addClass('label');
+        const labelCreate = (tinyPlace) => {
 
             if (props.show_label && props.label) {
-                finalResult.append(labelCreator(null, props, id));
+                tinyPlace.append(labelCreator(null, props, id));
             }
 
             const tinyLabel = $('<div>', { class: 'border border-bg p-3 bg-bg2' });
@@ -1173,10 +1171,21 @@ const components = {
 
             }
 
-            finalResult.append(tinyLabel);
+            tinyPlace.append(tinyLabel);
+
+        };
+
+        if (!oHtml) {
+
+            finalResult.attr('id', id).addClass('label');
+
+            labelCreate(finalResult);
             return finalResult;
 
         }
+
+        oHtml.empty();
+        labelCreate(oHtml);
 
     },
 

@@ -15,16 +15,16 @@ const updateInputValue = (input, dropdown, value, filePath = '') => {
         const tinyUrl = `${filePath}${typeof value === 'string' ? value.startsWith('/') || !filePath ? value : `/${value}` : ''}`;
         if (!tinyUrl.startsWith('data:')) {
 
-            $.LoadingOverlay('show', { text: 'Fetching gladio blob...' });
+            // $.LoadingOverlay('show', { text: 'Fetching gladio blob...' });
             fetch(tinyUrl)
                 .then(response => response.blob())
                 .then(blob => {
-                    $.LoadingOverlay('hide');
+                    // $.LoadingOverlay('hide');
                     const reader = new FileReader();
                     reader.onload = function () { input.value(this.result, true); }; // <--- `this.result` contains a base64 data URI
                     reader.readAsDataURL(blob);
                 }).catch(err => {
-                    $.LoadingOverlay('hide');
+                    // $.LoadingOverlay('hide');
                     toast(err.message);
                     console.error(err);
                 });
@@ -280,7 +280,7 @@ function GradioEmbed({ agiData }) {
                             const submitName = comps.api_name ? `/${comps.api_name}` : Number(tinyIndex);
 
                             console.log('Submit test', submitName, inputs);
-                            $.LoadingOverlay('show', { text: 'Starting gradio...' });
+                            // $.LoadingOverlay('show', { text: 'Starting gradio...' });
                             const job = app.submit(submitName, inputs);
 
                             // Sockets
@@ -346,7 +346,7 @@ function GradioEmbed({ agiData }) {
                                 else if (data.stage === 'complete') {
 
                                     // Success?
-                                    $.LoadingOverlay('hide');
+                                    // $.LoadingOverlay('hide');
                                     if (data.success) {
 
                                     }
@@ -355,7 +355,7 @@ function GradioEmbed({ agiData }) {
 
                                 // Error
                                 else if (data.stage === 'error') {
-                                    $.LoadingOverlay('hide');
+                                    // $.LoadingOverlay('hide');
                                     toast(data.message);
                                     console.error(data.message, data.code);
                                 }

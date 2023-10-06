@@ -469,6 +469,7 @@ const components = {
 
     },
 
+    ///
     button: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -506,6 +507,7 @@ const components = {
 
     },
 
+    ///
     chatbot: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -623,6 +625,7 @@ const components = {
 
     },
 
+    ///
     code: (props, compId, appId, url, oHtml) => {
         try {
 
@@ -678,6 +681,7 @@ const components = {
 
     },
 
+    ///
     dataset: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -803,6 +807,7 @@ const components = {
 
     },
 
+    ///
     dropdown: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -892,6 +897,7 @@ const components = {
 
     },
 
+    ///
     gallery: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -958,6 +964,7 @@ const components = {
 
     },
 
+    ///
     highlightedtext: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1044,6 +1051,7 @@ const components = {
 
     },
 
+    ///
     json: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1068,6 +1076,7 @@ const components = {
 
     },
 
+    ///
     label: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1191,6 +1200,7 @@ const components = {
 
     },
 
+    ///
     plot: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1615,6 +1625,7 @@ const components = {
 
     },
 
+    ///
     accordion: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'accordion');

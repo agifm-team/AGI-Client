@@ -205,20 +205,17 @@ const fileManagerReader = {
 
         if (typeof blobUrl === 'string') {
 
-            let audioPlace = previewBase.find('audio');
-            let source;
+            const removeAudio = previewBase.find('audio');
 
-            if (audioPlace.length < 1) {
-
-                audioPlace = $('<audio>');
-                source = $('<source>');
-
-                audioPlace.append(source);
-                previewBase.append(audioPlace);
-
-            } else {
-                source = audioPlace.find('source');
+            if (removeAudio.length > 0) {
+                removeAudio.remove();
             }
+
+            const audioPlace = $('<audio>');
+            const source = $('<source>');
+
+            audioPlace.append(source);
+            previewBase.append(audioPlace);
 
             previewBase.addClass('with-audio');
             audioPlace.attr('controls', true);

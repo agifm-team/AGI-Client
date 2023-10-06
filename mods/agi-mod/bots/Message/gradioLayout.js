@@ -840,7 +840,6 @@ const components = {
 
     },
 
-    ///
     dropdown: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1259,17 +1258,14 @@ const components = {
 
     },
 
-    ///
     plot: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
-            finalResult.attr('id', id).addClass('plot');
+        const createPlot = (tinyPlace) => {
 
             if (props.show_label && props.label) {
-                finalResult.append(labelCreator(null, props, id));
+                tinyPlace.append(labelCreator(null, props, id));
             }
 
             if (objType(props.value, 'object')) {
@@ -1277,7 +1273,7 @@ const components = {
                 if (props.value.type === 'matplotlib') {
 
                     if (typeof props.value.plot === 'string' && isBase64(props.value.plot, { allowMime: true, mimeRequired: true, allowEmpty: false })) {
-                        finalResult.append(
+                        tinyPlace.append(
                             $('<img>', { alt: 'matplotlib', src: props.value.plot, class: 'img-fluid' }).prop('draggable', false)
                         );
                     }
@@ -1290,7 +1286,7 @@ const components = {
 
                         props.value.plot = JSON.parse(props.value.plot);
                         const vegaItem = $('<div>', { class: 'vega-chart' });
-                        finalResult.append(vegaItem);
+                        tinyPlace.append(vegaItem);
 
                         const theme = selectTheme();
 
@@ -1307,9 +1303,20 @@ const components = {
 
             }
 
+        };
+
+        if (!oHtml) {
+
+            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            finalResult.attr('id', id).addClass('plot');
+
+            createPlot(finalResult);
             return finalResult;
 
         }
+
+        oHtml.empty();
+        createPlot(oHtml);
 
     },
 

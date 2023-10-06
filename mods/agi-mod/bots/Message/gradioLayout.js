@@ -469,27 +469,27 @@ const components = {
 
     },
 
-    ///
     button: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
+
+        if (props.variant === 'stop') props.variant = 'danger';
+
+        const sizes = {
+            normal: 20,
+            sm: 15,
+            lg: 30,
+        };
+
+        const classes = `btn btn-${props.variant ? props.variant : 'bg'}${typeof props.size === 'string' && props.size.length > 0 ? ` btn-${props.size}` : ''}`;
+
         if (!oHtml) {
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
             finalResult.attr('id', id).addClass('button').addClass('d-grid');
 
-            if (props.variant === 'stop') props.variant = 'danger';
-
-            const sizes = {
-                normal: 20,
-                sm: 15,
-                lg: 30,
-            };
-
             const sizeSelected = typeof props.size === 'string' && props.size.length > 0 ? props.size : 'normal';
 
-            const button = $('<button>', {
-                class: `btn btn-${props.variant ? props.variant : 'bg'}${typeof props.size === 'string' && props.size.length > 0 ? ` btn-${props.size}` : ''}`,
-            }).text(props.value);
+            const button = $('<button>', { class: classes, }).text(props.value);
 
             if (typeof props.icon === 'string' && props.icon.length > 0) {
                 button.prepend(
@@ -504,6 +504,17 @@ const components = {
             return finalResult;
 
         }
+
+        const button = oHtml.find('> button');
+        button.empty().text(props.value).attr('class', classes);
+
+        if (typeof props.icon === 'string' && props.icon.length > 0) {
+            button.prepend(
+                $('<img>', { src: props.icon, alt: 'icon', class: 'img-fluid me-2' }).css('height', sizes[sizeSelected])
+            );
+        }
+
+        button.prop('disabled', (props.interactive === false));
 
     },
 

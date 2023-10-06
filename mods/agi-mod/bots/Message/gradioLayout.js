@@ -648,19 +648,13 @@ const components = {
 
     },
 
-    ///
     code: (props, compId, appId, url, oHtml) => {
         try {
 
             const finalResult = displayOptions(props, compId, appId, url, oHtml);
-            if (!oHtml) {
+            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
 
-                const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
-                finalResult.attr('id', id).addClass('code');
-
-                if (props.show_label && props.label) {
-                    finalResult.append(labelCreator(null, props, id));
-                }
+            const insertTinyCode = (tinyPlace) => {
 
                 const tinyCode = $('<code>', { class: `language-${props.language} hljs text-start` }).append(props.value ? hljs.highlight(
                     props.value,
@@ -670,10 +664,29 @@ const components = {
                 const tinyResult = $('<pre>').append(tinyCode);
                 hljsFixer(tinyCode, 'MessageBody');
 
-                finalResult.append(tinyResult);
+                tinyPlace.append(tinyResult);
+
+            };
+
+            if (!oHtml) {
+
+                finalResult.attr('id', id).addClass('code');
+
+                if (props.show_label && props.label) {
+                    finalResult.append(labelCreator(null, props, id));
+                }
+
+                insertTinyCode(finalResult);
                 return finalResult;
 
             }
+
+            oHtml.empty();
+            if (props.show_label && props.label) {
+                oHtml.append(labelCreator(null, props, `${id}_chatbot`));
+            }
+
+            insertTinyCode(oHtml);
 
         } catch (err) {
             console.error(err);

@@ -539,7 +539,7 @@ function GradioEmbed({ agiData }) {
 
                                             // Then
                                             else if (trigger === 'then') {
-                                                clickAction(target, 'then', depId, depItem.outputs, config.dependencies[item].trigger_after);
+                                                clickAction(target, 'change', depId, depItem.outputs, config.dependencies[item].trigger_after);
                                             }
 
                                         }

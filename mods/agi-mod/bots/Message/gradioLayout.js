@@ -426,6 +426,7 @@ const components = {
 
     },
 
+    /// 
     audio: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -444,12 +445,15 @@ const components = {
             const input = fileManagerEditor(audio, finalResult, id, 'audio', props, 'audio/*', props.value);
             if (props.interactive !== false) {
 
-                if (props.source === 'upload') {
-                    finalResult.append(input);
+                if (props.source !== 'upload') {
+                    input.addClass('d-hide');
                 }
 
+            } else {
+                input.addClass('d-hide');
             }
 
+            finalResult.append(input);
             finalResult.append(audio);
 
             if (props.show_share_button) {
@@ -462,6 +466,21 @@ const components = {
 
             return finalResult;
 
+        }
+
+        const input = oHtml.find('input');
+        if (props.interactive !== false) {
+
+            if (props.source === 'upload') {
+                input.removeClass('d-hide');
+            } else if (props.source === 'microphone') {
+                input.addClass('d-hide');
+            } else {
+                input.addClass('d-hide');
+            }
+
+        } else {
+            input.addClass('d-hide');
         }
 
     },
@@ -1948,7 +1967,7 @@ class GradioLayout {
         return this.getComponent(id).value.data('gradio_values');
     }
 
-    updateEmbed() {
+    updateEmbed(antiRepeat = false) {
 
         for (const item in this.components) {
             for (const index in this.components[item]) {
@@ -1956,12 +1975,14 @@ class GradioLayout {
                 const values = this.components[item][index].data('gradio_values') ?? {};
                 const type = this.components[item][index].attr('component_type');
 
-                components[type](values.props ?? {}, values?.id, values?.appId, values?.url, this.components[item][index]);
+                if (components[type]) {
+                    components[type](values.props ?? {}, values?.id, values?.appId, values?.url, this.components[item][index]);
+                }
 
             }
         }
 
-        console.log(this.components);
+        if (!antiRepeat) this.updateEmbed(true);
 
     }
 

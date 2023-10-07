@@ -475,6 +475,7 @@ function GradioEmbed({ agiData }) {
                             comps.backend_fn = depItem.backend_fn;
 
                             const clickAction = (target, type, depId, outputs, triggerAfter) => {
+                                console.log('Target', type, target, depId, triggerAfter);
                                 if (!triggerAfter) {
 
                                     const executeArray = (value, targetType, targetId) => {
@@ -522,8 +523,8 @@ function GradioEmbed({ agiData }) {
 
                                         // Get Id
                                         const depId = depItem.targets[index];
-                                        const target = embedData.getTarget(depId);
-                                        // console.log('Target', trigger, depId, target);
+                                        let target = embedData.getTarget(depId);
+                                        if (!target) target = embedData.getInput(depId);
                                         if (target) {
 
                                             // Click
@@ -551,8 +552,8 @@ function GradioEmbed({ agiData }) {
 
                                             // Get Id
                                             const depId = depItem.targets[index][0];
-                                            const target = embedData.getTarget(depId);
-                                            // console.log('Target', depItem.targets[index][1], depId, target);
+                                            let target = embedData.getTarget(depId);
+                                            if (!target) target = embedData.getInput(depId);
                                             if (target) {
 
                                                 // Click

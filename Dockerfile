@@ -15,5 +15,4 @@ FROM nginx:1.25.2-alpine
 
 COPY --from=builder /src/dist /app
 
-RUN rm -rf /usr/share/nginx/html \
-  && ln -s /app /usr/share/nginx/html/app
+RUN  ln -s /app /usr/share/nginx/html/app

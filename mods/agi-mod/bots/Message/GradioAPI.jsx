@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { client } from '@gradio/client';
 import GradioLayout, { fileUrlGenerator } from './gradioLayout';
 import { objType, toast } from '../../../../src/util/tools';
+import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 
 const updateInputValue = (input, dropdown, value, filePath = '') => {
 
@@ -15,16 +16,16 @@ const updateInputValue = (input, dropdown, value, filePath = '') => {
         const tinyUrl = `${filePath}${typeof value === 'string' ? value.startsWith('/') || !filePath ? value : `/${value}` : ''}`;
         if (!tinyUrl.startsWith('data:')) {
 
-            // $.LoadingOverlay('show', { text: 'Fetching gladio blob...' });
+            setLoadingPage('Fetching gladio blob...');
             fetch(tinyUrl)
                 .then(response => response.blob())
                 .then(blob => {
-                    // $.LoadingOverlay('hide');
+                    setLoadingPage(false);
                     const reader = new FileReader();
                     reader.onload = function () { input.value(this.result, true); }; // <--- `this.result` contains a base64 data URI
                     reader.readAsDataURL(blob);
                 }).catch(err => {
-                    // $.LoadingOverlay('hide');
+                    setLoadingPage(false);
                     toast(err.message);
                     console.error(err);
                 });
@@ -280,7 +281,7 @@ function GradioEmbed({ agiData }) {
                             const submitName = comps.api_name ? `/${comps.api_name}` : Number(tinyIndex);
 
                             console.log('Submit test', submitName, inputs);
-                            // $.LoadingOverlay('show', { text: 'Starting gradio...' });
+                            setLoadingPage('Starting gradio...');
                             const job = app.submit(submitName, inputs);
 
                             // Sockets
@@ -347,7 +348,7 @@ function GradioEmbed({ agiData }) {
                                 else if (data.stage === 'complete') {
 
                                     // Success?
-                                    // $.LoadingOverlay('hide');
+                                    setLoadingPage(false);
                                     if (data.success) {
 
                                     }
@@ -356,7 +357,7 @@ function GradioEmbed({ agiData }) {
 
                                 // Error
                                 else if (data.stage === 'error') {
-                                    // $.LoadingOverlay('hide');
+                                    setLoadingPage(false);
                                     toast(data.message);
                                     console.error(data.message, data.code);
                                 }

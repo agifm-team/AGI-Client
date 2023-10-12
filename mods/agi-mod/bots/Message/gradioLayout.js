@@ -949,7 +949,6 @@ const components = {
 
     },
 
-    ///
     gallery: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -982,25 +981,27 @@ const components = {
                             is_file: true
                         } : props.value[item];
 
-                        if (!value.data) value.data = value.name;
-
                         let imgUrl = value.name;
                         if (!imgUrl.startsWith('https://') && !imgUrl.startsWith('http://')) {
                             imgUrl = `${tinyUrl}${imgUrl}`;
                         }
 
-                        gallery.append($('<div>', { class: `col-${rowsList[cols][rowNumber]}` }).append(
+                        const button = $('<button>', { class: 'w-100' }).append(
 
-                            $('<button>', { class: 'w-100' }).append(
+                            objType(value, 'object') && typeof value.name === 'string' && value.name.length > 0 ?
+                                $('<div>', { class: 'avatar border border-bg' }).css({ 'background-image': `url('${imgUrl}')` }).data('gradio_props_gallery_item', value) : null,
 
-                                objType(value, 'object') && typeof value.name === 'string' && value.name.length > 0 ?
-                                    $('<div>', { class: 'avatar border border-bg' }).css({ 'background-image': `url('${imgUrl}')` }).data('gradio_props_gallery_item', value) : null,
+                            typeof value.data === 'string' ? $('<div>', { class: 'text-bg' }).text(value.data) : null
 
-                                typeof value.data === 'string' ? $('<div>', { class: 'text-bg' }).text(value.data) : null
+                        );
 
-                            ).on('click', () => input.val(value.data))
+                        gallery.append($('<div>', { class: `col-${rowsList[cols][rowNumber]}` }).append(button));
 
-                        ));
+                        if (props.selectable) {
+                            button.on('click', () => input.val(value.data));
+                        } else {
+                            button.addClass('disabled');
+                        }
 
                         rowNumber++;
                         if (typeof rowsList[cols][rowNumber] !== 'number') {

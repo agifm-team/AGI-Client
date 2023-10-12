@@ -972,7 +972,7 @@ const components = {
 
                     let rowNumber = 0;
 
-                    console.log('Gallery', props, cols);
+                    // console.log('Gallery', props, cols);
                     for (const item in props.value) {
 
                         const value = Array.isArray(props.value[item]) ? {
@@ -1822,12 +1822,13 @@ const childrenLoader = (items, config, url, appId, comps, tinyIndex = -1) => {
 
                             // Create Row Items
                             let newPageLength = 0;
-                            newPage.forEach(item2 => {
-                                if (item2.text().trim().length > 0 && !item2.hasClass('d-none')) newPageLength++;
-                            });
+                            for (const item2 in newPage) {
+                                if (/* newPage[item2].text().trim().length > 0 && */ !newPage[item2].hasClass('d-none')) newPageLength++;
+                            }
 
                             // Get row list item
                             const rowItems = rowsList[newPageLength];
+                            console.log(rowItems, newPageLength, newPage);
 
                             // Insert Row items
                             let rowItem = 0;

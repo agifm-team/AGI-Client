@@ -36,6 +36,7 @@ const displayOptions = (props, id, appId, url, oHtml) => {
 };
 
 const rowsList = {
+    0: [12],
     1: [12],
     2: [6, 6],
     3: [4, 4, 4],

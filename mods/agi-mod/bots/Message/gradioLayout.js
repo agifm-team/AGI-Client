@@ -964,35 +964,45 @@ const components = {
 
             const gallery = $('<div>', { class: 'row' });
             const input = $('<input>', { class: 'd-none', type: 'text' });
+            const cols = (typeof props.grid_cols === 'number' ? props.grid_cols : null) || props.columns;
 
-            if (typeof props.grid_cols === 'number' && !Number.isNaN(props.grid_cols) && Number.isFinite(props.grid_cols) && props.grid_cols <= 12 && rowsList[props.grid_cols]) {
+            if (typeof cols === 'number' && !Number.isNaN(cols) && Number.isFinite(cols) && cols <= 12 && rowsList[cols]) {
 
-                if (Array.isArray(rowsList[props.grid_cols]) && Array.isArray(props.value)) {
+                if (Array.isArray(rowsList[cols]) && Array.isArray(props.value)) {
 
                     let rowNumber = 0;
 
+                    console.log('Gallery', props, cols);
                     for (const item in props.value) {
 
-                        let imgUrl = props.value[item][0].name;
+                        const value = Array.isArray(props.value[item]) ? {
+                            name: props.value[item][0]?.name,
+                            data: props.value[item][1],
+                            is_file: true
+                        } : props.value[item];
+
+                        if (!value.data) value.data = value.name;
+
+                        let imgUrl = value.name;
                         if (!imgUrl.startsWith('https://') && !imgUrl.startsWith('http://')) {
                             imgUrl = `${tinyUrl}${imgUrl}`;
                         }
 
-                        gallery.append($('<div>', { class: `col-${rowsList[props.grid_cols][rowNumber]}` }).append(
+                        gallery.append($('<div>', { class: `col-${rowsList[cols][rowNumber]}` }).append(
 
                             $('<button>', { class: 'w-100' }).append(
 
-                                objType(props.value[item][0], 'object') && typeof props.value[item][0].name === 'string' && props.value[item][0].name.length > 0 ?
-                                    $('<div>', { class: 'avatar border border-bg' }).css({ 'background-image': `url('${imgUrl}')` }).data('gradio_props_gallery_item', props.value[item]) : null,
+                                objType(value, 'object') && typeof value.name === 'string' && value.name.length > 0 ?
+                                    $('<div>', { class: 'avatar border border-bg' }).css({ 'background-image': `url('${imgUrl}')` }).data('gradio_props_gallery_item', value) : null,
 
-                                typeof props.value[item][1] === 'string' ? $('<div>', { class: 'text-bg' }).text(props.value[item][1]) : null
+                                typeof value.data === 'string' ? $('<div>', { class: 'text-bg' }).text(value.data) : null
 
-                            ).on('click', () => input.val(props.value[item][1]))
+                            ).on('click', () => input.val(value.data))
 
                         ));
 
                         rowNumber++;
-                        if (typeof rowsList[props.grid_cols][rowNumber] !== 'number') {
+                        if (typeof rowsList[cols][rowNumber] !== 'number') {
                             rowNumber = 0;
                         }
 

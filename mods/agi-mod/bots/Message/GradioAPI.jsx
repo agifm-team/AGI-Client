@@ -539,7 +539,8 @@ function GradioEmbed({ agiData }) {
                                             }
 
                                             // Then
-                                            else if (trigger === 'then') {
+                                            else if (trigger === 'then' || trigger === 'upload' || trigger === 'select') {
+                                                console.log('Input Then', target, trigger, depId, depItem.outputs, config.dependencies[item].trigger_after);
                                                 clickAction(target, 'change', depId, depItem.outputs, config.dependencies[item].trigger_after);
                                             }
 
@@ -568,8 +569,9 @@ function GradioEmbed({ agiData }) {
                                                 }
 
                                                 // Then
-                                                else if (depItem.targets[index][1] === 'then') {
-                                                    clickAction(target, 'then', depId, depItem.outputs, config.dependencies[item].trigger_after);
+                                                else if (depItem.targets[index][1] === 'then' || depItem.targets[index][1] === 'upload' || depItem.targets[index][1] === 'select') {
+                                                    console.log('Input Then', target, trigger, depId, depItem.outputs, config.dependencies[item].trigger_after);
+                                                    clickAction(target, 'change', depId, depItem.outputs, config.dependencies[item].trigger_after);
                                                 }
 
                                             }

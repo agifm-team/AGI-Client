@@ -608,7 +608,7 @@ function GradioEmbed({ agiData }) {
 
     // Temp result. (I'm using this only to have a preview. This will be removed later.)
     // <iframe title='gradio' src={agiData.url} />
-    return <div ref={embedRef} className='mt-2 agi-client-embed border border-bg p-4' />;
+    return <div ref={embedRef} className='mt-2 agi-client-embed chatbox-size-fix border border-bg p-4' />;
 
 };
 

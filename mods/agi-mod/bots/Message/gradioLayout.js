@@ -1921,7 +1921,7 @@ class GradioLayout {
                     }`);
                 */
 
-                if (typeof tinyStyle.css === 'string') page.push($('<style>').append(tinyStyle.css));
+                // if (typeof tinyStyle.css === 'string') page.push($('<style>').append(tinyStyle.css));
 
             }
 

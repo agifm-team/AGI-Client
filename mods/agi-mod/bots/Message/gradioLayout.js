@@ -1915,9 +1915,11 @@ class GradioLayout {
             const page = childrenLoader(config.layout.children, config, url, appId, this.components);
             if (typeof config.css === 'string' && config.css.length > 0 && typeof cssBase === 'string' && cssBase.length > 0) {
 
+                /*
                 const tinyStyle = sass.compileString(`${cssBase} {
                         ${config.css}
                     }`);
+                */
 
                 if (typeof tinyStyle.css === 'string') page.push($('<style>').append(tinyStyle.css));
 

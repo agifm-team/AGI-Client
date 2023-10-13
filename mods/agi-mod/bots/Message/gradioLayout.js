@@ -422,7 +422,6 @@ const components = {
             return finalResult;
         }
 
-        console.log(thead, tbody);
         oHtml.find('> table').empty().append(thead, tbody);
 
     },
@@ -1722,6 +1721,24 @@ const components = {
 
     },
 
+    box: (props, compId, appId, url, oHtml) => {
+
+        const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'box');
+        if (!oHtml) {
+
+            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            finalResult.attr('id', id).addClass('box');
+
+            if (props.show_label && typeof props.label === 'string') {
+                finalResult.append($('<div>', { id }).text(props.label));
+            }
+
+            return finalResult;
+
+        }
+
+    },
+
     ///
     accordion: (props, compId, appId, url, oHtml) => {
 
@@ -1828,7 +1845,6 @@ const childrenLoader = (items, config, url, appId, comps, tinyIndex = -1) => {
 
                             // Get row list item
                             const rowItems = rowsList[newPageLength];
-                            console.log(rowItems, newPageLength, newPage);
 
                             // Insert Row items
                             let rowItem = 0;

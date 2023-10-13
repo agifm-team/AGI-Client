@@ -971,7 +971,6 @@ const components = {
 
                     let rowNumber = 0;
 
-                    // console.log('Gallery', props, cols);
                     for (const item in props.value) {
 
                         const value = Array.isArray(props.value[item]) ? {

@@ -1,3 +1,10 @@
+/* Chatbox */
+#chatbox {
+  tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.09);
+  }
+}
+
 /* Modals */
 #agi-superagent-modal,
 #agi-flowise-modal {

@@ -280,7 +280,7 @@ function GradioEmbed({ agiData }) {
                             // https://www.gradio.app/docs/js-client#submit
                             const submitName = comps.api_name ? `/${comps.api_name}` : Number(tinyIndex);
 
-                            console.log('Submit test', submitName, inputs);
+                            console.log('Submit test', submitName, comps, inputs);
                             setLoadingPage('Starting gradio...');
                             const job = app.submit(submitName, inputs);
 

@@ -110,6 +110,25 @@ const htmlAllowed = {
 
 };
 
+const fileInputFixer = (props, oHtml) => {
+
+    const input = oHtml.find('input:not([type=\'hidden\'])');
+    if (props.interactive !== false) {
+
+        if (props.source === 'upload') {
+            input.removeClass('d-hide');
+        } else if (props.source === 'microphone') {
+            input.addClass('d-hide');
+        } else {
+            input.addClass('d-hide');
+        }
+
+    } else {
+        input.addClass('d-hide');
+    }
+
+};
+
 // File Input Accept Generator
 const fileInputAccept = (fileTypes) => {
     if (Array.isArray(fileTypes) && fileTypes.length > 0) {
@@ -243,6 +262,7 @@ const fileManagerReader = {
 
 const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept, tinyValue) => {
 
+    const inputText = $('<input>', { class: 'd-none', type: 'hidden' });
     const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_${type}`, accept: typeof fileAccept === 'string' ? fileAccept : fileInputAccept(props.file_types) })
         .prop('multiple', props.file_count === 'multiple')
         .prop('webkitdirectory', props.file_count === 'directory')
@@ -257,6 +277,8 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
         }
 
         input.val('');
+        inputText.val(value);
+        inputText.trigger('change');
 
         if (convertBlob) {
             const resultData = finalResult.data('gradio_values');
@@ -272,7 +294,7 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
 
     };
 
-    finalResult.data('gradio_input', { type: 'blob', value: valueUpdater });
+    finalResult.data('gradio_input', { type: 'blob', value: valueUpdater, input: inputText });
 
     const fileInput = input.get(0);
     input.get(0).addEventListener('change', () => {
@@ -299,7 +321,7 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
         valueUpdater(tinyValue, true);
     }
 
-    return input;
+    return [input, inputText];
 
 };
 
@@ -446,11 +468,11 @@ const components = {
             if (props.interactive !== false) {
 
                 if (props.source !== 'upload') {
-                    input.addClass('d-hide');
+                    input[0].addClass('d-hide');
                 }
 
             } else {
-                input.addClass('d-hide');
+                input[0].addClass('d-hide');
             }
 
             finalResult.append(input);
@@ -468,20 +490,7 @@ const components = {
 
         }
 
-        const input = oHtml.find('input');
-        if (props.interactive !== false) {
-
-            if (props.source === 'upload') {
-                input.removeClass('d-hide');
-            } else if (props.source === 'microphone') {
-                input.addClass('d-hide');
-            } else {
-                input.addClass('d-hide');
-            }
-
-        } else {
-            input.addClass('d-hide');
-        }
+        fileInputFixer(props, oHtml);
 
     },
 
@@ -946,6 +955,8 @@ const components = {
 
         }
 
+        fileInputFixer(props, oHtml);
+
     },
 
     gallery: (props, compId, appId, url, oHtml) => {
@@ -1118,6 +1129,8 @@ const components = {
 
         }
 
+        fileInputFixer(props, oHtml);
+
     },
 
     json: (props, compId, appId, url, oHtml) => {
@@ -1242,6 +1255,8 @@ const components = {
             return finalResult;
 
         }
+
+        fileInputFixer(props, oHtml);
 
     },
 
@@ -1590,6 +1605,8 @@ const components = {
 
         }
 
+        fileInputFixer(props, oHtml);
+
     },
 
     uploadbutton: (props, compId, appId, url, oHtml) => {
@@ -1681,6 +1698,8 @@ const components = {
             return finalResult;
 
         }
+
+        fileInputFixer(props, oHtml);
 
     },
 

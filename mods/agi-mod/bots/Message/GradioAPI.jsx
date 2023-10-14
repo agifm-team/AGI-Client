@@ -479,11 +479,15 @@ function GradioEmbed({ agiData }) {
                                 console.log('Target', type, target, depId, triggerAfter);
                                 if (!triggerAfter) {
 
-                                    const executeArray = (value, targetType, targetId) => {
+                                    const executeArray = (value, targetType, input, targetId) => {
 
                                         // jQuery
                                         if (targetType === 'jquery') {
                                             value.on(type, () => tinyAction(depId, targetId, outputs));
+                                        }
+
+                                        else if (targetType === 'blob') {
+                                            input.on('change', () => tinyAction(depId, targetId, outputs));
                                         }
 
                                         // Array
@@ -498,7 +502,7 @@ function GradioEmbed({ agiData }) {
                                                 // Mode 2
                                                 else {
                                                     for (const item3 in value[item2]) {
-                                                        executeArray(value[item2][item3], 'jquery', value.length < 2 ? item3 : item2);
+                                                        executeArray(value[item2][item3], 'jquery', input, value.length < 2 ? item3 : item2);
                                                     }
                                                 }
 
@@ -507,7 +511,7 @@ function GradioEmbed({ agiData }) {
 
                                     };
 
-                                    executeArray(target.value, target.type);
+                                    executeArray(target.value, target.type, target.input);
 
                                 }
                             };

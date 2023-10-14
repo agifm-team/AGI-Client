@@ -955,7 +955,7 @@ const components = {
 
         }
 
-        // fileInputFixer(props, oHtml);
+        fileInputFixer(props, oHtml);
 
     },
 

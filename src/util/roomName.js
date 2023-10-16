@@ -55,4 +55,9 @@ export function sortName(a, b) {
         // names must be equal
         return 0;
     }
+}
+
+const sortTimeTemplate = (item) => Array.isArray(item.timeline) && item.timeline.length > 0 ? item.timeline[item.timeline.length - 1] : 0;
+export function sortTime(a, b) {
+    return sortTimeTemplate(a) - sortTimeTemplate(b);
 } 

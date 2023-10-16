@@ -6,3 +6,94 @@
     }
   }
 }
+
+.space-drawer-body {
+  .room-selector {
+    .room-selector__options > button > i {
+      position: relative;
+      top: -1px;
+    }
+
+    .content {
+      .username-unread {
+        margin-right: 27px;
+      }
+
+      .notification-badge {
+        width: 23px;
+        display: flex !important;
+        align-items: center;
+        margin-top: -20px;
+      }
+
+      &.content-dm {
+        .notification-badge {
+          margin-top: -29px !important;
+        }
+
+        &.content-with-custom-status .notification-badge {
+          margin-top: -26px !important;
+        }
+      }
+
+      .avatar {
+        .user-status {
+          z-index: 2;
+          position: relative;
+          top: 9px;
+          margin-left: -8px;
+        }
+
+        .user-status,
+        .user-status::before {
+          font-size: 8pt;
+        }
+      }
+
+      &.content-dm {
+        height: 45px;
+      }
+
+      &.content-dm:not(.content-with-custom-status) {
+        .username-base {
+          margin-top: 10px;
+          margin-bottom: 10px;
+        }
+      }
+
+      .user-custom-status {
+        display: block !important;
+      }
+
+      .avatar {
+        display: flex !important;
+        align-items: center;
+      }
+
+      .username-base,
+      .user-custom-status {
+        display: block !important;
+      }
+    }
+  }
+}
+
+/* RoomSelector */
+.room-selector,
+.space-manage-item {
+  .avatar-container {
+    top: -2px;
+    position: relative;
+  }
+
+  .avatar-type--icon .avatar-container {
+    top: 0px;
+  }
+}
+
+.search-dialog {
+  .avatar-type--img .avatar-container {
+    top: -2px;
+    position: relative;
+  }
+}

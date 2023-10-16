@@ -41,24 +41,14 @@
   <script type="importmap">
     {
       "imports": {
-        "immutable": "./js/immutable.es.js",
-        "sass": "./js/sass.default.js",
         "qrcode": "./js/qrcode/browser.js"
       }
     }
   </script>
 
-  <!-- Support browsers like Safari 16.3 without import maps support. -->
-  <script async src="./js/es-module-shims.js" crossorigin="anonymous"></script>
-
   <script type="module">
-
-    import * as sass from 'sass';
-    global.sass = sass;
-
     import * as qrcode from 'qrcode';
     global.qrcode = qrcode;
-
   </script>
 
   <script src="./js/vega/vega.min.js"></script>
@@ -69,7 +59,6 @@
   <script src="./js/moment/moment-timezone-with-data.min.js"></script>
 
   <script src="./js/jquery.min.js"></script>
-  <script src="./js/loadingoverlay.min.js"></script>
   <script src="./js/jquery-ui.min.js"></script>
   <script src="./js/bootstrap.bundle.min.js"></script>
   <script src="./js/web3.min.js"></script>

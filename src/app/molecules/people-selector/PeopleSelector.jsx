@@ -1,8 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import clone from 'clone';
 
-import { twemojifyReact, twemojify } from '../../../util/twemojify';
+import { twemojifyReact } from '../../../util/twemojify';
 
 import { blurOnBubbling } from '../../atoms/button/script';
 
@@ -10,63 +9,20 @@ import Text from '../../atoms/text/Text';
 import Avatar from '../../atoms/avatar/Avatar';
 import { getUserStatus, updateUserStatusIcon, getPresence } from '../../../util/onlineStatus';
 import initMatrix from '../../../client/initMatrix';
-import { getUserWeb3Account } from '../../../util/web3';
+import insertCustomStatus from './insertCustomStatus';
 
 function PeopleSelector({
-  avatarSrc, avatarAnimSrc, name, color, peopleRole, onClick, user, disableStatus
+  avatarSrc, avatarAnimSrc, name, color, peopleRole, onClick, user, disableStatus, avatarSize
 }) {
 
   const statusRef = useRef(null);
   const customStatusRef = useRef(null);
 
+  const [imageAnimSrc, setImageAnimSrc] = useState(avatarAnimSrc);
+  const [imageSrc, setImageSrc] = useState(avatarSrc);
+
   const getCustomStatus = (content) => {
-
-    // Custom Status
-    if (customStatusRef && customStatusRef.current) {
-
-      // Get Status
-      const customStatus = $(customStatusRef.current);
-      const htmlStatus = [];
-      let customStatusImg;
-
-      if (
-        content && content.presenceStatusMsg &&
-        content.presence !== 'offline' && content.presence !== 'unavailable' && (
-          (typeof content.presenceStatusMsg.msg === 'string' && content.presenceStatusMsg.msg.length > 0) ||
-          (typeof content.presenceStatusMsg.msgIcon === 'string' && content.presenceStatusMsg.msgIcon.length > 0)
-        )
-      ) {
-
-        if (typeof content.presenceStatusMsg.msgIcon === 'string' && content.presenceStatusMsg.msgIcon.length > 0) {
-
-          customStatusImg = $('<img>', { src: content.presenceStatusMsg.msgIconThumb, alt: 'icon', class: 'emoji me-1' });
-          htmlStatus.push(customStatusImg);
-
-          customStatusImg.data('pony-house-cs-normal', content.presenceStatusMsg.msgIconThumb);
-          customStatusImg.data('pony-house-cs-hover', content.presenceStatusMsg.msgIcon);
-
-        }
-
-        if (typeof content.presenceStatusMsg.msg === 'string' && content.presenceStatusMsg.msg.length > 0) {
-          htmlStatus.push($('<span>', { class: 'text-truncate cs-text' }).html(twemojify(content.presenceStatusMsg.msg.substring(0, 100))));
-        }
-
-      }
-
-      customStatus.html(htmlStatus);
-
-      if (customStatusImg) {
-        customStatusImg.parent().parent().parent().hover(
-          () => {
-            customStatusImg.attr('src', customStatusImg.data('pony-house-cs-hover'));
-          }, () => {
-            customStatusImg.attr('src', customStatusImg.data('pony-house-cs-normal'));
-          }
-        );
-      }
-
-    }
-
+    insertCustomStatus(customStatusRef, content);
   };
 
   if (user) {
@@ -76,21 +32,21 @@ function PeopleSelector({
   useEffect(() => {
     if (user) {
 
+      const mx = initMatrix.matrixClient;
+
       // Update Status Profile
       const updateProfileStatus = (mEvent, tinyData) => {
 
         // Get Status
-        const mx = initMatrix.matrixClient;
         const status = $(statusRef.current);
         const tinyUser = tinyData;
 
-        // Is You
-        if (tinyUser.userId === mx.getUserId()) {
-          const yourData = clone(mx.getAccountData('pony.house.profile')?.getContent() ?? {});
-          yourData.ethereum = getUserWeb3Account();
-          if (typeof yourData.ethereum.valid !== 'undefined') delete yourData.ethereum.valid;
-          tinyUser.presenceStatusMsg = JSON.stringify(yourData);
-        }
+        // Image
+        const newImageSrc = tinyUser && tinyUser.avatarUrl ? mx.mxcUrlToHttp(tinyUser.avatarUrl, avatarSize, avatarSize, 'crop') : null;
+        setImageSrc(newImageSrc);
+
+        const newImageAnimSrc = tinyUser && tinyUser.avatarUrl ? mx.mxcUrlToHttp(tinyUser.avatarUrl) : null;
+        setImageAnimSrc(newImageAnimSrc);
 
         // Update Status Icon
         getCustomStatus(updateUserStatusIcon(status, tinyUser));
@@ -98,6 +54,7 @@ function PeopleSelector({
       };
 
       // Read Events
+      user.on('User.avatarUrl', updateProfileStatus);
       user.on('User.currentlyActive', updateProfileStatus);
       user.on('User.lastPresenceTs', updateProfileStatus);
       user.on('User.presence', updateProfileStatus);
@@ -105,6 +62,7 @@ function PeopleSelector({
         user.removeListener('User.currentlyActive', updateProfileStatus);
         user.removeListener('User.lastPresenceTs', updateProfileStatus);
         user.removeListener('User.presence', updateProfileStatus);
+        user.removeListener('User.avatarUrl', updateProfileStatus);
       };
 
     }
@@ -118,7 +76,7 @@ function PeopleSelector({
       type="button"
     >
 
-      <Avatar imageAnimSrc={avatarAnimSrc} imageSrc={avatarSrc} text={name} bgColor={color} size="small" isDefaultImage />
+      <Avatar imageAnimSrc={imageAnimSrc} imageSrc={imageSrc} text={name} bgColor={color} size="small" isDefaultImage />
       {!disableStatus ? <i ref={statusRef} className={getUserStatus(user)} /> : ''}
 
       <div className="small people-selector__name text-start">
@@ -134,6 +92,7 @@ function PeopleSelector({
 }
 
 PeopleSelector.defaultProps = {
+  avatarSize: 24,
   avatarAnimSrc: null,
   avatarSrc: null,
   peopleRole: null,
@@ -142,6 +101,7 @@ PeopleSelector.defaultProps = {
 };
 
 PeopleSelector.propTypes = {
+  avatarSize: PropTypes.number,
   disableStatus: PropTypes.bool,
   user: PropTypes.object,
   avatarAnimSrc: PropTypes.string,

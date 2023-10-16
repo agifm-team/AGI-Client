@@ -8,7 +8,7 @@ import { getPowerLabel, getUsernameOfRoomMember } from '../../../util/matrixUtil
 import { colorMXID } from '../../../util/colorMXID';
 import { openInviteUser, openProfileViewer } from '../../../client/action/navigation';
 import AsyncSearch from '../../../util/AsyncSearch';
-import { memberByAtoZ, memberByPowerLevel } from '../../../util/sort';
+import { memberByStatus, memberByPowerLevel } from '../../../util/sort';
 
 import Text from '../../atoms/text/Text';
 import { Header } from '../../atoms/header/Header';
@@ -17,6 +17,7 @@ import Button from '../../atoms/button/Button';
 import Input from '../../atoms/input/Input';
 import SegmentedControl from '../../atoms/segmented-controls/SegmentedControls';
 import PeopleSelector from '../../molecules/people-selector/PeopleSelector';
+import PeopleSelectorBanner from '../../molecules/people-selector/PeopleSelectorBanner';
 import tinyAPI from '../../../util/mods';
 
 function simplyfiMembers(members) {
@@ -46,7 +47,10 @@ function PeopleDrawer({ roomId }) {
     { name: 'Banned', value: 'ban' },
   ];
 
-  tinyAPI.emit('roomMembersOptions', newValues);
+  const usersCount = room.getJoinedMemberCount();
+  let isUserList = true;
+
+  tinyAPI.emit('roomMembersOptions', newValues, isUserList);
   const defaultMembership = newValues.find(item => item.value === 'join');
 
   const [itemCount, setItemCount] = useState(PER_PAGE_MEMBER);
@@ -55,6 +59,7 @@ function PeopleDrawer({ roomId }) {
   const [searchedMembers, setSearchedMembers] = useState(null);
   const searchRef = useRef(null);
 
+  isUserList = (usersCount !== 2 || membership.value !== 'join');
   const getMembersWithMembership = useCallback(
     (mship) => room.getMembersWithMembership(mship),
     [roomId, membership.value],
@@ -73,7 +78,7 @@ function PeopleDrawer({ roomId }) {
 
   function handleSearch(e) {
     const term = e.target.value;
-    if (term === '' || term === undefined) {
+    if (searchRef.current && term === '' || term === undefined) {
       searchRef.current.value = '';
       searchRef.current.focus();
       setSearchedMembers(null);
@@ -101,12 +106,25 @@ function PeopleDrawer({ roomId }) {
       // Default
       if (!Array.isArray(membership.custom)) {
 
-        setMemberList(
-          simplyfiMembers(
-            getMembersWithMembership(membership.value)
-              .sort(memberByAtoZ).sort(memberByPowerLevel),
-          ),
-        );
+        const membersWithMembership = getMembersWithMembership(membership.value);
+        let membersData = [];
+
+        if (membersWithMembership.length > 1000) {
+
+          for (const item in membersWithMembership) {
+            if (membersWithMembership[item]?.user?.presence === 'online') {
+              membersData.push(membersWithMembership[item]);
+            }
+          }
+
+          membersData.sort(memberByPowerLevel);
+
+        } else {
+          membersWithMembership.sort(memberByStatus).sort(memberByPowerLevel);
+          membersData = membersWithMembership;
+        }
+
+        setMemberList(simplyfiMembers(membersData));
 
       }
 
@@ -115,7 +133,7 @@ function PeopleDrawer({ roomId }) {
 
     };
 
-    searchRef.current.value = '';
+    if (searchRef.current) searchRef.current.value = '';
     updateMemberList();
     isLoadingMembers = true;
     room.loadMembersIfNeeded().then(() => {
@@ -165,16 +183,20 @@ function PeopleDrawer({ roomId }) {
   }
 
   const mList = searchedMembers !== null ? searchedMembers.data : memberList.slice(0, itemCount);
+
   return (
-    <div className="people-drawer">
+    <div className={`people-drawer${!isUserList ? ' people-drawer-banner' : ''}`}>
       <Header>
 
         <ul className='navbar-nav mr-auto pb-1'>
 
-          <li className="nav-item ps-2">
+          {isUserList ? <li className="nav-item ps-2">
             People
-            <div className="very-small text-gray">{`${room.getJoinedMemberCount()} members`}</div>
-          </li>
+            <div className="very-small text-gray">{`${usersCount} members`}</div>
+          </li> : <li className="nav-item ps-2">
+            User Room
+            <div className="very-small text-gray">The user private room</div>
+          </li>}
 
         </ul>
 
@@ -188,12 +210,12 @@ function PeopleDrawer({ roomId }) {
 
       <div className={`people-drawer__content-wrapper people-drawer-select-${membership.value}`}>
 
-        <center className='p-3 w-100' style={{
+        <center className={`${isUserList ? 'p-3 ' : ''} w-100`} style={{
           'height': '100%',
           'overflowY': 'auto'
         }}>
 
-          <SegmentedControl
+          {isUserList ? <SegmentedControl
             className='pb-3'
             selected={
               (() => {
@@ -206,21 +228,34 @@ function PeopleDrawer({ roomId }) {
               const selectSegment = selectMembership;
               selectSegment[index]?.();
             }}
-          />
+          /> : null}
 
           {
             mList.map((member) => (
               !member.customSelector ?
 
-                <PeopleSelector
-                  key={member.userId}
-                  user={member.user}
-                  onClick={() => typeof member.customClick !== 'function' ? openProfileViewer(member.userId, roomId) : member.customClick()}
-                  avatarSrc={member.avatarSrc}
-                  name={member.name}
-                  color={colorMXID(member.userId)}
-                  peopleRole={member.peopleRole}
-                /> :
+                isUserList ?
+
+                  <PeopleSelector
+                    avatarSize={24}
+                    key={member.userId}
+                    user={member.user}
+                    onClick={() => typeof member.customClick !== 'function' ? openProfileViewer(member.userId, roomId) : member.customClick()}
+                    avatarSrc={member.avatarSrc}
+                    name={member.name}
+                    color={colorMXID(member.userId)}
+                    peopleRole={member.peopleRole}
+                  /> :
+
+                  member.userId !== mx.getUserId() ? <PeopleSelectorBanner
+                    key={member.userId}
+                    user={member.user}
+                    name={member.name}
+                    color={colorMXID(member.userId)}
+                    peopleRole={member.peopleRole}
+                  /> : null
+
+                :
 
                 <member.customSelector
                   key={member.userId}
@@ -235,29 +270,31 @@ function PeopleDrawer({ roomId }) {
             ))
           }
 
-          {
-            (searchedMembers?.data.length === 0 || memberList.length === 0)
-            && (
-              <div className="people-drawer__noresult">
-                <Text variant="b2">No results found!</Text>
-              </div>
-            )
-          }
-
-          <div className="people-drawer__load-more">
+          {isUserList ? <>
             {
-              mList.length !== 0
-              && memberList.length > itemCount
-              && searchedMembers === null
+              (searchedMembers?.data.length === 0 || memberList.length === 0)
               && (
-                <Button onClick={loadMorePeople}>View more</Button>
+                <div className="people-drawer__noresult">
+                  <Text variant="b2">No results found!</Text>
+                </div>
               )
             }
-          </div>
+
+            <div className="people-drawer__load-more">
+              {
+                mList.length !== 0
+                && memberList.length > itemCount
+                && searchedMembers === null
+                && (
+                  <Button onClick={loadMorePeople}>View more</Button>
+                )
+              }
+            </div>
+          </> : null}
 
         </center>
 
-        <div className="pt-1">
+        {isUserList ? <div className="pt-1">
           <form onSubmit={(e) => e.preventDefault()} className="people-search">
             <div><Input forwardRef={searchRef} type="text" onChange={handleSearch} placeholder="Search" required /></div>
             {
@@ -265,7 +302,7 @@ function PeopleDrawer({ roomId }) {
               && <center><IconButton onClick={handleSearch} size="small" fa="fa-solid fa-xmark" /></center>
             }
           </form>
-        </div>
+        </div> : null}
 
       </div>
 

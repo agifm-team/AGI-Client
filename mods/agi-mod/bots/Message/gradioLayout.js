@@ -36,6 +36,7 @@ const displayOptions = (props, id, appId, url, oHtml) => {
 };
 
 const rowsList = {
+    0: [12],
     1: [12],
     2: [6, 6],
     3: [4, 4, 4],
@@ -106,6 +107,25 @@ const htmlAllowed = {
         // these attributes would make sense if we did.
         img: ['src', 'srcset', 'alt', 'title', 'width', 'height', 'loading', 'class']
     },
+
+};
+
+const fileInputFixer = (props, oHtml) => {
+
+    const input = oHtml.find('input:not([type=\'hidden\'])');
+    if (props.interactive !== false) {
+
+        if (props.source === 'upload') {
+            input.removeClass('d-hide');
+        } else if (props.source === 'microphone') {
+            input.addClass('d-hide');
+        } else {
+            input.addClass('d-hide');
+        }
+
+    } else {
+        input.addClass('d-hide');
+    }
 
 };
 
@@ -242,6 +262,7 @@ const fileManagerReader = {
 
 const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept, tinyValue) => {
 
+    const inputText = $('<input>', { class: 'd-none', type: 'hidden' });
     const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_${type}`, accept: typeof fileAccept === 'string' ? fileAccept : fileInputAccept(props.file_types) })
         .prop('multiple', props.file_count === 'multiple')
         .prop('webkitdirectory', props.file_count === 'directory')
@@ -256,6 +277,8 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
         }
 
         input.val('');
+        inputText.val(value);
+        inputText.trigger('change');
 
         if (convertBlob) {
             const resultData = finalResult.data('gradio_values');
@@ -271,7 +294,7 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
 
     };
 
-    finalResult.data('gradio_input', { type: 'blob', value: valueUpdater });
+    finalResult.data('gradio_input', { type: 'blob', value: valueUpdater, input: inputText });
 
     const fileInput = input.get(0);
     input.get(0).addEventListener('change', () => {
@@ -298,7 +321,7 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
         valueUpdater(tinyValue, true);
     }
 
-    return input;
+    return [input, inputText];
 
 };
 
@@ -421,7 +444,6 @@ const components = {
             return finalResult;
         }
 
-        console.log(thead, tbody);
         oHtml.find('> table').empty().append(thead, tbody);
 
     },
@@ -446,11 +468,11 @@ const components = {
             if (props.interactive !== false) {
 
                 if (props.source !== 'upload') {
-                    input.addClass('d-hide');
+                    input[0].addClass('d-hide');
                 }
 
             } else {
-                input.addClass('d-hide');
+                input[0].addClass('d-hide');
             }
 
             finalResult.append(input);
@@ -468,20 +490,7 @@ const components = {
 
         }
 
-        const input = oHtml.find('input');
-        if (props.interactive !== false) {
-
-            if (props.source === 'upload') {
-                input.removeClass('d-hide');
-            } else if (props.source === 'microphone') {
-                input.addClass('d-hide');
-            } else {
-                input.addClass('d-hide');
-            }
-
-        } else {
-            input.addClass('d-hide');
-        }
+        fileInputFixer(props, oHtml);
 
     },
 
@@ -946,9 +955,10 @@ const components = {
 
         }
 
+        fileInputFixer(props, oHtml);
+
     },
 
-    ///
     gallery: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -964,35 +974,46 @@ const components = {
 
             const gallery = $('<div>', { class: 'row' });
             const input = $('<input>', { class: 'd-none', type: 'text' });
+            const cols = (typeof props.grid_cols === 'number' ? props.grid_cols : null) || props.columns;
 
-            if (typeof props.grid_cols === 'number' && !Number.isNaN(props.grid_cols) && Number.isFinite(props.grid_cols) && props.grid_cols <= 12 && rowsList[props.grid_cols]) {
+            if (typeof cols === 'number' && !Number.isNaN(cols) && Number.isFinite(cols) && cols <= 12 && rowsList[cols]) {
 
-                if (Array.isArray(rowsList[props.grid_cols]) && Array.isArray(props.value)) {
+                if (Array.isArray(rowsList[cols]) && Array.isArray(props.value)) {
 
                     let rowNumber = 0;
 
                     for (const item in props.value) {
 
-                        let imgUrl = props.value[item][0].name;
+                        const value = Array.isArray(props.value[item]) ? {
+                            name: props.value[item][0]?.name,
+                            data: props.value[item][1],
+                            is_file: true
+                        } : props.value[item];
+
+                        let imgUrl = value.name;
                         if (!imgUrl.startsWith('https://') && !imgUrl.startsWith('http://')) {
                             imgUrl = `${tinyUrl}${imgUrl}`;
                         }
 
-                        gallery.append($('<div>', { class: `col-${rowsList[props.grid_cols][rowNumber]}` }).append(
+                        const button = $('<button>', { class: 'w-100' }).append(
 
-                            $('<button>', { class: 'w-100' }).append(
+                            objType(value, 'object') && typeof value.name === 'string' && value.name.length > 0 ?
+                                $('<div>', { class: 'avatar border border-bg' }).css({ 'background-image': `url('${imgUrl}')` }).data('gradio_props_gallery_item', value) : null,
 
-                                objType(props.value[item][0], 'object') && typeof props.value[item][0].name === 'string' && props.value[item][0].name.length > 0 ?
-                                    $('<div>', { class: 'avatar border border-bg' }).css({ 'background-image': `url('${imgUrl}')` }).data('gradio_props_gallery_item', props.value[item]) : null,
+                            typeof value.data === 'string' ? $('<div>', { class: 'text-bg' }).text(value.data) : null
 
-                                typeof props.value[item][1] === 'string' ? $('<div>', { class: 'text-bg' }).text(props.value[item][1]) : null
+                        );
 
-                            ).on('click', () => input.val(props.value[item][1]))
+                        gallery.append($('<div>', { class: `col-${rowsList[cols][rowNumber]}` }).append(button));
 
-                        ));
+                        if (props.selectable) {
+                            button.on('click', () => input.val(value.data));
+                        } else {
+                            button.addClass('disabled');
+                        }
 
                         rowNumber++;
-                        if (typeof rowsList[props.grid_cols][rowNumber] !== 'number') {
+                        if (typeof rowsList[cols][rowNumber] !== 'number') {
                             rowNumber = 0;
                         }
 
@@ -1107,6 +1128,8 @@ const components = {
             return finalResult;
 
         }
+
+        fileInputFixer(props, oHtml);
 
     },
 
@@ -1232,6 +1255,8 @@ const components = {
             return finalResult;
 
         }
+
+        fileInputFixer(props, oHtml);
 
     },
 
@@ -1580,6 +1605,8 @@ const components = {
 
         }
 
+        fileInputFixer(props, oHtml);
+
     },
 
     uploadbutton: (props, compId, appId, url, oHtml) => {
@@ -1672,6 +1699,8 @@ const components = {
 
         }
 
+        fileInputFixer(props, oHtml);
+
     },
 
     column: (props, compId, appId, url, oHtml) => {
@@ -1699,6 +1728,24 @@ const components = {
 
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
             finalResult.attr('id', id).addClass('row');
+
+            if (props.show_label && typeof props.label === 'string') {
+                finalResult.append($('<div>', { id }).text(props.label));
+            }
+
+            return finalResult;
+
+        }
+
+    },
+
+    box: (props, compId, appId, url, oHtml) => {
+
+        const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'box');
+        if (!oHtml) {
+
+            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            finalResult.attr('id', id).addClass('box');
 
             if (props.show_label && typeof props.label === 'string') {
                 finalResult.append($('<div>', { id }).text(props.label));
@@ -1810,9 +1857,9 @@ const childrenLoader = (items, config, url, appId, comps, tinyIndex = -1) => {
 
                             // Create Row Items
                             let newPageLength = 0;
-                            newPage.forEach(item2 => {
-                                if (item2.text().trim().length > 0 && !item2.hasClass('d-none')) newPageLength++;
-                            });
+                            for (const item2 in newPage) {
+                                if (/* newPage[item2].text().trim().length > 0 && */ !newPage[item2].hasClass('d-none')) newPageLength++;
+                            }
 
                             // Get row list item
                             const rowItems = rowsList[newPageLength];
@@ -1902,11 +1949,13 @@ class GradioLayout {
             const page = childrenLoader(config.layout.children, config, url, appId, this.components);
             if (typeof config.css === 'string' && config.css.length > 0 && typeof cssBase === 'string' && cssBase.length > 0) {
 
+                /*
                 const tinyStyle = sass.compileString(`${cssBase} {
                         ${config.css}
                     }`);
+                */
 
-                if (typeof tinyStyle.css === 'string') page.push($('<style>').append(tinyStyle.css));
+                // if (typeof tinyStyle.css === 'string') page.push($('<style>').append(tinyStyle.css));
 
             }
 

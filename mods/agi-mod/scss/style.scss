@@ -1,3 +1,10 @@
+/* Chatbox */
+#chatbox {
+  tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.09);
+  }
+}
+
 /* Modals */
 #agi-superagent-modal,
 #agi-flowise-modal {
@@ -208,24 +215,24 @@
         max-height: 200px;
       }
 
-      button {
+      button:not(.disabled) {
         padding: 1.5rem !important;
-      }
 
-      button:hover,
-      button:active {
-        .avatar {
-          border-color: #e28800 !important;
-          cursor: pointer !important;
+        &:hover,
+        &:active {
+          .avatar {
+            border-color: #e28800 !important;
+            cursor: pointer !important;
+          }
         }
-      }
 
-      button:hover .avatar {
-        filter: brightness(110%);
-      }
+        &:hover .avatar {
+          filter: brightness(110%);
+        }
 
-      button:active .avatar {
-        filter: brightness(125%);
+        &:active .avatar {
+          filter: brightness(125%);
+        }
       }
 
       .avatar {
@@ -235,6 +242,10 @@
         border-radius: 15px;
         padding: 50%;
       }
+    }
+
+    button.disabled {
+      cursor: default !important;
     }
 
     .col-md-6 {

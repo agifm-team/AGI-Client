@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { client } from '@gradio/client';
 import GradioLayout, { fileUrlGenerator } from './gradioLayout';
 import { objType, toast } from '../../../../src/util/tools';
+import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 
 const updateInputValue = (input, dropdown, value, filePath = '') => {
 
@@ -15,16 +16,16 @@ const updateInputValue = (input, dropdown, value, filePath = '') => {
         const tinyUrl = `${filePath}${typeof value === 'string' ? value.startsWith('/') || !filePath ? value : `/${value}` : ''}`;
         if (!tinyUrl.startsWith('data:')) {
 
-            // $.LoadingOverlay('show', { text: 'Fetching gladio blob...' });
+            setLoadingPage('Fetching gladio blob...');
             fetch(tinyUrl)
                 .then(response => response.blob())
                 .then(blob => {
-                    // $.LoadingOverlay('hide');
+                    setLoadingPage(false);
                     const reader = new FileReader();
                     reader.onload = function () { input.value(this.result, true); }; // <--- `this.result` contains a base64 data URI
                     reader.readAsDataURL(blob);
                 }).catch(err => {
-                    // $.LoadingOverlay('hide');
+                    setLoadingPage(false);
                     toast(err.message);
                     console.error(err);
                 });
@@ -279,8 +280,8 @@ function GradioEmbed({ agiData }) {
                             // https://www.gradio.app/docs/js-client#submit
                             const submitName = comps.api_name ? `/${comps.api_name}` : Number(tinyIndex);
 
-                            console.log('Submit test', submitName, inputs);
-                            // $.LoadingOverlay('show', { text: 'Starting gradio...' });
+                            console.log('Submit test', submitName, comps, inputs);
+                            setLoadingPage('Starting gradio...');
                             const job = app.submit(submitName, inputs);
 
                             // Sockets
@@ -347,7 +348,7 @@ function GradioEmbed({ agiData }) {
                                 else if (data.stage === 'complete') {
 
                                     // Success?
-                                    // $.LoadingOverlay('hide');
+                                    setLoadingPage(false);
                                     if (data.success) {
 
                                     }
@@ -356,7 +357,7 @@ function GradioEmbed({ agiData }) {
 
                                 // Error
                                 else if (data.stage === 'error') {
-                                    // $.LoadingOverlay('hide');
+                                    setLoadingPage(false);
                                     toast(data.message);
                                     console.error(data.message, data.code);
                                 }
@@ -478,11 +479,15 @@ function GradioEmbed({ agiData }) {
                                 console.log('Target', type, target, depId, triggerAfter);
                                 if (!triggerAfter) {
 
-                                    const executeArray = (value, targetType, targetId) => {
+                                    const executeArray = (value, targetType, input, targetId) => {
 
                                         // jQuery
                                         if (targetType === 'jquery') {
                                             value.on(type, () => tinyAction(depId, targetId, outputs));
+                                        }
+
+                                        else if (targetType === 'blob') {
+                                            input.on('change', () => tinyAction(depId, targetId, outputs));
                                         }
 
                                         // Array
@@ -497,7 +502,7 @@ function GradioEmbed({ agiData }) {
                                                 // Mode 2
                                                 else {
                                                     for (const item3 in value[item2]) {
-                                                        executeArray(value[item2][item3], 'jquery', value.length < 2 ? item3 : item2);
+                                                        executeArray(value[item2][item3], 'jquery', input, value.length < 2 ? item3 : item2);
                                                     }
                                                 }
 
@@ -506,7 +511,7 @@ function GradioEmbed({ agiData }) {
 
                                     };
 
-                                    executeArray(target.value, target.type);
+                                    executeArray(target.value, target.type, target.input);
 
                                 }
                             };
@@ -538,7 +543,8 @@ function GradioEmbed({ agiData }) {
                                             }
 
                                             // Then
-                                            else if (trigger === 'then') {
+                                            else if (trigger === 'then' || trigger === 'upload' || trigger === 'select') {
+                                                console.log(`Input "${trigger}"`, target, depId, depItem.outputs, config.dependencies[item].trigger_after);
                                                 clickAction(target, 'change', depId, depItem.outputs, config.dependencies[item].trigger_after);
                                             }
 
@@ -567,8 +573,9 @@ function GradioEmbed({ agiData }) {
                                                 }
 
                                                 // Then
-                                                else if (depItem.targets[index][1] === 'then') {
-                                                    clickAction(target, 'then', depId, depItem.outputs, config.dependencies[item].trigger_after);
+                                                else if (depItem.targets[index][1] === 'then' || depItem.targets[index][1] === 'upload' || depItem.targets[index][1] === 'select') {
+                                                    console.log(`Input "${depItem.targets[index][1]}"`, target, depId, depItem.outputs, config.dependencies[item].trigger_after);
+                                                    clickAction(target, 'change', depId, depItem.outputs, config.dependencies[item].trigger_after);
                                                 }
 
                                             }
@@ -607,7 +614,7 @@ function GradioEmbed({ agiData }) {
 
     // Temp result. (I'm using this only to have a preview. This will be removed later.)
     // <iframe title='gradio' src={agiData.url} />
-    return <div ref={embedRef} className='mt-2 agi-client-embed border border-bg p-4' />;
+    return <div ref={embedRef} className='mt-2 agi-client-embed chatbox-size-fix border border-bg p-4' />;
 
 };
 

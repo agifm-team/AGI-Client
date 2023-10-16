@@ -12,6 +12,7 @@ import defaultAvatar from '../../../src/app/atoms/avatar/defaultAvatar';
 import * as roomActions from '../../../src/client/action/room';
 import { getSelectRoom } from '../../../src/util/selectedRoom';
 import { serverAddress } from '../socket';
+import { setLoadingPage } from '../../../src/app/templates/client/Loading';
 
 const createButton = (id, title, icon) => jReact(
     <button
@@ -93,14 +94,14 @@ export function addRoomOptions(dt, roomType) {
 
         // Bot List button
         botsMenu.find('> button').tooltip({ placement: 'bottom' }).on('click', () => {
-            $.LoadingOverlay('show');
+            setLoadingPage();
             fetch(`${serverAddress}api/v1/get_bots/${mx.getUserId()}`, {
                 headers: {
                     'Accept': 'application/json'
                 }
             }).then(res => res.json()).then(data => {
 
-                $.LoadingOverlay('hide');
+                setLoadingPage(false);
                 const users = [];
                 for (const item in data) {
 
@@ -138,7 +139,7 @@ export function addRoomOptions(dt, roomType) {
                 });
 
             }).catch(err => {
-                $.LoadingOverlay('hide');
+                setLoadingPage(false);
                 console.error(err);
                 alert(err.message);
             });

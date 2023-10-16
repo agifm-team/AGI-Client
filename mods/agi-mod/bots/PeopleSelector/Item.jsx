@@ -9,6 +9,7 @@ import * as roomActions from '../../../../src/client/action/room';
 import {
     hasDMWith, hasDevices,
 } from '../../../../src/util/matrixUtil';
+import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 
 function PeopleSelector({ avatarSrc, name, peopleRole, }) {
 
@@ -36,9 +37,9 @@ function PeopleSelector({ avatarSrc, name, peopleRole, }) {
 
             // Create new DM
             try {
-                $.LoadingOverlay('show');
+                setLoadingPage();
                 await roomActions.createDM(userId, await hasDevices(userId));
-                $.LoadingOverlay('hide');
+                setLoadingPage(false);
             } catch (err) {
                 console.error(err);
                 alert(err.message);

@@ -185,7 +185,7 @@ export default function buttons() {
         id: 'agi-superagent-modal',
         dialog: 'modal-fullscreen',
         title: 'SuperAgent',
-        body: jReact(<iframe title='Flowise' src={serverAddress} className='w-100 height-modal-full-size' style={{ backgroundColor: '#000' }} />)
+        body: jReact(<iframe title='SuperAgent' src={'https://super.immagine.ai'} className='w-100 height-modal-full-size' style={{ backgroundColor: '#000' }} />)
     }));
 
     // Append

@@ -50,7 +50,7 @@ Made by Me
 
     --> Philomena.
 
-    --> Sistema de bordas personalizadas que pode ser facilmente pega em qualquer servidor.
+    --> Sistema de bordas personalizadas
 
     --> Adicionar opção para suporte de thumbs com parametros de animação.
     --> Fazer a opção para o app iniciar sozinho com o sistema operacional.
@@ -63,8 +63,6 @@ Made by Me
     --> Fazer o marcador que separa a lista de amigos da lista de DMs estranhos.
     --> Fazer uma configuração se o usuário vai ou não receber notificação de DMs estranhos.
 
-    --> Os usuários que madam DM devem ser mostrados na lista de fixados. (Apenas os DMs marcados como da lsita de amigos)
-
     --> Criar filtro para desativar animação de gifs especificas. A gente vai usar a ID e dominio do arquivo para facilitar isso.
     (Limite de 600 itens por array) (Opçao alternativa de fazer a animação ser hover)
 
@@ -72,8 +70,6 @@ Made by Me
     (Também ser possível banir animação de usuários individualmente - limite de 600 itens por array) (Opçao alternativa de fazer a animação ser hover)
 
     --> Tema https://github.com/catppuccin/cinny
-
-    --> Ajeitar sincronização quando uma DM é aberta pela primeira vez
 
     --> Ajeitar o carregador de usuários de rooms para ficar mais otimizado
 

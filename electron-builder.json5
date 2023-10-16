@@ -10,11 +10,23 @@
     output: 'release/${version}',
   },
   files: ['dist-electron', 'dist'],
+  linux: {
+    icon: 'build/icon.png',
+    target: ['AppImage', 'deb', 'snap'],
+    category: 'Network;Chat;InstantMessaging;',
+    desktop: {
+      Comment: 'Pony House matrix client',
+      Keywords: 'chat;pony;house;messaging;messenger;matrix;matrix-client;brony',
+    },
+  },
   mac: {
+    icon: 'build/icon.icns',
+    category: 'public.app-category.social-networking',
     artifactName: '${productName}_${version}.${ext}',
     target: ['dmg', 'zip'],
   },
   win: {
+    icon: 'build/icon.ico',
     target: [
       {
         target: 'nsis',

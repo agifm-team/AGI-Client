@@ -1,6 +1,6 @@
 <center>
 
-<img align="center" src="https://raw.githubusercontent.com/agifm-team/AGI-Client/dev/public/favicon.ico?raw=true" height="380">
+<!-- <img align="center" src="https://raw.githubusercontent.com/agifm-team/AGI-Client/dev/public/favicon.ico?raw=true" height="380"> -->
 
 <br/>
 

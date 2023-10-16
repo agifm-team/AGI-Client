@@ -107,7 +107,7 @@ async function createWindow() {
 
     if (process.platform === 'win32') {
       win.setAppDetails({
-        appId: 'pony-house-matrix',
+        appId: 'immagine-ai-matrix',
         appIconPath: icon,
         relaunchDisplayName: title,
       });

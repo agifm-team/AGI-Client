@@ -153,7 +153,7 @@ function Client() {
     versionChecked = true;
     global.checkVersions().then(versionData => {
       if (versionData && typeof versionData.value.name === 'string' && versionData.result === 1) {
-        const tinyUrl = `https://github.com/Pony-House/Client/releases/tag/${versionData.value.name}`;
+        const tinyUrl = `https://github.com/agifm-team/AGI-Client/releases/tag/${versionData.value.name}`;
         const tinyModal = btModal({
 
           id: 'tiny-update-warn',

@@ -45,6 +45,6 @@
   publish: {
     provider: 'generic',
     channel: 'latest',
-    url: 'https://github.com/Pony-House/Client/releases/latest',
+    url: 'https://github.com/agifm-team/AGI-Client/releases/latest',
   },
 }

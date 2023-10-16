@@ -55,7 +55,7 @@ function AboutSection() {
                                 <div>{__ENV_APP__.info.description}</div>
 
                                 <div className="mt-3">
-                                    <Button className='me-1' onClick={() => window.open('https://github.com/Pony-House/Client')}>Source code</Button>
+                                    <Button className='me-1' onClick={() => window.open('https://github.com/agifm-team/AGI-Client')}>Source code</Button>
                                     <Button className='mx-1' onClick={() => window.open('https://puddy.club/')}>Support</Button>
                                     <Button className='ms-1' onClick={() => initMatrix.clearCacheAndReload()} variant="danger">Clear cache & reload</Button>
                                 </div>

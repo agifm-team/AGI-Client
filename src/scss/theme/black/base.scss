@@ -24,10 +24,22 @@
   --bg-surface-gradient-3: none;
   --bg-auth-gradient: none;
 
+  #settings-base #setting-tab .nav-link:hover {
+    background-color: #121212 !important;
+  }
+}
+
+.theme-type-dark-solid,
+.theme-type-dark2-solid,
+.theme-type-light-solid,
+.theme-type-silver-solid {
   .sidebar-1 {
     border-right-color: var(--bg-surface-border);
     border-right-style: solid;
     border-right-width: 1px;
     width: 80px;
+    .sidebar-avatar::before {
+      margin-left: -4px;
+    }
   }
 }

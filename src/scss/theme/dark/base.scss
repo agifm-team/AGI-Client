@@ -1,4 +1,6 @@
-@mixin dark-mode() {
+.theme-type-dark,
+.theme-type-dark-solid,
+.theme-type-dark2 {
   --bg-auth-normal: rgb(36 58 80) 0%;
   --bg-auth-gradient: linear-gradient(
     0deg,
@@ -338,17 +340,5 @@
     .avatar-container {
       background-color: #1b1b1b;
     }
-  }
-}
-
-.dark-theme,
-.black-theme,
-.butter-theme {
-  @include dark-mode();
-}
-
-@media (prefers-color-scheme: dark) {
-  .system-theme {
-    @include dark-mode();
   }
 }

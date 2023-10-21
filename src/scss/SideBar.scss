@@ -5,7 +5,7 @@
 }
 
 .sidebar-1 {
-  width: 80px;
+  width: 72px;
   position: absolute;
   background: var(--bg-surface-extra-low);
   background: var(--bg-surface-gradient-3);
@@ -44,7 +44,8 @@
   }
 }
 
-.space-container {
+.space-container,
+.featured-container {
   .avatar-container .avatar-react {
     height: 42px !important;
     width: 42px !important;

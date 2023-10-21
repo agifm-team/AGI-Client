@@ -5,6 +5,8 @@ import EventEmitter from 'events';
 import appDispatcher from '../dispatcher';
 
 import cons from './cons';
+import tinyAPI from '../../util/mods';
+import { objType } from '../../util/tools';
 
 import blackTheme from '../../scss/theme/black';
 import butterTheme from '../../scss/theme/butter';
@@ -13,11 +15,11 @@ import silverTheme from '../../scss/theme/silver';
 import whiteTheme from '../../scss/theme/white';
 
 const themes = {
-  black: { data: blackTheme, id: 'black-theme' },
-  butter: { data: butterTheme, id: 'butter-theme' },
-  dark: { data: darkTheme, id: 'dark-theme' },
-  silver: { data: silverTheme, id: 'silver-theme' },
-  white: { data: whiteTheme, id: '' },
+  black: { data: blackTheme, id: 'black-theme', type: 'dark-solid' },
+  butter: { data: butterTheme, id: 'butter-theme', type: 'dark2' },
+  dark: { data: darkTheme, id: 'dark-theme', type: 'dark' },
+  silver: { data: silverTheme, id: 'silver-theme', type: 'silver' },
+  white: { data: whiteTheme, id: '', type: 'light' },
 };
 
 
@@ -35,11 +37,33 @@ function setSettings(key, value) {
 }
 
 class Settings extends EventEmitter {
-  constructor() {
-    super();
 
+  constructor() {
+
+    super();
     this.themes = [themes.white, themes.silver, themes.dark, themes.butter, themes.black];
+
+    this.themesName = [
+      { text: 'Light' },
+      { text: 'Silver' },
+      { text: 'Dark' },
+      { text: 'Butter' },
+      { text: 'Black (Beta)' },
+    ];
+
+  }
+
+  insertTheme(data, type = 'push') {
+    if ((type === 'push' || type === 'unshift') && (typeof data[0] === 'string' || objType(data[0], 'object'))) {
+      this.themesName[type](typeof data[0] === 'string' ? { text: data[0] } : data[0]);
+      this.themes[type](data[1]);
+    }
+  }
+
+  startData() {
+
     this.themeIndex = this.getThemeIndex();
+    tinyAPI.emit('loadThemes', (data, type = 'push') => this.insertTheme(data, type));
 
     this.useSystemTheme = this.getUseSystemTheme();
     this.isMarkdown = this.getIsMarkdown();
@@ -50,6 +74,7 @@ class Settings extends EventEmitter {
     this.isNotificationSounds = this.getIsNotificationSounds();
 
     this.isTouchScreenDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
+
   }
 
   getThemeIndex() {
@@ -70,8 +95,12 @@ class Settings extends EventEmitter {
     return this.themes[this.themeIndex].data;
   }
 
+  getThemeType() {
+    return this.themes[this.themeIndex].type;
+  }
+
   changeMobileBackground(value = 'default') {
-    const data = this.themes[this.themeIndex].data;
+    const data = this.themes[this.themeIndex]?.data;
     return new Promise((resolve, reject) => {
       if (Capacitor.isNativePlatform()) {
 
@@ -94,21 +123,53 @@ class Settings extends EventEmitter {
   }
 
   _clearTheme() {
-    $('body').removeClass('system-theme');
-    this.themes.forEach((theme) => {
-      if (theme.id === '') return;
-      $('body').removeClass(theme.id);
-    });
+
+    $('body').removeClass('system-theme')
+      .removeClass('theme-type-dark').removeClass('theme-type-dark-solid')
+      .removeClass('theme-type-dark2').removeClass('theme-type-dark2-solid')
+      .removeClass('theme-type-silver').removeClass('theme-type-silver-solid')
+      .removeClass('theme-type-light').removeClass('theme-type-light-solid');
+
+    if (Array.isArray(this.themes)) {
+      this.themes.forEach((theme) => {
+        if (typeof theme.id === 'string') {
+
+          if (theme.id === '') {
+            $('body').removeClass('default-theme');
+            return;
+          }
+
+          $('body').removeClass(theme.id);
+
+        }
+      });
+    }
+
   }
 
   applyTheme() {
 
     this._clearTheme();
+    const body = $('body');
 
     if (this.useSystemTheme) {
-      $('body').addClass('system-theme');
+
+      body.addClass('system-theme');
+
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        body.addClass(`theme-type-dark`);
+      } else {
+        body.addClass(`theme-type-light`);
+      }
+
     } else if (this.themes[this.themeIndex]) {
-      $('body').addClass(this.themes[this.themeIndex].id);
+      body.addClass(this.themes[this.themeIndex].id !== '' ? this.themes[this.themeIndex].id : 'default-theme').addClass(
+        this.themes[this.themeIndex]?.type === 'dark' || this.themes[this.themeIndex]?.type === 'dark-solid' ||
+          this.themes[this.themeIndex]?.type === 'dark2' || this.themes[this.themeIndex]?.type === 'dark2-solid' ||
+          this.themes[this.themeIndex]?.type === 'light' || this.themes[this.themeIndex]?.type === 'light-solid' ||
+          this.themes[this.themeIndex]?.type === 'silver' || this.themes[this.themeIndex]?.type === 'silver-solid' ?
+          `theme-type-${this.themes[this.themeIndex]?.type}` : ''
+      );
     }
 
     this.changeMobileBackground('default');
@@ -243,6 +304,10 @@ class Settings extends EventEmitter {
 }
 
 const settings = new Settings();
-appDispatcher.register(settings.setter.bind(settings));
+export function startSettings() {
+  settings.startData();
+  settings.applyTheme();
+};
 
+appDispatcher.register(settings.setter.bind(settings));
 export default settings;

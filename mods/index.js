@@ -3,9 +3,15 @@
 
 // import helloWorld from './hello-world';
 // import sinkingYachts from './sinking.yachts';
-import customMessages from './customMessages';
 import startAgi from './agi-mod';
-import unstoppableDomains from './unstoppableDomains';
+import customMessages from './messages/customMessages';
+import unstoppableDomains from './web3/unstoppableDomains';
+
+import catppuccinTheme from './themes/catppuccin';
+
+export function startCustomThemes() {
+    catppuccinTheme();
+};
 
 export default function startMods(firstTime) {
 

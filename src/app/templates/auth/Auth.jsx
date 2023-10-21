@@ -53,7 +53,7 @@ function Auth() {
                     {!loginToken && (<>
 
                       <div className="d-flex align-items-center mb-3 pb-1">
-                        <Avatar imageSrc="./favicon.ico" />
+                        <Avatar imageSrc="./img/png/cinny-main.png" />
                         <span className="ms-3 h2 fw-bold mb-0">{__ENV_APP__.info.name}</span>
                       </div>
 
@@ -66,7 +66,7 @@ function Auth() {
                       <div className="row text-center d-flex justify-content-center">
 
                         <div className="col-md-4 small">
-                          <a href="https://github.com/Pony-House/Client/releases" rel="noreferrer" className="text-bg-force" target="_blank">{`Version ${cons.version}`}</a>
+                          <a href="https://github.com/agifm-team/AGI-Client/releases" rel="noreferrer" className="text-bg-force" target="_blank">{`Version ${cons.version}`}</a>
                         </div>
 
                         <div className="col-md-4 small">

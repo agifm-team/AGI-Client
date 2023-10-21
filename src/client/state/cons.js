@@ -116,6 +116,7 @@ const cons = {
       CONSOLE_NEW_DATA_CREATED: 'CONSOLE_NEW_DATA_CREATED',
       CONSOLE_UPDATED: 'CONSOLE_UPDATED',
       SELECTED_ROOM_MODE: 'SELECTED_ROOM_MODE',
+      SELECTED_ROOM: 'SELECTED_ROOM',
       TAB_SELECTED: 'TAB_SELECTED',
       SPACE_SELECTED: 'SPACE_SELECTED',
       ROOM_SELECTED: 'ROOM_SELECTED',
@@ -205,7 +206,7 @@ Object.freeze(cons);
 // https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repository-tags
 global.checkVersions = () => new Promise((resolve, reject) => {
 
-  fetch(`https://api.github.com/repos/Pony-House/Client/tags`, {
+  fetch(`https://api.github.com/repos/agifm-team/AGI-Client/tags`, {
     method: 'GET',
     cache: 'no-cache',
     credentials: 'same-origin',

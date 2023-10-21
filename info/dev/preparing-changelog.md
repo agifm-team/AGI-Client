@@ -1,5 +1,3 @@
-- New DM Profile design.
-- Online users will be the first visible on the member list now.
-- New loading page warn.
-- Jquery Loading Overlay removed.
-- User status on the DM list.
+- New theme script.
+- CSS themes - solid color css fix.
+- Scrollbar electron css fix

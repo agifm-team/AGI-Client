@@ -113,6 +113,8 @@
   --tc-tooltip: white;
   --tc-badge: white;
 
+  --divider-box-click: #fff;
+
   /* system icons | --ic-[background type]-[priority]: value */
   --ic-surface-high: #272727;
   --ic-surface-normal: #626262;
@@ -396,4 +398,10 @@
   --bs-btn-disabled-bg: transparent;
   --bs-btn-disabled-border-color: transparent;
   --bs-gradient: none;
+}
+
+.default-theme {
+  #settings-base #setting-tab .nav-link:hover {
+    background-color: #eee !important;
+  }
 }

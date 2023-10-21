@@ -1,0 +1,372 @@
+/*
+
+  THIS IS A UNOFFICIAL THEME READAPTED BY JASMINDREASOND (YASMIN SEIDEL)!
+
+  @name           Cinny Catppuccin
+  @namespace      github.com/catppuccin/cinny
+  @homepageURL    https://github.com/catppuccin/cinny
+  @version        2.1.2
+  @description    Soothing pastel theme for Cinny
+  @author         Catppuccin
+  @updateURL      https://github.com/catppuccin/cinny/raw/main/catppuccin.user.css
+
+*/
+
+.catppuccin-theme-latte,
+.catppuccin-theme-frappe,
+.catppuccin-theme-macchiato,
+.catppuccin-theme-mocha {
+  --rosewater: rosewater;
+  --flamingo: flamingo;
+  --pink: pink;
+  --mauve: mauve;
+  --red: red;
+  --maroon: maroon;
+  --peach: peach;
+  --yellow: yellow;
+  --green: green;
+  --teal: teal;
+  --blue: blue;
+  --sapphire: sapphire;
+  --sky: sky;
+  --lavender: lavender;
+  --subtext0: gray;
+}
+
+/* Silver Theme */
+.catppuccin-theme-latte {
+  --rosewater: #dc8a78;
+  --flamingo: #dd7878;
+  --pink: #ea76cb;
+  --mauve: #8839ef;
+  --red: #d20f39;
+  --maroon: #e64553;
+  --peach: #fe640b;
+  --yellow: #df8e1d;
+  --green: #40a02b;
+  --teal: #179299;
+  --sky: #04a5e5;
+  --sapphire: #209fb5;
+  --blue: #1e66f5;
+  --lavender: #7287fd;
+  --text: #4c4f69;
+  --subtext1: #5c5f77;
+  --subtext0: #6c6f85;
+  --overlay2: #7c7f93;
+  --overlay1: #8c8fa1;
+  --overlay0: #9ca0b0;
+  --surface2: #acb0be;
+  --surface1: #bcc0cc;
+  --surface0: #ccd0da;
+  --base: #eff1f5;
+  --mantle: #e6e9ef;
+  --crust: #dce0e8;
+
+  --bg-input: #e2e2e2;
+  --bg-surface-semi-transparent: rgba(242, 242, 242, 0.9);
+  --bg-surface-low-semi-transparent: rgb(232, 232, 232, 0.9);
+  --invert-filter: invert(0);
+
+  .modal-dialog-modal-dialog-user-profile .avatar-container {
+    background-color: #f6f6f6;
+  }
+}
+
+/* Dark Theme */
+.catppuccin-theme-frappe {
+  --rosewater: #f2d5cf;
+  --flamingo: #eebebe;
+  --pink: #f4b8e4;
+  --mauve: #ca9ee6;
+  --red: #e78284;
+  --maroon: #ea999c;
+  --peach: #ef9f76;
+  --yellow: #e5c890;
+  --green: #a6d189;
+  --teal: #81c8be;
+  --sky: #99d1db;
+  --sapphire: #85c1dc;
+  --blue: #8caaee;
+  --lavender: #babbf1;
+  --text: #c6d0f5;
+  --subtext1: #b5bfe2;
+  --subtext0: #a5adce;
+  --overlay2: #949cbb;
+  --overlay1: #838ba7;
+  --overlay0: #737994;
+  --surface2: #626880;
+  --surface1: #51576d;
+  --surface0: #414559;
+  --base: #303446;
+  --mantle: #292c3c;
+  --crust: #232634;
+
+  --bg-auth-normal: rgb(36 58 80) 0%;
+  --bg-surface-semi-transparent: rgb(0 0 0 / 90%);
+  --bg-input: #262936;
+  --bg-surface-low-semi-transparent: rgba(11, 11, 11, 0.9);
+  --bg-surface-border: rgba(173, 173, 173, 0.2);
+}
+
+/* Dark Theme */
+.catppuccin-theme-macchiato {
+  --rosewater: #f4dbd6;
+  --flamingo: #f0c6c6;
+  --pink: #f5bde6;
+  --mauve: #c6a0f6;
+  --red: #ed8796;
+  --maroon: #ee99a0;
+  --peach: #f5a97f;
+  --yellow: #eed49f;
+  --green: #a6da95;
+  --teal: #8bd5ca;
+  --sky: #91d7e3;
+  --sapphire: #7dc4e4;
+  --blue: #8aadf4;
+  --lavender: #b7bdf8;
+  --text: #cad3f5;
+  --subtext1: #b8c0e0;
+  --subtext0: #a5adcb;
+  --overlay2: #939ab7;
+  --overlay1: #8087a2;
+  --overlay0: #6e738d;
+  --surface2: #5b6078;
+  --surface1: #494d64;
+  --surface0: #363a4f;
+  --base: #24273a;
+  --mantle: #1e2030;
+  --crust: #181926;
+
+  --bg-auth-normal: rgb(36 58 80) 0%;
+  --bg-surface-semi-transparent: rgb(0 0 0 / 90%);
+  --bg-input: #1a1c2b;
+  --bg-surface-low-semi-transparent: rgba(11, 11, 11, 0.9);
+  --bg-surface-border: rgba(173, 173, 173, 0.2);
+}
+
+/* Dark Theme */
+.catppuccin-theme-mocha {
+  --rosewater: #f5e0dc;
+  --flamingo: #f2cdcd;
+  --pink: #f5c2e7;
+  --mauve: #cba6f7;
+  --red: #f38ba8;
+  --maroon: #eba0ac;
+  --peach: #fab387;
+  --yellow: #f9e2af;
+  --green: #a6e3a1;
+  --teal: #94e2d5;
+  --sky: #89dceb;
+  --sapphire: #74c7ec;
+  --blue: #89b4fa;
+  --lavender: #b4befe;
+  --text: #cdd6f4;
+  --subtext1: #bac2de;
+  --subtext0: #a6adc8;
+  --overlay2: #9399b2;
+  --overlay1: #7f849c;
+  --overlay0: #6c7086;
+  --surface2: #585b70;
+  --surface1: #45475a;
+  --surface0: #313244;
+  --base: #1e1e2e;
+  --mantle: #181825;
+  --crust: #11111b;
+
+  --bg-auth-normal: rgb(36 58 80) 0%;
+  --bg-surface-semi-transparent: rgb(0 0 0 / 90%);
+  --bg-input: #161622;
+  --bg-surface-low-semi-transparent: rgba(11, 11, 11, 0.9);
+  --bg-surface-border: rgba(173, 173, 173, 0.2);
+}
+
+.catppuccin-theme-latte,
+.catppuccin-theme-frappe,
+.catppuccin-theme-macchiato,
+.catppuccin-theme-mocha {
+  --bg-surface-gradient: none;
+  --bg-surface-gradient-2: none;
+  --bg-surface-gradient-3: none;
+  --bg-auth-gradient: none;
+
+  /* Theme */
+  --bg-surface: var(--base);
+  --bg-surface-transparent: fadeout(@base, 100%);
+  --bg-surface-low: var(--mantle);
+  --bg-surface-low-transparent: fadeout(@mantle, 100%);
+  --bg-surface-extra-low: var(--crust);
+  --bg-surface-extra-low-transparent: fadeout(@crust, 100);
+
+  --bg-surface-hover: var(--surface0);
+  --bg-surface-active: var(--surface1);
+
+  --bg-primary: var(--accentColor);
+  --bg-primary-hover: fadeout(--accentColor, 20%);
+  --bg-primary-active: fadeout(--accentColor, 30%);
+  --bg-primary-border: fadeout(--accentColor, 62%);
+
+  --bg-tooltip: var(--surface0);
+  --bg-badge: var(--lavender);
+
+  --bg-positive: var(--green);
+  --bg-positive-hover: fadeout(--green, 92%);
+  --bg-positive-active: fadeout(--green, 85%);
+  --bg-positive-border: fadeout(--green, 60%);
+  --bg-caution: var(--peach);
+  --bg-caution-hover: fadeout(--peach, 92%);
+  --bg-caution-active: fadeout(--peach, 85%);
+  --bg-caution-border: fadeout(--peach, 60%);
+  --bg-danger: var(--maroon);
+  --bg-danger-hover: fadeout(--maroon, 95%);
+  --bg-danger-active: fadeout(--maroon, 90%);
+  --bg-danger-border: fadeout(--maroon, 80%);
+
+  --bg-ping: fadeout(--green, 60%);
+  --bg-ping-hover: fadeout(--green, 50%);
+
+  --tc-surface-high: var(--text);
+  --tc-surface-normal: var(--text);
+  --tc-surface-normal-low: var(--subtext1);
+  --tc-surface-low: var(--subtext0);
+  --tc-primary-high: var(--crust);
+  --tc-primary-normal: var(--text);
+  --tc-primary-low: var(--subtext1);
+
+  --tc-tooltip: var(--subtext0);
+  --tc-code: var(--mauve);
+  --tc-link: var(--rosewater);
+  --tc-badge: var(--crust);
+
+  --tc-positive-high: var(--green);
+  --tc-positive-normal: var(--green);
+  --tc-positive-low: var(--green);
+  --tc-caution-high: var(--peach);
+  --tc-caution-normal: var(--peach);
+  --tc-caution-low: var(--peach);
+  --tc-danger-high: var(--maroon);
+  --tc-danger-normal: var(--maroon);
+  --tc-danger-low: var(--maroon);
+
+  --ic-surface-high: var(--text);
+  --ic-surface-normal: var(--text);
+  --ic-surface-low: var(--subtext1);
+  --ic-primary-high: var(--text);
+  --ic-primary-normal: var(--crust);
+
+  --ic-positive-high: var(--green);
+  --ic-positive-normal: var(--maroon);
+  --ic-caution-high: var(--peach);
+  --ic-caution-normal: var(--peach);
+  --ic-danger-high: var(--maroon);
+  --ic-danger-normal: var(--maroon);
+
+  --mx-uc-1: var(--blue);
+  --mx-uc-2: var(--pink);
+  --mx-uc-3: var(--teal);
+  --mx-uc-4: var(--red);
+  --mx-uc-5: var(--peach);
+  --mx-uc-6: var(--sky);
+  --mx-uc-7: var(--mauve);
+  --mx-uc-8: var(--green);
+
+  .modal .modal-body {
+    background: var(--bg-surface-extra-low) !important;
+  }
+
+  .modal-dialog-user-profile,
+  .people-drawer-banner {
+    .avatar-container {
+      background-color: var(--bg-surface-extra-low) !important;
+    }
+  }
+
+  .card {
+    --bs-card-bg: var(--base) !important;
+  }
+
+  .list-group {
+    --bs-list-group-bg: var(--base);
+  }
+}
+
+.catppuccin-theme-frappe,
+.catppuccin-theme-macchiato,
+.catppuccin-theme-mocha {
+  .btn-theme {
+    --bs-btn-color: var(--subtext1);
+    --bs-btn-bg: var(--surface0);
+    --bs-btn-border-color: var(--surface0);
+    --bs-btn-hover-color: var(--subtext1);
+    --bs-btn-hover-bg: var(--surface2);
+    --bs-btn-hover-border-color: var(--surface1);
+    --bs-btn-focus-shadow-rgb: 66, 70, 73;
+    --bs-btn-active-color: var(--text);
+    --bs-btn-active-bg: var(--surface1);
+    --bs-btn-active-border-color: var(--surface1);
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: var(--subtext1);
+    --bs-btn-disabled-bg: var(--surface0);
+    --bs-btn-disabled-border-color: var(--surface0);
+  }
+
+  .btn-outline-theme {
+    --bs-btn-color: var(--surface0);
+    --bs-btn-border-color: var(--surface0);
+    --bs-btn-hover-color: var(--subtext1);
+    --bs-btn-hover-bg: var(--surface0);
+    --bs-btn-hover-border-color: var(--surface0);
+    --bs-btn-focus-shadow-rgb: 33, 37, 41;
+    --bs-btn-active-color: var(--text);
+    --bs-btn-active-bg: var(--surface0);
+    --bs-btn-active-border-color: var(--surface0);
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: var(--surface0);
+    --bs-btn-disabled-bg: transparent;
+    --bs-btn-disabled-border-color: var(--surface0);
+    --bs-gradient: none;
+  }
+
+  .btn-theme-bg {
+    --bs-btn-color: var(--subtext1);
+    --bs-btn-bg: #6c757d;
+    --bs-btn-border-color: #6c757d;
+    --bs-btn-hover-color: var(--subtext1);
+    --bs-btn-hover-bg: #5c636a;
+    --bs-btn-hover-border-color: #565e64;
+    --bs-btn-focus-shadow-rgb: 130, 138, 145;
+    --bs-btn-active-color: var(--text);
+    --bs-btn-active-bg: #565e64;
+    --bs-btn-active-border-color: #51585e;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: var(--subtext1);
+    --bs-btn-disabled-bg: #6c757d;
+    --bs-btn-disabled-border-color: #6c757d;
+  }
+
+  .btn-outline-theme-bg {
+    --bs-btn-color: #6c757d;
+    --bs-btn-border-color: transparent;
+    --bs-btn-hover-color: var(--subtext1);
+    --bs-btn-hover-bg: #6c757d;
+    --bs-btn-hover-border-color: transparent;
+    --bs-btn-focus-shadow-rgb: 108, 117, 125;
+    --bs-btn-active-color: var(--text);
+    --bs-btn-active-bg: #6c757d;
+    --bs-btn-active-border-color: transparent;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #6c757d;
+    --bs-btn-disabled-bg: transparent;
+    --bs-btn-disabled-border-color: transparent;
+    --bs-gradient: none;
+  }
+
+  #settings-base #setting-tab .nav-link:hover {
+    background-color: var(--bg-surface-hover) !important;
+  }
+}
+
+.catppuccin-theme-latte {
+  #settings-base #setting-tab .nav-link:hover {
+    background-color: #ccd0da !important;
+  }
+}

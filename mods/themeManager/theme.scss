@@ -131,6 +131,15 @@
     --bs-gradient: none;
   }
 
+  .btn-outline-theme-bg:active,
+  .btn-outline-secondary-bg:active {
+    color: var(--bg-surface) !important;
+    i,
+    i::before {
+      color: var(--bg-surface) !important;
+    }
+  }
+
   /* Settings */
   #settings-base #setting-tab .nav-link:hover {
     background-color: #121212 !important;

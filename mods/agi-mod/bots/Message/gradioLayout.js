@@ -11,6 +11,7 @@ import openTinyURL from '../../../../src/util/message/urlProtection';
 import { bootstrapItems } from '../../../../src/util/styles-bootstrap';
 import { twemojify } from '../../../../src/util/twemojify';
 import { selectButton as selectTheme } from '../../../../src/util/checkTheme';
+import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 
 const labelCreator = (icon, props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label).prepend(icon);
 const displayOptions = (props, id, appId, url, oHtml) => {
@@ -1009,7 +1010,42 @@ const components = {
                         gallery.append($('<div>', { class: `col-${rowsList[cols][rowNumber]}` }).append(button));
 
                         if (props.selectable) {
-                            button.on('click', () => input.val(value.data));
+                            button.on('click', () => {
+
+                                let tinyValue = value.data || value.name;
+                                if (typeof tinyValue === 'string') {
+
+                                    if (tinyValue.startsWith('/') && !tinyValue.startsWith('https://')) {
+                                        tinyValue = `${fileUrlGenerator(url)}${tinyValue}`;
+                                    }
+
+                                    if (tinyValue.startsWith('https://')) {
+
+                                        setLoadingPage('Fetching gladio blob...');
+                                        fetch(tinyUrl)
+                                            .then(response => response.blob())
+                                            .then(blob => {
+                                                setLoadingPage(false);
+                                                const reader = new FileReader();
+                                                reader.onload = function () {
+                                                    input.val(this.result);
+                                                    input.trigger('change');
+                                                };
+                                                reader.readAsDataURL(blob);
+                                            }).catch(err => {
+                                                setLoadingPage(false);
+                                                toast(err.message);
+                                                console.error(err);
+                                            });
+
+                                    } else {
+                                        input.val(tinyValue);
+                                        input.trigger('change');
+                                    }
+
+                                }
+
+                            });
                         } else {
                             button.addClass('disabled');
                         }

@@ -332,16 +332,15 @@ function GradioEmbed({ agiData }) {
 
                                 // Convert to momentjs
                                 data.time = moment(data.time);
-                                const loadPage = $('.loadingoverlay .loadingoverlay_text');
 
                                 // Queue
                                 if (data.queue) {
-
+                                    setLoadingPage('Queue...');
                                 }
 
                                 // Pending
                                 if (data.stage === 'pending') {
-                                    loadPage.text('Pending...');
+                                    setLoadingPage('Pending...');
                                 }
 
                                 // Complete
@@ -364,7 +363,7 @@ function GradioEmbed({ agiData }) {
 
                                 // Generating
                                 else if (data.stage === 'generating') {
-                                    loadPage.text('Generating...');
+                                    setLoadingPage('Generating...');
                                 }
 
                             });

@@ -196,6 +196,9 @@
   }
   gradio-embed {
     width: 100%;
+    overflow-y: auto;
+    max-height: 500px;
+    display: block;
 
     /* Gallery */
     .gallery {

@@ -892,6 +892,8 @@ const components = {
                 for (const item in props.choices) {
                     if (typeof props.choices[item] === 'string') {
                         dropdown.append($('<option>', { value: props.choices[item] }).text(props.choices[item]));
+                    } else if (Array.isArray(props.choices[item])) {
+                        dropdown.append($('<option>', { value: props.choices[item][0] }).text(props.choices[item][1]));
                     }
                 }
 

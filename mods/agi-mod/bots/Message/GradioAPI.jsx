@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { client } from '@gradio/client';
 import GradioLayout, { fileUrlGenerator } from './gradioLayout';
-import { objType, toast } from '../../../../src/util/tools';
+import { chatboxScrollToBottom, objType, toast } from '../../../../src/util/tools';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 
 const updateInputValue = (input, dropdown, value, filePath = '') => {
@@ -77,6 +77,7 @@ function GradioEmbed({ agiData }) {
                         const embedData = new GradioLayout(config, `gradio-embed[space='${id}']`, agiData.url, id, embedCache);
                         const page = $('<gradio-embed>', { class: 'text-center', space: id });
                         embedData.insertHtml(page);
+                        chatboxScrollToBottom();
                         embed.append(page);
 
                         // Send Update

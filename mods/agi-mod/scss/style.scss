@@ -190,7 +190,6 @@
 .agi-client-embed {
   background-color: var(--bg-surface);
   max-width: 1200px;
-  width: 100%;
   overflow-y: auto;
   max-height: 500px;
   display: block;
@@ -199,6 +198,7 @@
     height: 520px;
   }
   gradio-embed {
+    width: 100%;
     /* Gallery */
     .gallery {
       background-color: var(--bg-surface-low);

@@ -1,0 +1,150 @@
+.dark-theme,
+.system-theme.theme-type-dark {
+  --bg-auth-normal: rgb(36 58 80) 0%;
+
+  --bg-surface: rgb(5, 5, 5);
+  --bg-surface-semi-transparent: rgb(0 0 0 / 90%);
+  --bg-surface-transparent: hsla(0, 0%, 21%, 0);
+
+  --bg-input: rgb(5, 5, 5);
+
+  --bg-surface-low: rgb(0, 0, 0);
+  --bg-surface-low-semi-transparent: rgba(11, 11, 11, 0.9);
+  --bg-surface-low-transparent: hsla(0, 0%, 18%, 0);
+
+  --bg-surface-extra-low: hsl(0, 0%, 21%);
+  --bg-surface-extra-low-transparent: hsla(208, 8%, 14%, 0);
+
+  --bg-surface-hover: rgba(255, 255, 255, 3%);
+  --bg-surface-active: rgba(255, 255, 255, 5%);
+
+  --bg-surface-border: rgba(173, 173, 173, 0.2);
+
+  --bg-surface-gradient: none;
+  --bg-surface-gradient-2: none;
+  --bg-surface-gradient-3: none;
+  --bg-auth-gradient: none;
+
+  .toggle--active {
+    background-color: var(--bg-input);
+  }
+
+  /* Black */
+  .btn-theme,
+  .btn-primary,
+  .btn-success,
+  .btn-danger,
+  .btn-warning,
+  .btn-info {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--bg-surface);
+    --bs-btn-border-color: var(--bg-surface-extra-low);
+    --bs-btn-hover-color: var(--bg-surface);
+    --bs-btn-hover-bg: #f3f3f3;
+    --bs-btn-hover-border-color: #373b3e;
+    --bs-btn-focus-shadow-rgb: 66, 70, 73;
+    --bs-btn-active-color: var(--bg-surface);
+    --bs-btn-active-bg: #fff;
+    --bs-btn-active-border-color: #373b3e;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: var(--bg-surface);
+    --bs-btn-disabled-border-color: var(--bg-surface);
+  }
+
+  .btn-primary:hover,
+  .btn-success:hover,
+  .btn-danger:hover,
+  .btn-warning:hover,
+  .btn-info:hover {
+    color: var(--bs-btn-hover-color);
+    i,
+    i::before {
+      color: var(--bs-btn-hover-color);
+    }
+  }
+
+  .btn-outline-theme,
+  .btn-outline-primary,
+  .btn-outline-success,
+  .btn-outline-danger,
+  .btn-outline-warning,
+  .btn-outline-info {
+    --bs-btn-color: #fff;
+    --bs-btn-border-color: var(--bg-surface-extra-low);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--bg-surface);
+    --bs-btn-hover-border-color: #fff;
+    --bs-btn-focus-shadow-rgb: 33, 37, 41;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--bg-surface);
+    --bs-btn-active-border-color: #fff;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: var(--bg-surface);
+    --bs-btn-disabled-bg: transparent;
+    --bs-btn-disabled-border-color: var(--bg-surface);
+    --bs-gradient: none;
+  }
+
+  /* White Color */
+  .btn-secondary {
+    --bs-btn-color: var(--bg-surface);
+    --bs-btn-bg: #fff;
+    --bs-btn-border-color: var(--bg-surface-extra-low);
+    --bs-btn-hover-color: var(--bg-surface);
+    --bs-btn-hover-bg: #bebebe;
+    --bs-btn-hover-border-color: #373b3e;
+    --bs-btn-focus-shadow-rgb: 66, 70, 73;
+    --bs-btn-active-color: var(--bg-surface);
+    --bs-btn-active-bg: #fff;
+    --bs-btn-active-border-color: #373b3e;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: var(--bg-surface);
+    --bs-btn-disabled-bg: #fff;
+    --bs-btn-disabled-border-color: var(--bg-surface);
+    color: var(--bg-surface);
+    i,
+    i::before {
+      color: var(--bg-surface);
+    }
+  }
+
+  .btn-secondary:hover {
+    color: var(--bg-surface);
+    i {
+      color: var(--bg-surface);
+    }
+  }
+
+  .btn-outline-theme-bg,
+  .btn-outline-secondary-bg {
+    --bs-btn-color: var(--bg-surface);
+    --bs-btn-border-color: transparent;
+    --bs-btn-hover-color: var(--bg-surface);
+    --bs-btn-hover-bg: #fff;
+    --bs-btn-hover-border-color: transparent;
+    --bs-btn-focus-shadow-rgb: 108, 117, 125;
+    --bs-btn-active-color: var(--bg-surface);
+    --bs-btn-active-bg: #fff;
+    --bs-btn-active-border-color: transparent;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: var(--bg-surface);
+    --bs-btn-disabled-bg: transparent;
+    --bs-btn-disabled-border-color: transparent;
+    --bs-gradient: none;
+  }
+
+  .btn-outline-theme-bg:active,
+  .btn-outline-secondary-bg:active {
+    color: var(--bg-surface) !important;
+    i,
+    i::before {
+      color: var(--bg-surface) !important;
+    }
+  }
+
+  /* Settings */
+  #settings-base #setting-tab .nav-link:hover {
+    background-color: #121212 !important;
+  }
+}

@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { client } from '@gradio/client';
 import GradioLayout, { fileUrlGenerator } from './gradioLayout';
-import { objType, toast } from '../../../../src/util/tools';
+import { chatboxScrollToBottom, objType, toast } from '../../../../src/util/tools';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 
 const updateInputValue = (input, dropdown, value, filePath = '') => {
@@ -77,6 +77,7 @@ function GradioEmbed({ agiData }) {
                         const embedData = new GradioLayout(config, `gradio-embed[space='${id}']`, agiData.url, id, embedCache);
                         const page = $('<gradio-embed>', { class: 'text-center', space: id });
                         embedData.insertHtml(page);
+                        chatboxScrollToBottom();
                         embed.append(page);
 
                         // Send Update
@@ -332,16 +333,15 @@ function GradioEmbed({ agiData }) {
 
                                 // Convert to momentjs
                                 data.time = moment(data.time);
-                                const loadPage = $('.loadingoverlay .loadingoverlay_text');
 
                                 // Queue
                                 if (data.queue) {
-
+                                    setLoadingPage('Queue...');
                                 }
 
                                 // Pending
                                 if (data.stage === 'pending') {
-                                    loadPage.text('Pending...');
+                                    setLoadingPage('Pending...');
                                 }
 
                                 // Complete
@@ -364,7 +364,7 @@ function GradioEmbed({ agiData }) {
 
                                 // Generating
                                 else if (data.stage === 'generating') {
-                                    loadPage.text('Generating...');
+                                    setLoadingPage('Generating...');
                                 }
 
                             });

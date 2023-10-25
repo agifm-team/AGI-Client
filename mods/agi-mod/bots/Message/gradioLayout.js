@@ -1022,7 +1022,7 @@ const components = {
                                     if (tinyValue.startsWith('https://')) {
 
                                         setLoadingPage('Fetching gladio blob...');
-                                        fetch(tinyUrl)
+                                        fetch(tinyValue)
                                             .then(response => response.blob())
                                             .then(blob => {
                                                 setLoadingPage(false);

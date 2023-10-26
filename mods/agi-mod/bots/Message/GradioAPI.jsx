@@ -3,6 +3,8 @@ import { client } from '@gradio/client';
 import GradioLayout, { fileUrlGenerator } from './gradioLayout';
 import { chatboxScrollToBottom, objType, toast } from '../../../../src/util/tools';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
+import { getRoomInfo } from '../../../../src/app/organisms/room/Room';
+import tinyAPI from '../../../../src/util/mods';
 
 const updateInputValue = (input, dropdown, value, filePath = '') => {
 
@@ -609,6 +611,20 @@ function GradioEmbed({ agiData }) {
                 console.error(err);
                 toast(err.message);
             }
+
+            const roomInfoUpdate = (data, roomInfo) => {
+                console.log('Room Info');
+                if (roomInfo) {
+                    console.log(roomInfo);
+                }
+            };
+
+            roomInfoUpdate(null, getRoomInfo());
+            tinyAPI.on('setRoomInfo', roomInfoUpdate);
+            return () => {
+                tinyAPI.off('setRoomInfo', roomInfoUpdate);
+            };
+
         }
     });
 

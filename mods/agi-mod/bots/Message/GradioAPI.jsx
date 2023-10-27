@@ -76,32 +76,36 @@ function GradioEmbed({ agiData }) {
                         const embedCache = {};
                         const id = app.config.space_id.replace('/', '_');
                         const config = app.config;
-
-                        // Data
-                        const jsonCache = crdt.ydoc.getText(id);
                         let tinyJson = {};
 
-                        try {
-                            tinyJson = JSON.parse(jsonCache.toString());
-                        } catch {
-                            tinyJson = {};
-                        }
+                        // Data
+                        if (crdt.ydoc) {
 
-                        jsonCache.observe(() => {
+                            const jsonCache = crdt.ydoc.getText(id);
+
                             try {
                                 tinyJson = JSON.parse(jsonCache.toString());
-                                console.log(tinyJson);
                             } catch {
                                 tinyJson = {};
                             }
-                        });
 
-                        console.log(tinyJson);
+                            jsonCache.observe(() => {
+                                try {
+                                    tinyJson = JSON.parse(jsonCache.toString());
+                                    console.log(tinyJson);
+                                } catch {
+                                    tinyJson = {};
+                                }
+                            });
 
-                        setTimeout(() => {
-                            // tinyJson.yay = 'yay';
-                            // jsonCache.insert(0, JSON.stringify(tinyJson))
-                        }, 10000);
+                            console.log(tinyJson);
+
+                            setTimeout(() => {
+                                // tinyJson.yay = 'yay';
+                                // jsonCache.insert(0, JSON.stringify(tinyJson))
+                            }, 10000);
+
+                        }
 
                         // Read Template
                         const embedData = new GradioLayout(config, `gradio-embed[space='${id}']`, agiData.url, id, embedCache);

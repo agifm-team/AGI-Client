@@ -46,6 +46,7 @@ function GradioEmbed({ agiData }) {
     const embedRef = useRef(null);
     const [app, setApp] = useState(null);
     const [appError, setAppError] = useState(null);
+    const [crdt, setCrdt] = useState({});
 
     useEffect(() => {
         if (!appError) {
@@ -612,10 +613,21 @@ function GradioEmbed({ agiData }) {
                 toast(err.message);
             }
 
+            // Set Room CRDT
             const roomInfoUpdate = (data, roomInfo) => {
-                console.log('Room Info');
-                if (roomInfo) {
-                    console.log(roomInfo);
+                if (roomInfo && roomInfo.roomTimeline) {
+
+                    const roomTimeline = roomInfo.roomTimeline;
+                    roomTimeline.initProvider();
+
+                    if (crdt.roomId !== roomTimeline.roomId) {
+                        setCrdt({
+                            roomId: roomTimeline.roomId,
+                            ydoc: roomTimeline.getYdoc(),
+                            provider: roomTimeline.getProvider(),
+                        });
+                    }
+
                 }
             };
 
@@ -628,6 +640,7 @@ function GradioEmbed({ agiData }) {
         }
     });
 
+    console.log(crdt);
     // Temp result. (I'm using this only to have a preview. This will be removed later.)
     // <iframe title='gradio' src={agiData.url} />
     return <div ref={embedRef} className='mt-2 agi-client-embed chatbox-size-fix border border-bg p-4' />;

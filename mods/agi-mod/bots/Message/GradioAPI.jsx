@@ -5,6 +5,7 @@ import { chatboxScrollToBottom, objType, toast } from '../../../../src/util/tool
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 import { getRoomInfo } from '../../../../src/app/organisms/room/Room';
 import tinyAPI from '../../../../src/util/mods';
+import * as Y from 'yjs';
 
 const updateInputValue = (input, dropdown, value, filePath = '') => {
 
@@ -75,6 +76,32 @@ function GradioEmbed({ agiData }) {
                         const embedCache = {};
                         const id = app.config.space_id.replace('/', '_');
                         const config = app.config;
+
+                        // Data
+                        const jsonCache = crdt.ydoc.getText(id);
+                        let tinyJson = {};
+
+                        try {
+                            tinyJson = JSON.parse(jsonCache.toString());
+                        } catch {
+                            tinyJson = {};
+                        }
+
+                        jsonCache.observe(() => {
+                            try {
+                                tinyJson = JSON.parse(jsonCache.toString());
+                                console.log(tinyJson);
+                            } catch {
+                                tinyJson = {};
+                            }
+                        });
+
+                        console.log(tinyJson);
+
+                        setTimeout(() => {
+                            // tinyJson.yay = 'yay';
+                            // jsonCache.insert(0, JSON.stringify(tinyJson))
+                        }, 10000);
 
                         // Read Template
                         const embedData = new GradioLayout(config, `gradio-embed[space='${id}']`, agiData.url, id, embedCache);
@@ -640,7 +667,6 @@ function GradioEmbed({ agiData }) {
         }
     });
 
-    console.log(crdt);
     // Temp result. (I'm using this only to have a preview. This will be removed later.)
     // <iframe title='gradio' src={agiData.url} />
     return <div ref={embedRef} className='mt-2 agi-client-embed chatbox-size-fix border border-bg p-4' />;

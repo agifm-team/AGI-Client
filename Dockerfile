@@ -2,9 +2,9 @@
 FROM node:19.2.0-alpine3.15 as builder
 
 WORKDIR /src
-
-COPY .npmrc package.json package-lock.json /src/
-RUN npm ci
+RUN apk add yarn
+COPY .npmrc package.json yarn.lock /src/
+RUN yarn install --frozen-lockfile
 COPY . /src/
 ENV NODE_OPTIONS=--max_old_space_size=4096
 RUN npm run build
@@ -15,5 +15,4 @@ FROM nginx:1.25.3-alpine
 
 COPY --from=builder /src/dist /app
 
-RUN rm -rf /usr/share/nginx/html \
-  && ln -s /app /usr/share/nginx/html
+RUN  ln -s /app /usr/share/nginx/html/app

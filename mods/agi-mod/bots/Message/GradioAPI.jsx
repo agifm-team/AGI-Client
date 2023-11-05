@@ -3,6 +3,9 @@ import { client } from '@gradio/client';
 import GradioLayout, { fileUrlGenerator } from './gradioLayout';
 import { chatboxScrollToBottom, objType, toast } from '../../../../src/util/tools';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
+import { getRoomInfo } from '../../../../src/app/organisms/room/Room';
+import tinyAPI from '../../../../src/util/mods';
+import * as Y from 'yjs';
 
 const updateInputValue = (input, dropdown, value, filePath = '') => {
 
@@ -44,6 +47,7 @@ function GradioEmbed({ agiData }) {
     const embedRef = useRef(null);
     const [app, setApp] = useState(null);
     const [appError, setAppError] = useState(null);
+    const [crdt, setCrdt] = useState({});
 
     useEffect(() => {
         if (!appError) {
@@ -72,6 +76,56 @@ function GradioEmbed({ agiData }) {
                         const embedCache = {};
                         const id = app.config.space_id.replace('/', '_');
                         const config = app.config;
+                        let tinyJson = {};
+
+                        // Data
+                        if (crdt.ydoc) {
+
+                            const jsonCache = crdt.ydoc.getText(id);
+
+                            try {
+                                tinyJson = JSON.parse(jsonCache.toString());
+                            } catch {
+                                tinyJson = {};
+                            }
+
+                            jsonCache.observe((event) => {
+                                try {
+                                    tinyJson = JSON.parse(jsonCache.toString());
+                                    console.log(event, tinyJson);
+                                } catch {
+                                    tinyJson = {};
+                                }
+                            });
+
+                            console.log(tinyJson, jsonCache, config);
+
+                            /*
+                                Read Data
+
+                                config.components - find by id
+
+                                config.components[id].props
+                                Edit props
+
+
+                            */
+
+                            setTimeout(() => {
+                                // tinyJson.yay = 'yay';
+                                // jsonCache.insert(0, JSON.stringify(tinyJson))
+                            }, 10000);
+
+                            // array of numbers which produce a sum
+                            const yarray = crdt.ydoc.getArray("count");
+
+                            // observe changes of the sum
+                            yarray.observe(() => {
+                                // print updates when the data changes
+                                console.log(`new sum: ${yarray.toArray().reduce((a, b) => a + b)}`);
+                            });
+
+                        }
 
                         // Read Template
                         const embedData = new GradioLayout(config, `gradio-embed[space='${id}']`, agiData.url, id, embedCache);
@@ -609,6 +663,31 @@ function GradioEmbed({ agiData }) {
                 console.error(err);
                 toast(err.message);
             }
+
+            // Set Room CRDT
+            const roomInfoUpdate = (data, roomInfo) => {
+                if (roomInfo && roomInfo.roomTimeline) {
+
+                    const roomTimeline = roomInfo.roomTimeline;
+                    roomTimeline.initProvider();
+
+                    if (crdt.roomId !== roomTimeline.roomId) {
+                        setCrdt({
+                            roomId: roomTimeline.roomId,
+                            ydoc: roomTimeline.getYdoc(),
+                            provider: roomTimeline.getProvider(),
+                        });
+                    }
+
+                }
+            };
+
+            roomInfoUpdate(null, getRoomInfo());
+            tinyAPI.on('setRoomInfo', roomInfoUpdate);
+            return () => {
+                tinyAPI.off('setRoomInfo', roomInfoUpdate);
+            };
+
         }
     });
 

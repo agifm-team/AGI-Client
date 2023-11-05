@@ -21,6 +21,8 @@ import {
 import tinyAPI from '../../../util/mods';
 import { enableAfkSystem } from '../../../util/userStatusEffects';
 import { getUserWeb3Account } from '../../../util/web3';
+import getVoiceChat from '../../../util/libs/voiceChat';
+import { getSound } from '../../../client/state/Notifications';
 
 // Account Status
 const accountStatus = { status: null, data: null };
@@ -41,10 +43,17 @@ export function getAccountStatus(where) {
 
 // Profile Avatar Menu
 function ProfileAvatarMenu() {
+
+    // Data
     const mx = initMatrix.matrixClient;
+    const voiceChat = getVoiceChat(mx);
+
     const user = mx.getUser(mx.getUserId());
     const customStatusRef = useRef(null);
     const statusRef = useRef(null);
+
+    const [microphoneMuted, setMicrophoneMuted] = useState(voiceChat.getMicrophoneMute());
+    const [audioMuted, setAudioMuted] = useState(voiceChat.getAudioMute());
 
     // Get Display
     const [profile, setProfile] = useState({
@@ -165,11 +174,40 @@ function ProfileAvatarMenu() {
             setNewProfile(info.avatar_url, info.displayname, info.userId);
         });
 
+        const playMuteSound = (muted) => {
+
+            let sound;
+
+            try {
+                sound = getSound(muted ? 'micro_off' : 'micro_on');
+            } catch {
+                sound = null;
+            }
+
+            try {
+                if (sound) {
+                    sound.pause();
+                    sound.currentTime = 0
+                    sound.play();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+
+        };
+
+        const updateAudioMute = (muted) => { playMuteSound(muted); setAudioMuted(muted); };
+        const updateMicrophoneMute = (muted) => { playMuteSound(muted); setMicrophoneMuted(muted); };
+
         // Socket
         user2.on('User.avatarUrl', onAvatarChange);
         navigation.on(cons.events.navigation.PROFILE_UPDATED, onProfileUpdate);
+        voiceChat.on('pony_house_muted_audio', updateAudioMute);
+        voiceChat.on('pony_house_muted_microphone', updateMicrophoneMute);
         return () => {
             user2.removeListener('User.avatarUrl', onAvatarChange);
+            voiceChat.off('pony_house_muted_audio', updateAudioMute);
+            voiceChat.off('pony_house_muted_microphone', updateMicrophoneMute);
             navigation.removeListener(
                 cons.events.navigation.PROFILE_UPDATED,
                 onProfileUpdate,
@@ -192,7 +230,7 @@ function ProfileAvatarMenu() {
 
                     <td className="sidebar-photo p-0">
 
-                        <button className="btn btn-bg btn-link btn-sm ms-2 text-truncate text-start " onClick={() => openSettings(settingTabText.PROFILE)} type="button">
+                        <button className="btn btn-bg btn-link btn-sm ms-1 text-truncate text-start " onClick={() => openSettings(settingTabText.PROFILE)} type="button">
                             <Avatar
                                 className='d-inline-block float-start'
                                 text={profile.displayName}
@@ -211,8 +249,18 @@ function ProfileAvatarMenu() {
 
                     </td>
 
-                    <td className="p-0 pe-3 py-1 text-end">
-                        <IconButton fa="fa-solid fa-gear" onClick={openSettings} />
+                    <td className="p-0 pe-1 py-1 text-end">
+                        <IconButton tooltip={<span>{microphoneMuted ? 'Unmute' : 'Mute'}</span>} tooltipPlacement='top' fa="fa-solid fa-microphone" className={`action-button${microphoneMuted ? ' muted' : ''}`} onClick={() => voiceChat.setMicrophoneMute(!microphoneMuted)} />
+                        {microphoneMuted ? <i class="fa-solid fa-slash tiny-block" /> : null}
+                    </td>
+
+                    <td className="p-0 pe-1 py-1 text-end">
+                        <IconButton tooltip={<span>{audioMuted ? 'Undeafen' : 'Deafen'}</span>} tooltipPlacement='top' fa="bi bi-headphones" className={`action-button-2${audioMuted ? ' muted' : ''}`} onClick={() => voiceChat.setAudioMute(!audioMuted)} />
+                        {audioMuted ? <i class="fa-solid fa-slash tiny-block-2" /> : null}
+                    </td>
+
+                    <td className="p-0 pe-1 py-1 text-end">
+                        <IconButton tooltip={<span>User Settings</span>} tooltipPlacement='top' fa="fa-solid fa-gear" className='action-button' onClick={openSettings} />
                     </td>
                 </tr>
 
@@ -224,4 +272,11 @@ function ProfileAvatarMenu() {
 
 }
 
+/*
+<i class="fa-solid fa-microphone"></i>
+<i class="bi bi-headphones"></i>
+<i class="bi bi-webcam-fill"></i>
+<i class="fa-solid fa-desktop"></i>
+<i class="bi bi-telephone-x-fill"></i>
+*/
 export default ProfileAvatarMenu;

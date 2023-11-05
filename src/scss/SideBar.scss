@@ -81,13 +81,66 @@
 #profile-sidebar {
   position: relative;
   top: -60px;
-  margin-left: 80px;
+  margin-left: 72px;
   border-top: 1px solid #fff;
+  border-left-color: transparent !important;
+  border-left-width: 0px !important;
 
   .sidebar-photo,
   .sidebar-photo button {
     height: 45px !important;
-    width: 150px;
+    width: 142px;
+  }
+
+  .action-button {
+    & i,
+    & i::before {
+      font-size: 11pt;
+    }
+  }
+
+  .action-button-2 {
+    & i,
+    & i::before {
+      font-size: 15pt;
+      margin-left: -2px;
+      margin-right: -2px;
+    }
+  }
+
+  .action-button,
+  .action-button-2 {
+    padding-left: 12px;
+    padding-right: 12px;
+
+    &.muted i,
+    &.muted i::before {
+      color: var(--bs-danger) !important;
+    }
+  }
+
+  .tiny-block,
+  .tiny-block::before,
+  .tiny-block-2,
+  .tiny-block-2::before {
+    color: var(--bs-danger) !important;
+    display: block;
+    position: relative;
+    pointer-events: none;
+  }
+
+  .tiny-block,
+  .tiny-block::before {
+    margin-top: -15px;
+    top: -5px;
+    left: -4px;
+  }
+
+  .tiny-block-2,
+  .tiny-block-2::before {
+    margin-top: -16px;
+    top: -5px;
+    left: -4px;
   }
 
   .sidebar-photo button {

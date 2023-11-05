@@ -1,13 +1,14 @@
-import EventEmitter from 'events';
-import { MatrixProvider } from 'matrix-crdt';
 import * as Y from 'yjs';
+import EventEmitter from 'events';
 
 import initMatrix from '../initMatrix';
 import cons from './cons';
 
 import settings from './settings';
-import { messageIsCrdt } from '../../util/libs/crdt';
+import { messageIsClassicCrdt } from '../../util/libs/crdt';
+import { objType } from '../../util/tools';
 
+global.Y = Y;
 let timeoutForceChatbox = null;
 
 function isEdited(mEvent) {
@@ -82,6 +83,41 @@ function isTimelineLinked(tm1, tm2) {
   return false;
 }
 
+const getClientYjs = (updateInfo, callback) => {
+
+  if (Array.isArray(updateInfo.structs) && updateInfo.structs.length > 0) {
+    for (const item in updateInfo.structs) {
+      const struct = updateInfo.structs[item];
+      callback({ value: struct, key: struct.id.client }, 'structs');
+    }
+  }
+
+  if (updateInfo.ds && objType(updateInfo.ds.clients, 'map')) {
+    updateInfo.ds.clients.forEach((value, key) => {
+      callback({ value, key }, 'deleted');
+    });
+  }
+
+};
+
+const enableyJsItem = {
+
+  convertToString: (update) => btoa(update.toString()),
+
+  action: (ydoc, type, parent) => {
+    if (typeof enableyJsItem.types[type] === 'function') {
+      return enableyJsItem.types[type](ydoc, parent);
+    }
+  },
+
+  types: {
+    ymap: (ydoc, parent) => ydoc.getMap(parent),
+    ytext: (ydoc, parent) => ydoc.getText(parent),
+    yarray: (ydoc, parent) => ydoc.getArray(parent),
+  },
+
+};
+
 // Class
 class RoomTimeline extends EventEmitter {
 
@@ -90,6 +126,7 @@ class RoomTimeline extends EventEmitter {
     super();
     // These are local timelines
     this.timeline = [];
+    this.crdt = {};
     this.editedTimeline = new Map();
     this.reactionTimeline = new Map();
     this.typingMembers = new Set();
@@ -101,26 +138,15 @@ class RoomTimeline extends EventEmitter {
     this.liveTimeline = this.room.getLiveTimeline();
     this.activeTimeline = this.liveTimeline;
 
-    try {
-
-      this.ydoc = new Y.Doc();
-      this.isPvDestroyed = false;
-
-      this.provider = new MatrixProvider(this.ydoc, this.matrixClient, {
-        type: 'id',
-        id: this.room.roomId,
-      });
-
-    } catch (err) {
-      console.error(err);
-      setTimeout(() => this.destroyProvider, 1000);
-    }
-
-    this.providerInit = false;
-
     this.isOngoingPagination = false;
     this.ongoingDecryptionCount = 0;
     this.initialized = false;
+    this.ydoc = null;
+
+    this._ydoc_matrix_update = [];
+    this._ydoc_cache = [];
+
+    this._ydoc_cache_timeout = null;
 
     setTimeout(() => this.room.loadMembersIfNeeded());
 
@@ -129,26 +155,7 @@ class RoomTimeline extends EventEmitter {
 
   }
 
-  initProvider() {
-    if (!this.providerInit) {
-      this.providerInit = true;
-      return this.provider.initialize();
-    }
-  }
-
-  isProviderDestroyed() { return this.isPvDestroyed; }
-
-  getProvider() { return this.provider; }
-
   getYdoc() { return this.ydoc; }
-
-  destroyProvider() {
-    if (!this.isPvDestroyed) {
-      if (this.provider && typeof this.provider.dispose === 'function') this.provider.dispose();
-      if (this.ydoc && typeof this.ydoc.destroy === 'function') this.ydoc.destroy();
-      this.isPvDestroyed = true;
-    }
-  }
 
   isServingLiveTimeline() {
     return getLastLinkedTimeline(this.activeTimeline) === this.liveTimeline;
@@ -170,34 +177,189 @@ class RoomTimeline extends EventEmitter {
 
   clearLocalTimelines() {
     this.timeline = [];
+    this.crdt = {};
+  }
+
+  // Add crdt
+  _addCrdt(content) {
+
+    // Tiny This
+    const tinyThis = this;
+
+    // Checker
+    if (this.ydoc) {
+      try {
+
+        // Data
+        if (typeof content.data === 'string' && content.data.length > 0) {
+
+          // Get Data
+          const data = atob(content.data).split(',');
+          for (const item in data) {
+            data[item] = Number(data[item]);
+          }
+
+          if (data.length > 1) {
+
+            // Prepare to insert into update
+            const memoryData = new Uint8Array(data);
+            const updateInfo = Y.decodeUpdate(memoryData);
+
+            getClientYjs(updateInfo, (info) => {
+              tinyThis._ydoc_matrix_update.push(info.key);
+            });
+
+            // Fix Doc
+            if (
+              typeof content.parent === 'string' && typeof content.type === 'string' &&
+              content.parent.length > 0 && content.type.length > 0
+            ) {
+              enableyJsItem.action(this.ydoc, content.type, content.parent);
+            }
+
+            // Apply update
+            Y.applyUpdate(this.ydoc, memoryData);
+
+          }
+
+        }
+
+        // Snapshot
+        else if (
+          objType(content.snapshot, 'object') &&
+          typeof content.snapshot.update === 'string' && content.snapshot.update.length > 0 &&
+          typeof content.snapshot.encode === 'string' && content.snapshot.encode.length > 0
+        ) {
+
+          // Fix doc
+          if (objType(content.snapshot.types, 'object')) {
+            for (const key in content.snapshot.types) {
+              if (typeof content.snapshot.types[key] === 'string' && content.snapshot.types[key].length > 0) {
+                enableyJsItem.action(this.ydoc, content.snapshot.types[key], key);
+              }
+            }
+          }
+
+          // Get Data
+          const data = atob(content.snapshot.update).split(',');
+          for (const item in data) {
+            data[item] = Number(data[item]);
+          }
+
+          if (data.length > 1) {
+
+            // Prepare to insert into update
+            const memoryData = new Uint8Array(data);
+
+            // Apply update
+            Y.applyUpdate(this.ydoc, memoryData);
+
+          }
+
+        }
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Nope. Wait more
+    else {
+
+      this._ydoc_cache.push(content);
+
+      if (this._ydoc_cache_timeout) {
+        clearTimeout(this._ydoc_cache_timeout);
+        this._ydoc_cache_timeout = null;
+      }
+
+      const tinyTimeout = () => {
+
+        if (tinyThis.ydoc) {
+
+          for (const item in tinyThis._ydoc_cache) {
+            tinyThis._addCrdt(tinyThis._ydoc_cache[item]);
+          }
+
+          tinyThis._ydoc_cache = [];
+
+        } else {
+
+          if (tinyThis._ydoc_cache_timeout) {
+            clearTimeout(tinyThis._ydoc_cache_timeout);
+            tinyThis._ydoc_cache_timeout = null;
+          }
+
+          tinyThis._ydoc_cache_timeout = setTimeout(tinyTimeout, 500);
+
+        }
+
+      };
+
+      this._ydoc_cache_timeout = setTimeout(tinyTimeout, 500);
+
+    }
+
   }
 
   // Add to timeline
   addToTimeline(mEvent) {
 
-    // Filter Room Member Event and Matrix CRDT Events
-    if ((mEvent.getType() === 'm.room.member' && hideMemberEvents(mEvent)) || messageIsCrdt(mEvent)) {
-      return;
+    const evType = mEvent.getType();
+    if (evType !== 'pony.house.crdt' && !messageIsClassicCrdt(mEvent)) {
+
+      // Filter Room Member Event and Matrix CRDT Events
+      if ((evType === 'm.room.member' && hideMemberEvents(mEvent))) {
+        return;
+      }
+
+      // Redacted
+      if (mEvent.isRedacted()) return;
+
+      // Is Reaction
+      if (isReaction(mEvent)) {
+        addToMap(this.reactionTimeline, mEvent);
+        return;
+      }
+
+      // Support event types filter
+      if (!cons.supportEventTypes.includes(evType)) return;
+      if (isEdited(mEvent)) {
+        addToMap(this.editedTimeline, mEvent);
+        return;
+      }
+
+      // Timeline insert
+      this.timeline.push(mEvent);
+
     }
 
-    // Redacted
-    if (mEvent.isRedacted()) return;
+    // CRDT
+    else if (evType === 'pony.house.crdt') {
 
-    // Is Reaction
-    if (isReaction(mEvent)) {
-      addToMap(this.reactionTimeline, mEvent);
-      return;
+      const content = mEvent.getContent();
+      if (objType(content, 'object')) {
+
+        // Content Type
+        if (typeof content.store === 'string' && content.store.length > 0) {
+          if (!Array.isArray(this.crdt[content.store])) this.crdt[content.store] = [];
+          this.crdt[content.store].push(mEvent);
+        }
+
+        // Classic values
+        else {
+          if (!Array.isArray(this.crdt.DEFAULT)) this.crdt.DEFAULT = [];
+          this.crdt.DEFAULT.push(mEvent);
+        }
+
+        // Send to Crdt
+        this._addCrdt(content);
+
+      }
+    } else {
+      if (!Array.isArray(this.crdt.CLASSIC)) this.crdt.CLASSIC = [];
+      this.crdt.CLASSIC.push(mEvent);
     }
-
-    // Support event types filter
-    if (!cons.supportEventTypes.includes(mEvent.getType())) return;
-    if (isEdited(mEvent)) {
-      addToMap(this.editedTimeline, mEvent);
-      return;
-    }
-
-    // Timeline insert
-    this.timeline.push(mEvent);
 
   }
 
@@ -427,8 +589,165 @@ class RoomTimeline extends EventEmitter {
     return this.timeline.splice(i, 1)[0];
   }
 
+  // CRDT
+  deleteCrdtFromTimeline(eventId, where = 'DEFAULT') {
+    if (Array.isArray(this.crdt[where])) {
+      const i = this.getCrdtIndex(eventId, where);
+      if (i === -1) return undefined;
+      return this.crdt[where].splice(i, 1)[0];
+    }
+  }
+
+  findCrdtById(eventId, where = 'DEFAULT') {
+    if (Array.isArray(this.crdt[where])) {
+      return this.crdt[where][this.getCrdtIndex(eventId)] ?? null;
+    }
+  }
+
+  getCrdtIndex(eventId, where = 'DEFAULT') {
+    if (Array.isArray(this.crdt[where])) {
+      return this.crdt[where].findIndex((mEvent) => mEvent.getId() === eventId);
+    }
+  }
+
+  snapshotCrdt() {
+
+    const update = enableyJsItem.convertToString(Y.encodeStateAsUpdate(this.ydoc));
+    const encode = enableyJsItem.convertToString(Y.encodeSnapshot(Y.snapshot(this.ydoc)));
+
+    const types = {};
+    this.ydoc.share.forEach((value, key) => {
+
+      try {
+        types[key] = String(value.constructor.name.startsWith('_') ? value.constructor.name.substring(1) : item.constructor.name).toLocaleLowerCase();
+      }
+
+      catch { types[key] = null; }
+
+    });
+
+    return { update, encode, types };
+
+  }
+
+  _insertCrdt(data, type, parent, store = 'DEFAULT') {
+    return this.matrixClient.sendEvent(this.roomId, 'pony.house.crdt', { data, store, type, parent });
+  }
+
+  _insertSnapshotCrdt(snapshot, type, parent, store = 'DEFAULT') {
+    return this.matrixClient.sendEvent(this.roomId, 'pony.house.crdt', { snapshot, store, type, parent });
+  }
+
   // Active Listens
   _listenEvents() {
+
+    const tinyThis = this;
+    this.ydoc = new Y.Doc();
+    this._ydoc_matrix_update = [];
+
+    this.ydoc.on('update', (update) => {
+
+      const updateInfo = Y.decodeUpdate(update);
+
+      // Checker
+      let needUpdate = true;
+      let itemType;
+      let parent;
+      getClientYjs(updateInfo, (info, type) => {
+
+        // Get Index
+        const index = tinyThis._ydoc_matrix_update.indexOf(info.key);
+        if (index > -1) {
+          tinyThis._ydoc_matrix_update.splice(index, 1);
+          needUpdate = false
+        }
+
+        // Get new value type
+        else if (type === 'structs') {
+
+          const struct = tinyThis.ydoc.store.clients.get(info.key);
+          if (Array.isArray(struct) && struct.length > 0 && struct[struct.length - 1]) {
+
+            const item = struct[struct.length - 1];
+
+            try {
+              itemType = String(item.parent.constructor.name.startsWith('_') ? item.parent.constructor.name.substring(1) : item.parent.constructor.name).toLocaleLowerCase();
+            } catch { itemType = null; }
+
+            if (typeof info.value.parent === 'string' && info.value.parent.length > 0) {
+              parent = info.value.parent
+            }
+
+          }
+
+        }
+
+      });
+
+      // Insert update into the room
+      if (needUpdate) {
+        try {
+
+          // Event Name
+          const eventName = 'DEFAULT';
+
+          // Insert CRDT and prepare to check snapshot sender
+          tinyThis._insertCrdt(enableyJsItem.convertToString(update), itemType, parent, eventName).then(() => {
+
+            // Get CRDT List and user Id
+            const items = tinyThis.crdt[eventName];
+            // const userId = tinyThis.matrixClient.getUserId();
+
+            // Counter Checker
+            let crdtCount = 0;
+            if (Array.isArray(items) && items.length > 0) {
+
+              // Check Events
+              for (const item in items) {
+
+                // Get Content
+                const content = items[item].getContent();
+
+                // First Check
+                if (
+                  // userId === items[item].getSender() &&
+                  objType(content, 'object') &&
+                  content.store === eventName
+                ) {
+
+                  // Is Data
+                  if (typeof content.data === 'string' && content.data.length > 0) {
+                    crdtCount++;
+                  }
+
+                  // Is Snapshot
+                  else if (
+                    objType(content.snapshot, 'object') &&
+                    typeof content.snapshot.update === 'string' && content.snapshot.update.length > 0 &&
+                    typeof content.snapshot.encode === 'string' && content.snapshot.encode.length > 0
+                  ) {
+                    crdtCount = 0;
+                  }
+
+                }
+
+              }
+
+            }
+
+            // Send snapshot
+            if (crdtCount > 7) {
+              tinyThis._insertSnapshotCrdt(tinyThis.snapshotCrdt(), itemType, parent, eventName);
+            }
+
+          });
+
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+    });
 
     this._listenRoomTimeline = (event, room, toStartOfTimeline, removed, data) => {
 
@@ -525,9 +844,11 @@ class RoomTimeline extends EventEmitter {
 
   }
 
-  // Remove events
+  // Remove listeners
   removeInternalListeners() {
     if (!this.initialized) return;
+    this.ydoc.destroy();
+    this._ydoc_matrix_update = [];
     this.matrixClient.removeListener('Room.timeline', this._listenRoomTimeline);
     this.matrixClient.removeListener('Room.redaction', this._listenRedaction);
     this.matrixClient.removeListener('Event.decrypted', this._listenDecryptEvent);

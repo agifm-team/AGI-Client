@@ -5,7 +5,6 @@ import { chatboxScrollToBottom, objType, toast } from '../../../../src/util/tool
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 import { getRoomInfo } from '../../../../src/app/organisms/room/Room';
 import tinyAPI from '../../../../src/util/mods';
-import * as Y from 'yjs';
 
 const updateInputValue = (input, dropdown, value, filePath = '') => {
 
@@ -669,7 +668,6 @@ function GradioEmbed({ agiData }) {
                 if (roomInfo && roomInfo.roomTimeline) {
 
                     const roomTimeline = roomInfo.roomTimeline;
-                    roomTimeline.initProvider();
 
                     if (crdt.roomId !== roomTimeline.roomId) {
                         setCrdt({

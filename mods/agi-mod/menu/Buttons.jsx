@@ -157,29 +157,17 @@ export default function buttons() {
     // Space Container
     const spaceContainer = $('.space-container');
 
-    // Flowise
-    let flowise = spaceContainer.find('#agi-flowise');
-    if (flowise.length > 0) {
-        flowise.remove();
-    }
 
-    // Flowise
+    // Superagent
     let superagent = spaceContainer.find('#agi-superagent');
     if (superagent.length > 0) {
         superagent.remove();
     }
 
     // Prepare Button
-    flowise = createButton('flowise', 'AI', 'bi bi-robot');
     superagent = createButton('superagent', 'SuperAgent', 'fa-solid fa-user-ninja');
 
     // Add Click
-    flowise.tooltip({ placement: 'right' }).on('click', () => btModal({
-        id: 'agi-flowise-modal',
-        dialog: 'modal-fullscreen',
-        title: 'Flowise',
-        body: jReact(<iframe title='Flowise' src={serverAddress} className='w-100 height-modal-full-size' style={{ backgroundColor: '#000' }} />)
-    }));
 
     superagent.tooltip({ placement: 'right' }).on('click', () => btModal({
         id: 'agi-superagent-modal',

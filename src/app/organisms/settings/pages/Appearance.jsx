@@ -1,42 +1,34 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-import initMatrix from '../../../../client/initMatrix';
 
 import settings from '../../../../client/state/settings';
 import Toggle from '../../../atoms/button/Toggle';
 import SegmentedControls from '../../../atoms/segmented-controls/SegmentedControls';
 import SettingTile from '../../../molecules/setting-tile/SettingTile';
 
-import { toggleAction } from '../Api';
-
 import {
     toggleSystemTheme, toggleMarkdown, toggleMembershipEvents, toggleNickAvatarEvents,
 } from '../../../../client/action/settings';
 import { tinyAppZoomValidator } from '../../../../util/tools';
+import { getAppearance, toggleAppearanceAction } from '../../../../util/libs/appearance';
 
 function AppearanceSection() {
 
     const [, updateState] = useState({});
+    const appearanceSettings = getAppearance();
 
-    const [showUserDMstatus, setShowUserStatus] = useState(true);
-    const [pinDMmessages, setPinDMmessages] = useState(true);
-    const [isAnimateAvatarsHidden, setAnimateAvatarsHidden] = useState(false);
-    const [isEmbedDisabled, setEmbedDisabled] = useState(false);
-    const [isUNhoverDisabled, setUNhoverDisabled] = useState(false);
+    const [showUserDMstatus, setShowUserStatus] = useState(appearanceSettings.showUserDMstatus);
+    const [pinDMmessages, setPinDMmessages] = useState(appearanceSettings.pinDMmessages);
+    const [isAnimateAvatarsEnabled, setAnimateAvatarsEnabled] = useState(appearanceSettings.isAnimateAvatarsEnabled);
+    const [isEmbedEnabled, setEmbedEnabled] = useState(appearanceSettings.isEmbedEnabled);
+    const [isUNhoverEnabled, setUNhoverEnabled] = useState(appearanceSettings.isUNhoverEnabled);
 
     const ponyHouseZoomRef = useRef(null);
     const ponyHouseZoomRangeRef = useRef(null);
 
     useEffect(() => {
 
-        const content = initMatrix.matrixClient.getAccountData('pony.house.appearance')?.getContent() ?? {};
         const zoomApp = Number(global.localStorage.getItem('pony-house-zoom'));
-
-        setPinDMmessages((content.pinDMmessages !== false));
-        setShowUserStatus((content.showUserDMstatus !== false));
-        setAnimateAvatarsHidden((content.isAnimateAvatarsHidden === true));
-        setEmbedDisabled((content.isEmbedDisabled === true));
-        setUNhoverDisabled((content.isUNhoverDisabled === true));
 
         const ponyHouseZoom = $(ponyHouseZoomRef.current);
         const ponyHouseZoomRange = $(ponyHouseZoomRangeRef.current);
@@ -142,7 +134,7 @@ function AppearanceSection() {
                             <Toggle
                                 className='d-inline-flex'
                                 isActive={showUserDMstatus}
-                                onToggle={toggleAction('pony.house.appearance', 'showUserDMstatus', setShowUserStatus)}
+                                onToggle={toggleAppearanceAction('showUserDMstatus', setShowUserStatus)}
                             />
                         )}
                         content={<div className="very-small text-gray">All users in your DM will show whether they are online or not.</div>}
@@ -154,7 +146,7 @@ function AppearanceSection() {
                             <Toggle
                                 className='d-inline-flex'
                                 isActive={pinDMmessages}
-                                onToggle={toggleAction('pony.house.appearance', 'pinDMmessages', setPinDMmessages)}
+                                onToggle={toggleAppearanceAction('pinDMmessages', setPinDMmessages)}
                             />
                         )}
                         content={<div className="very-small text-gray">Whenever you receive a new notification in your DM list, you will see a notification icon in the sidebar.</div>}
@@ -207,27 +199,15 @@ function AppearanceSection() {
                     <li className="list-group-item very-small text-gray">User message</li>
 
                     <SettingTile
-                        title="Disable animated hover avatars"
+                        title="Enable animated hover avatars"
                         options={(
                             <Toggle
                                 className='d-inline-flex'
-                                isActive={isAnimateAvatarsHidden}
-                                onToggle={toggleAction('pony.house.appearance', 'isAnimateAvatarsHidden', setAnimateAvatarsHidden)}
+                                isActive={isAnimateAvatarsEnabled}
+                                onToggle={toggleAppearanceAction('isAnimateAvatarsEnabled', setAnimateAvatarsEnabled)}
                             />
                         )}
-                        content={<div className="very-small text-gray">Turn off animated avatars that are displayed when you mouse over it.</div>}
-                    />
-
-                    <SettingTile
-                        title="Disable message url embed"
-                        options={(
-                            <Toggle
-                                className='d-inline-flex'
-                                isActive={isEmbedDisabled}
-                                onToggle={toggleAction('pony.house.appearance', 'isEmbedDisabled', setEmbedDisabled)}
-                            />
-                        )}
-                        content={<div className="very-small text-gray">All messages will no longer load embed.</div>}
+                        content={<div className="very-small text-gray">Turn on animated avatars that are displayed when you mouse over it.</div>}
                     />
 
                 </ul>
@@ -238,15 +218,15 @@ function AppearanceSection() {
                     <li className="list-group-item very-small text-gray">Embed</li>
 
                     <SettingTile
-                        title="Disable embed to message url"
+                        title="Enable embed to message url"
                         options={(
                             <Toggle
                                 className='d-inline-flex'
-                                isActive={isEmbedDisabled}
-                                onToggle={toggleAction('pony.house.appearance', 'isEmbedDisabled', setEmbedDisabled)}
+                                isActive={isEmbedEnabled}
+                                onToggle={toggleAppearanceAction('isEmbedEnabled', setEmbedEnabled)}
                             />
                         )}
-                        content={<div className="very-small text-gray">All messages will no longer load embed.</div>}
+                        content={<div className="very-small text-gray">All messages with url will load a embed.</div>}
                     />
 
                 </ul>

@@ -40,6 +40,7 @@ import getUrlPreview from '../../../util/libs/getUrlPreview';
 
 import Embed from './Embed';
 import tinyAPI from '../../../util/mods';
+import { getAppearance } from '../../../util/libs/appearance';
 
 function PlaceholderMessage() {
   return (
@@ -994,8 +995,8 @@ function Message({
     if (msgType === 'm.text') {
 
       // Check Urls on the message
-      const appAppearance = mx.getAccountData('pony.house.appearance')?.getContent() ?? {};
-      if (appAppearance.isEmbedDisabled !== true && Array.isArray(bodyUrls) && bodyUrls.length > 0) {
+      const appAppearance = getAppearance();
+      if (appAppearance.isEmbedEnabled === true && Array.isArray(bodyUrls) && bodyUrls.length > 0) {
 
         // Create embed base
         const newEmbeds = clone(embeds);

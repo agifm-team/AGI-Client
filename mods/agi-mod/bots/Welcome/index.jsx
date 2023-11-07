@@ -7,7 +7,7 @@ import ItemWelcome from './item';
 let connectionTestTimeout = false;
 
 let selected = null;
-const apiAddress = `${serverAddress}api/v1/`;
+const apiAddress = `${serverAddress}`;
 function Welcome() {
 
     // Data

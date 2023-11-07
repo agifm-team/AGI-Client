@@ -2,11 +2,12 @@ import defaultAvatar from '../../../../src/app/atoms/avatar/defaultAvatar';
 import { serverAddress } from '../../socket';
 import PeopleSelector from './Item';
 import tinyAPI from '../../../../src/util/mods';
+import initMatrix from '../../../../src/client/initMatrix';
 
 let tinyData = null;
 function updateAgentsList() {
     return new Promise((resolve) => {
-        fetch(`${serverAddress}api/v1/get_bots/user15`, {
+        fetch(`${serverAddress}api/v1/get_bots/${initMatrix.matrixClient.getUserId()}`, {
             headers: {
                 'Accept': 'application/json'
             }

@@ -13,6 +13,6 @@ RUN npm run build
 ## App
 FROM nginx:1.25.3-alpine
 
-COPY --from=builder /src/dist /app
+COPY --from=builder /src/dist /usr/share/nginx/html
 
-RUN  ln -s /app /usr/share/nginx/html/app
+#RUN  ln -s /app /usr/share/nginx/html/app

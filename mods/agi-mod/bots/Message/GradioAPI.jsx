@@ -63,13 +63,13 @@ function GradioEmbed({ agiData }) {
                     client(agiData.url).then(newApp => setApp(newApp)).catch(tinyError);
                 }
 
-                else if (objType(app, 'object') && objType(app.config, 'object') && typeof app.config.space_id === 'string' && app.config.space_id.length > 0) {
+                else if (!id && objType(app, 'object') && objType(app.config, 'object') && typeof app.config.space_id === 'string' && app.config.space_id.length > 0) {
                     setId(app.config.space_id.replace('/', '_'));
                 }
 
                 // Load Ydoc
                 else if (!ydoc) {
-                    setYdoc(global.selectedRoom.ydoc.getArray(id));
+                    global.selectedRoom.ydocWait().then(() => setYdoc(global.selectedRoom.ydoc.getArray(id)));
                 }
 
                 // Execute Data

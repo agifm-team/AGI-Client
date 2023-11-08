@@ -196,6 +196,33 @@
   height: 700px;
   display: block;
 
+  &.loading,
+  &.loading-gradio {
+    display: flex;
+    align-items: center;
+
+    center {
+      width: 100%;
+      font-size: 10pt;
+    }
+  }
+
+  &.loading {
+    i {
+      font-size: 35pt;
+      margin-bottom: 17px;
+    }
+
+    &:hover {
+      font-weight: bold;
+
+      i:hover {
+        opacity: 0.75;
+        cursor: pointer;
+      }
+    }
+  }
+
   @media (max-height: 800px) {
     max-height: 500px;
     min-height: 500px;

@@ -3,8 +3,8 @@ import { client } from '@gradio/client';
 import GradioLayout, { fileUrlGenerator } from './gradioLayout';
 import { chatboxScrollToBottom, objType, toast } from '../../../../src/util/tools';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
-import { getRoomInfo } from '../../../../src/app/organisms/room/Room';
-import tinyAPI from '../../../../src/util/mods';
+
+// global.selectedRoom.ydoc
 
 const updateInputValue = (input, dropdown, value, filePath = '') => {
 
@@ -46,7 +46,6 @@ function GradioEmbed({ agiData }) {
     const embedRef = useRef(null);
     const [app, setApp] = useState(null);
     const [appError, setAppError] = useState(null);
-    const [crdt, setCrdt] = useState({});
 
     useEffect(() => {
         if (!appError) {
@@ -612,28 +611,6 @@ function GradioEmbed({ agiData }) {
                 console.error(err);
                 toast(err.message);
             }
-
-            // Set Room CRDT
-            const roomInfoUpdate = (data, roomInfo) => {
-                if (roomInfo && roomInfo.roomTimeline) {
-
-                    const roomTimeline = roomInfo.roomTimeline;
-
-                    if (crdt.roomId !== roomTimeline.roomId) {
-                        setCrdt({
-                            roomId: roomTimeline.roomId,
-                            ydoc: roomTimeline.getYdoc(),
-                        });
-                    }
-
-                }
-            };
-
-            roomInfoUpdate(null, getRoomInfo());
-            tinyAPI.on('setRoomInfo', roomInfoUpdate);
-            return () => {
-                tinyAPI.off('setRoomInfo', roomInfoUpdate);
-            };
 
         }
     });

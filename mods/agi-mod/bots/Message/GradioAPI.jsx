@@ -4,8 +4,6 @@ import GradioLayout, { fileUrlGenerator } from './gradioLayout';
 import { chatboxScrollToBottom, objType, toast } from '../../../../src/util/tools';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 
-// global.selectedRoom.ydoc
-
 const updateInputValue = (input, dropdown, value, filePath = '') => {
 
     if (input.type === 'jquery') {
@@ -46,6 +44,8 @@ function GradioEmbed({ agiData }) {
     const embedRef = useRef(null);
     const [app, setApp] = useState(null);
     const [appError, setAppError] = useState(null);
+    const [ydoc, setYdoc] = useState(null);
+    const [id, setId] = useState(null);
 
     useEffect(() => {
         if (!appError) {
@@ -63,16 +63,25 @@ function GradioEmbed({ agiData }) {
                     client(agiData.url).then(newApp => setApp(newApp)).catch(tinyError);
                 }
 
+                else if (objType(app, 'object') && objType(app.config, 'object') && typeof app.config.space_id === 'string' && app.config.space_id.length > 0) {
+                    setId(app.config.space_id.replace('/', '_'));
+                }
+
+                // Load Ydoc
+                else if (!ydoc) {
+                    setYdoc(global.selectedRoom.ydoc.getArray(id));
+                }
+
                 // Execute Data
                 else {
 
                     // Insert Embed
+                    console.log(ydoc);
                     const embed = $(embedRef.current);
-                    if (embed.find('gladio-embed').length < 1 && objType(app, 'object') && objType(app.config, 'object') && typeof app.config.space_id === 'string' && app.config.space_id.length > 0) {
+                    if (embed.find('gladio-embed').length < 1) {
 
                         // Id
                         const embedCache = {};
-                        const id = app.config.space_id.replace('/', '_');
                         const config = app.config;
 
                         // Read Template

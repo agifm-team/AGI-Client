@@ -79,6 +79,7 @@ function GradioEmbed({ agiData }) {
 
                     }
 
+                    // Get embed Id
                     else if (!id && objType(app, 'object') && objType(app.config, 'object') && typeof app.config.space_id === 'string' && app.config.space_id.length > 0) {
                         embed.empty();
                         setId(app.config.space_id.replace('/', '_'));

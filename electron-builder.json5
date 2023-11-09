@@ -3,7 +3,7 @@
  */
 {
   appId: 'immagine-ai-matrix',
-  productName: 'Immagine.AI',
+  productName: 'Multi.so',
   copyright: 'Copyright © 2023 ${author}',
   asar: true,
   directories: {

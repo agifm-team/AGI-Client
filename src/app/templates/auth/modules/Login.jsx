@@ -126,7 +126,7 @@ function Login({ loginFlow, baseUrl }) {
                     )}
                 </Formik>
             )} */}
-            {ssoProviders && isPassword && <Text className="sso__divider">OR</Text>}
+            {/* {ssoProviders && isPassword && <Text className="sso__divider">OR</Text>} */}
             {ssoProviders && (
                 <SSOButtons
                     type="sso"

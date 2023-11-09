@@ -37,11 +37,11 @@ function AuthCard() {
 
             { /* (type === 'login' && <a className="very-small" href="#!">Forgot password?</a>) */}
 
-            <center>
+            {/* <center>
                 <p className="mb-4 pb-lg-2 small" >{`${(type === 'login' ? 'Don\'t have' : 'Already have')} an account?`} <a href="#!" onClick={() => setType((type === 'login') ? 'register' : 'login')}>
                     {type === 'login' ? 'Register here' : 'Login here'}
                 </a></p>
-            </center>
+            </center> */}
 
         </>)}
 

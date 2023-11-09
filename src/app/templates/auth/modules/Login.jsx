@@ -68,7 +68,7 @@ function Login({ loginFlow, baseUrl }) {
         <>
             <div className="auth-form__heading">
                 <h5>Welcome back</h5>
-                {isPassword && (
+                {/* {isPassword && (
                     <ContextMenu
                         placement="right"
                         content={(hideMenu) => (
@@ -90,9 +90,9 @@ function Login({ loginFlow, baseUrl }) {
                             </Button>
                         )}
                     />
-                )}
+                )} */}
             </div>
-            {isPassword && (
+            {/* {isPassword && (
                 <Formik
                     initialValues={initialValues}
                     onSubmit={submitter}
@@ -125,7 +125,7 @@ function Login({ loginFlow, baseUrl }) {
                         </>
                     )}
                 </Formik>
-            )}
+            )} */}
             {ssoProviders && isPassword && <Text className="sso__divider">OR</Text>}
             {ssoProviders && (
                 <SSOButtons

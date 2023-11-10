@@ -57,7 +57,7 @@ function ItemWelcome({ bot, item, itemsLength }) {
     // Complete
     return <li ref={buttonRef} className={`list-group-item border border-bg m${item.index > 0 ? item.index < itemsLength - 1 ? 'x-3' : 's-3' : 'e-3'}`} bot={bot.bot_id}>
         <img className='img-fluid avatar' draggable={false} alt='avatar' src={defaultAvatar(1)} />
-        <h5 className="card-title text-bg">{bot.bot_name}</h5>
+        <h6 className="card-title text-bg">{bot.bot_name}</h6>
         <p className="card-text text-bg-low">{bot.description}</p>
     </li>;
 

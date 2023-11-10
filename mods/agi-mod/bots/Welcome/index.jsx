@@ -4,12 +4,6 @@ import defaultAvatar from '../../../../src/app/atoms/avatar/defaultAvatar';
 import { serverAddress } from '../../socket';
 import ItemWelcome from './item';
 
-// Temp
-import community from './community.json';
-import enterprise from './enterprise.json';
-
-const tempLoad = { community, enterprise };
-
 let connectionTestTimeout = false;
 
 let selected = null;
@@ -54,7 +48,6 @@ function Welcome() {
         if ((selected !== tinyType || !data) && !loadingData) {
 
             // Load Data
-            /*
             setLoadingData(true);
             fetch(`${apiAddress}get_list/${tinyType}`, {
                 headers: {
@@ -73,10 +66,6 @@ function Welcome() {
                 }
 
             });
-            */
-
-            // Temp
-            selectJson(tempLoad[tinyType]);
 
         }
 

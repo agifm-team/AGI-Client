@@ -114,7 +114,7 @@ function Welcome() {
             </div>
 
             {!loadingData && data && Array.isArray(data.categories) ?
-                categories.map((citem) => <div className='mb-5 category' id={`agi-home-${citem.id}`}>
+                categories.map((citem) => <div className='category' id={`agi-home-${citem.id}`}>
 
                     <hr />
 

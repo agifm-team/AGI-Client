@@ -29,20 +29,20 @@
 
   #menu {
     .btn {
-      background-color: #139a78;
-      border-color: #0d6f56;
-      color: #fff !important;
+      background-color: var(--bg-surface-extra-low);
+      border-color: --bg-surface-border;
+      color: var(--tc-surface-normal) !important;
 
       &:hover {
-        background-color: #0d6f56;
+        background-color: var(--bg-surface-extra-low-transparent);
       }
 
       &:active {
-        background-color: #0b5a46;
+        background-color: var(--bg-surface);
       }
 
       &.active {
-        background-color: #0d6f56;
+        background-color: var(--bg-surface);
       }
     }
   }
@@ -53,6 +53,11 @@
 
   .category {
     height: 280px;
+    margin-bottom: 27px;
+
+    hr {
+      margin-bottom: 0px;
+    }
 
     ul {
       overflow-x: auto;
@@ -65,7 +70,7 @@
         background-color: var(--bg-surface-low-semi-transparent);
 
         .avatar {
-          border-radius: 50% !important;
+          border-radius: 15% !important;
           max-height: 100px;
           margin-bottom: 25px !important;
         }

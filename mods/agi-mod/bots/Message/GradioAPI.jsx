@@ -125,7 +125,7 @@ function GradioEmbed({ agiData }) {
                                         Array.isArray(dataset.props.samples) && Array.isArray(dataset.props.samples[dataset.index]) &&
                                         typeof dataset.props.samples[dataset.index][0] === 'string'
                                     ) {
-                                        tinyValue = `${fileUrlGenerator(config.root)}${dataset.props.samples[dataset.index][0]}`;
+                                        tinyValue = `${dataset.props.samples[dataset.index][0].startsWith('/') ? fileUrlGenerator(config.root) : ''}${dataset.props.samples[dataset.index][0]}`;
                                     }
 
                                     const data = embedData.getComponentValue(output.depId);

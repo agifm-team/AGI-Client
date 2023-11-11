@@ -28,30 +28,22 @@
   overflow-y: auto;
 
   #menu {
-    .card {
-      transition: 0.03s background-color;
-      cursor: pointer;
-      background-color: #139a78;
-      border-color: #0d6f56;
-      width: 240px;
-      height: 200px;
-      .card-body {
-        display: grid;
-        align-items: center;
-        justify-content: center;
+    .btn {
+      background-color: var(--bg-surface-extra-low);
+      border-color: --bg-surface-border;
+      color: var(--tc-surface-normal) !important;
+
+      &:hover {
+        background-color: var(--bg-surface-extra-low-transparent);
+      }
+
+      &:active {
+        background-color: var(--bg-surface);
       }
 
       &.active {
-        background-color: #0d6f56;
+        background-color: var(--bg-surface);
       }
-    }
-
-    .card:hover {
-      background-color: #0d6f56;
-    }
-
-    .card:active {
-      background-color: #0b5a46;
     }
   }
 
@@ -61,6 +53,11 @@
 
   .category {
     height: 280px;
+    margin-bottom: 27px;
+
+    hr {
+      margin-bottom: 0px;
+    }
 
     ul {
       overflow-x: auto;
@@ -70,11 +67,16 @@
       li {
         cursor: pointer;
         border-radius: 5px !important;
+        background-color: var(--bg-surface-low-semi-transparent);
 
         .avatar {
-          border-radius: 50% !important;
-          max-height: 120px;
+          border-radius: 15% !important;
+          max-height: 100px;
           margin-bottom: 25px !important;
+        }
+
+        .card-text {
+          font-size: 10pt;
         }
 
         .list-group-item * {
@@ -103,22 +105,25 @@
       }
     }
 
-    .cover,
     ul li {
-      height: 270px !important;
-      min-height: 270px !important;
+      width: 200px !important;
+      min-width: 200px !important;
     }
 
+    .cover,
     ul li {
-      width: 300px !important;
-      min-width: 300px !important;
+      height: 240px !important;
+      min-height: 240px !important;
+    }
+
+    .cover {
+      top: 240px !important;
+      margin-top: -240px;
     }
 
     .cover {
       pointer-events: none;
       position: relative;
-      top: 270px !important;
-      margin-top: -270px;
       z-index: 1;
       background: linear-gradient(
         90deg,
@@ -208,6 +213,10 @@
   }
 
   &.loading {
+    a {
+      color: var(--tc-surface-normal) !important;
+    }
+
     i {
       font-size: 35pt;
       margin-bottom: 17px;

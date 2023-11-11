@@ -3,6 +3,7 @@ import { client } from '@gradio/client';
 import GradioLayout, { fileUrlGenerator } from './gradioLayout';
 import { chatboxScrollToBottom, objType, toast } from '../../../../src/util/tools';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
+import openTinyURL from '../../../../src/util/message/urlProtection';
 
 const updateInputValue = (input, dropdown, value, filePath = '') => {
 
@@ -79,6 +80,7 @@ function GradioEmbed({ agiData }) {
 
                     }
 
+                    // Get embed Id
                     else if (!id && objType(app, 'object') && objType(app.config, 'object') && typeof app.config.space_id === 'string' && app.config.space_id.length > 0) {
                         embed.empty();
                         setId(app.config.space_id.replace('/', '_'));
@@ -108,7 +110,7 @@ function GradioEmbed({ agiData }) {
                             embed.append(page);
 
                             // Send Update
-                            const sendTinyUpdate = (index, output, value, outputs, dataset, isSubmit = false) => {
+                            const sendTinyUpdate = (index, output, value, outputs, dataset, isSubmit = false, subIndex = -1) => {
 
                                 if (
                                     objType(output, 'object') &&
@@ -124,7 +126,7 @@ function GradioEmbed({ agiData }) {
                                         Array.isArray(dataset.props.samples) && Array.isArray(dataset.props.samples[dataset.index]) &&
                                         typeof dataset.props.samples[dataset.index][0] === 'string'
                                     ) {
-                                        tinyValue = `${fileUrlGenerator(config.root)}${dataset.props.samples[dataset.index][0]}`;
+                                        tinyValue = `${dataset.props.samples[dataset.index][0].startsWith('/') ? fileUrlGenerator(config.root) : ''}${dataset.props.samples[dataset.index][0]}`;
                                     }
 
                                     const data = embedData.getComponentValue(output.depId);
@@ -201,6 +203,7 @@ function GradioEmbed({ agiData }) {
                                 // Output send result
                                 if (isSubmit) {
 
+                                    console.log(index, subIndex, output, value, outputs, dataset, isSubmit);
                                     const embedValues = embedData.getComponentValue(output.depId);
                                     if (objType(embedValues, 'object') && objType(embedValues.props, 'object')) {
                                         if (objType(value, 'object') && objType(value.value, 'object')) {
@@ -227,22 +230,23 @@ function GradioEmbed({ agiData }) {
                                 // Read data
                                 for (const index in comps.input) {
 
-                                    console.log('Submit test item', comps.input[index]);
+                                    // Result
+                                    let result;
 
                                     // jQuery
                                     if (comps.input[index].data.type === 'jquery') {
                                         try {
 
-                                            const value = comps.input[index].data.value.val();
-                                            if (typeof value === 'string') {
-                                                inputs.push(value);
+                                            const value = !comps.input[index].data.isNumber ? comps.input[index].data.value.val() : Number(comps.input[index].data.value.val());
+                                            if (typeof value === 'string' || typeof value === 'number') {
+                                                result = value;
                                             } else {
-                                                inputs.push(null);
+                                                result = null;
                                             }
 
                                         } catch (err) {
                                             console.error(err);
-                                            inputs.push(null);
+                                            result = null;
                                         }
                                     }
 
@@ -251,14 +255,14 @@ function GradioEmbed({ agiData }) {
                                         try {
 
                                             if (typeof comps.input[index].data.value === 'function') {
-                                                inputs.push(comps.input[index].data.value());
+                                                result = comps.input[index].data.value();
                                             } else {
-                                                inputs.push(null);
+                                                result = null;
                                             }
 
                                         } catch (err) {
                                             console.error(err);
-                                            inputs.push(null);
+                                            result = null;
                                         }
                                     }
 
@@ -292,16 +296,19 @@ function GradioEmbed({ agiData }) {
 
                                             }
 
-                                            inputs.push(tinyArray);
+                                            result = tinyArray;
 
                                         }
                                     }
 
                                     // Others
                                     else {
-                                        inputs.push(null);
+                                        result = null;
                                         console.log('Input Component', comps.input[index].depId, comps.input[index].data);
                                     }
+
+                                    inputs.push(result);
+                                    console.log('Submit test item', comps.input[index], result);
 
                                 }
 
@@ -338,14 +345,15 @@ function GradioEmbed({ agiData }) {
                                                     value,
                                                     null,
                                                     null,
-                                                    true
+                                                    true,
+                                                    index
                                                 );
 
                                             };
 
                                             if (Array.isArray(data.data[item]) && data.data[item].length > 0) {
                                                 for (const index in data.data[item]) {
-                                                    finalResultSend(data.data[item][index], index);
+                                                    finalResultSend(data.data[item][index], item);
                                                 }
                                             } else {
                                                 finalResultSend(data.data[item], item);
@@ -645,7 +653,10 @@ function GradioEmbed({ agiData }) {
 
                     embed.empty().addClass('loading').append($('<center>').append(
                         $('<i>', { class: 'fa-solid fa-play' }).on('click', () => setIsVisible(1)),
-                        $('<div>').text(agiData.url),
+                        $('<div>').append($('<a>', { href: agiData.url, target: '_blank' }).on('click', (event) => {
+                            const e = event.originalEvent;
+                            e.preventDefault(); openTinyURL($(event.currentTarget).attr('href'), $(event.currentTarget).attr('href')); return false;
+                        }).text(agiData.url)),
                     ));
 
                 }

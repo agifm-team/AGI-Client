@@ -15,6 +15,32 @@ function Welcome() {
     const [data, setData] = useState(null);
     const [loadingData, setLoadingData] = useState(false);
 
+    const selectJson = (newData) => {
+
+        selected = tinyType;
+
+        if (newData.data) setData(newData.data);
+        else {
+
+            console.error(newData);
+            if (newData?.message) {
+                alert(`Agi-Mod - ${newData.message}`);
+                console.error(newData.message);
+            } else {
+                alert(`Agi-Mod - ${newData.detail}`);
+                console.error(newData.detail);
+            }
+
+            console.error(newData?.status);
+
+            setData({});
+
+        }
+
+        setLoadingData(false);
+
+    };
+
     // Effect
     useEffect(() => {
 
@@ -27,31 +53,7 @@ function Welcome() {
                 headers: {
                     'Accept': 'application/json'
                 }
-            }).then(res => res.json()).then((newData) => {
-
-                selected = tinyType;
-
-                if (newData.data) setData(newData.data);
-                else {
-
-                    console.error(newData);
-                    if (newData?.message) {
-                        alert(`Agi-Mod - ${newData.message}`);
-                        console.error(newData.message);
-                    } else {
-                        alert(`Agi-Mod - ${newData.detail}`);
-                        console.error(newData.detail);
-                    }
-
-                    console.error(newData?.status);
-
-                    setData({});
-
-                }
-
-                setLoadingData(false);
-
-            }).catch(err => {
+            }).then(res => res.json()).then(selectJson).catch(err => {
 
                 console.error(err);
                 alert(err.message);
@@ -64,6 +66,7 @@ function Welcome() {
                 }
 
             });
+
         }
 
     });
@@ -94,36 +97,15 @@ function Welcome() {
     return <div className="tiny-welcome p-3 border-0 h-100 noselect px-5" style={{ alignItems: 'center' }}>
         <center className='py-5 w-100 px-5'>
 
-            <div id='menu' className="row">
-
-                <div className="col-sm-6 mb-3 mb-sm-0">
-                    <div className={`card${tinyType === 'enterprise' ? ' active' : ''}`} onClick={() => setTinyType('enterprise')}>
-                        <div className="card-body">
-
-                            <h5 className="card-title fw-bold text-uppercase">Enterprise</h5>
-                            <p className="card-text">AI Agents for Teams</p>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div className="col-sm-6">
-                    <div className={`card${tinyType === 'community' ? ' active' : ''}`} onClick={() => setTinyType('community')}>
-                        <div className="card-body">
-
-                            <h5 className="card-title fw-bold text-uppercase">Community</h5>
-                            <p className="card-text">AI Agents for Fun and Productivity</p>
-
-                        </div>
-                    </div>
-                </div>
-
+            <div id='menu' className='text-start'>
+                <button type="button" class={`me-3 btn btn-primary${tinyType === 'enterprise' ? ' active' : ''}`} onClick={() => setTinyType('enterprise')}>Enterprise</button>
+                <button type="button" class={`btn btn-primary${tinyType === 'community' ? ' active' : ''}`} onClick={() => setTinyType('community')}>Community</button>
             </div>
 
-            <input type="text" className="form-control form-control-bg mt-5 text-center" />
-
             {!loadingData && data && Array.isArray(data.categories) ?
-                categories.map((citem) => <div className='my-5 category' id={`agi-home-${citem.id}`}>
+                categories.map((citem) => <div className='category' id={`agi-home-${citem.id}`}>
+
+                    <hr />
 
                     <h5 className='title mt-2 mb-3 float-start'>{citem.name}</h5>
                     <h6 className='see-all mt-2 mb-3 float-end'>See all</h6>

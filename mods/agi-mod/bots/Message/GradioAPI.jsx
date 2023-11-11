@@ -228,7 +228,8 @@ function GradioEmbed({ agiData }) {
                                 // Read data
                                 for (const index in comps.input) {
 
-                                    console.log('Submit test item', comps.input[index]);
+                                    // Result
+                                    let result;
 
                                     // jQuery
                                     if (comps.input[index].data.type === 'jquery') {
@@ -236,14 +237,14 @@ function GradioEmbed({ agiData }) {
 
                                             const value = comps.input[index].data.value.val();
                                             if (typeof value === 'string') {
-                                                inputs.push(value);
+                                                result = value;
                                             } else {
-                                                inputs.push(null);
+                                                result = null;
                                             }
 
                                         } catch (err) {
                                             console.error(err);
-                                            inputs.push(null);
+                                            result = null;
                                         }
                                     }
 
@@ -252,14 +253,14 @@ function GradioEmbed({ agiData }) {
                                         try {
 
                                             if (typeof comps.input[index].data.value === 'function') {
-                                                inputs.push(comps.input[index].data.value());
+                                                result = comps.input[index].data.value();
                                             } else {
-                                                inputs.push(null);
+                                                result = null;
                                             }
 
                                         } catch (err) {
                                             console.error(err);
-                                            inputs.push(null);
+                                            result = null;
                                         }
                                     }
 
@@ -293,16 +294,19 @@ function GradioEmbed({ agiData }) {
 
                                             }
 
-                                            inputs.push(tinyArray);
+                                            result = tinyArray;
 
                                         }
                                     }
 
                                     // Others
                                     else {
-                                        inputs.push(null);
+                                        result = null;
                                         console.log('Input Component', comps.input[index].depId, comps.input[index].data);
                                     }
+
+                                    inputs.push(result);
+                                    console.log('Submit test item', comps.input[index], result);
 
                                 }
 

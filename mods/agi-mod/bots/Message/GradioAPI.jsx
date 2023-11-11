@@ -236,8 +236,8 @@ function GradioEmbed({ agiData }) {
                                     if (comps.input[index].data.type === 'jquery') {
                                         try {
 
-                                            const value = comps.input[index].data.value.val();
-                                            if (typeof value === 'string') {
+                                            const value = !comps.input[index].data.isNumber ? comps.input[index].data.value.val() : Number(comps.input[index].data.value.val());
+                                            if (typeof value === 'string' || typeof value === 'number') {
                                                 result = value;
                                             } else {
                                                 result = null;

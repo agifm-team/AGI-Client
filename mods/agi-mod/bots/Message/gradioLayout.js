@@ -1332,7 +1332,7 @@ const components = {
 
             });
 
-            finalResult.data('gradio_input', { type: 'jquery', value: numberInput });
+            finalResult.data('gradio_input', { type: 'jquery', isNumber: true, value: numberInput });
             numberInput.val(typeof props.value === 'number' && !Number.isNaN(props.value) && Number.isFinite(props.value) ? props.value : 0);
             return finalResult;
 
@@ -1498,7 +1498,7 @@ const components = {
 
             input.val(props.value);
             numberInput.val(props.value);
-            finalResult.data('gradio_input', { type: 'jquery', value: numberInput });
+            finalResult.data('gradio_input', { type: 'jquery', isNumber: true, value: numberInput });
 
             return finalResult;
 

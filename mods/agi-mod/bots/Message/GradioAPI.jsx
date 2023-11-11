@@ -203,7 +203,7 @@ function GradioEmbed({ agiData }) {
                                 // Output send result
                                 if (isSubmit) {
 
-                                    console.log(index, output, value, outputs, dataset, isSubmit);
+                                    console.log(index, subIndex, output, value, outputs, dataset, isSubmit);
                                     const embedValues = embedData.getComponentValue(output.depId);
                                     if (objType(embedValues, 'object') && objType(embedValues.props, 'object')) {
                                         if (objType(value, 'object') && objType(value.value, 'object')) {

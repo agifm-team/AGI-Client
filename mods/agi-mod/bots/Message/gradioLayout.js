@@ -964,6 +964,7 @@ const components = {
 
     gallery: (props, compId, appId, url, oHtml) => {
 
+        console.log('gallery', compId, props.value);
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         const tinyUrl = fileUrlGenerator(url);
 

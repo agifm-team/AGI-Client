@@ -965,18 +965,9 @@ const components = {
     gallery: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        if (!oHtml) {
+        const tinyUrl = fileUrlGenerator(url);
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
-            finalResult.attr('id', id).addClass('gallery').addClass('border').addClass('border-bg').addClass('p-3');
-
-            const tinyUrl = fileUrlGenerator(url);
-            if (props.show_label && props.label) {
-                finalResult.append(labelCreator(null, props, `${id}_gallery`));
-            }
-
-            const gallery = $('<div>', { class: 'row' });
-            const input = $('<input>', { class: 'd-none', type: 'text' });
+        const galleryItems = (input, gallery) => {
             const cols = (typeof props.grid_cols === 'number' ? props.grid_cols : null) || props.columns;
 
             if (typeof cols === 'number' && !Number.isNaN(cols) && Number.isFinite(cols) && cols <= 12 && rowsList[cols]) {
@@ -1061,7 +1052,22 @@ const components = {
 
             }
 
-            finalResult.append(gallery);
+        };
+
+        if (!oHtml) {
+
+            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            finalResult.attr('id', id).addClass('gallery').addClass('border').addClass('border-bg').addClass('p-3');
+
+            if (props.show_label && props.label) {
+                finalResult.append(labelCreator(null, props, `${id}_gallery`));
+            }
+
+            const gallery = $('<div>', { class: 'row' });
+            const input = $('<input>', { class: 'd-none', type: 'text' });
+
+            galleryItems(input, gallery);
+            finalResult.append(input, gallery);
             finalResult.data('gradio_input', { type: 'jquery', value: input });
 
             if (props.show_share_button) {
@@ -1071,6 +1077,11 @@ const components = {
             return finalResult;
 
         }
+
+        const gallery = oHtml.find('> div');
+        gallery.empty();
+
+        galleryItems(oHtml.find('> input'), gallery);
 
     },
 

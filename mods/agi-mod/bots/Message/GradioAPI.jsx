@@ -110,7 +110,7 @@ function GradioEmbed({ agiData }) {
                             embed.append(page);
 
                             // Send Update
-                            const sendTinyUpdate = (index, output, value, outputs, dataset, isSubmit = false) => {
+                            const sendTinyUpdate = (index, output, value, outputs, dataset, isSubmit = false, subIndex = -1) => {
 
                                 if (
                                     objType(output, 'object') &&
@@ -345,7 +345,8 @@ function GradioEmbed({ agiData }) {
                                                     value,
                                                     null,
                                                     null,
-                                                    true
+                                                    true,
+                                                    index
                                                 );
 
                                             };

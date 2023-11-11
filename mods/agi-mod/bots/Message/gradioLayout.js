@@ -2038,20 +2038,20 @@ class GradioLayout {
     }
 
     getInput(id) {
-        return this.getComponent(id).value.data('gradio_input');
+        return this.getComponent(id)?.value.data('gradio_input');
     }
 
     getDropdown(id) {
-        return this.getComponent(id).value.data('gradio_dropdown');
+        return this.getComponent(id)?.value.data('gradio_dropdown');
     }
 
     getTarget(id) {
-        return this.getComponent(id).value.data('gradio_target');
+        return this.getComponent(id)?.value.data('gradio_target');
     }
 
     // Get Values
     getComponentValue(id) {
-        return this.getComponent(id).value.data('gradio_values');
+        return this.getComponent(id)?.value.data('gradio_values');
     }
 
     updateEmbed(antiRepeat = false) {

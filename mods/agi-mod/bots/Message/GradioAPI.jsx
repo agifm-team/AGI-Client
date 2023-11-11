@@ -203,6 +203,7 @@ function GradioEmbed({ agiData }) {
                                 // Output send result
                                 if (isSubmit) {
 
+                                    console.log(index, output, value, outputs, dataset, isSubmit);
                                     const embedValues = embedData.getComponentValue(output.depId);
                                     if (objType(embedValues, 'object') && objType(embedValues.props, 'object')) {
                                         if (objType(value, 'object') && objType(value.value, 'object')) {
@@ -351,7 +352,7 @@ function GradioEmbed({ agiData }) {
 
                                             if (Array.isArray(data.data[item]) && data.data[item].length > 0) {
                                                 for (const index in data.data[item]) {
-                                                    finalResultSend(data.data[item][index], index);
+                                                    finalResultSend(data.data[item][index], item);
                                                 }
                                             } else {
                                                 finalResultSend(data.data[item], item);

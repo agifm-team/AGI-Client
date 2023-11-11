@@ -3,6 +3,7 @@ import { client } from '@gradio/client';
 import GradioLayout, { fileUrlGenerator } from './gradioLayout';
 import { chatboxScrollToBottom, objType, toast } from '../../../../src/util/tools';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
+import openTinyURL from '../../../../src/util/message/urlProtection';
 
 const updateInputValue = (input, dropdown, value, filePath = '') => {
 
@@ -650,7 +651,10 @@ function GradioEmbed({ agiData }) {
 
                     embed.empty().addClass('loading').append($('<center>').append(
                         $('<i>', { class: 'fa-solid fa-play' }).on('click', () => setIsVisible(1)),
-                        $('<div>').text(agiData.url),
+                        $('<div>').append($('<a>', { href: agiData.url, target: '_blank' }).on('click', (event) => {
+                            const e = event.originalEvent;
+                            e.preventDefault(); openTinyURL($(event.currentTarget).attr('href'), $(event.currentTarget).attr('href')); return false;
+                        }).text(agiData.url)),
                     ));
 
                 }

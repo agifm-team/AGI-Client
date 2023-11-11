@@ -213,6 +213,10 @@
   }
 
   &.loading {
+    a {
+      color: var(--tc-surface-normal) !important;
+    }
+
     i {
       font-size: 35pt;
       margin-bottom: 17px;

@@ -508,12 +508,11 @@ const components = {
         };
 
         const classes = `btn btn-${props.variant ? props.variant : 'bg'}${typeof props.size === 'string' && props.size.length > 0 ? ` btn-${props.size}` : ''}`;
+        const sizeSelected = typeof props.size === 'string' && props.size.length > 0 ? props.size : 'normal';
 
         if (!oHtml) {
             const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
             finalResult.attr('id', id).addClass('button').addClass('d-grid');
-
-            const sizeSelected = typeof props.size === 'string' && props.size.length > 0 ? props.size : 'normal';
 
             const button = $('<button>', { class: classes, }).text(props.value);
 
@@ -2071,22 +2070,15 @@ class GradioLayout {
 
     updateEmbed(antiRepeat = false) {
 
-        console.log(this.root);
-        for (const item in this.components) {
-            for (const index in this.components[item]) {
+        for (const id in this.root) {
 
-                const values = this.components[item][index].data('gradio_values') ?? {};
-                const type = this.components[item][index].attr('component_type');
+            const values = this.root[id].data('gradio_values') ?? {};
+            const type = this.root[id].attr('component_type');
 
-                if (antiRepeat) {
-                    console.log(this.components[item][index].attr('component'), type, values);
-                }
-
-                if (components[type]) {
-                    components[type](values.props ?? {}, values?.id, values?.appId, values?.url, this.components[item][index]);
-                }
-
+            if (components[type]) {
+                components[type](values.props ?? {}, values?.id, values?.appId, values?.url, this.root[id]);
             }
+
         }
 
         if (!antiRepeat) this.updateEmbed(true);

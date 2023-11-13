@@ -218,16 +218,16 @@ function GradioEmbed({ agiData }) {
                                                 if (!Array.isArray(embedValues.props.value)) embedValues.props.value = [];
 
                                                 if (subIndex > 0) {
-                                                    embedValues.props.value.push(value);
+                                                    embedValues.props.value.push({ name: value });
                                                 } else {
-                                                    embedValues.props.value = [value];
+                                                    embedValues.props.value = [{ name: value }];
                                                 }
 
                                             }
 
                                             // Single Value
                                             else {
-                                                embedValues.props.value = [value];
+                                                embedValues.props.value = [{ name: value }];
                                             }
 
                                         } else {

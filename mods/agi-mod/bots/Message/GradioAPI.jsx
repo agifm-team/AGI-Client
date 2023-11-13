@@ -226,7 +226,7 @@ function GradioEmbed({ agiData }) {
 
                                     }
 
-                                    console.log(subIndex, isLastSubIndex, subResult);
+                                    // console.log(subIndex, isLastSubIndex, subResult);
 
                                     // Complete
                                     if (subIndex < 0) {

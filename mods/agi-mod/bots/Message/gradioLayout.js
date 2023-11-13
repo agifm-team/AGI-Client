@@ -1876,7 +1876,7 @@ const components = {
 };
 
 // Children
-const childrenLoader = (items, config, url, appId, comps, tinyIndex = -1) => {
+const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1) => {
     if (Array.isArray(items)) {
 
         // HTML Items
@@ -1894,7 +1894,7 @@ const childrenLoader = (items, config, url, appId, comps, tinyIndex = -1) => {
                 const component = config.components.find(c => c.id === items[item].id);
 
                 // New Children
-                if (existChildrens) newPage = childrenLoader(items[item].children, config, url, appId, comps, clone(tinyIndex));
+                if (existChildrens) newPage = childrenLoader(items[item].children, config, url, appId, comps, root, clone(tinyIndex));
 
                 // Componet
                 if (objType(component, 'object') && objType(component.props, 'object') && typeof component.type === 'string' && (typeof components[component.type] === 'function' || component.type === 'form')) {
@@ -1935,11 +1935,13 @@ const childrenLoader = (items, config, url, appId, comps, tinyIndex = -1) => {
 
                         // Get Component
                         const tinyHtml = components[component.type](component.props, component.id, appId, url);
+                        root[component.id] = tinyHtml;
                         const addUpdateData = (theHtml) => {
                             theHtml.data('gradio_update', () => {
 
                                 const values = theHtml.data('gradio_values');
                                 const newHtml = components[component.type](values.props, values.id, values.appId, values.url);
+                                root[values.id] = newHtml;
 
                                 theHtml.replaceWith(newHtml);
                                 addUpdateData(newHtml);
@@ -1995,8 +1997,9 @@ class GradioLayout {
         ) {
 
             // Get Children
+            this.root = {};
             this.components = {};
-            const page = childrenLoader(config.layout.children, config, url, appId, this.components);
+            const page = childrenLoader(config.layout.children, config, url, appId, this.components, this.root);
             if (typeof config.css === 'string' && config.css.length > 0 && typeof cssBase === 'string' && cssBase.length > 0) {
 
                 /*
@@ -2068,11 +2071,16 @@ class GradioLayout {
 
     updateEmbed(antiRepeat = false) {
 
+        console.log(this.root);
         for (const item in this.components) {
             for (const index in this.components[item]) {
 
                 const values = this.components[item][index].data('gradio_values') ?? {};
                 const type = this.components[item][index].attr('component_type');
+
+                if (antiRepeat) {
+                    console.log(this.components[item][index].attr('component'), type, values);
+                }
 
                 if (components[type]) {
                     components[type](values.props ?? {}, values?.id, values?.appId, values?.url, this.components[item][index]);

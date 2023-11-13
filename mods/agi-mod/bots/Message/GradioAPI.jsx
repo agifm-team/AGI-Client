@@ -110,7 +110,7 @@ function GradioEmbed({ agiData }) {
                             embed.append(page);
 
                             // Send Update
-                            const sendTinyUpdate = (index, output, value, outputs, dataset, isSubmit = false, subIndex = -1) => {
+                            const sendTinyUpdate = (output, value, dataset, isSubmit = false, subIndex = -1) => {
 
                                 if (
                                     objType(output, 'object') &&
@@ -203,13 +203,33 @@ function GradioEmbed({ agiData }) {
                                 // Output send result
                                 if (isSubmit) {
 
-                                    console.log(index, subIndex, output, value, outputs, dataset, isSubmit);
+                                    // console.log(index, subIndex, output, value, outputs, dataset, isSubmit);
                                     const embedValues = embedData.getComponentValue(output.depId);
                                     if (objType(embedValues, 'object') && objType(embedValues.props, 'object')) {
                                         if (objType(value, 'object') && objType(value.value, 'object')) {
                                             for (const item in value) {
                                                 embedValues.props[item] = value[item];
                                             }
+                                        } else if (embedValues.props.name === 'gallery') {
+
+                                            // Multi Values
+                                            if (subIndex > -1) {
+
+                                                if (!Array.isArray(embedValues.props.value)) embedValues.props.value = [];
+
+                                                if (subIndex > 0) {
+                                                    embedValues.props.value.push(value);
+                                                } else {
+                                                    embedValues.props.value = [value];
+                                                }
+
+                                            }
+
+                                            // Single Value
+                                            else {
+                                                embedValues.props.value = [value];
+                                            }
+
                                         } else {
                                             embedValues.props.value = value;
                                         }
@@ -330,7 +350,7 @@ function GradioEmbed({ agiData }) {
                                     if (Array.isArray(data.data) && data.data.length > 0) {
                                         for (const item in data.data) {
 
-                                            const finalResultSend = (tinyData, index) => {
+                                            const finalResultSend = (tinyData, index, subIndex = -1) => {
 
                                                 const value =
                                                     objType(tinyData, 'object') ?
@@ -340,20 +360,18 @@ function GradioEmbed({ agiData }) {
                                                         typeof tinyData === 'string' ? tinyData : null;
 
                                                 sendTinyUpdate(
-                                                    tinyIndex,
                                                     comps.output[index],
                                                     value,
                                                     null,
-                                                    null,
                                                     true,
-                                                    index
+                                                    subIndex
                                                 );
 
                                             };
 
                                             if (Array.isArray(data.data[item]) && data.data[item].length > 0) {
                                                 for (const index in data.data[item]) {
-                                                    finalResultSend(data.data[item][index], item);
+                                                    finalResultSend(data.data[item][index], item, index);
                                                 }
                                             } else {
                                                 finalResultSend(data.data[item], item);
@@ -436,10 +454,8 @@ function GradioEmbed({ agiData }) {
                                     const dataset = config.components.find(comp => comp.id === depId);
                                     for (const index in comps.output) {
                                         sendTinyUpdate(
-                                            item,
                                             comps.output[index],
                                             Array.isArray(depItem.js) && typeof depItem.js[index] !== 'undefined' ? depItem.js[index] : null,
-                                            outputs,
                                             objType(dataset, 'object') && objType(dataset.props, 'object') ? {
                                                 props: dataset.props,
                                                 index: Array.isArray(dataset.props.headers) && dataset.props.headers.length > 1 ? dataId - 1 : dataId

@@ -963,7 +963,6 @@ const components = {
 
     gallery: (props, compId, appId, url, oHtml) => {
 
-        console.log('gallery', compId, props.value);
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         const tinyUrl = fileUrlGenerator(url);
 
@@ -976,6 +975,7 @@ const components = {
 
                     let rowNumber = 0;
 
+                    console.log(props.value);
                     for (const item in props.value) {
 
                         const value = Array.isArray(props.value[item]) ? {

@@ -62,7 +62,8 @@ function GradioEmbed({ agiData }) {
                 };
 
                 const embed = $(embedRef.current);
-                embed.removeClass('loading').removeClass('loading');
+                embed.removeClass('loading-gradio').removeClass('loading');
+                embed.find('> #loading-place').remove();
 
                 // Is Visible
                 if (isVisible > 0) {
@@ -70,7 +71,7 @@ function GradioEmbed({ agiData }) {
                     // Load App
                     if (!app) {
 
-                        embed.empty().addClass('loading-gradio').append($('<center>').append(
+                        embed.empty().addClass('loading-gradio').append($('<center>', { id: 'loading-place' }).append(
                             $('<div>', { class: 'spinner-border', role: 'status' }).append(
                                 $('<span>', { class: 'visually-hidden' })
                             ),

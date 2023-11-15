@@ -1,5 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
+import clone from 'clone';
 import { client } from '@gradio/client';
+
 import GradioLayout, { fileUrlGenerator } from './gradioLayout';
 import { chatboxScrollToBottom, objType, toast } from '../../../../src/util/tools';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
@@ -104,6 +106,14 @@ function GradioEmbed({ agiData }) {
                     // Insert Embed
                     else if (embed.find('gladio-embed').length < 1) {
 
+                        // Sync Update
+                        const syncUpdate = (tinyPromps) => {
+
+                            const props = clone(tinyPromps);
+                            console.log(ydoc, id, props);
+
+                        };
+
                         // Id
                         const embedCache = {};
                         const config = app.config;
@@ -117,10 +127,6 @@ function GradioEmbed({ agiData }) {
 
                         // Send Update
                         const sendTinyUpdate = (output, value, dataset, isSubmit = false, subIndex = -1, isLastSubIndex = false, subResult = []) => {
-
-                            const syncUpdate = (props) => {
-                                console.log(ydoc, id, props);
-                            };
 
                             if (
                                 objType(output, 'object') &&
@@ -144,7 +150,7 @@ function GradioEmbed({ agiData }) {
                                 const dropdown = embedData.getDropdown(output.depId);
                                 if (objType(input, 'object')) {
                                     data.props.value = tinyValue;
-                                    syncUpdate(data.props);
+                                    // syncUpdate(data.props);
                                     updateInputValue(input, dropdown, tinyValue);
                                 }
 
@@ -159,7 +165,7 @@ function GradioEmbed({ agiData }) {
 
                                 if (objType(input, 'object')) {
                                     data.props.value = compValue;
-                                    syncUpdate(data.props);
+                                    // syncUpdate(data.props);
                                     updateInputValue(input, dropdown, compValue, fileUrlGenerator(config.root));
                                 }
 
@@ -234,7 +240,7 @@ function GradioEmbed({ agiData }) {
                                     // Normal Value
                                     else {
                                         embedValues.props.value = value;
-                                        syncUpdate(embedValues.props);
+                                        // syncUpdate(embedValues.props);
                                     }
 
                                 }
@@ -250,7 +256,7 @@ function GradioEmbed({ agiData }) {
                                 // Complete 2
                                 else if (isLastSubIndex) {
                                     embedValues.props.value = subResult;
-                                    syncUpdate(embedValues.props);
+                                    // syncUpdate(embedValues.props);
                                 }
 
                             }
@@ -467,7 +473,7 @@ function GradioEmbed({ agiData }) {
                             }
 
                             // Action Base
-                            const tinyAction = function (depId, dataId, outputs) {
+                            const tinyAction = function (depId, dataId) {
 
                                 // Outputs list
                                 const dataset = config.components.find(comp => comp.id === depId);
@@ -664,6 +670,16 @@ function GradioEmbed({ agiData }) {
                                 embedCache.genDeps(item);
                             }
                         }
+
+                        embedData.readEmbedData((root, id) => {
+
+                            const defaultData = embedData.getDefaultEmbedData(id);
+
+                            if (defaultData) {
+                                console.log(defaultData);
+                            }
+
+                        });
 
                         console.log(id, config);
                         return () => {

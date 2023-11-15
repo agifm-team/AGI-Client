@@ -2015,6 +2015,21 @@ class GradioLayout {
             this.cache = objType(embedCache, 'object') ? embedCache : {};
             this.html = page;
 
+            this.defaultStore = {};
+            this.readEmbedData((root, id) => {
+
+                const type = root.attr('component_type');
+
+                if (type !== 'markdown' && type !== 'html') {
+                    const values = root.data('gradio_values') ?? {};
+                    this.defaultStore[id] = {
+                        data: clone(values),
+                        type: clone(type),
+                    };
+                }
+
+            });
+
         }
     }
 
@@ -2068,18 +2083,34 @@ class GradioLayout {
         return this.getComponent(id)?.value.data('gradio_values');
     }
 
+    getDefaultEmbedData(id) {
+
+        if (this.defaultStore[id]) {
+            return clone(this.defaultStore[id]);
+        }
+
+        return null;
+
+    }
+
+    readEmbedData(callback) {
+        for (const id in this.root) {
+            callback(this.root[id], id);
+        }
+    }
+
     updateEmbed(antiRepeat = false) {
 
-        for (const id in this.root) {
+        this.readEmbedData((root) => {
 
-            const values = this.root[id].data('gradio_values') ?? {};
-            const type = this.root[id].attr('component_type');
+            const values = root.data('gradio_values') ?? {};
+            const type = root.attr('component_type');
 
             if (components[type]) {
-                components[type](values.props ?? {}, values?.id, values?.appId, values?.url, this.root[id]);
+                components[type](values.props ?? {}, values?.id, values?.appId, values?.url, root);
             }
 
-        }
+        });
 
         if (!antiRepeat) this.updateEmbed(true);
 

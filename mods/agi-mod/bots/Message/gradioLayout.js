@@ -2036,6 +2036,12 @@ class GradioLayout {
     // Insert Html
     insertHtml(html, mode = 'append') { this.page = html[mode](this.html); }
 
+    // Insert Ydoc
+    insertYdoc(ydoc, type) {
+        this.ydoc = ydoc;
+        this._ydoc_type = typeof type === 'string' ? type : null;
+    }
+
     // Get Html
     getHtml() { return this.page ? this.page : $('<div>'); }
 

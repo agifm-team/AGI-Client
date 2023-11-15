@@ -47,7 +47,7 @@ function GradioEmbed({ agiData }) {
     const embedRef = useRef(null);
     const [app, setApp] = useState(null);
     const [appError, setAppError] = useState(null);
-    const [ydoc, setYdoc] = useState(null);
+    const [ymap, setYmap] = useState(null);
     const [id, setId] = useState(null);
 
     const [isVisible, setIsVisible] = useState(0);
@@ -99,8 +99,8 @@ function GradioEmbed({ agiData }) {
                     }
 
                     // Load Ydoc
-                    else if (!ydoc) {
-                        global.selectedRoom.ydocWait().then(() => setYdoc(global.selectedRoom.ydoc.getMap(id)));
+                    else if (!ymap) {
+                        global.selectedRoom.ydocWait().then(() => setYmap(global.selectedRoom.ydoc.getMap(id)));
                     }
 
                     // Insert Embed
@@ -110,7 +110,7 @@ function GradioEmbed({ agiData }) {
                         const syncUpdate = (tinyPromps) => {
 
                             const props = clone(tinyPromps);
-                            console.log(ydoc, id, props);
+                            console.log(ymap, id, props);
 
                         };
 
@@ -120,6 +120,8 @@ function GradioEmbed({ agiData }) {
 
                         // Read Template
                         const embedData = new GradioLayout(config, `gradio-embed[space='${id}']`, agiData.url, id, embedCache);
+                        embedData.insertYdoc(ymap, 'ymap');
+
                         const page = $('<gradio-embed>', { class: 'text-center', space: id });
                         embedData.insertHtml(page);
                         chatboxScrollToBottom();
@@ -671,12 +673,30 @@ function GradioEmbed({ agiData }) {
                             }
                         }
 
-                        embedData.readEmbedData((root, id) => {
+                        // Read Embed Data
+                        let needsUpdate = false;
+                        embedData.readEmbedData((root, compId) => {
 
-                            const defaultData = embedData.getDefaultEmbedData(id);
+                            // Exist Default Data
+                            const defaultData = embedData.getDefaultEmbedData(compId);
+                            if (defaultData && defaultData?.data.props) {
 
-                            if (defaultData) {
-                                console.log(defaultData);
+                                // Get Data
+                                const idData = ymap.get(compId);
+
+
+                                // Insert Data
+                                if (idData) {
+
+                                    needsUpdate = true;
+
+                                }
+
+                                // New
+                                else {
+                                    // ymap.set(compId, defaultData?.data.props);
+                                }
+
                             }
 
                         });

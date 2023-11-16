@@ -679,6 +679,16 @@ function GradioEmbed({ agiData }) {
                         embedData.readEmbedData((root, compId) => {
                             try {
 
+                                const input = embedData.getInput(compId);
+                                console.log(input);
+                                /* root.on('change input', (event) => {
+
+                                    // Target
+                                    const tinyData = embedData.getComponentValue(compId);
+                                    console.log(tinyData);
+
+                                }); */
+
                                 // Exist Default Data
                                 const defaultData = embedData.getDefaultEmbedData(compId);
                                 const defaultProps = defaultData?.data.props;
@@ -715,6 +725,10 @@ function GradioEmbed({ agiData }) {
                                 console.error(err);
                             }
                         });
+
+                        if (needsUpdate) {
+                            embedData.updateEmbed();
+                        }
 
                         console.log(id, config);
                         return () => {

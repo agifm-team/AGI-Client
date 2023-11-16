@@ -263,6 +263,7 @@ const fileManagerReader = {
 
 const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept, tinyValue) => {
 
+    const inputData = { type: 'blob', vanilla: null };
     const inputText = $('<input>', { class: 'd-none', type: 'hidden' });
     const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_${type}`, accept: typeof fileAccept === 'string' ? fileAccept : fileInputAccept(props.file_types) })
         .prop('multiple', props.file_count === 'multiple')
@@ -276,6 +277,8 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
         if (typeof value === 'undefined') {
             return blob;
         }
+
+        inputData.vanilla = clone(value);
 
         input.val('');
         inputText.val(value);
@@ -295,7 +298,9 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
 
     };
 
-    finalResult.data('gradio_input', { type: 'blob', value: valueUpdater, input: inputText });
+    inputData.value = valueUpdater;
+    inputData.input = inputText;
+    finalResult.data('gradio_input', inputData);
 
     const fileInput = input.get(0);
     input.get(0).addEventListener('change', () => {

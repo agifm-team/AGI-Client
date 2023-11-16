@@ -691,12 +691,16 @@ function GradioEmbed({ agiData }) {
                                     // Get Data
                                     const idData = ymap.get(compId);
 
-
                                     // Insert Data
                                     if (idData) {
 
+                                        // Update Data
                                         needsUpdate = true;
-                                        console.log(idData);
+                                        for (const name in idData) {
+                                            if (name !== 'app_id' && name !== 'name') {
+                                                props[name] = idData[name];
+                                            }
+                                        }
 
                                     }
 

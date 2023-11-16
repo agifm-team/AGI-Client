@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import clone from 'clone';
 import { client } from '@gradio/client';
+import objectHash from 'object-hash';
 
 import GradioLayout, { fileUrlGenerator } from './gradioLayout';
 import { chatboxScrollToBottom, objType, toast } from '../../../../src/util/tools';
@@ -676,29 +677,39 @@ function GradioEmbed({ agiData }) {
                         // Read Embed Data
                         let needsUpdate = false;
                         embedData.readEmbedData((root, compId) => {
+                            try {
 
-                            // Exist Default Data
-                            const defaultData = embedData.getDefaultEmbedData(compId);
-                            if (defaultData && defaultData?.data.props) {
+                                // Exist Default Data
+                                const defaultData = embedData.getDefaultEmbedData(compId);
+                                const defaultProps = defaultData?.data.props;
+                                const tinyData = embedData.getComponentValue(compId);
+                                const props = tinyData.props;
 
-                                // Get Data
-                                const idData = ymap.get(compId);
+                                // Validator
+                                if (defaultData && defaultData?.data.props) {
+
+                                    // Get Data
+                                    const idData = ymap.get(compId);
 
 
-                                // Insert Data
-                                if (idData) {
+                                    // Insert Data
+                                    if (idData) {
 
-                                    needsUpdate = true;
+                                        needsUpdate = true;
+                                        console.log(idData);
+
+                                    }
+
+                                    // New
+                                    else if (objectHash(defaultProps) !== objectHash(props)) {
+                                        ymap.set(compId, props);
+                                    }
 
                                 }
 
-                                // New
-                                else {
-                                    // ymap.set(compId, defaultData?.data.props);
-                                }
-
+                            } catch (err) {
+                                console.error(err);
                             }
-
                         });
 
                         console.log(id, config);

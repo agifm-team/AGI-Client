@@ -126,6 +126,91 @@ function GradioEmbed({ agiData }) {
                         chatboxScrollToBottom();
                         embed.append(page);
 
+                        const insertEmbedData = (root, compId) => {
+                            try {
+
+                                const component = { input: embedData.getInput(compId), dropdown: embedData.getDropdown(compId) };
+                                if (component.input) {
+
+                                    if (component.input.type === 'jquery') {
+
+                                        component.input.value.on('change', (event) => {
+
+                                            // Target
+                                            const value = $(event.target).val();
+                                            const tinyData = embedData.getComponentValue(compId);
+                                            console.log(tinyData, value);
+
+                                        });
+
+                                        console.log('jquery', component.input);
+
+                                    }
+
+                                    else if (component.input.type === 'blob') {
+
+                                        console.log('blob', component.input);
+
+                                    }
+
+                                }
+
+                                if (component.dropdown) {
+
+                                    if (component.dropdown.type === 'jquery') {
+
+                                        component.dropdown.value.on('change', (event) => {
+
+                                            // Target
+                                            const value = $(event.target).val();
+                                            const tinyData = embedData.getComponentValue(compId);
+                                            console.log(tinyData, value);
+
+                                        });
+
+                                        console.log('dropdown', component.dropdown);
+
+                                    }
+
+                                }
+
+                                // Exist Default Data
+                                const defaultData = embedData.getDefaultEmbedData(compId);
+                                const defaultProps = defaultData?.data.props;
+                                const tinyData = embedData.getComponentValue(compId);
+                                const props = tinyData?.props;
+
+                                // Validator
+                                if (props && defaultData && defaultData?.data.props) {
+
+                                    // Get Data
+                                    const idData = ymap.get(compId);
+
+                                    // Insert Data
+                                    if (idData) {
+
+                                        // Update Data
+                                        needsUpdate = true;
+                                        for (const name in idData) {
+                                            if (name !== 'app_id' && name !== 'name') {
+                                                props[name] = idData[name];
+                                            }
+                                        }
+
+                                    }
+
+                                    // New
+                                    else if (objectHash(defaultProps) !== objectHash(props)) {
+                                        ymap.set(compId, props);
+                                    }
+
+                                }
+
+                            } catch (err) {
+                                console.error(err);
+                            }
+                        };
+
                         // Send Update
                         const sendTinyUpdate = (output, value, dataset, isSubmit = false, subIndex = -1, isLastSubIndex = false, subResult = []) => {
 
@@ -250,7 +335,7 @@ function GradioEmbed({ agiData }) {
 
                                 // Complete
                                 if (subIndex < 0) {
-                                    embedData.updateEmbed();
+                                    embedData.updateEmbed(insertEmbedData);
                                     // console.log('Tiny Update', index, output, value, outputs, dataset);
                                 }
 
@@ -674,93 +759,10 @@ function GradioEmbed({ agiData }) {
 
                         // Read Embed Data
                         let needsUpdate = false;
-                        embedData.readEmbedData((root, compId) => {
-                            try {
-
-                                const component = { input: embedData.getInput(compId), dropdown: embedData.getDropdown(compId) };
-                                if (component.input) {
-
-                                    if (component.input.type === 'jquery') {
-
-                                        component.input.value.on('change', (event) => {
-
-                                            // Target
-                                            const value = $(event.target).val();
-                                            const tinyData = embedData.getComponentValue(compId);
-                                            console.log(component.input.value, tinyData, value);
-
-                                        });
-
-                                        console.log(component.input);
-
-                                    }
-
-                                    else if (component.input.type === 'blob') {
-
-                                        console.log(component.input);
-
-                                    }
-
-                                }
-
-                                if (component.dropdown) {
-
-                                    if (component.dropdown.type === 'jquery') {
-
-                                        component.dropdown.value.on('change', (event) => {
-
-                                            // Target
-                                            const value = $(event.target).val();
-                                            const tinyData = embedData.getComponentValue(compId);
-                                            console.log(component.dropdown.value, tinyData, value);
-
-                                        });
-
-                                        console.log(component.dropdown);
-
-                                    }
-
-                                }
-
-                                // Exist Default Data
-                                const defaultData = embedData.getDefaultEmbedData(compId);
-                                const defaultProps = defaultData?.data.props;
-                                const tinyData = embedData.getComponentValue(compId);
-                                const props = tinyData.props;
-
-                                // Validator
-                                if (defaultData && defaultData?.data.props) {
-
-                                    // Get Data
-                                    const idData = ymap.get(compId);
-
-                                    // Insert Data
-                                    if (idData) {
-
-                                        // Update Data
-                                        needsUpdate = true;
-                                        for (const name in idData) {
-                                            if (name !== 'app_id' && name !== 'name') {
-                                                props[name] = idData[name];
-                                            }
-                                        }
-
-                                    }
-
-                                    // New
-                                    else if (objectHash(defaultProps) !== objectHash(props)) {
-                                        ymap.set(compId, props);
-                                    }
-
-                                }
-
-                            } catch (err) {
-                                console.error(err);
-                            }
-                        });
+                        embedData.readEmbedData(insertEmbedData);
 
                         if (needsUpdate) {
-                            embedData.updateEmbed();
+                            embedData.updateEmbed(insertEmbedData);
                         }
 
                         console.log(id, config);

@@ -2138,9 +2138,9 @@ class GradioLayout {
         }
     }
 
-    updateEmbed(antiRepeat = false) {
+    updateEmbed(callback, antiRepeat = false) {
 
-        this.readEmbedData((root) => {
+        this.readEmbedData((root, id) => {
 
             const values = root.data('gradio_values') ?? {};
             const type = root.attr('component_type');
@@ -2149,9 +2149,13 @@ class GradioLayout {
                 components[type](values.props ?? {}, values?.id, values?.appId, values?.url, root);
             }
 
+            if (antiRepeat && typeof callback === 'function') {
+                callback(root, id);
+            }
+
         });
 
-        if (!antiRepeat) this.updateEmbed(true);
+        if (!antiRepeat) this.updateEmbed(callback, true);
 
     }
 

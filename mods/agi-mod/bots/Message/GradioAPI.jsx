@@ -573,16 +573,18 @@ function GradioEmbed({ agiData }) {
 
                                 // Outputs list
                                 const dataset = config.components.find(comp => comp.id === depId);
-                                for (const index in comps.output) {
-                                    sendTinyUpdate(
-                                        comps.output[index],
-                                        Array.isArray(depItem.js) && typeof depItem.js[index] !== 'undefined' ? depItem.js[index] : null,
-                                        objType(dataset, 'object') && objType(dataset.props, 'object') ? {
-                                            props: dataset.props,
-                                            index: Array.isArray(dataset.props.headers) && dataset.props.headers.length > 1 ? dataId - 1 : dataId
-                                        } : null,
+                                if (!comps.backend_fn) {
+                                    for (const index in comps.output) {
+                                        sendTinyUpdate(
+                                            comps.output[index],
+                                            Array.isArray(depItem.js) && typeof depItem.js[index] !== 'undefined' ? depItem.js[index] : null,
+                                            objType(dataset, 'object') && objType(dataset.props, 'object') ? {
+                                                props: dataset.props,
+                                                index: Array.isArray(dataset.props.headers) && dataset.props.headers.length > 1 ? dataId - 1 : dataId
+                                            } : null,
 
-                                    );
+                                        );
+                                    }
                                 }
 
                                 // Cancel Parts

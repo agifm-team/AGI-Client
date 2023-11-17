@@ -108,11 +108,9 @@ function GradioEmbed({ agiData }) {
                     else if (embed.find('gladio-embed').length < 1) {
 
                         // Sync Update
-                        const syncUpdate = (tinyPromps) => {
-
+                        const syncUpdate = (tinyPromps, depId) => {
                             const props = clone(tinyPromps);
-                            console.log(ymap, id, props);
-
+                            ymap.set(depId, props);
                         };
 
                         // Id
@@ -153,7 +151,7 @@ function GradioEmbed({ agiData }) {
                                 const dropdown = embedData.getDropdown(output.depId);
                                 if (objType(input, 'object')) {
                                     data.props.value = tinyValue;
-                                    // syncUpdate(data.props);
+                                    syncUpdate(data.props, output.depId);
                                     updateInputValue(input, dropdown, tinyValue);
                                 }
 
@@ -168,7 +166,7 @@ function GradioEmbed({ agiData }) {
 
                                 if (objType(input, 'object')) {
                                     data.props.value = compValue;
-                                    // syncUpdate(data.props);
+                                    syncUpdate(data.props, component);
                                     updateInputValue(input, dropdown, compValue, fileUrlGenerator(config.root));
                                 }
 
@@ -243,7 +241,7 @@ function GradioEmbed({ agiData }) {
                                     // Normal Value
                                     else {
                                         embedValues.props.value = value;
-                                        // syncUpdate(embedValues.props);
+                                        syncUpdate(embedValues.props, output.depId);
                                     }
 
                                 }
@@ -259,7 +257,7 @@ function GradioEmbed({ agiData }) {
                                 // Complete 2
                                 else if (isLastSubIndex) {
                                     embedValues.props.value = subResult;
-                                    // syncUpdate(embedValues.props);
+                                    syncUpdate(embedValues.props, output.depId);
                                 }
 
                             }

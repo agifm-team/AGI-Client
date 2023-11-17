@@ -126,12 +126,15 @@ function GradioEmbed({ agiData }) {
                         chatboxScrollToBottom();
                         embed.append(page);
 
+                        // Insert embed events
                         const insertEmbedData = (root, compId) => {
                             try {
 
+                                // Read component data
                                 const component = { input: embedData.getInput(compId), dropdown: embedData.getDropdown(compId) };
                                 if (component.input) {
 
+                                    // jQuery
                                     if (component.input.type === 'jquery') {
 
                                         component.input.value.on('change', (event) => {
@@ -139,14 +142,23 @@ function GradioEmbed({ agiData }) {
                                             // Target
                                             const value = $(event.target).val();
                                             const tinyData = embedData.getComponentValue(compId);
-                                            console.log(tinyData, value);
+
+                                            // Insert Props
+                                            const props = tinyData?.props;
+                                            if (objType(props, 'object')) {
+
+                                                // Insert new value
+                                                props.value = typeof value === 'string' ?
+                                                    !component.input.isNumber ? value : Number(value) :
+                                                    null;
+
+                                            }
 
                                         });
 
-                                        console.log('jquery', component.input);
-
                                     }
 
+                                    // Blob
                                     else if (component.input.type === 'blob') {
 
                                         console.log('blob', component.input);
@@ -155,8 +167,8 @@ function GradioEmbed({ agiData }) {
 
                                 }
 
+                                // Dropdown
                                 if (component.dropdown) {
-
                                     if (component.dropdown.type === 'jquery') {
 
                                         component.dropdown.value.on('change', (event) => {
@@ -171,7 +183,6 @@ function GradioEmbed({ agiData }) {
                                         console.log('dropdown', component.dropdown);
 
                                     }
-
                                 }
 
                                 // Exist Default Data
@@ -181,7 +192,7 @@ function GradioEmbed({ agiData }) {
                                 const props = tinyData?.props;
 
                                 // Validator
-                                if (props && defaultData && defaultData?.data.props) {
+                                if (objType(props, 'object') && defaultData && defaultData?.data.props) {
 
                                     // Get Data
                                     const idData = ymap.get(compId);

@@ -222,7 +222,7 @@ function GradioEmbed({ agiData }) {
                         };
 
                         // Send Update
-                        const sendTinyUpdate = (output, value, dataset, isSubmit = false, subIndex = -1, isLastSubIndex = false, subResult = []) => {
+                        const sendTinyUpdate = (backendFn, output, value, dataset, isSubmit = false, subIndex = -1, isLastSubIndex = false, subResult = []) => {
 
                             if (
                                 objType(output, 'object') &&
@@ -246,7 +246,7 @@ function GradioEmbed({ agiData }) {
                                 const dropdown = embedData.getDropdown(output.depId);
                                 if (objType(input, 'object')) {
                                     data.props.value = tinyValue;
-                                    syncUpdate(data.props, output.depId);
+                                    if (!backendFn) syncUpdate(data.props, output.depId);
                                     updateInputValue(input, dropdown, tinyValue);
                                 }
 
@@ -261,7 +261,7 @@ function GradioEmbed({ agiData }) {
 
                                 if (objType(input, 'object')) {
                                     data.props.value = compValue;
-                                    syncUpdate(data.props, component);
+                                    if (!backendFn) syncUpdate(data.props, component);
                                     updateInputValue(input, dropdown, compValue, fileUrlGenerator(config.root));
                                 }
 
@@ -336,7 +336,7 @@ function GradioEmbed({ agiData }) {
                                     // Normal Value
                                     else {
                                         embedValues.props.value = value;
-                                        syncUpdate(embedValues.props, output.depId);
+                                        if (!backendFn) syncUpdate(embedValues.props, output.depId);
                                     }
 
                                 }
@@ -352,7 +352,7 @@ function GradioEmbed({ agiData }) {
                                 // Complete 2
                                 else if (isLastSubIndex) {
                                     embedValues.props.value = subResult;
-                                    syncUpdate(embedValues.props, output.depId);
+                                    if (!backendFn) syncUpdate(embedValues.props, output.depId);
                                 }
 
                             }
@@ -478,6 +478,7 @@ function GradioEmbed({ agiData }) {
                                                     typeof tinyData === 'string' ? tinyData : null;
 
                                             sendTinyUpdate(
+                                                false,
                                                 comps.output[index],
                                                 value,
                                                 null,
@@ -573,18 +574,17 @@ function GradioEmbed({ agiData }) {
 
                                 // Outputs list
                                 const dataset = config.components.find(comp => comp.id === depId);
-                                if (!comps.backend_fn) {
-                                    for (const index in comps.output) {
-                                        sendTinyUpdate(
-                                            comps.output[index],
-                                            Array.isArray(depItem.js) && typeof depItem.js[index] !== 'undefined' ? depItem.js[index] : null,
-                                            objType(dataset, 'object') && objType(dataset.props, 'object') ? {
-                                                props: dataset.props,
-                                                index: Array.isArray(dataset.props.headers) && dataset.props.headers.length > 1 ? dataId - 1 : dataId
-                                            } : null,
+                                for (const index in comps.output) {
+                                    sendTinyUpdate(
+                                        comps.backend_fn,
+                                        comps.output[index],
+                                        Array.isArray(depItem.js) && typeof depItem.js[index] !== 'undefined' ? depItem.js[index] : null,
+                                        objType(dataset, 'object') && objType(dataset.props, 'object') ? {
+                                            props: dataset.props,
+                                            index: Array.isArray(dataset.props.headers) && dataset.props.headers.length > 1 ? dataId - 1 : dataId
+                                        } : null,
 
-                                        );
-                                    }
+                                    );
                                 }
 
                                 // Cancel Parts

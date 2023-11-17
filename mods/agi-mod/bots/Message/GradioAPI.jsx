@@ -133,32 +133,35 @@ function GradioEmbed({ agiData }) {
                                 // Needs update
                                 let needsUpdate = false;
 
-                                // Read component data
+                                // Value updater
                                 const component = { input: embedData.getInput(compId), dropdown: embedData.getDropdown(compId) };
+                                const valueUpdater = (event) => {
+
+                                    // Target
+                                    const value = $(event.target).val();
+                                    const tinyData = embedData.getComponentValue(compId);
+
+                                    // Insert Props
+                                    const props = tinyData?.props;
+                                    if (objType(props, 'object')) {
+
+                                        // Insert new value
+                                        props.value = typeof value === 'string' ?
+                                            !component.input.isNumber ? value : Number(value) :
+                                            null;
+
+                                        ymap.set(compId, props);
+
+                                    }
+
+                                };
+
+                                // Read component data
                                 if (component.input) {
 
                                     // jQuery
                                     if (component.input.type === 'jquery') {
-
-                                        component.input.value.on('change', (event) => {
-
-                                            // Target
-                                            const value = $(event.target).val();
-                                            const tinyData = embedData.getComponentValue(compId);
-
-                                            // Insert Props
-                                            const props = tinyData?.props;
-                                            if (objType(props, 'object')) {
-
-                                                // Insert new value
-                                                props.value = typeof value === 'string' ?
-                                                    !component.input.isNumber ? value : Number(value) :
-                                                    null;
-
-                                            }
-
-                                        });
-
+                                        component.input.value.on('change', valueUpdater);
                                     }
 
                                     // Blob
@@ -173,18 +176,7 @@ function GradioEmbed({ agiData }) {
                                 // Dropdown
                                 if (component.dropdown) {
                                     if (component.dropdown.type === 'jquery') {
-
-                                        component.dropdown.value.on('change', (event) => {
-
-                                            // Target
-                                            const value = $(event.target).val();
-                                            const tinyData = embedData.getComponentValue(compId);
-                                            console.log(tinyData, value);
-
-                                        });
-
-                                        console.log('dropdown', component.dropdown);
-
+                                        component.dropdown.value.on('change', valueUpdater);
                                     }
                                 }
 

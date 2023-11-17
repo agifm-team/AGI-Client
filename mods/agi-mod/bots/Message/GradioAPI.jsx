@@ -130,6 +130,9 @@ function GradioEmbed({ agiData }) {
                         const insertEmbedData = (root, compId) => {
                             try {
 
+                                // Needs update
+                                let needsUpdate = false;
+
                                 // Read component data
                                 const component = { input: embedData.getInput(compId), dropdown: embedData.getDropdown(compId) };
                                 if (component.input) {
@@ -217,8 +220,12 @@ function GradioEmbed({ agiData }) {
 
                                 }
 
+                                // Complete
+                                return needsUpdate;
+
                             } catch (err) {
                                 console.error(err);
+                                return false;
                             }
                         };
 
@@ -769,8 +776,7 @@ function GradioEmbed({ agiData }) {
                         }
 
                         // Read Embed Data
-                        let needsUpdate = false;
-                        embedData.readEmbedData(insertEmbedData);
+                        const needsUpdate = embedData.readEmbedData(insertEmbedData);
 
                         if (needsUpdate) {
                             embedData.updateEmbed(insertEmbedData);

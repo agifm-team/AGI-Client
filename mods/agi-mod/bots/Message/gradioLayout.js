@@ -2133,9 +2133,20 @@ class GradioLayout {
     }
 
     readEmbedData(callback) {
+
+        let needsUpdate = false;
+
         for (const id in this.root) {
-            callback(this.root[id], id);
+
+            const newUpdate = callback(this.root[id], id);
+            if (!needsUpdate) {
+                needsUpdate = newUpdate;
+            }
+
         }
+
+        return needsUpdate;
+
     }
 
     updateEmbed(callback, antiRepeat = false) {

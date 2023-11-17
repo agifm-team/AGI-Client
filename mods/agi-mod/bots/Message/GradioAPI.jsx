@@ -679,15 +679,50 @@ function GradioEmbed({ agiData }) {
                         embedData.readEmbedData((root, compId) => {
                             try {
 
-                                const input = embedData.getInput(compId);
-                                console.log(input);
-                                /* root.on('change input', (event) => {
+                                const component = { input: embedData.getInput(compId), dropdown: embedData.getDropdown(compId) };
+                                if (component.input) {
 
-                                    // Target
-                                    const tinyData = embedData.getComponentValue(compId);
-                                    console.log(tinyData);
+                                    if (component.input.type === 'jquery') {
 
-                                }); */
+                                        component.input.value.on('change', (event) => {
+
+                                            // Target
+                                            const value = $(event.target).val();
+                                            const tinyData = embedData.getComponentValue(compId);
+                                            console.log(component.input.value, tinyData, value);
+
+                                        });
+
+                                        console.log(component.input);
+
+                                    }
+
+                                    else if (component.input.type === 'blob') {
+
+                                        console.log(component.input);
+
+                                    }
+
+                                }
+
+                                if (component.dropdown) {
+
+                                    if (component.dropdown.type === 'jquery') {
+
+                                        component.dropdown.value.on('change', (event) => {
+
+                                            // Target
+                                            const value = $(event.target).val();
+                                            const tinyData = embedData.getComponentValue(compId);
+                                            console.log(component.dropdown.value, tinyData, value);
+
+                                        });
+
+                                        console.log(component.dropdown);
+
+                                    }
+
+                                }
 
                                 // Exist Default Data
                                 const defaultData = embedData.getDefaultEmbedData(compId);

@@ -1,5 +1,7 @@
 import * as Y from 'yjs';
 import EventEmitter from 'events';
+import clone from 'clone';
+import objectHash from 'object-hash';
 
 import initMatrix from '../initMatrix';
 import cons from './cons';
@@ -110,10 +112,18 @@ const enableyJsItem = {
     }
   },
 
+  constructorToString: (parent) => String(parent.constructor.name.startsWith('_') ? parent.constructor.name.substring(1) : parent.constructor.name).toLocaleLowerCase(),
+
   types: {
     ymap: (ydoc, parent) => ydoc.getMap(parent),
     ytext: (ydoc, parent) => ydoc.getText(parent),
     yarray: (ydoc, parent) => ydoc.getArray(parent),
+  },
+
+  convertToJson: {
+    ymap: (data) => data.toJSON(),
+    ytext: (data) => data.toString(),
+    yarray: (data) => data.toArray(),
   },
 
 };
@@ -142,6 +152,8 @@ class RoomTimeline extends EventEmitter {
     this.ongoingDecryptionCount = 0;
     this.initialized = false;
     this.ydoc = null;
+
+    this.ydoc_last_update = null;
 
     this._ydoc_matrix_update = [];
     this._ydoc_cache = [];
@@ -195,8 +207,56 @@ class RoomTimeline extends EventEmitter {
     this.crdt = {};
   }
 
+  // To JSON
+  ydocToJson(tinyIds) {
+
+    // Prepare Ids
+    const ids = typeof tinyIds === 'string' ? [tinyIds] :
+      Array.isArray(tinyIds) ? tinyIds : null
+
+    // Exist Doc
+    if (this.ydoc) {
+
+      // Prepare Functions
+      const tinyResult = {};
+      const getData = (value, key) => {
+
+        const type = enableyJsItem.constructorToString(value);
+        if (enableyJsItem.convertToJson[type]) {
+          tinyResult[key] = enableyJsItem.convertToJson[type](value);
+        }
+
+      };
+
+      // Null. Get all
+      if (!ids || ids.length < 1) { this.ydoc.share.forEach(getData); }
+
+      // Get Values
+      else {
+
+        for (const id in ids) {
+
+          const item = this.ydoc.share.get(ids[id]);
+
+          if (item) {
+            getData(item, ids[0]);
+          }
+
+        }
+
+      }
+
+      return tinyResult;
+
+    }
+
+    // Invalid
+    return null;
+
+  }
+
   // Add crdt
-  _addCrdt(content) {
+  _addCrdt(content, timestamp) {
 
     // Tiny This
     const tinyThis = this;
@@ -204,75 +264,89 @@ class RoomTimeline extends EventEmitter {
     // Checker
     if (this.ydoc) {
       try {
+        if (this.ydoc_last_update === null || timestamp > this.ydoc_last_update) {
 
-        // Data
-        if (typeof content.data === 'string' && content.data.length > 0) {
+          // Data
+          if (typeof content.data === 'string' && content.data.length > 0) {
 
-          // Get Data
-          const data = atob(content.data).split(',');
-          for (const item in data) {
-            data[item] = Number(data[item]);
-          }
-
-          if (data.length > 1) {
-
-            // Prepare to insert into update
-            const memoryData = new Uint8Array(data);
-            const updateInfo = Y.decodeUpdate(memoryData);
-
-            getClientYjs(updateInfo, (info) => {
-              tinyThis._ydoc_matrix_update.push(info.key);
-            });
-
-            // Fix Doc
-            if (
-              typeof content.parent === 'string' && typeof content.type === 'string' &&
-              content.parent.length > 0 && content.type.length > 0
-            ) {
-              enableyJsItem.action(this.ydoc, content.type, content.parent);
+            // Get Data
+            const data = atob(content.data).split(',');
+            for (const item in data) {
+              data[item] = Number(data[item]);
             }
 
-            // Apply update
-            Y.applyUpdate(this.ydoc, memoryData);
+            if (data.length > 1) {
+
+              // Prepare to insert into update
+              const memoryData = new Uint8Array(data);
+              const updateInfo = Y.decodeUpdate(memoryData);
+              const newKeys = [];
+
+              getClientYjs(updateInfo, (info) => {
+                newKeys.push(info.key);
+                tinyThis._ydoc_matrix_update.push(info.key);
+              });
+
+              // Fix Doc
+              if (
+                typeof content.parent === 'string' && typeof content.type === 'string' &&
+                content.parent.length > 0 && content.type.length > 0
+              ) {
+                enableyJsItem.action(this.ydoc, content.type, content.parent);
+              }
+
+              // Apply update
+              const before = clone(this.ydocToJson());
+              Y.applyUpdate(this.ydoc, memoryData);
+              const after = clone(this.ydocToJson());
+
+              if (objectHash(before) === objectHash(after)) {
+                for (const ki in newKeys) {
+                  const index = tinyThis._ydoc_matrix_update.indexOf(newKeys[ki]);
+                  tinyThis._ydoc_matrix_update.splice(index, 1);
+                }
+              }
+
+            }
 
           }
 
-        }
+          // Snapshot
+          else if (
+            objType(content.snapshot, 'object') &&
+            typeof content.snapshot.update === 'string' && content.snapshot.update.length > 0 &&
+            typeof content.snapshot.encode === 'string' && content.snapshot.encode.length > 0
+          ) {
 
-        // Snapshot
-        else if (
-          objType(content.snapshot, 'object') &&
-          typeof content.snapshot.update === 'string' && content.snapshot.update.length > 0 &&
-          typeof content.snapshot.encode === 'string' && content.snapshot.encode.length > 0
-        ) {
-
-          // Fix doc
-          if (objType(content.snapshot.types, 'object')) {
-            for (const key in content.snapshot.types) {
-              if (typeof content.snapshot.types[key] === 'string' && content.snapshot.types[key].length > 0) {
-                enableyJsItem.action(this.ydoc, content.snapshot.types[key], key);
+            // Fix doc
+            if (objType(content.snapshot.types, 'object')) {
+              for (const key in content.snapshot.types) {
+                if (typeof content.snapshot.types[key] === 'string' && content.snapshot.types[key].length > 0) {
+                  enableyJsItem.action(this.ydoc, content.snapshot.types[key], key);
+                }
               }
             }
-          }
 
-          // Get Data
-          const data = atob(content.snapshot.update).split(',');
-          for (const item in data) {
-            data[item] = Number(data[item]);
-          }
+            // Get Data
+            const data = atob(content.snapshot.update).split(',');
+            for (const item in data) {
+              data[item] = Number(data[item]);
+            }
 
-          if (data.length > 1) {
+            if (data.length > 1) {
 
-            // Prepare to insert into update
-            const memoryData = new Uint8Array(data);
+              // Prepare to insert into update
+              const memoryData = new Uint8Array(data);
 
-            // Apply update
-            Y.applyUpdate(this.ydoc, memoryData);
+              // Apply update
+              this.ydoc_last_update = timestamp;
+              Y.applyUpdate(this.ydoc, memoryData);
+
+            }
 
           }
 
         }
-
       } catch (err) {
         console.error(err);
       }
@@ -281,7 +355,7 @@ class RoomTimeline extends EventEmitter {
     // Nope. Wait more
     else {
 
-      this._ydoc_cache.push(content);
+      this._ydoc_cache.push({ content, timestamp });
 
       if (this._ydoc_cache_timeout) {
         clearTimeout(this._ydoc_cache_timeout);
@@ -293,7 +367,7 @@ class RoomTimeline extends EventEmitter {
         if (tinyThis.ydoc) {
 
           for (const item in tinyThis._ydoc_cache) {
-            tinyThis._addCrdt(tinyThis._ydoc_cache[item]);
+            tinyThis._addCrdt(tinyThis._ydoc_cache[item].content, tinyThis._ydoc_cache[item].timestamp);
           }
 
           tinyThis._ydoc_cache = [];
@@ -368,7 +442,7 @@ class RoomTimeline extends EventEmitter {
         }
 
         // Send to Crdt
-        this._addCrdt(content);
+        this._addCrdt(content, mEvent.getDate());
 
       }
     } else {
@@ -686,7 +760,7 @@ class RoomTimeline extends EventEmitter {
             const item = struct[struct.length - 1];
 
             try {
-              itemType = String(item.parent.constructor.name.startsWith('_') ? item.parent.constructor.name.substring(1) : item.parent.constructor.name).toLocaleLowerCase();
+              itemType = enableyJsItem.constructorToString(item.parent);
             } catch { itemType = null; }
 
             if (typeof info.value.parent === 'string' && info.value.parent.length > 0) {

@@ -263,6 +263,7 @@ const fileManagerReader = {
 
 const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept, tinyValue) => {
 
+    const inputData = { type: 'blob', vanilla: null };
     const inputText = $('<input>', { class: 'd-none', type: 'hidden' });
     const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_${type}`, accept: typeof fileAccept === 'string' ? fileAccept : fileInputAccept(props.file_types) })
         .prop('multiple', props.file_count === 'multiple')
@@ -276,6 +277,8 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
         if (typeof value === 'undefined') {
             return blob;
         }
+
+        inputData.vanilla = clone(value);
 
         input.val('');
         inputText.val(value);
@@ -295,7 +298,9 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
 
     };
 
-    finalResult.data('gradio_input', { type: 'blob', value: valueUpdater, input: inputText });
+    inputData.value = valueUpdater;
+    inputData.input = inputText;
+    finalResult.data('gradio_input', inputData);
 
     const fileInput = input.get(0);
     input.get(0).addEventListener('change', () => {
@@ -963,7 +968,6 @@ const components = {
 
     gallery: (props, compId, appId, url, oHtml) => {
 
-        console.log('gallery', compId, props.value);
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         const tinyUrl = fileUrlGenerator(url);
 
@@ -976,6 +980,7 @@ const components = {
 
                     let rowNumber = 0;
 
+                    console.log(props.value);
                     for (const item in props.value) {
 
                         const value = Array.isArray(props.value[item]) ? {
@@ -1416,13 +1421,12 @@ const components = {
     radio: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        if (!oHtml) {
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
-            finalResult.attr('id', id).addClass('radio');
+        const createRadio = (tinyPlace) => {
 
             if (props.show_label && props.label) {
-                finalResult.append(labelCreator(null, props, id));
+                tinyPlace.append(labelCreator(null, props, id));
             }
 
             const radioGroup = $('<div>');
@@ -1450,32 +1454,42 @@ const components = {
                     $radios.filter(`[value="${props.value}"]`).prop('checked', true);
                 }
 
-                finalResult.data('gradio_input', { type: 'jquery', value: $radios });
+                tinyPlace.data('gradio_input', { type: 'jquery', value: $radios });
 
             }
 
-            finalResult.append(radioGroup);
+            tinyPlace.append(radioGroup);
+
+        };
+
+        if (!oHtml) {
+
+            finalResult.attr('id', id).addClass('radio');
+
+            createRadio(finalResult);
             return finalResult;
 
         }
+
+        oHtml.empty();
+        createRadio(oHtml);
 
     },
 
     slider: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        if (!oHtml) {
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
-            finalResult.attr('id', id).addClass('slider');
+        const createSlider = (tinyPlace) => {
 
             if (props.show_label && props.label) {
-                finalResult.append(labelCreator(null, props, id));
+                tinyPlace.append(labelCreator(null, props, id));
             }
 
             const input = $('<input>', { type: 'range', class: 'form-range', max: props.maximum, min: props.minimum, step: props.step }).prop('disabled', (props.interactive === false));
             const numberInput = $('<input>', { class: 'form-control form-control-bg form-control-slider float-end', type: 'number', max: props.maximum, min: props.minimum, step: props.step }).prop('readonly', (props.interactive === false));
-            finalResult.append(numberInput);
+            tinyPlace.append(numberInput);
 
             numberInput.on('change keypress keydown keyup', () => {
 
@@ -1505,15 +1519,25 @@ const components = {
                 if (value !== value2) numberInput.val(value2);
             });
 
-            finalResult.append(input);
+            tinyPlace.append(input);
 
             input.val(props.value);
             numberInput.val(props.value);
-            finalResult.data('gradio_input', { type: 'jquery', isNumber: true, value: numberInput });
+            tinyPlace.data('gradio_input', { type: 'jquery', isNumber: true, value: numberInput });
 
+        };
+
+        if (!oHtml) {
+
+            finalResult.attr('id', id).addClass('slider');
+
+            createSlider(finalResult);
             return finalResult;
 
         }
+
+        oHtml.empty();
+        createSlider(oHtml);
 
     },
 
@@ -1522,13 +1546,12 @@ const components = {
         // values
         let textboxStopHeight = false;
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        if (!oHtml) {
+        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
-            finalResult.addClass('textbox')
+        const createTextbox = (tinyPlace) => {
 
             if (props.show_label && props.label) {
-                finalResult.append(labelCreator(null, props, `${id}_textbox`));
+                tinyPlace.append(labelCreator(null, props, `${id}_textbox`));
             }
 
             // Textarea Value
@@ -1592,11 +1615,11 @@ const components = {
             textarea.on('keypress keyup keydown change input', tinyNoteSpacing);
 
             textarea.val(props.value).prop('readonly', (props.interactive === false));
-            finalResult.data('gradio_input', { type: 'jquery', value: textarea });
-            finalResult.append(textarea);
+            tinyPlace.data('gradio_input', { type: 'jquery', value: textarea });
+            tinyPlace.append(textarea);
 
             if (props.show_copy_button) {
-                finalResult.append($('<button>', { class: `btn btn-primary` }).text('Copy text')).on('click', () => {
+                tinyPlace.append($('<button>', { class: `btn btn-primary` }).text('Copy text')).on('click', () => {
                     try {
 
                         const data = textarea.val().trim();
@@ -1613,9 +1636,19 @@ const components = {
                 });
             }
 
+        };
+
+        if (!oHtml) {
+
+            finalResult.addClass('textbox')
+
+            createTextbox(finalResult);
             return finalResult;
 
         }
+
+        oHtml.empty();
+        createTextbox(oHtml);
 
     },
 
@@ -2015,11 +2048,32 @@ class GradioLayout {
             this.cache = objType(embedCache, 'object') ? embedCache : {};
             this.html = page;
 
+            this.defaultStore = {};
+            this.readEmbedData((root, id) => {
+
+                const type = root.attr('component_type');
+
+                if (type !== 'markdown' && type !== 'html') {
+                    const values = root.data('gradio_values') ?? {};
+                    this.defaultStore[id] = {
+                        data: clone(values),
+                        type: clone(type),
+                    };
+                }
+
+            });
+
         }
     }
 
     // Insert Html
     insertHtml(html, mode = 'append') { this.page = html[mode](this.html); }
+
+    // Insert Ydoc
+    insertYdoc(ydoc, type) {
+        this.ydoc = ydoc;
+        this._ydoc_type = typeof type === 'string' ? type : null;
+    }
 
     // Get Html
     getHtml() { return this.page ? this.page : $('<div>'); }
@@ -2068,20 +2122,51 @@ class GradioLayout {
         return this.getComponent(id)?.value.data('gradio_values');
     }
 
-    updateEmbed(antiRepeat = false) {
+    getDefaultEmbedData(id) {
+
+        if (this.defaultStore[id]) {
+            return clone(this.defaultStore[id]);
+        }
+
+        return null;
+
+    }
+
+    readEmbedData(callback) {
+
+        let needsUpdate = false;
 
         for (const id in this.root) {
 
-            const values = this.root[id].data('gradio_values') ?? {};
-            const type = this.root[id].attr('component_type');
-
-            if (components[type]) {
-                components[type](values.props ?? {}, values?.id, values?.appId, values?.url, this.root[id]);
+            const newUpdate = callback(this.root[id], id);
+            if (!needsUpdate) {
+                needsUpdate = newUpdate;
             }
 
         }
 
-        if (!antiRepeat) this.updateEmbed(true);
+        return needsUpdate;
+
+    }
+
+    updateEmbed(callback, antiRepeat = false) {
+
+        this.readEmbedData((root, id) => {
+
+            const values = root.data('gradio_values') ?? {};
+            const type = root.attr('component_type');
+
+            if (components[type]) {
+                components[type](values.props ?? {}, values?.id, values?.appId, values?.url, root);
+            }
+
+            if (antiRepeat && typeof callback === 'function') {
+                callback(root, id);
+            }
+
+        });
+
+        if (!antiRepeat) this.updateEmbed(callback, true);
 
     }
 

@@ -24,6 +24,7 @@ export default function startAgiMod(firstTime) {
         addRoomOptions({}, 'room');
         tinyAPI.on('selectedRoomModeAfter', addRoomOptions);
         tinyAPI.on('selectTabAfter', () => addRoomOptions({}, 'room'));
+        tinyAPI.on('emptyTimeline', (data, forceUpdateLimit) => forceUpdateLimit());
 
         // Mod Loaded
         console.log('[immagine.ai] Loading complete!');

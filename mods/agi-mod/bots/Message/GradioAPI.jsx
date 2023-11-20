@@ -4,7 +4,7 @@ import { client } from '@gradio/client';
 import objectHash from 'object-hash';
 
 import GradioLayout, { fileUrlGenerator } from './gradioLayout';
-import { chatboxScrollToBottom, objType, tinyConfirm, toast } from '../../../../src/util/tools';
+import { objType, tinyConfirm, toast } from '../../../../src/util/tools';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 import openTinyURL from '../../../../src/util/message/urlProtection';
 
@@ -123,7 +123,7 @@ function GradioEmbed({ agiData }) {
 
                         const page = $('<gradio-embed>', { class: 'text-center', space: id });
                         embedData.insertHtml(page);
-                        chatboxScrollToBottom();
+                        // chatboxScrollToBottom();
                         embed.append(page);
 
                         // Insert embed events

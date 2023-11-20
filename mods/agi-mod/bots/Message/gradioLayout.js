@@ -111,7 +111,7 @@ const htmlAllowed = {
 
 };
 
-const fileInputFixer = (props, oHtml) => {
+const fileInputFixer = (compId, props, oHtml) => {
 
     const input = oHtml.find('input:not([type=\'hidden\'])');
     if (props.interactive !== false) {
@@ -126,6 +126,26 @@ const fileInputFixer = (props, oHtml) => {
 
     } else {
         input.addClass('d-hide');
+    }
+
+    if (typeof props.value === 'string' && props.value.startsWith('https://')) {
+
+        const gradioInput = oHtml.data('gradio_input');
+        setLoadingPage('Fetching gladio blob...');
+
+        fetch(props.value)
+            .then(response => response.blob())
+            .then(blob => {
+                setLoadingPage(false);
+                const reader = new FileReader();
+                reader.onload = function () { gradioInput.value(this.result, true); }; // <--- `this.result` contains a base64 data URI
+                reader.readAsDataURL(blob);
+            }).catch(err => {
+                setLoadingPage(false);
+                toast(err.message);
+                console.error(err);
+            });
+
     }
 
 };
@@ -263,8 +283,8 @@ const fileManagerReader = {
 
 const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept, tinyValue) => {
 
-    const inputData = { type: 'blob', vanilla: null };
-    const inputText = $('<input>', { class: 'd-none', type: 'hidden' });
+    const inputData = { type: 'blob' };
+    const inputText = $('<input>', { fileroot: true, class: 'd-none', type: 'hidden' });
     const input = $('<input>', { class: 'form-control form-control-bg', type: 'file', id: `${id}_${type}`, accept: typeof fileAccept === 'string' ? fileAccept : fileInputAccept(props.file_types) })
         .prop('multiple', props.file_count === 'multiple')
         .prop('webkitdirectory', props.file_count === 'directory')
@@ -277,8 +297,6 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
         if (typeof value === 'undefined') {
             return blob;
         }
-
-        inputData.vanilla = clone(value);
 
         input.val('');
         inputText.val(value);
@@ -496,7 +514,7 @@ const components = {
 
         }
 
-        fileInputFixer(props, oHtml);
+        fileInputFixer(compId, props, oHtml);
 
     },
 
@@ -962,7 +980,7 @@ const components = {
 
         }
 
-        fileInputFixer(props, oHtml);
+        fileInputFixer(compId, props, oHtml);
 
     },
 
@@ -990,7 +1008,7 @@ const components = {
                         } : props.value[item];
 
                         let imgUrl = value.name;
-                        if (!imgUrl.startsWith('https://') && !imgUrl.startsWith('http://')) {
+                        if (typeof imgUrl === 'string' && !imgUrl.startsWith('https://') && !imgUrl.startsWith('http://')) {
                             imgUrl = `${tinyUrl}${imgUrl}`;
                         }
 
@@ -1183,7 +1201,7 @@ const components = {
 
         }
 
-        fileInputFixer(props, oHtml);
+        fileInputFixer(compId, props, oHtml);
 
     },
 
@@ -1310,7 +1328,7 @@ const components = {
 
         }
 
-        fileInputFixer(props, oHtml);
+        fileInputFixer(compId, props, oHtml);
 
     },
 
@@ -1687,7 +1705,7 @@ const components = {
 
         }
 
-        fileInputFixer(props, oHtml);
+        fileInputFixer(compId, props, oHtml);
 
     },
 
@@ -1781,7 +1799,7 @@ const components = {
 
         }
 
-        fileInputFixer(props, oHtml);
+        fileInputFixer(compId, props, oHtml);
 
     },
 

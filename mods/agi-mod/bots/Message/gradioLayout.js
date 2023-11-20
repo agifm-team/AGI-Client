@@ -150,6 +150,9 @@ const fileInputFixer = (compId, props, oHtml) => {
 
 };
 
+// Id Generator
+const tinyIdGenerator = (appId, props) => `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+
 // File Input Accept Generator
 const fileInputAccept = (fileTypes) => {
     if (Array.isArray(fileTypes) && fileTypes.length > 0) {
@@ -478,7 +481,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('audio');
 
             const exampleIcon = $('<i>', { class: 'fa-solid fa-music' });
@@ -534,7 +537,7 @@ const components = {
         const sizeSelected = typeof props.size === 'string' && props.size.length > 0 ? props.size : 'normal';
 
         if (!oHtml) {
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('button').addClass('d-grid');
 
             const button = $('<button>', { class: classes, }).text(props.value);
@@ -569,7 +572,7 @@ const components = {
     chatbot: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        const id = tinyIdGenerator(appId, props);
 
         const addChatStuff = (tinyPlace) => {
 
@@ -639,7 +642,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('checkbox').addClass('w-100').addClass('text-start').addClass('h-100');
 
             const checkbox = $('<input>', { id: `${id}_individual`, class: 'form-check-input', type: 'checkbox' }).prop('checked', (props.value === true)).prop('disabled', (props.interactive === false));
@@ -662,7 +665,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('checkboxgroup');
 
             if (props.show_label && props.label) {
@@ -700,7 +703,7 @@ const components = {
         try {
 
             const finalResult = displayOptions(props, compId, appId, url, oHtml);
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
 
             const insertTinyCode = (tinyPlace) => {
 
@@ -747,7 +750,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('button').addClass('d-grid');
 
             if (props.show_label && props.label) {
@@ -771,7 +774,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('dataset');
 
             if (props.show_label && typeof props.label === 'string') {
@@ -896,7 +899,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.addClass('dropdown')
 
             if (props.show_label && props.label) {
@@ -959,7 +962,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('file');
 
             const exampleIcon = $('<i>', { class: 'fa-solid fa-file' });
@@ -1079,7 +1082,7 @@ const components = {
 
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('gallery').addClass('border').addClass('border-bg').addClass('p-3');
 
             if (props.show_label && props.label) {
@@ -1111,7 +1114,7 @@ const components = {
     highlightedtext: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        const id = tinyIdGenerator(appId, props);
 
         const highlightedResult = (tinyPlace) => {
 
@@ -1168,7 +1171,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('image');
 
             const exampleIcon = $('<i>', { class: 'fa-solid fa-image' });
@@ -1208,7 +1211,7 @@ const components = {
     json: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        const id = tinyIdGenerator(appId, props);
 
         const tinyJsonResult = (tinyPlace) => {
 
@@ -1242,7 +1245,7 @@ const components = {
     label: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        const id = tinyIdGenerator(appId, props);
 
         const labelCreate = (tinyPlace) => {
 
@@ -1307,7 +1310,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('model3d');
 
             const exampleIcon = $('<i>', { class: 'fa-solid fa-cubes' });
@@ -1337,7 +1340,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('number');
 
             if (props.show_label && props.label) {
@@ -1423,7 +1426,7 @@ const components = {
 
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('plot');
 
             createPlot(finalResult);
@@ -1439,7 +1442,7 @@ const components = {
     radio: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        const id = tinyIdGenerator(appId, props);
 
         const createRadio = (tinyPlace) => {
 
@@ -1497,7 +1500,7 @@ const components = {
     slider: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        const id = tinyIdGenerator(appId, props);
 
         const createSlider = (tinyPlace) => {
 
@@ -1564,7 +1567,7 @@ const components = {
         // values
         let textboxStopHeight = false;
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        const id = tinyIdGenerator(appId, props);
 
         const createTextbox = (tinyPlace) => {
 
@@ -1675,7 +1678,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('timeseries');
 
             const exampleIcon = $('<i>', { class: 'fa-solid fa-file-csv' });
@@ -1714,7 +1717,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('uploadbutton').addClass('d-grid');
 
             if (props.variant === 'stop') props.variant = 'danger';
@@ -1754,7 +1757,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('video');
 
             const exampleIcon = $('<i>', { class: 'fa-solid fa-video' });
@@ -1808,7 +1811,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'column');
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('p-2').addClass('column');
 
             if (props.show_label && typeof props.label === 'string') {
@@ -1826,7 +1829,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'row');
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('row');
 
             if (props.show_label && typeof props.label === 'string') {
@@ -1844,7 +1847,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'box');
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('box');
 
             if (props.show_label && typeof props.label === 'string') {
@@ -1863,7 +1866,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'accordion');
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('accordion');
 
             const collapseId = `${id}_collapse_${compId}`;
@@ -1910,7 +1913,47 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'group');
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
+            finalResult.attr('id', id).addClass('group').addClass('my-3');
+
+            if (props.show_label && typeof props.label === 'string') {
+                finalResult.append($('<div>', { id }).text(props.label));
+            }
+
+            return finalResult;
+
+        }
+
+    },
+
+    tabs: (props, compId, appId, url, oHtml) => {
+
+        console.log('tabs', compId, props);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'tabs');
+        const id = tinyIdGenerator(appId, props);
+
+        if (!oHtml) {
+
+            finalResult.attr('id', id).addClass('group').addClass('my-3');
+
+            if (props.show_label && typeof props.label === 'string') {
+                finalResult.append($('<div>', { id }).text(props.label));
+            }
+
+            return finalResult;
+
+        }
+
+    },
+
+    tabitem: (props, compId, appId, url, oHtml) => {
+
+        console.log('tabitem', compId, props);
+        const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'tabitem');
+        const id = tinyIdGenerator(appId, props);
+
+        if (!oHtml) {
+
             finalResult.attr('id', id).addClass('group').addClass('my-3');
 
             if (props.show_label && typeof props.label === 'string') {
@@ -1947,6 +1990,7 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1) 
                 if (existChildrens) newPage = childrenLoader(items[item].children, config, url, appId, comps, root, clone(tinyIndex));
 
                 // Componet
+                console.log(component.type);
                 if (objType(component, 'object') && objType(component.props, 'object') && typeof component.type === 'string' && (typeof components[component.type] === 'function' || component.type === 'form')) {
 
                     // Row and Accordion

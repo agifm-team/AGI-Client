@@ -1008,7 +1008,7 @@ const components = {
                         } : props.value[item];
 
                         let imgUrl = value.name;
-                        if (!imgUrl.startsWith('https://') && !imgUrl.startsWith('http://')) {
+                        if (typeof imgUrl === 'string' && !imgUrl.startsWith('https://') && !imgUrl.startsWith('http://')) {
                             imgUrl = `${tinyUrl}${imgUrl}`;
                         }
 

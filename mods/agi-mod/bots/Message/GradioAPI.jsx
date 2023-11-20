@@ -164,13 +164,6 @@ function GradioEmbed({ agiData }) {
                                         component.input.value.on('change', valueUpdater);
                                     }
 
-                                    // Blob
-                                    else if (component.input.type === 'blob') {
-
-                                        console.log('blob', component.input);
-
-                                    }
-
                                 }
 
                                 // Dropdown

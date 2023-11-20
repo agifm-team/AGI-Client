@@ -1229,7 +1229,7 @@ const components = {
 
             finalResult.attr('id', id).addClass('json');
 
-            tinyJsonResult(oHtml);
+            tinyJsonResult(finalResult);
             return finalResult;
 
         }

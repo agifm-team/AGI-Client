@@ -1990,7 +1990,6 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1) 
                 if (existChildrens) newPage = childrenLoader(items[item].children, config, url, appId, comps, root, clone(tinyIndex));
 
                 // Componet
-                console.log(component.type);
                 if (objType(component, 'object') && objType(component.props, 'object') && typeof component.type === 'string' && (typeof components[component.type] === 'function' || component.type === 'form')) {
 
                     // Row and Accordion

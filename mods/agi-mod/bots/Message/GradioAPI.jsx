@@ -4,7 +4,7 @@ import { client } from '@gradio/client';
 import objectHash from 'object-hash';
 
 import GradioLayout, { fileUrlGenerator } from './gradioLayout';
-import { chatboxScrollToBottom, objType, toast } from '../../../../src/util/tools';
+import { chatboxScrollToBottom, objType, tinyConfirm, toast } from '../../../../src/util/tools';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 import openTinyURL from '../../../../src/util/message/urlProtection';
 
@@ -776,6 +776,21 @@ function GradioEmbed({ agiData }) {
                             embedData.updateEmbed(insertEmbedData);
                         }
 
+                        // Reset embed
+                        embed.append($('<center>', { class: 'mt-3' }).append(
+                            $('<button>', { class: 'btn btn-danger' }).text('Reset gradio session').on('click', async () => {
+
+                                const isConfirmed = await tinyConfirm('Are you sure? All data from this Gradio Embed will be lost.');
+                                if (isConfirmed) {
+                                    ymap.clear();
+                                    alert('The gradio embed has been successfully reset.');
+                                    setIsVisible(0);
+                                }
+
+                            })
+                        ))
+
+                        // Complete
                         console.log(id, config);
                         return () => {
                             if (app && typeof app.destroy === 'function') app.destroy();

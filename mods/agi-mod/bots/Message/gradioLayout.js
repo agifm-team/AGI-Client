@@ -150,6 +150,9 @@ const fileInputFixer = (compId, props, oHtml) => {
 
 };
 
+// Id Generator
+const tinyIdGenerator = (appId, props) => `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+
 // File Input Accept Generator
 const fileInputAccept = (fileTypes) => {
     if (Array.isArray(fileTypes) && fileTypes.length > 0) {
@@ -478,7 +481,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('audio');
 
             const exampleIcon = $('<i>', { class: 'fa-solid fa-music' });
@@ -534,7 +537,7 @@ const components = {
         const sizeSelected = typeof props.size === 'string' && props.size.length > 0 ? props.size : 'normal';
 
         if (!oHtml) {
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('button').addClass('d-grid');
 
             const button = $('<button>', { class: classes, }).text(props.value);
@@ -569,7 +572,7 @@ const components = {
     chatbot: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        const id = tinyIdGenerator(appId, props);
 
         const addChatStuff = (tinyPlace) => {
 
@@ -639,7 +642,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('checkbox').addClass('w-100').addClass('text-start').addClass('h-100');
 
             const checkbox = $('<input>', { id: `${id}_individual`, class: 'form-check-input', type: 'checkbox' }).prop('checked', (props.value === true)).prop('disabled', (props.interactive === false));
@@ -662,7 +665,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('checkboxgroup');
 
             if (props.show_label && props.label) {
@@ -700,7 +703,7 @@ const components = {
         try {
 
             const finalResult = displayOptions(props, compId, appId, url, oHtml);
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
 
             const insertTinyCode = (tinyPlace) => {
 
@@ -747,7 +750,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('button').addClass('d-grid');
 
             if (props.show_label && props.label) {
@@ -771,7 +774,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('dataset');
 
             if (props.show_label && typeof props.label === 'string') {
@@ -896,7 +899,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.addClass('dropdown')
 
             if (props.show_label && props.label) {
@@ -959,7 +962,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('file');
 
             const exampleIcon = $('<i>', { class: 'fa-solid fa-file' });
@@ -1079,7 +1082,7 @@ const components = {
 
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('gallery').addClass('border').addClass('border-bg').addClass('p-3');
 
             if (props.show_label && props.label) {
@@ -1111,7 +1114,7 @@ const components = {
     highlightedtext: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        const id = tinyIdGenerator(appId, props);
 
         const highlightedResult = (tinyPlace) => {
 
@@ -1168,7 +1171,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('image');
 
             const exampleIcon = $('<i>', { class: 'fa-solid fa-image' });
@@ -1208,7 +1211,7 @@ const components = {
     json: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        const id = tinyIdGenerator(appId, props);
 
         const tinyJsonResult = (tinyPlace) => {
 
@@ -1229,7 +1232,7 @@ const components = {
 
             finalResult.attr('id', id).addClass('json');
 
-            tinyJsonResult(oHtml);
+            tinyJsonResult(finalResult);
             return finalResult;
 
         }
@@ -1242,7 +1245,7 @@ const components = {
     label: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        const id = tinyIdGenerator(appId, props);
 
         const labelCreate = (tinyPlace) => {
 
@@ -1307,7 +1310,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('model3d');
 
             const exampleIcon = $('<i>', { class: 'fa-solid fa-cubes' });
@@ -1337,7 +1340,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('number');
 
             if (props.show_label && props.label) {
@@ -1423,7 +1426,7 @@ const components = {
 
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('plot');
 
             createPlot(finalResult);
@@ -1439,7 +1442,7 @@ const components = {
     radio: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        const id = tinyIdGenerator(appId, props);
 
         const createRadio = (tinyPlace) => {
 
@@ -1497,7 +1500,7 @@ const components = {
     slider: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        const id = tinyIdGenerator(appId, props);
 
         const createSlider = (tinyPlace) => {
 
@@ -1564,7 +1567,7 @@ const components = {
         // values
         let textboxStopHeight = false;
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
-        const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+        const id = tinyIdGenerator(appId, props);
 
         const createTextbox = (tinyPlace) => {
 
@@ -1675,7 +1678,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('timeseries');
 
             const exampleIcon = $('<i>', { class: 'fa-solid fa-file-csv' });
@@ -1714,7 +1717,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('uploadbutton').addClass('d-grid');
 
             if (props.variant === 'stop') props.variant = 'danger';
@@ -1754,7 +1757,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('video');
 
             const exampleIcon = $('<i>', { class: 'fa-solid fa-video' });
@@ -1808,7 +1811,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'column');
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('p-2').addClass('column');
 
             if (props.show_label && typeof props.label === 'string') {
@@ -1826,7 +1829,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'row');
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('row');
 
             if (props.show_label && typeof props.label === 'string') {
@@ -1844,7 +1847,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'box');
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('box');
 
             if (props.show_label && typeof props.label === 'string') {
@@ -1857,13 +1860,13 @@ const components = {
 
     },
 
-    ///
+    // Accordion
     accordion: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'accordion');
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('accordion');
 
             const collapseId = `${id}_collapse_${compId}`;
@@ -1910,7 +1913,7 @@ const components = {
         const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'group');
         if (!oHtml) {
 
-            const id = `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
+            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('group').addClass('my-3');
 
             if (props.show_label && typeof props.label === 'string') {
@@ -1926,7 +1929,7 @@ const components = {
 };
 
 // Children
-const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1) => {
+const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, rootTabs = { type: null, data: null }) => {
     if (Array.isArray(items)) {
 
         // HTML Items
@@ -1944,13 +1947,18 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1) 
                 const component = config.components.find(c => c.id === items[item].id);
 
                 // New Children
-                if (existChildrens) newPage = childrenLoader(items[item].children, config, url, appId, comps, root, clone(tinyIndex));
+                if (existChildrens) newPage = childrenLoader(items[item].children, config, url, appId, comps, root, clone(tinyIndex), rootTabs);
 
                 // Componet
-                if (objType(component, 'object') && objType(component.props, 'object') && typeof component.type === 'string' && (typeof components[component.type] === 'function' || component.type === 'form')) {
+                if (objType(component, 'object') && objType(component.props, 'object') && typeof component.type === 'string' && (
+                    typeof components[component.type] === 'function'
+                    || component.type === 'form'
+                    || component.type === 'tabitem'
+                    || component.type === 'tabs'
+                )) {
 
                     // Row and Accordion
-                    if (existChildrens && (component.type === 'row' || component.type === 'accordion')) {
+                    if (existChildrens && (component.type === 'row' || component.type === 'accordion' || component.type === 'tabitem' || component.type === 'tabs')) {
 
                         // Row
                         if (component.type === 'row') {
@@ -1971,6 +1979,15 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1) 
                                 if (rowItem > rowItems) rowItem = 0;
                             });
 
+                        } else if (component.type === 'tabitem') {
+
+                            if (rootTabs.type === null) {
+                                rootTabs.data = [];
+                                rootTabs.type = 'tabitem';
+                            }
+
+                            rootTabs.data.push({ page: newPage, component });
+
                         }
 
                     }
@@ -1981,47 +1998,103 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1) 
                     }
 
                     // Others
-                    if (component.type !== 'form') {
+                    if (component.type !== 'tabitem' && component.type !== 'tabs') {
+                        if (component.type !== 'form') {
 
-                        // Get Component
-                        const tinyHtml = components[component.type](component.props, component.id, appId, url);
-                        root[component.id] = tinyHtml;
-                        const addUpdateData = (theHtml) => {
-                            theHtml.data('gradio_update', () => {
+                            // Get Component
+                            const tinyHtml = components[component.type](component.props, component.id, appId, url);
+                            root[component.id] = tinyHtml;
+                            const addUpdateData = (theHtml) => {
+                                theHtml.data('gradio_update', () => {
 
-                                const values = theHtml.data('gradio_values');
-                                const newHtml = components[component.type](values.props, values.id, values.appId, values.url);
-                                root[values.id] = newHtml;
+                                    const values = theHtml.data('gradio_values');
+                                    const newHtml = components[component.type](values.props, values.id, values.appId, values.url);
+                                    root[values.id] = newHtml;
 
-                                theHtml.replaceWith(newHtml);
-                                addUpdateData(newHtml);
+                                    theHtml.replaceWith(newHtml);
+                                    addUpdateData(newHtml);
 
-                            });
-                        };
+                                });
+                            };
 
-                        // Add data updater
-                        addUpdateData(tinyHtml);
+                            // Add data updater
+                            addUpdateData(tinyHtml);
 
-                        // Fix Accordion
-                        if (component.type === 'accordion') {
-                            tinyHtml.find('.card .card-body .collapse').append(newPage);
+                            // Fix Accordion
+                            if (component.type === 'accordion') {
+                                tinyHtml.find('.card .card-body .collapse').append(newPage);
+                            }
+
+                            // Check html data
+                            if (typeof tinyHtml !== 'undefined') {
+                                if (page) tinyHtml.append(page);
+                                html.push(tinyHtml);
+                            }
+
                         }
 
-                        // Check html data
-                        if (typeof tinyHtml !== 'undefined') {
-                            if (page) tinyHtml.append(page);
-                            html.push(tinyHtml);
+                        // Build Form Data
+                        else if (page) {
+                            page.forEach(item2 => {
+                                component.props.app_id = appId;
+                                item2.attr('form-component-id', component.id).attr('form-element-id', component.props.elem_id).data('gradio_form_data', component);
+                                html.push(item2);
+                            });
                         }
 
                     }
 
-                    // Build Form Data
-                    else if (page) {
-                        page.forEach(item2 => {
-                            component.props.app_id = appId;
-                            item2.attr('form-component-id', component.id).attr('form-element-id', component.props.elem_id).data('gradio_form_data', component);
-                            html.push(item2);
-                        });
+                    // Tabs
+                    else if (component.type === 'tabs') {
+
+                        // Result
+                        const tabResult = displayOptions(component.props, component.id, appId, url).attr('component_type', 'tabs');
+                        const tabId = `${appId}_tabs_${component.id}`;
+
+                        // Preparing tab Nav
+                        const tabsNav = $('<ul>', { class: 'nav nav-tabs' });
+
+                        // Tab Base
+                        const tabsWindow = $('<div>');
+                        const tab = $('<div>', { id: tabId }).append(tabsNav, tabsWindow);
+
+                        // Read Tab Data
+                        for (const tabItem in rootTabs.data) {
+
+                            const tabTargetId = `${appId}_tabs_${component.id}_${rootTabs.data[tabItem].component?.id}`;
+                            const tabTargetIdHead = `${appId}_tabs_${component.id}_head_${rootTabs.data[tabItem].component?.id}`;
+                            tabsNav.append($('<li>', { class: 'nav-item', id: tabTargetIdHead }).append(
+                                $('<a>', {
+                                    class: `nav-link text-bg-force${tabItem > 0 ? ' collapsed' : ''}`,
+                                    href: '#',
+                                    'data-bs-toggle': 'collapse',
+                                    'aria-expanded': tabItem > 0 ? 'false' : 'true',
+                                    'data-bs-target': `#${tabTargetId}`,
+                                    'aria-controls': `#${tabTargetId}`,
+                                }).text(rootTabs.data[tabItem].component?.props.label).on('click', (event) => {
+                                    const e = event.originalEvent;
+                                    e.preventDefault();
+                                    return false;
+                                })
+                            ));
+
+                            tabsWindow.append($('<div>', {
+                                id: tabTargetId,
+                                class: `accordion-collapse collapse${tabItem > 0 ? '' : ' show'}`,
+                                'aria-labelledby': `${tabTargetIdHead}`,
+                                'data-bs-parent': `#${tabId}`,
+                            }).append(rootTabs.data[tabItem].page));
+
+                        }
+
+                        // Complete
+                        tabResult.append(tab);
+                        html.push(tabResult);
+
+                        // Reset now
+                        rootTabs.data = [];
+                        rootTabs.type = null;
+
                     }
 
                 }

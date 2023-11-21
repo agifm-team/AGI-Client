@@ -2047,9 +2047,6 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, 
                     // Tabs
                     else if (component.type === 'tabs') {
 
-                        // Test value
-                        console.log(rootTabs);
-
                         // Result
                         const tabResult = displayOptions(component.props, component.id, appId, url).attr('component_type', 'tabs');
                         const tabId = `${appId}_tabs_${component.id}`;

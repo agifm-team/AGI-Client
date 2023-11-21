@@ -1986,7 +1986,7 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, 
                                 rootTabs.type = 'tabitem';
                             }
 
-                            rootTabs.data.push(newPage);
+                            rootTabs.data.push({ page: newPage, component });
 
                         }
 
@@ -2052,13 +2052,35 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, 
 
                         // Result
                         const tabResult = displayOptions(component.props, component.id, appId, url).attr('component_type', 'tabs');
+                        const tabId = `${appId}_tabs_${component.id}`;
+
+                        // Preparing tab Nav
+                        const tabsNav = $('<ul>', { class: 'nav nav-tabs' });
+                        const tabsWindow = $('<div>');
+
+                        // Tab Base
+                        const tab = $('<div>', { id: tabId }).append(tabsNav, tabsWindow);
+
+                        // Read Tab Data
                         for (const tabItem in rootTabs.data) {
-                            tabResult.append(rootTabs.data[tabItem]);
+                            console.log(rootTabs.data[tabItem]);
+                            tabsWindow.append(rootTabs.data[tabItem].page);
                         }
 
+                        // Fix tab
+                        tabsWindow.find('> div').each((index, value) => {
+
+                            if (index > 0) {
+                                $(value).addClass('d-none');
+                            }
+
+                        });
+
+                        // Complete
+                        tabResult.append(tab);
                         html.push(tabResult);
 
-                        // Complete. Reset now
+                        // Reset now
                         rootTabs.data = [];
                         rootTabs.type = null;
 

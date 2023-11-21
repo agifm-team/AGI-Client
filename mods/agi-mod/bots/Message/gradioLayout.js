@@ -2056,25 +2056,39 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, 
 
                         // Preparing tab Nav
                         const tabsNav = $('<ul>', { class: 'nav nav-tabs' });
-                        const tabsWindow = $('<div>');
 
                         // Tab Base
+                        const tabsWindow = $('<div>');
                         const tab = $('<div>', { id: tabId }).append(tabsNav, tabsWindow);
 
                         // Read Tab Data
                         for (const tabItem in rootTabs.data) {
-                            console.log(rootTabs.data[tabItem]);
-                            tabsWindow.append(rootTabs.data[tabItem].page);
+
+                            const tabTargetId = `${appId}_tabs_${component.id}_${rootTabs.data[tabItem].component?.id}`;
+                            const tabTargetIdHead = `${appId}_tabs_${component.id}_head_${rootTabs.data[tabItem].component?.id}`;
+                            tabsNav.append($('<li>', { class: 'nav-item', id: tabTargetIdHead }).append(
+                                $('<a>', {
+                                    class: `nav-link text-bg-force${tabItem > 0 ? ' collapsed' : ''}`,
+                                    href: '#',
+                                    'data-bs-toggle': 'collapse',
+                                    'aria-expanded': tabItem > 0 ? 'false' : 'true',
+                                    'data-bs-target': `#${tabTargetId}`,
+                                    'aria-controls': `#${tabTargetId}`,
+                                }).text(rootTabs.data[tabItem].component?.props.label).on('click', (event) => {
+                                    const e = event.originalEvent;
+                                    e.preventDefault();
+                                    return false;
+                                })
+                            ));
+
+                            tabsWindow.append($('<div>', {
+                                id: tabTargetId,
+                                class: `accordion-collapse collapse${tabItem > 0 ? '' : ' show'}`,
+                                'aria-labelledby': `${tabTargetIdHead}`,
+                                'data-bs-parent': `#${tabId}`,
+                            }).append(rootTabs.data[tabItem].page));
+
                         }
-
-                        // Fix tab
-                        tabsWindow.find('> div').each((index, value) => {
-
-                            if (index > 0) {
-                                $(value).addClass('d-none');
-                            }
-
-                        });
 
                         // Complete
                         tabResult.append(tab);

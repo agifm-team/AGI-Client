@@ -262,6 +262,14 @@
   }
   gradio-embed {
     width: 100%;
+
+    .nav-tabs .nav-link {
+      text-decoration: none !important;
+      &:not(.collapsed) {
+        font-weight: bold !important;
+      }
+    }
+
     /* Gallery */
     .gallery {
       background-color: var(--bg-surface-low);

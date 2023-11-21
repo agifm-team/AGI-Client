@@ -1860,7 +1860,7 @@ const components = {
 
     },
 
-    ///
+    // Accordion
     accordion: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'accordion');
@@ -1926,50 +1926,10 @@ const components = {
 
     },
 
-    tabs: (props, compId, appId, url, oHtml) => {
-
-        console.log('tabs', compId, props);
-        const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'tabs');
-        const id = tinyIdGenerator(appId, props);
-
-        if (!oHtml) {
-
-            finalResult.attr('id', id).addClass('group').addClass('my-3');
-
-            if (props.show_label && typeof props.label === 'string') {
-                finalResult.append($('<div>', { id }).text(props.label));
-            }
-
-            return finalResult;
-
-        }
-
-    },
-
-    tabitem: (props, compId, appId, url, oHtml) => {
-
-        console.log('tabitem', compId, props);
-        const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'tabitem');
-        const id = tinyIdGenerator(appId, props);
-
-        if (!oHtml) {
-
-            finalResult.attr('id', id).addClass('group').addClass('my-3');
-
-            if (props.show_label && typeof props.label === 'string') {
-                finalResult.append($('<div>', { id }).text(props.label));
-            }
-
-            return finalResult;
-
-        }
-
-    },
-
 };
 
 // Children
-const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1) => {
+const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, rootTabs = { type: null, data: null }) => {
     if (Array.isArray(items)) {
 
         // HTML Items
@@ -1987,13 +1947,18 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1) 
                 const component = config.components.find(c => c.id === items[item].id);
 
                 // New Children
-                if (existChildrens) newPage = childrenLoader(items[item].children, config, url, appId, comps, root, clone(tinyIndex));
+                if (existChildrens) newPage = childrenLoader(items[item].children, config, url, appId, comps, root, clone(tinyIndex), rootTabs);
 
                 // Componet
-                if (objType(component, 'object') && objType(component.props, 'object') && typeof component.type === 'string' && (typeof components[component.type] === 'function' || component.type === 'form')) {
+                if (objType(component, 'object') && objType(component.props, 'object') && typeof component.type === 'string' && (
+                    typeof components[component.type] === 'function'
+                    || component.type === 'form'
+                    || component.type === 'tabitem'
+                    || component.type === 'tabs'
+                )) {
 
                     // Row and Accordion
-                    if (existChildrens && (component.type === 'row' || component.type === 'accordion')) {
+                    if (existChildrens && (component.type === 'row' || component.type === 'accordion' || component.type === 'tabitem' || component.type === 'tabs')) {
 
                         // Row
                         if (component.type === 'row') {
@@ -2014,6 +1979,15 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1) 
                                 if (rowItem > rowItems) rowItem = 0;
                             });
 
+                        } else if (component.type === 'tabitem') {
+
+                            if (rootTabs.type === null) {
+                                rootTabs.data = [];
+                                rootTabs.type = 'tabitem';
+                            }
+
+                            rootTabs.data.push(newPage);
+
                         }
 
                     }
@@ -2024,47 +1998,70 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1) 
                     }
 
                     // Others
-                    if (component.type !== 'form') {
+                    if (component.type !== 'tabitem' && component.type !== 'tabs') {
+                        if (component.type !== 'form') {
 
-                        // Get Component
-                        const tinyHtml = components[component.type](component.props, component.id, appId, url);
-                        root[component.id] = tinyHtml;
-                        const addUpdateData = (theHtml) => {
-                            theHtml.data('gradio_update', () => {
+                            // Get Component
+                            const tinyHtml = components[component.type](component.props, component.id, appId, url);
+                            root[component.id] = tinyHtml;
+                            const addUpdateData = (theHtml) => {
+                                theHtml.data('gradio_update', () => {
 
-                                const values = theHtml.data('gradio_values');
-                                const newHtml = components[component.type](values.props, values.id, values.appId, values.url);
-                                root[values.id] = newHtml;
+                                    const values = theHtml.data('gradio_values');
+                                    const newHtml = components[component.type](values.props, values.id, values.appId, values.url);
+                                    root[values.id] = newHtml;
 
-                                theHtml.replaceWith(newHtml);
-                                addUpdateData(newHtml);
+                                    theHtml.replaceWith(newHtml);
+                                    addUpdateData(newHtml);
 
-                            });
-                        };
+                                });
+                            };
 
-                        // Add data updater
-                        addUpdateData(tinyHtml);
+                            // Add data updater
+                            addUpdateData(tinyHtml);
 
-                        // Fix Accordion
-                        if (component.type === 'accordion') {
-                            tinyHtml.find('.card .card-body .collapse').append(newPage);
+                            // Fix Accordion
+                            if (component.type === 'accordion') {
+                                tinyHtml.find('.card .card-body .collapse').append(newPage);
+                            }
+
+                            // Check html data
+                            if (typeof tinyHtml !== 'undefined') {
+                                if (page) tinyHtml.append(page);
+                                html.push(tinyHtml);
+                            }
+
                         }
 
-                        // Check html data
-                        if (typeof tinyHtml !== 'undefined') {
-                            if (page) tinyHtml.append(page);
-                            html.push(tinyHtml);
+                        // Build Form Data
+                        else if (page) {
+                            page.forEach(item2 => {
+                                component.props.app_id = appId;
+                                item2.attr('form-component-id', component.id).attr('form-element-id', component.props.elem_id).data('gradio_form_data', component);
+                                html.push(item2);
+                            });
                         }
 
                     }
 
-                    // Build Form Data
-                    else if (page) {
-                        page.forEach(item2 => {
-                            component.props.app_id = appId;
-                            item2.attr('form-component-id', component.id).attr('form-element-id', component.props.elem_id).data('gradio_form_data', component);
-                            html.push(item2);
-                        });
+                    // Tabs
+                    else if (component.type === 'tabs') {
+
+                        // Test value
+                        console.log(rootTabs);
+
+                        // Result
+                        const tabResult = displayOptions(component.props, component.id, appId, url).attr('component_type', 'tabs');
+                        for (const tabItem in rootTabs.data) {
+                            tabResult.append(rootTabs.data[tabItem]);
+                        }
+
+                        html.push(tabResult);
+
+                        // Complete. Reset now
+                        rootTabs.data = [];
+                        rootTabs.type = null;
+
                     }
 
                 }

@@ -234,17 +234,20 @@ function GradioEmbed({ agiData }) {
                                     // Target
                                     const value = $(event.target).val();
                                     const tinyData = embedData.getComponentValue(compId);
+                                    if (objType(tinyData, 'object')) {
 
-                                    // Insert Props
-                                    const props = tinyData?.props;
-                                    if (objType(props, 'object')) {
+                                        // Insert Props
+                                        const props = tinyData.props;
+                                        if (objType(props, 'object')) {
 
-                                        // Insert new value
-                                        props.value = typeof value === 'string' ?
-                                            !component.input.isNumber ? value : Number(value) :
-                                            null;
+                                            // Insert new value
+                                            props.value = typeof value === 'string' ?
+                                                !component.input.isNumber ? value : Number(value) :
+                                                null;
 
-                                        ymap.set(compId, props);
+                                            ymap.set(compId, props);
+
+                                        }
 
                                     }
 
@@ -298,6 +301,8 @@ function GradioEmbed({ agiData }) {
                                     }
 
                                 }
+
+                                // console.log(props?.value);
 
                                 // Complete
                                 return needsUpdate;
@@ -574,6 +579,7 @@ function GradioEmbed({ agiData }) {
                             const tinyAction = function (depId, dataId) {
 
                                 // Outputs list
+                                // console.log(clone(getInputValues(comps)));
                                 const dataset = config.components.find(comp => comp.id === depId);
                                 for (const index in comps.output) {
                                     sendTinyUpdate(

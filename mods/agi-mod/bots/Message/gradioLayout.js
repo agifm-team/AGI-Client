@@ -2247,12 +2247,12 @@ class GradioLayout {
             const values = root.data('gradio_values') ?? {};
             const type = root.attr('component_type');
 
-            if (components[type]) {
-                components[type](values.props ?? {}, values?.id, values?.appId, values?.url, root);
-            }
-
             if (antiRepeat && typeof callback === 'function') {
                 callback(root, id);
+            }
+
+            if (components[type]) {
+                components[type](values.props ?? {}, values?.id, values?.appId, values?.url, root);
             }
 
         });

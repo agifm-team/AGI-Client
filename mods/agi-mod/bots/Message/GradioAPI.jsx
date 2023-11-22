@@ -1,3 +1,7 @@
+/* eslint-disable no-empty */
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useRef, useEffect, useState } from 'react';
 import clone from 'clone';
 import { client } from '@gradio/client';
@@ -350,6 +354,7 @@ function GradioEmbed({ agiData }) {
                                 const data = embedData.getComponentValue(component);
                                 const input = embedData.getInput(component);
                                 const dropdown = embedData.getDropdown(component);
+                                // console.log(backendFn, input, data);
 
                                 if (objType(input, 'object')) {
                                     data.props.value = compValue;

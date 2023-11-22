@@ -1,3 +1,7 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-empty */
+
 import hljs from 'highlight.js';
 import sanitizeHtml from 'sanitize-html';
 import { marked } from 'marked';
@@ -1380,6 +1384,7 @@ const components = {
     plot: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
+        const id = tinyIdGenerator(appId, props);
 
         const createPlot = (tinyPlace) => {
 
@@ -1426,7 +1431,6 @@ const components = {
 
         if (!oHtml) {
 
-            const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('plot');
 
             createPlot(finalResult);
@@ -1661,7 +1665,7 @@ const components = {
 
         if (!oHtml) {
 
-            finalResult.addClass('textbox')
+            finalResult.addClass('textbox');
 
             createTextbox(finalResult);
             return finalResult;
@@ -2157,6 +2161,16 @@ class GradioLayout {
         }
     }
 
+    _getCompFix(id) {
+
+        if (!objType(id, 'object')) {
+            return this.getComponent(id);
+        }
+
+        return id;
+
+    }
+
     // Insert Html
     insertHtml(html, mode = 'append') { this.page = html[mode](this.html); }
 
@@ -2197,20 +2211,24 @@ class GradioLayout {
     }
 
     getInput(id) {
-        return this.getComponent(id)?.value.data('gradio_input');
+        const data = this._getCompFix(id);
+        if (objType(data, 'object') && data.value) return data.value.data('gradio_input');
     }
 
     getDropdown(id) {
-        return this.getComponent(id)?.value.data('gradio_dropdown');
+        const data = this._getCompFix(id);
+        if (objType(data, 'object') && data.value) return data.value.data('gradio_dropdown');
     }
 
     getTarget(id) {
-        return this.getComponent(id)?.value.data('gradio_target');
+        const data = this._getCompFix(id);
+        if (objType(data, 'object') && data.value) return data.value.data('gradio_target');
     }
 
     // Get Values
     getComponentValue(id) {
-        return this.getComponent(id)?.value.data('gradio_values');
+        const data = this._getCompFix(id);
+        if (objType(data, 'object') && data.value) return data.value.data('gradio_values');
     }
 
     getDefaultEmbedData(id) {
@@ -2263,9 +2281,15 @@ class GradioLayout {
 
     // Update Html
     updateHtml(id, index) {
-        const updateGradio = this.getComponent(id).value.data('gradio_update');
-        if (typeof updateGradio === 'function') updateGradio();
-        if (objType(this.cache, 'object') && typeof this.cache.genDeps === 'function') this.cache.genDeps(index);
+
+        const compBase = this._getCompFix(id);
+
+        if (objType(compBase, 'object')) {
+            const updateGradio = compBase.value.data('gradio_update');
+            if (typeof updateGradio === 'function') updateGradio();
+            if (objType(this.cache, 'object') && typeof this.cache.genDeps === 'function') this.cache.genDeps(index);
+        }
+
     }
 
 };

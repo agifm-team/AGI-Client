@@ -42,6 +42,100 @@ const updateInputValue = (input, dropdown, value, filePath = '') => {
 
 };
 
+const getInputValues = (comps) => {
+
+    // Input Values
+    const inputs = [];
+
+    // Read data
+    for (const index in comps.input) {
+
+        // Result
+        let result;
+
+        // jQuery
+        if (comps.input[index].data.type === 'jquery') {
+            try {
+
+                const value = !comps.input[index].data.isNumber ? comps.input[index].data.value.val() : Number(comps.input[index].data.value.val());
+                if (typeof value === 'string' || typeof value === 'number') {
+                    result = value;
+                } else {
+                    result = null;
+                }
+
+            } catch (err) {
+                console.error(err);
+                result = null;
+            }
+        }
+
+        // Blob
+        else if (comps.input[index].data.type === 'blob') {
+            try {
+
+                if (typeof comps.input[index].data.value === 'function') {
+                    result = comps.input[index].data.value();
+                } else {
+                    result = null;
+                }
+
+            } catch (err) {
+                console.error(err);
+                result = null;
+            }
+        }
+
+        // Array
+        else if (comps.input[index].data.type === 'array') {
+            if (Array.isArray(comps.input[index].data.value) && comps.input[index].data.value.length > 0) {
+
+                const tinyArray = [];
+
+                for (const vi in comps.input[index].data.value) {
+
+                    let value;
+
+                    try {
+                        if (Array.isArray(comps.input[index].data.value[vi]) && comps.input[index].data.value[vi][0]) {
+                            if (comps.input[index].data.value[vi][0].is(':checked')) {
+                                value = comps.input[index].data.value[vi][0].val();
+                            }
+                        } else if (comps.input[index].data.value[vi]) {
+                            if (comps.input[index].data.value[vi].is(':checked')) {
+                                value = comps.input[index].data.value[vi].val();
+                            }
+                        }
+                    } catch {
+                        value = null;
+                    }
+
+                    if (typeof value === 'string' && value.length > 0) {
+                        tinyArray.push(value);
+                    }
+
+                }
+
+                result = tinyArray;
+
+            }
+        }
+
+        // Others
+        else {
+            result = null;
+            console.log('Input Component', comps.input[index].depId, comps.input[index].data);
+        }
+
+        inputs.push(result);
+        console.log('Submit test item', comps.input[index], result);
+
+    }
+
+    return inputs;
+
+};
+
 function GradioEmbed({ agiData }) {
 
     // Prepare Data
@@ -310,7 +404,6 @@ function GradioEmbed({ agiData }) {
                             // Output send result
                             if (isSubmit) {
 
-                                // console.log(index, subIndex, output, value, outputs, dataset, isSubmit);
                                 const embedValues = embedData.getComponentValue(output.depId);
                                 if (objType(embedValues, 'object') && objType(embedValues.props, 'object')) {
 
@@ -355,93 +448,8 @@ function GradioEmbed({ agiData }) {
                         // Submit
                         const tinySubmit = (comps, tinyIndex) => {
 
-                            // Input Values
-                            const inputs = [];
-
-                            // Read data
-                            for (const index in comps.input) {
-
-                                // Result
-                                let result;
-
-                                // jQuery
-                                if (comps.input[index].data.type === 'jquery') {
-                                    try {
-
-                                        const value = !comps.input[index].data.isNumber ? comps.input[index].data.value.val() : Number(comps.input[index].data.value.val());
-                                        if (typeof value === 'string' || typeof value === 'number') {
-                                            result = value;
-                                        } else {
-                                            result = null;
-                                        }
-
-                                    } catch (err) {
-                                        console.error(err);
-                                        result = null;
-                                    }
-                                }
-
-                                // Blob
-                                else if (comps.input[index].data.type === 'blob') {
-                                    try {
-
-                                        if (typeof comps.input[index].data.value === 'function') {
-                                            result = comps.input[index].data.value();
-                                        } else {
-                                            result = null;
-                                        }
-
-                                    } catch (err) {
-                                        console.error(err);
-                                        result = null;
-                                    }
-                                }
-
-                                // Array
-                                else if (comps.input[index].data.type === 'array') {
-                                    if (Array.isArray(comps.input[index].data.value) && comps.input[index].data.value.length > 0) {
-
-                                        const tinyArray = [];
-
-                                        for (const vi in comps.input[index].data.value) {
-
-                                            let value;
-
-                                            try {
-                                                if (Array.isArray(comps.input[index].data.value[vi]) && comps.input[index].data.value[vi][0]) {
-                                                    if (comps.input[index].data.value[vi][0].is(':checked')) {
-                                                        value = comps.input[index].data.value[vi][0].val();
-                                                    }
-                                                } else if (comps.input[index].data.value[vi]) {
-                                                    if (comps.input[index].data.value[vi].is(':checked')) {
-                                                        value = comps.input[index].data.value[vi].val();
-                                                    }
-                                                }
-                                            } catch {
-                                                value = null;
-                                            }
-
-                                            if (typeof value === 'string' && value.length > 0) {
-                                                tinyArray.push(value);
-                                            }
-
-                                        }
-
-                                        result = tinyArray;
-
-                                    }
-                                }
-
-                                // Others
-                                else {
-                                    result = null;
-                                    console.log('Input Component', comps.input[index].depId, comps.input[index].data);
-                                }
-
-                                inputs.push(result);
-                                console.log('Submit test item', comps.input[index], result);
-
-                            }
+                            // Get input values
+                            const inputs = getInputValues(comps);
 
                             // https://www.gradio.app/docs/js-client#submit
                             const submitName = comps.api_name ? `/${comps.api_name}` : Number(tinyIndex);

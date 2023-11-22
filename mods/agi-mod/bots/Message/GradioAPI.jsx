@@ -50,6 +50,7 @@ const getInputValues = (comps) => {
 
     // Input Values
     const inputs = [];
+    let allowed = false;
 
     // Read data
     for (const index in comps.input) {
@@ -64,6 +65,7 @@ const getInputValues = (comps) => {
                 const value = !comps.input[index].data.isNumber ? comps.input[index].data.value.val() : Number(comps.input[index].data.value.val());
                 if (typeof value === 'string' || typeof value === 'number') {
                     result = value;
+                    allowed = true;
                 } else {
                     result = null;
                 }
@@ -80,6 +82,7 @@ const getInputValues = (comps) => {
 
                 if (typeof comps.input[index].data.value === 'function') {
                     result = comps.input[index].data.value();
+                    allowed = true;
                 } else {
                     result = null;
                 }
@@ -104,10 +107,12 @@ const getInputValues = (comps) => {
                         if (Array.isArray(comps.input[index].data.value[vi]) && comps.input[index].data.value[vi][0]) {
                             if (comps.input[index].data.value[vi][0].is(':checked')) {
                                 value = comps.input[index].data.value[vi][0].val();
+                                allowed = true;
                             }
                         } else if (comps.input[index].data.value[vi]) {
                             if (comps.input[index].data.value[vi].is(':checked')) {
                                 value = comps.input[index].data.value[vi].val();
+                                allowed = true;
                             }
                         }
                     } catch {
@@ -136,7 +141,7 @@ const getInputValues = (comps) => {
 
     }
 
-    return inputs;
+    return { inputs, allowed };
 
 };
 
@@ -459,101 +464,104 @@ function GradioEmbed({ agiData }) {
                         const tinySubmit = (comps, tinyIndex) => {
 
                             // Get input values
-                            const inputs = getInputValues(comps);
+                            const subData = getInputValues(comps);
+                            if (subData.allowed) {
 
-                            // https://www.gradio.app/docs/js-client#submit
-                            const submitName = comps.api_name ? `/${comps.api_name}` : Number(tinyIndex);
+                                // https://www.gradio.app/docs/js-client#submit
+                                const submitName = comps.api_name ? `/${comps.api_name}` : Number(tinyIndex);
 
-                            console.log('Submit test', submitName, comps, inputs);
-                            setLoadingPage('Starting gradio...');
-                            const job = app.submit(submitName, inputs);
+                                console.log('Submit test', submitName, comps, subData);
+                                setLoadingPage('Starting gradio...');
+                                const job = app.submit(submitName, subData.inputs);
 
-                            // Sockets
-                            job.on('data', (data) => {
+                                // Sockets
+                                job.on('data', (data) => {
 
-                                // Convert to momentjs
-                                console.log('Data', data);
-                                data.time = moment(data.time);
+                                    // Convert to momentjs
+                                    console.log('Data', data);
+                                    data.time = moment(data.time);
 
-                                // Data
-                                if (Array.isArray(data.data) && data.data.length > 0) {
-                                    for (const item in data.data) {
+                                    // Data
+                                    if (Array.isArray(data.data) && data.data.length > 0) {
+                                        for (const item in data.data) {
 
-                                        const finalResultSend = (tinyData, index, subIndex = -1, isLastSubIndex = false, subResult = []) => {
+                                            const finalResultSend = (tinyData, index, subIndex = -1, isLastSubIndex = false, subResult = []) => {
 
-                                            const value =
-                                                objType(tinyData, 'object') ?
-                                                    typeof tinyData.name === 'string' && tinyData.is_file ? `${fileUrlGenerator(agiData.url)}${tinyData.name}` :
-                                                        typeof tinyData.data === 'string' && tinyData.is_file ? tinyData.data :
-                                                            objType(tinyData.value, 'object') ? tinyData : null :
-                                                    typeof tinyData === 'string' ? tinyData : null;
+                                                const value =
+                                                    objType(tinyData, 'object') ?
+                                                        typeof tinyData.name === 'string' && tinyData.is_file ? `${fileUrlGenerator(agiData.url)}${tinyData.name}` :
+                                                            typeof tinyData.data === 'string' && tinyData.is_file ? tinyData.data :
+                                                                objType(tinyData.value, 'object') ? tinyData : null :
+                                                        typeof tinyData === 'string' ? tinyData : null;
 
-                                            sendTinyUpdate(
-                                                false,
-                                                comps.output[index],
-                                                value,
-                                                null,
-                                                true,
-                                                subIndex,
-                                                isLastSubIndex,
-                                                subResult
-                                            );
+                                                sendTinyUpdate(
+                                                    false,
+                                                    comps.output[index],
+                                                    value,
+                                                    null,
+                                                    true,
+                                                    subIndex,
+                                                    isLastSubIndex,
+                                                    subResult
+                                                );
 
-                                        };
+                                            };
 
-                                        if (Array.isArray(data.data[item]) && data.data[item].length > 0) {
-                                            const subResult = [];
-                                            for (const index in data.data[item]) {
-                                                finalResultSend(data.data[item][index], item, index, index >= data.data[item].length - 1, subResult);
+                                            if (Array.isArray(data.data[item]) && data.data[item].length > 0) {
+                                                const subResult = [];
+                                                for (const index in data.data[item]) {
+                                                    finalResultSend(data.data[item][index], item, index, index >= data.data[item].length - 1, subResult);
+                                                }
+                                            } else {
+                                                finalResultSend(data.data[item], item);
                                             }
-                                        } else {
-                                            finalResultSend(data.data[item], item);
+
+                                        }
+                                    }
+
+                                });
+
+                                job.on('status', (data) => {
+
+                                    // Convert to momentjs
+                                    data.time = moment(data.time);
+
+                                    // Queue
+                                    if (data.queue) {
+                                        setLoadingPage('Queue...');
+                                    }
+
+                                    // Pending
+                                    if (data.stage === 'pending') {
+                                        setLoadingPage('Pending...');
+                                    }
+
+                                    // Complete
+                                    else if (data.stage === 'complete') {
+
+                                        // Success?
+                                        setLoadingPage(false);
+                                        if (data.success) {
+
                                         }
 
                                     }
-                                }
 
-                            });
-
-                            job.on('status', (data) => {
-
-                                // Convert to momentjs
-                                data.time = moment(data.time);
-
-                                // Queue
-                                if (data.queue) {
-                                    setLoadingPage('Queue...');
-                                }
-
-                                // Pending
-                                if (data.stage === 'pending') {
-                                    setLoadingPage('Pending...');
-                                }
-
-                                // Complete
-                                else if (data.stage === 'complete') {
-
-                                    // Success?
-                                    setLoadingPage(false);
-                                    if (data.success) {
-
+                                    // Error
+                                    else if (data.stage === 'error') {
+                                        setLoadingPage(false);
+                                        toast(data.message);
+                                        console.error(data.message, data.code);
                                     }
 
-                                }
+                                    // Generating
+                                    else if (data.stage === 'generating') {
+                                        setLoadingPage('Generating...');
+                                    }
 
-                                // Error
-                                else if (data.stage === 'error') {
-                                    setLoadingPage(false);
-                                    toast(data.message);
-                                    console.error(data.message, data.code);
-                                }
+                                });
 
-                                // Generating
-                                else if (data.stage === 'generating') {
-                                    setLoadingPage('Generating...');
-                                }
-
-                            });
+                            }
 
                         };
 

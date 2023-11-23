@@ -213,6 +213,7 @@ function GradioEmbed({ agiData }) {
                         // Sync Update
                         const syncUpdate = (tinyPromps, depId) => {
                             const props = clone(tinyPromps);
+                            console.log(props);
                             ymap.set(depId, props);
                         };
 
@@ -323,7 +324,7 @@ function GradioEmbed({ agiData }) {
                         };
 
                         // Send Update
-                        const sendTinyUpdate = (backendFn, output, value, dataset, isSubmit = false, subIndex = -1, isLastSubIndex = false, subResult = []) => {
+                        const sendTinyUpdate = (output, value, dataset, isSubmit = false, subIndex = -1, isLastSubIndex = false, subResult = []) => {
 
                             if (
                                 objType(output, 'object') &&
@@ -347,7 +348,7 @@ function GradioEmbed({ agiData }) {
                                 const dropdown = embedData.getDropdown(output.depId);
                                 if (objType(input, 'object')) {
                                     data.props.value = tinyValue;
-                                    if (!backendFn) syncUpdate(data.props, output.depId);
+                                    syncUpdate(data.props, output.depId);
                                     updateInputValue(input, dropdown, tinyValue);
                                 }
 
@@ -363,7 +364,7 @@ function GradioEmbed({ agiData }) {
 
                                 if (objType(input, 'object')) {
                                     data.props.value = compValue;
-                                    if (!backendFn) syncUpdate(data.props, component);
+                                    syncUpdate(data.props, component);
                                     updateInputValue(input, dropdown, compValue, fileUrlGenerator(config.root));
                                 }
 
@@ -437,7 +438,7 @@ function GradioEmbed({ agiData }) {
                                     // Normal Value
                                     else {
                                         embedValues.props.value = value;
-                                        if (!backendFn) syncUpdate(embedValues.props, output.depId);
+                                        syncUpdate(embedValues.props, output.depId);
                                     }
 
                                 }
@@ -453,7 +454,7 @@ function GradioEmbed({ agiData }) {
                                 // Complete 2
                                 else if (isLastSubIndex) {
                                     embedValues.props.value = subResult;
-                                    if (!backendFn) syncUpdate(embedValues.props, output.depId);
+                                    syncUpdate(embedValues.props, output.depId);
                                 }
 
                             }
@@ -495,7 +496,6 @@ function GradioEmbed({ agiData }) {
                                                         typeof tinyData === 'string' ? tinyData : null;
 
                                                 sendTinyUpdate(
-                                                    false,
                                                     comps.output[index],
                                                     value,
                                                     null,
@@ -596,7 +596,6 @@ function GradioEmbed({ agiData }) {
                                 const dataset = config.components.find(comp => comp.id === depId);
                                 for (const index in comps.output) {
                                     sendTinyUpdate(
-                                        comps.backend_fn,
                                         comps.output[index],
                                         Array.isArray(depItem.js) && typeof depItem.js[index] !== 'undefined' ? depItem.js[index] : null,
                                         objType(dataset, 'object') && objType(dataset.props, 'object') ? {
@@ -670,44 +669,44 @@ function GradioEmbed({ agiData }) {
                             comps.backend_fn = depItem.backend_fn;
 
                             const clickAction = (target, type, depId, outputs, triggerAfter) => {
-                                console.log('Target', type, target, depId, triggerAfter);
-                                if (!triggerAfter) {
+                                console.log('Target', type, target, depId);
+                                // if (!triggerAfter) {
 
-                                    const executeArray = (value, targetType, input, targetId) => {
+                                const executeArray = (value, targetType, input, targetId) => {
 
-                                        // jQuery
-                                        if (targetType === 'jquery') {
-                                            value.on(type, () => tinyAction(depId, targetId, outputs));
-                                        }
+                                    // jQuery
+                                    if (targetType === 'jquery') {
+                                        value.on(type, () => tinyAction(depId, targetId, outputs));
+                                    }
 
-                                        else if (targetType === 'blob') {
-                                            input.on('change', () => tinyAction(depId, targetId, outputs));
-                                        }
+                                    else if (targetType === 'blob') {
+                                        input.on('change', () => tinyAction(depId, targetId, outputs));
+                                    }
 
-                                        // Array
-                                        else if (targetType === 'array') {
-                                            for (const item2 in value) {
+                                    // Array
+                                    else if (targetType === 'array') {
+                                        for (const item2 in value) {
 
-                                                // Mode 1
-                                                if (!Array.isArray(value[item2])) {
-                                                    value[item2].on(type, () => tinyAction(depId, item2, outputs));
-                                                }
-
-                                                // Mode 2
-                                                else {
-                                                    for (const item3 in value[item2]) {
-                                                        executeArray(value[item2][item3], 'jquery', input, value.length < 2 ? item3 : item2);
-                                                    }
-                                                }
-
+                                            // Mode 1
+                                            if (!Array.isArray(value[item2])) {
+                                                value[item2].on(type, () => tinyAction(depId, item2, outputs));
                                             }
+
+                                            // Mode 2
+                                            else {
+                                                for (const item3 in value[item2]) {
+                                                    executeArray(value[item2][item3], 'jquery', input, value.length < 2 ? item3 : item2);
+                                                }
+                                            }
+
                                         }
+                                    }
 
-                                    };
+                                };
 
-                                    executeArray(target.value, target.type, target.input);
+                                executeArray(target.value, target.type, target.input);
 
-                                }
+                                // }
                             };
 
                             // Trigger

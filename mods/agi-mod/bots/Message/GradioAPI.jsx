@@ -448,8 +448,8 @@ function GradioEmbed({ agiData }) {
 
                                 // Complete
                                 if (subIndex < 0) {
-                                    embedData.updateEmbed(insertEmbedData);
-                                    // console.log('Tiny Update', index, output, value, outputs, dataset);
+                                    // embedData.updateEmbed(insertEmbedData);
+                                    console.log('Tiny Update', output, value, dataset);
                                 }
 
                                 // Complete 2

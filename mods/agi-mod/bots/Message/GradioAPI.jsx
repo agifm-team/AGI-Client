@@ -264,21 +264,21 @@ function GradioEmbed({ agiData }) {
                                 };
 
                                 // Read component data
-                                if (component.input) {
+                                /* if (component.input) {
 
                                     // jQuery
                                     if (component.input.type === 'jquery') {
                                         component.input.value.on('change', valueUpdater);
                                     }
 
-                                }
+                                } */
 
                                 // Dropdown
-                                if (component.dropdown) {
+                                /* if (component.dropdown) {
                                     if (component.dropdown.type === 'jquery') {
                                         component.dropdown.value.on('change', valueUpdater);
                                     }
-                                }
+                                } */
 
                                 // Exist Default Data
                                 const defaultData = embedData.getDefaultEmbedData(compId);

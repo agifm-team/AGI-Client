@@ -85,6 +85,7 @@ function Welcome() {
 
     // Categories
     const categories = [];
+    console.log(data);
     if (data && Array.isArray(data.category_keys)) {
         for (const item in data.category_keys) {
             categories.push({
@@ -94,6 +95,24 @@ function Welcome() {
         }
     }
 
+    // Generator
+    const categoryGenerator = (where, citem) => <div className='category' id={`agi-home-${citem.id}-${where}`}>
+
+        <hr />
+
+        <h5 className='title mt-2 mb-3 float-start'>{citem.name}</h5>
+        <h6 className='see-all mt-2 mb-3 float-end'>See all</h6>
+        <br className='clearfix' />
+        <br />
+
+        <div className='cover' />
+        <ul className='list-group list-group-horizontal border-0' >
+            {data.categories.map((item) => item ? item[where].map((bot) => <ItemWelcome bot={bot} item={item} itemsLength={items.length} />) : null)}
+        </ul>
+
+    </div>;
+
+    // Result
     return <div className="tiny-welcome p-3 border-0 h-100 noselect px-5" style={{ alignItems: 'center' }}>
         <center className='py-5 w-100 px-5'>
 
@@ -103,21 +122,10 @@ function Welcome() {
             </div>
 
             {!loadingData && data && Array.isArray(data.categories) ?
-                categories.map((citem) => <div className='category' id={`agi-home-${citem.id}`}>
-
-                    <hr />
-
-                    <h5 className='title mt-2 mb-3 float-start'>{citem.name}</h5>
-                    <h6 className='see-all mt-2 mb-3 float-end'>See all</h6>
-                    <br className='clearfix' />
-                    <br />
-
-                    <div className='cover' />
-                    <ul className='list-group list-group-horizontal border-0' >
-                        {data.categories.map((item) => item?.popular_bots.map((bot) => <ItemWelcome bot={bot} item={item} itemsLength={items.length} />))}
-                    </ul>
-
-                </div>)
+                categories.map((citem) => <>
+                    {categoryGenerator('popular_bots', citem)}
+                    {categoryGenerator('popular_bots', citem)}
+                </>)
                 : <p className="placeholder-glow mt-5">
                     <span className="placeholder col-12" />
                     <span className="placeholder col-12" />

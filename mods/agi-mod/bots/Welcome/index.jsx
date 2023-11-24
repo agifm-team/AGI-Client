@@ -85,7 +85,6 @@ function Welcome() {
 
     // Categories
     const categories = [];
-    console.log(data);
     if (data && Array.isArray(data.category_keys)) {
         for (const item in data.category_keys) {
             categories.push({

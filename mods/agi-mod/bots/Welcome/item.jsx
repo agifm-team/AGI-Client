@@ -88,6 +88,7 @@ const valuesLoad = {
                     setLoadingPage(`Joining ${alias}...`);
                 } catch (err) {
                     setLoadingPage(false);
+                    console.error(err);
                     alert(`Unable to find room/space with ${alias}. Either room/space is private or doesn't exist.`);
                 }
             }

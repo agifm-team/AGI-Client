@@ -117,8 +117,8 @@ function Welcome() {
         <center className='py-5 w-100 px-5'>
 
             <div id='menu' className='text-start'>
-                <button type="button" class={`me-3 btn btn-primary${tinyType === 'enterprise' ? ' active' : ''}`} onClick={() => setTinyType('enterprise')}>Enterprise</button>
-                <button type="button" class={`btn btn-primary${tinyType === 'community' ? ' active' : ''}`} onClick={() => setTinyType('community')}>Community</button>
+                <button type="button" className={`me-3 btn btn-primary${tinyType === 'enterprise' ? ' active' : ''}`} onClick={() => setTinyType('enterprise')}>Enterprise</button>
+                <button type="button" className={`btn btn-primary${tinyType === 'community' ? ' active' : ''}`} onClick={() => setTinyType('community')}>Community</button>
             </div>
 
             {!loadingData && data && Array.isArray(data.categories) ?

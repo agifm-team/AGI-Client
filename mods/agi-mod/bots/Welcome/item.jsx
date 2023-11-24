@@ -10,8 +10,7 @@ import {
 } from '../../../../src/util/matrixUtil';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 import initMatrix from '../../../../src/client/initMatrix';
-
-import { useStore } from '../../../../src/app/hooks/useStore';
+import { join } from '../../../../src/client/action/room';
 
 const openRoom = (roomId) => {
 
@@ -77,7 +76,7 @@ const valuesLoad = {
         title: 'room_name',
 
         // Data Button
-        getRoom: async (alias, mountStore) => {
+        getRoom: async (alias) => {
 
             const mx = initMatrix.matrixClient;
             setLoadingPage('Looking for address...');
@@ -86,22 +85,17 @@ const valuesLoad = {
                 try {
                     const aliasData = await mx.getRoomIdForAlias(alias);
                     via = aliasData?.servers.slice(0, 3) || [];
-                    if (mountStore.getItem()) {
-                        setLoadingPage(`Joining ${alias}...`);
-                    }
+                    setLoadingPage(`Joining ${alias}...`);
                 } catch (err) {
-                    if (!mountStore.getItem()) return;
                     setLoadingPage(false);
                     alert(`Unable to find room/space with ${alias}. Either room/space is private or doesn't exist.`);
                 }
             }
             try {
                 const roomId = await join(alias, false, via);
-                if (!mountStore.getItem()) return;
                 openRoom(roomId);
                 setLoadingPage(false);
             } catch {
-                if (!mountStore.getItem()) return;
                 setLoadingPage(false);
                 alert(`Unable to join ${alias}. Either room/space is private or doesn't exist.`);
             }
@@ -116,7 +110,6 @@ function ItemWelcome({ bot, type, item, itemsLength }) {
 
     // Refs
     const buttonRef = useRef(null);
-    const mountStore = useStore();
 
     // Effect
     useEffect(() => {
@@ -128,7 +121,7 @@ function ItemWelcome({ bot, type, item, itemsLength }) {
 
                 // Select tab and bot id
                 selectTab(valuesLoad[type].tab);
-                return valuesLoad[type].getRoom(button.attr('bot'), mountStore);
+                return valuesLoad[type].getRoom(button.attr('bot'));
 
             };
 

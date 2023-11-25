@@ -129,6 +129,12 @@
       );
     }
   }
+
+  @media (max-width: 768px) {
+    & {
+      padding: 0px !important;
+    }
+  }
 }
 
 .sidebar__cross-signin-alert .avatar-container {

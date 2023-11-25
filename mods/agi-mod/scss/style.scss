@@ -131,6 +131,10 @@
   }
 
   @media (max-width: 768px) {
+    #leave-welcome {
+      display: inline-block !important;
+    }
+
     & {
       padding: 0px !important;
     }

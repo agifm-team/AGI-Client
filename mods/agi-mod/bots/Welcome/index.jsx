@@ -1,5 +1,7 @@
+/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 
+import { selectRoomMode } from '../../../../src/client/action/navigation';
 import defaultAvatar from '../../../../src/app/atoms/avatar/defaultAvatar';
 import { serverAddress } from '../../socket';
 import ItemWelcome from './item';
@@ -116,6 +118,7 @@ function Welcome() {
         <center className='py-5 w-100 px-5'>
 
             <div id='menu' className='text-start'>
+                <button type="button" className='me-3 btn btn-primary d-none' id='leave-welcome' onClick={() => selectRoomMode('navigation')}><i class="fa-solid fa-left-long" /></button>
                 <button type="button" className={`me-3 btn btn-primary${tinyType === 'enterprise' ? ' active' : ''}`} onClick={() => setTinyType('enterprise')}>Enterprise</button>
                 <button type="button" className={`btn btn-primary${tinyType === 'community' ? ' active' : ''}`} onClick={() => setTinyType('community')}>Community</button>
             </div>

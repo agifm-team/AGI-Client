@@ -100,7 +100,7 @@ function DragDrop({ children, navWrapperRef, }) {
             </div>
             <div
                 ref={navWrapperRef}
-                className="client-container"
+                className="client-container room-mode"
             >
                 {children}
             </div>

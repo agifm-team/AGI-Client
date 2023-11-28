@@ -50,13 +50,17 @@ Made by Me
 
     =======================================================
 
+    --> Atualizador de AFK do Desktop está com problemas.
+
     --> Ajeitar o css do ocultador de lista de canais.
 
     --> Philomena.
 
     --> Sistema de bordas personalizadas
 
+    ?width=80&height=80&method=crop&animated=on
     --> Adicionar opção para suporte de thumbs com parametros de animação.
+
     --> Fazer a opção para o app iniciar sozinho com o sistema operacional.
 
     --> Ajeitar... Ao criar uma sala, o app está jogando para o menu de homes. Isso não pode acotecer se a room for dentro de um space.

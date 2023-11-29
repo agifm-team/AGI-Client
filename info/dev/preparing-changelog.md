@@ -2,4 +2,11 @@
 - Sidebar css issues fixed.
 - Mute audio/microphone buttons added.
 - Yjs lib updated.
-- Appearance settings page update
+- Appearance settings page update.
+- Embed images tiny fix.
+- Banner CSS fix.
+- Friend Nickname added
+- UserId issues fixed
+- Friend nickname added
+- Appearance settings issues fixed
+- Auto start tab added.

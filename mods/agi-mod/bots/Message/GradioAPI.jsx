@@ -1,3 +1,14 @@
+/* eslint-disable no-empty */
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+/*
+
+quando a galeria contem apenas imagens sem nenhuma interação, use o sistema de galeria do client.
+Colocar atualizador no componente de json
+
+*/
+
 import React, { useRef, useEffect, useState } from 'react';
 import clone from 'clone';
 import { client } from '@gradio/client';
@@ -39,6 +50,105 @@ const updateInputValue = (input, dropdown, value, filePath = '') => {
         }
 
     }
+
+};
+
+const getInputValues = (comps) => {
+
+    // Input Values
+    const inputs = [];
+    let allowed = false;
+
+    // Read data
+    for (const index in comps.input) {
+
+        // Result
+        let result;
+
+        // jQuery
+        if (comps.input[index].data.type === 'jquery') {
+            try {
+
+                const value = !comps.input[index].data.isNumber ? comps.input[index].data.value.val() : Number(comps.input[index].data.value.val());
+                if (typeof value === 'string' || typeof value === 'number') {
+                    result = value;
+                    allowed = true;
+                } else {
+                    result = null;
+                }
+
+            } catch (err) {
+                console.error(err);
+                result = null;
+            }
+        }
+
+        // Blob
+        else if (comps.input[index].data.type === 'blob') {
+            try {
+
+                if (typeof comps.input[index].data.value === 'function') {
+                    result = comps.input[index].data.value();
+                    allowed = true;
+                } else {
+                    result = null;
+                }
+
+            } catch (err) {
+                console.error(err);
+                result = null;
+            }
+        }
+
+        // Array
+        else if (comps.input[index].data.type === 'array') {
+            if (Array.isArray(comps.input[index].data.value) && comps.input[index].data.value.length > 0) {
+
+                const tinyArray = [];
+
+                for (const vi in comps.input[index].data.value) {
+
+                    let value;
+
+                    try {
+                        if (Array.isArray(comps.input[index].data.value[vi]) && comps.input[index].data.value[vi][0]) {
+                            if (comps.input[index].data.value[vi][0].is(':checked')) {
+                                value = comps.input[index].data.value[vi][0].val();
+                                allowed = true;
+                            }
+                        } else if (comps.input[index].data.value[vi]) {
+                            if (comps.input[index].data.value[vi].is(':checked')) {
+                                value = comps.input[index].data.value[vi].val();
+                                allowed = true;
+                            }
+                        }
+                    } catch {
+                        value = null;
+                    }
+
+                    if (typeof value === 'string' && value.length > 0) {
+                        tinyArray.push(value);
+                    }
+
+                }
+
+                result = tinyArray;
+
+            }
+        }
+
+        // Others
+        else {
+            result = null;
+            console.log('Input Component', comps.input[index].depId, comps.input[index].data);
+        }
+
+        inputs.push(result);
+        console.log('Submit test item', comps.input[index], result);
+
+    }
+
+    return { inputs, allowed };
 
 };
 
@@ -110,7 +220,8 @@ function GradioEmbed({ agiData }) {
                         // Sync Update
                         const syncUpdate = (tinyPromps, depId) => {
                             const props = clone(tinyPromps);
-                            ymap.set(depId, props);
+                            console.log(props);
+                            // ymap.set(depId, props);
                         };
 
                         // Id
@@ -119,7 +230,7 @@ function GradioEmbed({ agiData }) {
 
                         // Read Template
                         const embedData = new GradioLayout(config, `gradio-embed[space='${id}']`, agiData.url, id, embedCache);
-                        embedData.insertYdoc(ymap, 'ymap');
+                        // embedData.insertYdoc(ymap, 'ymap');
 
                         const page = $('<gradio-embed>', { class: 'text-center', space: id });
                         embedData.insertHtml(page);
@@ -140,38 +251,41 @@ function GradioEmbed({ agiData }) {
                                     // Target
                                     const value = $(event.target).val();
                                     const tinyData = embedData.getComponentValue(compId);
+                                    if (objType(tinyData, 'object')) {
 
-                                    // Insert Props
-                                    const props = tinyData?.props;
-                                    if (objType(props, 'object')) {
+                                        // Insert Props
+                                        const props = tinyData.props;
+                                        if (objType(props, 'object')) {
 
-                                        // Insert new value
-                                        props.value = typeof value === 'string' ?
-                                            !component.input.isNumber ? value : Number(value) :
-                                            null;
+                                            // Insert new value
+                                            props.value = typeof value === 'string' ?
+                                                !component.input.isNumber ? value : Number(value) :
+                                                null;
 
-                                        ymap.set(compId, props);
+                                            // ymap.set(compId, props);
+
+                                        }
 
                                     }
 
                                 };
 
                                 // Read component data
-                                if (component.input) {
+                                /* if (component.input) {
 
                                     // jQuery
                                     if (component.input.type === 'jquery') {
                                         component.input.value.on('change', valueUpdater);
                                     }
 
-                                }
+                                } */
 
                                 // Dropdown
-                                if (component.dropdown) {
+                                /* if (component.dropdown) {
                                     if (component.dropdown.type === 'jquery') {
                                         component.dropdown.value.on('change', valueUpdater);
                                     }
-                                }
+                                } */
 
                                 // Exist Default Data
                                 const defaultData = embedData.getDefaultEmbedData(compId);
@@ -183,7 +297,8 @@ function GradioEmbed({ agiData }) {
                                 if (objType(props, 'object') && defaultData && defaultData?.data.props) {
 
                                     // Get Data
-                                    const idData = ymap.get(compId);
+                                    // const idData = ymap.get(compId);
+                                    const idData = null;
 
                                     // Insert Data
                                     if (idData) {
@@ -200,10 +315,12 @@ function GradioEmbed({ agiData }) {
 
                                     // New
                                     else if (objectHash(defaultProps) !== objectHash(props)) {
-                                        ymap.set(compId, props);
+                                        // ymap.set(compId, props);
                                     }
 
                                 }
+
+                                // console.log(props?.value);
 
                                 // Complete
                                 return needsUpdate;
@@ -215,7 +332,7 @@ function GradioEmbed({ agiData }) {
                         };
 
                         // Send Update
-                        const sendTinyUpdate = (backendFn, output, value, dataset, isSubmit = false, subIndex = -1, isLastSubIndex = false, subResult = []) => {
+                        const sendTinyUpdate = (output, value, dataset, isSubmit = false, subIndex = -1, isLastSubIndex = false, subResult = []) => {
 
                             if (
                                 objType(output, 'object') &&
@@ -239,7 +356,7 @@ function GradioEmbed({ agiData }) {
                                 const dropdown = embedData.getDropdown(output.depId);
                                 if (objType(input, 'object')) {
                                     data.props.value = tinyValue;
-                                    if (!backendFn) syncUpdate(data.props, output.depId);
+                                    syncUpdate(data.props, output.depId);
                                     updateInputValue(input, dropdown, tinyValue);
                                 }
 
@@ -251,10 +368,11 @@ function GradioEmbed({ agiData }) {
                                 const data = embedData.getComponentValue(component);
                                 const input = embedData.getInput(component);
                                 const dropdown = embedData.getDropdown(component);
+                                // console.log(backendFn, input, data);
 
                                 if (objType(input, 'object')) {
                                     data.props.value = compValue;
-                                    if (!backendFn) syncUpdate(data.props, component);
+                                    syncUpdate(data.props, component);
                                     updateInputValue(input, dropdown, compValue, fileUrlGenerator(config.root));
                                 }
 
@@ -310,7 +428,6 @@ function GradioEmbed({ agiData }) {
                             // Output send result
                             if (isSubmit) {
 
-                                // console.log(index, subIndex, output, value, outputs, dataset, isSubmit);
                                 const embedValues = embedData.getComponentValue(output.depId);
                                 if (objType(embedValues, 'object') && objType(embedValues.props, 'object')) {
 
@@ -329,7 +446,7 @@ function GradioEmbed({ agiData }) {
                                     // Normal Value
                                     else {
                                         embedValues.props.value = value;
-                                        if (!backendFn) syncUpdate(embedValues.props, output.depId);
+                                        syncUpdate(embedValues.props, output.depId);
                                     }
 
                                 }
@@ -338,14 +455,14 @@ function GradioEmbed({ agiData }) {
 
                                 // Complete
                                 if (subIndex < 0) {
-                                    embedData.updateEmbed(insertEmbedData);
-                                    // console.log('Tiny Update', index, output, value, outputs, dataset);
+                                    // embedData.updateEmbed(insertEmbedData);
+                                    console.log('Tiny Update', output, value, dataset);
                                 }
 
                                 // Complete 2
                                 else if (isLastSubIndex) {
                                     embedValues.props.value = subResult;
-                                    if (!backendFn) syncUpdate(embedValues.props, output.depId);
+                                    syncUpdate(embedValues.props, output.depId);
                                 }
 
                             }
@@ -355,187 +472,104 @@ function GradioEmbed({ agiData }) {
                         // Submit
                         const tinySubmit = (comps, tinyIndex) => {
 
-                            // Input Values
-                            const inputs = [];
+                            // Get input values
+                            const subData = getInputValues(comps);
+                            if (subData.allowed) {
 
-                            // Read data
-                            for (const index in comps.input) {
+                                // https://www.gradio.app/docs/js-client#submit
+                                const submitName = comps.api_name ? `/${comps.api_name}` : Number(tinyIndex);
 
-                                // Result
-                                let result;
+                                console.log('Submit test', submitName, comps, subData.inputs);
+                                setLoadingPage('Starting gradio...');
+                                const job = app.submit(submitName, subData.inputs);
 
-                                // jQuery
-                                if (comps.input[index].data.type === 'jquery') {
-                                    try {
+                                // Sockets
+                                job.on('data', (data) => {
 
-                                        const value = !comps.input[index].data.isNumber ? comps.input[index].data.value.val() : Number(comps.input[index].data.value.val());
-                                        if (typeof value === 'string' || typeof value === 'number') {
-                                            result = value;
-                                        } else {
-                                            result = null;
-                                        }
+                                    // Convert to momentjs
+                                    console.log('Data', data);
+                                    data.time = moment(data.time);
 
-                                    } catch (err) {
-                                        console.error(err);
-                                        result = null;
-                                    }
-                                }
+                                    // Data
+                                    if (Array.isArray(data.data) && data.data.length > 0) {
+                                        for (const item in data.data) {
 
-                                // Blob
-                                else if (comps.input[index].data.type === 'blob') {
-                                    try {
+                                            const finalResultSend = (tinyData, index, subIndex = -1, isLastSubIndex = false, subResult = []) => {
 
-                                        if (typeof comps.input[index].data.value === 'function') {
-                                            result = comps.input[index].data.value();
-                                        } else {
-                                            result = null;
-                                        }
+                                                const value =
+                                                    objType(tinyData, 'object') ?
+                                                        typeof tinyData.name === 'string' && tinyData.is_file ? `${fileUrlGenerator(agiData.url)}${tinyData.name}` :
+                                                            typeof tinyData.data === 'string' && tinyData.is_file ? tinyData.data :
+                                                                objType(tinyData.value, 'object') ? tinyData : null :
+                                                        typeof tinyData === 'string' ? tinyData : null;
 
-                                    } catch (err) {
-                                        console.error(err);
-                                        result = null;
-                                    }
-                                }
+                                                sendTinyUpdate(
+                                                    comps.output[index],
+                                                    value,
+                                                    null,
+                                                    true,
+                                                    subIndex,
+                                                    isLastSubIndex,
+                                                    subResult
+                                                );
 
-                                // Array
-                                else if (comps.input[index].data.type === 'array') {
-                                    if (Array.isArray(comps.input[index].data.value) && comps.input[index].data.value.length > 0) {
+                                            };
 
-                                        const tinyArray = [];
-
-                                        for (const vi in comps.input[index].data.value) {
-
-                                            let value;
-
-                                            try {
-                                                if (Array.isArray(comps.input[index].data.value[vi]) && comps.input[index].data.value[vi][0]) {
-                                                    if (comps.input[index].data.value[vi][0].is(':checked')) {
-                                                        value = comps.input[index].data.value[vi][0].val();
-                                                    }
-                                                } else if (comps.input[index].data.value[vi]) {
-                                                    if (comps.input[index].data.value[vi].is(':checked')) {
-                                                        value = comps.input[index].data.value[vi].val();
-                                                    }
+                                            if (Array.isArray(data.data[item]) && data.data[item].length > 0) {
+                                                const subResult = [];
+                                                for (const index in data.data[item]) {
+                                                    finalResultSend(data.data[item][index], item, index, index >= data.data[item].length - 1, subResult);
                                                 }
-                                            } catch {
-                                                value = null;
-                                            }
-
-                                            if (typeof value === 'string' && value.length > 0) {
-                                                tinyArray.push(value);
+                                            } else {
+                                                finalResultSend(data.data[item], item);
                                             }
 
                                         }
+                                    }
 
-                                        result = tinyArray;
+                                });
+
+                                job.on('status', (data) => {
+
+                                    // Convert to momentjs
+                                    data.time = moment(data.time);
+
+                                    // Queue
+                                    if (data.queue) {
+                                        setLoadingPage('Queue...');
+                                    }
+
+                                    // Pending
+                                    if (data.stage === 'pending') {
+                                        setLoadingPage('Pending...');
+                                    }
+
+                                    // Complete
+                                    else if (data.stage === 'complete') {
+
+                                        // Success?
+                                        setLoadingPage(false);
+                                        if (data.success) {
+
+                                        }
 
                                     }
-                                }
 
-                                // Others
-                                else {
-                                    result = null;
-                                    console.log('Input Component', comps.input[index].depId, comps.input[index].data);
-                                }
+                                    // Error
+                                    else if (data.stage === 'error') {
+                                        setLoadingPage(false);
+                                        toast(data.message);
+                                        console.error(data.message, data.code);
+                                    }
 
-                                inputs.push(result);
-                                console.log('Submit test item', comps.input[index], result);
+                                    // Generating
+                                    else if (data.stage === 'generating') {
+                                        setLoadingPage('Generating...');
+                                    }
+
+                                });
 
                             }
-
-                            // https://www.gradio.app/docs/js-client#submit
-                            const submitName = comps.api_name ? `/${comps.api_name}` : Number(tinyIndex);
-
-                            console.log('Submit test', submitName, comps, inputs);
-                            setLoadingPage('Starting gradio...');
-                            const job = app.submit(submitName, inputs);
-
-                            // Sockets
-                            job.on('data', (data) => {
-
-                                // Convert to momentjs
-                                console.log('Data', data);
-                                data.time = moment(data.time);
-
-                                // Data
-                                if (Array.isArray(data.data) && data.data.length > 0) {
-                                    for (const item in data.data) {
-
-                                        const finalResultSend = (tinyData, index, subIndex = -1, isLastSubIndex = false, subResult = []) => {
-
-                                            const value =
-                                                objType(tinyData, 'object') ?
-                                                    typeof tinyData.name === 'string' && tinyData.is_file ? `${fileUrlGenerator(agiData.url)}${tinyData.name}` :
-                                                        typeof tinyData.data === 'string' && tinyData.is_file ? tinyData.data :
-                                                            objType(tinyData.value, 'object') ? tinyData : null :
-                                                    typeof tinyData === 'string' ? tinyData : null;
-
-                                            sendTinyUpdate(
-                                                false,
-                                                comps.output[index],
-                                                value,
-                                                null,
-                                                true,
-                                                subIndex,
-                                                isLastSubIndex,
-                                                subResult
-                                            );
-
-                                        };
-
-                                        if (Array.isArray(data.data[item]) && data.data[item].length > 0) {
-                                            const subResult = [];
-                                            for (const index in data.data[item]) {
-                                                finalResultSend(data.data[item][index], item, index, index >= data.data[item].length - 1, subResult);
-                                            }
-                                        } else {
-                                            finalResultSend(data.data[item], item);
-                                        }
-
-                                    }
-                                }
-
-                            });
-
-                            job.on('status', (data) => {
-
-                                // Convert to momentjs
-                                data.time = moment(data.time);
-
-                                // Queue
-                                if (data.queue) {
-                                    setLoadingPage('Queue...');
-                                }
-
-                                // Pending
-                                if (data.stage === 'pending') {
-                                    setLoadingPage('Pending...');
-                                }
-
-                                // Complete
-                                else if (data.stage === 'complete') {
-
-                                    // Success?
-                                    setLoadingPage(false);
-                                    if (data.success) {
-
-                                    }
-
-                                }
-
-                                // Error
-                                else if (data.stage === 'error') {
-                                    setLoadingPage(false);
-                                    toast(data.message);
-                                    console.error(data.message, data.code);
-                                }
-
-                                // Generating
-                                else if (data.stage === 'generating') {
-                                    setLoadingPage('Generating...');
-                                }
-
-                            });
 
                         };
 
@@ -566,10 +600,10 @@ function GradioEmbed({ agiData }) {
                             const tinyAction = function (depId, dataId) {
 
                                 // Outputs list
+                                // console.log(clone(getInputValues(comps)));
                                 const dataset = config.components.find(comp => comp.id === depId);
                                 for (const index in comps.output) {
                                     sendTinyUpdate(
-                                        comps.backend_fn,
                                         comps.output[index],
                                         Array.isArray(depItem.js) && typeof depItem.js[index] !== 'undefined' ? depItem.js[index] : null,
                                         objType(dataset, 'object') && objType(dataset.props, 'object') ? {
@@ -643,44 +677,44 @@ function GradioEmbed({ agiData }) {
                             comps.backend_fn = depItem.backend_fn;
 
                             const clickAction = (target, type, depId, outputs, triggerAfter) => {
-                                console.log('Target', type, target, depId, triggerAfter);
-                                if (!triggerAfter) {
+                                console.log('Target', type, target, depId);
+                                // if (!triggerAfter) {
 
-                                    const executeArray = (value, targetType, input, targetId) => {
+                                const executeArray = (value, targetType, input, targetId) => {
 
-                                        // jQuery
-                                        if (targetType === 'jquery') {
-                                            value.on(type, () => tinyAction(depId, targetId, outputs));
-                                        }
+                                    // jQuery
+                                    if (targetType === 'jquery') {
+                                        value.on(type, () => tinyAction(depId, targetId, outputs));
+                                    }
 
-                                        else if (targetType === 'blob') {
-                                            input.on('change', () => tinyAction(depId, targetId, outputs));
-                                        }
+                                    else if (targetType === 'blob') {
+                                        input.on('change', () => tinyAction(depId, targetId, outputs));
+                                    }
 
-                                        // Array
-                                        else if (targetType === 'array') {
-                                            for (const item2 in value) {
+                                    // Array
+                                    else if (targetType === 'array') {
+                                        for (const item2 in value) {
 
-                                                // Mode 1
-                                                if (!Array.isArray(value[item2])) {
-                                                    value[item2].on(type, () => tinyAction(depId, item2, outputs));
-                                                }
-
-                                                // Mode 2
-                                                else {
-                                                    for (const item3 in value[item2]) {
-                                                        executeArray(value[item2][item3], 'jquery', input, value.length < 2 ? item3 : item2);
-                                                    }
-                                                }
-
+                                            // Mode 1
+                                            if (!Array.isArray(value[item2])) {
+                                                value[item2].on(type, () => tinyAction(depId, item2, outputs));
                                             }
+
+                                            // Mode 2
+                                            else {
+                                                for (const item3 in value[item2]) {
+                                                    executeArray(value[item2][item3], 'jquery', input, value.length < 2 ? item3 : item2);
+                                                }
+                                            }
+
                                         }
+                                    }
 
-                                    };
+                                };
 
-                                    executeArray(target.value, target.type, target.input);
+                                executeArray(target.value, target.type, target.input);
 
-                                }
+                                // }
                             };
 
                             // Trigger
@@ -766,7 +800,8 @@ function GradioEmbed({ agiData }) {
                         const needsUpdate = embedData.readEmbedData(insertEmbedData);
 
                         if (needsUpdate) {
-                            embedData.updateEmbed(insertEmbedData);
+                            // TEMP !
+                            // embedData.updateEmbed(insertEmbedData);
                         }
 
                         // Reset embed
@@ -775,7 +810,7 @@ function GradioEmbed({ agiData }) {
 
                                 const isConfirmed = await tinyConfirm('Are you sure? All data from this Gradio Embed will be lost.');
                                 if (isConfirmed) {
-                                    ymap.clear();
+                                    // ymap.clear();
                                     alert('The gradio embed has been successfully reset.');
                                     setIsVisible(0);
                                 }
@@ -784,7 +819,7 @@ function GradioEmbed({ agiData }) {
                         ))
 
                         // Complete
-                        console.log(id, config);
+                        // console.log(id, config);
                         return () => {
                             if (app && typeof app.destroy === 'function') app.destroy();
                             page.remove();

@@ -42,27 +42,24 @@ Made by Me
 
     getJoinedRoomMembers
 
+    Coisas que não atualiza sozinho:
+        Alteração de friend nickname
+        O username do display da conta logada
+        O atualizar de emojis de rooms só funciona quando muda de room
+        Lista de usuários online na room ainda não atualiza em tempo real.
+
     =======================================================
 
+    --> Opção para iniciar minimizado.
+
     --> Ajeitar o css do ocultador de lista de canais.
-
-    --> Lista de usuários online na room ainda não atualiza em tempo real.
-
-    --> Quando a janela tem pouco conteúdo, simplesmente tentar corrigir a falha do load incompleto da sala.
-
-    --> Apelido de amigo.
 
     --> Philomena.
 
     --> Sistema de bordas personalizadas
 
-    --> Adicionar opção para suporte de thumbs com parametros de animação.
-    --> Fazer a opção para o app iniciar sozinho com o sistema operacional.
-
     --> Ajeitar... Ao criar uma sala, o app está jogando para o menu de homes. Isso não pode acotecer se a room for dentro de um space.
     (Isso também acontece quando tenta criar uma DM)
-
-    --> Algumas alocações de avatar de repente ficaram desregulados.
 
     --> Fazer o marcador que separa a lista de amigos da lista de DMs estranhos.
     --> Fazer uma configuração se o usuário vai ou não receber notificação de DMs estranhos.
@@ -76,8 +73,6 @@ Made by Me
     --> Ajeitar o carregador de usuários de rooms para ficar mais otimizado
 
     --> Sistema de perfil do space. Este perfil vai ter mais uma configuração de banner adicional.
-
-    --> O atualizar de emojis de rooms só funciona quando muda de room
 
     --> Voice Chat
     https://matrix-org.github.io/matrix-js-sdk/stable/classes/MatrixCall.html#transferToCall

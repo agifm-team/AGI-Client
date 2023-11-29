@@ -50,7 +50,7 @@ Made by Me
 
     =======================================================
 
-    --> Atualizador de AFK do Desktop está com problemas.
+    --> Opção para iniciar minimizado.
 
     --> Ajeitar o css do ocultador de lista de canais.
 
@@ -58,15 +58,8 @@ Made by Me
 
     --> Sistema de bordas personalizadas
 
-    ?width=80&height=80&method=crop&animated=on
-    --> Adicionar opção para suporte de thumbs com parametros de animação.
-
-    --> Fazer a opção para o app iniciar sozinho com o sistema operacional.
-
     --> Ajeitar... Ao criar uma sala, o app está jogando para o menu de homes. Isso não pode acotecer se a room for dentro de um space.
     (Isso também acontece quando tenta criar uma DM)
-
-    --> Algumas alocações de avatar de repente ficaram desregulados.
 
     --> Fazer o marcador que separa a lista de amigos da lista de DMs estranhos.
     --> Fazer uma configuração se o usuário vai ou não receber notificação de DMs estranhos.

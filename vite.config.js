@@ -154,6 +154,7 @@ export default defineConfig(({ command, mode }) => {
     electron_mode: electronMode,
     version: pkg.version,
     deps: pkg.dependencies,
+    platform: process.platform,
 
     info: {
       name: String(pkg.short_name),

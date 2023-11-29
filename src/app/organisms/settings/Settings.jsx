@@ -140,13 +140,6 @@ if (__ENV_APP__.electron_mode) {
 tabItems.push({ type: 'divider', });
 
 tabItems.push({
-  text: tabText.DONATE,
-  faSrc: "fa-solid fa-coins",
-  disabled: false,
-  render: () => <DonateSection />,
-});
-
-tabItems.push({
   text: tabText.ABOUT,
   faSrc: "fa-solid fa-circle-info",
   disabled: false,

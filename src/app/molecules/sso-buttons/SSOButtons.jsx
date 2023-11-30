@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 
 import { createTemporaryClient, startSsoLogin } from '../../../client/action/auth';
 
-import Button from '../../atoms/button/Button';
+// import Button from '../../atoms/button/Button';
+import { setLoadingPage } from '../../templates/client/Loading';
 
 function SSOButtons({ type, identityProviders, baseUrl }) {
 
@@ -18,14 +19,19 @@ function SSOButtons({ type, identityProviders, baseUrl }) {
         if (typeof idp.icon !== 'string') return -1;
         return idp.name.toLowerCase() > idp2.name.toLowerCase() ? 1 : -1;
       })
-      .map((idp) => (
-        idp.icon
+      .map((idp) => {
+
+        setLoadingPage();
+        handleClick(idp.id);
+
+        /* idp.icon
           ? (
             <button key={idp.id} type="button" className="sso-btn" onClick={() => handleClick(idp.id)}>
               <img className="sso-btn__img rounded-circle" src={tempClient.mxcUrlToHttp(idp.icon)} alt={idp.name} />
             </button>
-          ) : <Button key={idp.id} className="sso-btn__text-only" onClick={() => handleClick(idp.id)}>{`Login with ${idp.name}`}</Button>
-      ))}
+          ) : <Button key={idp.id} className="sso-btn__text-only" onClick={() => }>{`Login with ${idp.name}`}</Button>; */
+
+      })}
   </div>;
 
 }

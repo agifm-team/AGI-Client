@@ -34,9 +34,6 @@ const createButton = (id, title, icon) => jReact(
     </button>
 );
 
-// Matrix
-const mx = initMatrix.matrixClient;
-
 export function addRoomOptions(dt, roomType) {
 
     // Room Options list
@@ -94,7 +91,10 @@ export function addRoomOptions(dt, roomType) {
 
         // Bot List button
         botsMenu.find('> button').tooltip({ placement: 'bottom' }).on('click', () => {
+
             setLoadingPage();
+            const mx = initMatrix.matrixClient;
+
             fetch(`${serverAddress}list/${mx.getUserId()}`, {
                 headers: {
                     'Accept': 'application/json'

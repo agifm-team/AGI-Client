@@ -102,11 +102,13 @@ export function addRoomOptions(dt, roomType) {
             }).then(res => res.json()).then(data => {
                 if (Array.isArray(data)) {
 
+                    // Prepare to read data
                     setLoadingPage(false);
                     const users = [];
                     for (const item in data) {
                         if (objType(data[item], 'object')) {
 
+                            // Get Users
                             try {
 
                                 const user = mx.getUser(data[item].bot_username) ?? { userId: data[item].bot_username, displayName: data[item].bot_name, avatarUrl: data[item].bot_avatar };
@@ -124,7 +126,10 @@ export function addRoomOptions(dt, roomType) {
                                     ));
                                 }
 
-                            } catch (err) {
+                            }
+
+                            // Error
+                            catch (err) {
                                 console.error(err);
                                 users.push(userGenerator(data[item], data[item], defaultAvatar(1),));
                             }
@@ -132,6 +137,12 @@ export function addRoomOptions(dt, roomType) {
                         }
                     }
 
+                    // Empty
+                    if (users.length < 1) {
+                        users.push($('<center>', { class: 'small mt-3' }).text('No bots were found.'));
+                    }
+
+                    // Show List
                     btModal({
 
                         id: 'agi-bots-menu-modal',

@@ -378,13 +378,15 @@ const components = {
 
         }
 
-        if (props.value) {
-            const html = $(sanitizeHtml(props.value, htmlAllowed));
-            oHtml.replaceWith(html);
-            html.find('a').on('click', clickEvent);
-        } else {
-            oHtml.empty();
-        }
+        return () => {
+            if (props.value) {
+                const html = $(sanitizeHtml(props.value, htmlAllowed));
+                oHtml.replaceWith(html);
+                html.find('a').on('click', clickEvent);
+            } else {
+                oHtml.empty();
+            }
+        };
 
     },
 
@@ -406,13 +408,15 @@ const components = {
 
         }
 
-        if (props.value) {
-            const html = $(sanitizeHtml(marked.parse(props.value), htmlAllowed));
-            oHtml.replaceWith(html);
-            html.find('a').on('click', clickEvent);
-        } else {
-            oHtml.empty();
-        }
+        return () => {
+            if (props.value) {
+                const html = $(sanitizeHtml(marked.parse(props.value), htmlAllowed));
+                oHtml.replaceWith(html);
+                html.find('a').on('click', clickEvent);
+            } else {
+                oHtml.empty();
+            }
+        };
 
     },
 
@@ -475,7 +479,7 @@ const components = {
             return finalResult;
         }
 
-        oHtml.find('> table').empty().append(thead, tbody);
+        return () => oHtml.find('> table').empty().append(thead, tbody);
 
     },
 
@@ -521,7 +525,7 @@ const components = {
 
         }
 
-        fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml);
 
     },
 
@@ -560,16 +564,18 @@ const components = {
 
         }
 
-        const button = oHtml.find('> button');
-        button.empty().text(props.value).attr('class', classes);
+        return () => {
+            const button = oHtml.find('> button');
+            button.empty().text(props.value).attr('class', classes);
 
-        if (typeof props.icon === 'string' && props.icon.length > 0) {
-            button.prepend(
-                $('<img>', { src: props.icon, alt: 'icon', class: 'img-fluid me-2' }).css('height', sizes[sizeSelected])
-            );
-        }
+            if (typeof props.icon === 'string' && props.icon.length > 0) {
+                button.prepend(
+                    $('<img>', { src: props.icon, alt: 'icon', class: 'img-fluid me-2' }).css('height', sizes[sizeSelected])
+                );
+            }
 
-        button.prop('disabled', (props.interactive === false));
+            button.prop('disabled', (props.interactive === false));
+        };
 
     },
 
@@ -632,12 +638,14 @@ const components = {
 
         }
 
-        oHtml.empty();
-        if (props.show_label && props.label) {
-            oHtml.append(labelCreator(null, props, `${id}_chatbot`));
-        }
+        return () => {
+            oHtml.empty();
+            if (props.show_label && props.label) {
+                oHtml.append(labelCreator(null, props, `${id}_chatbot`));
+            }
 
-        addChatStuff(oHtml);
+            addChatStuff(oHtml);
+        };
 
     },
 
@@ -987,7 +995,7 @@ const components = {
 
         }
 
-        fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml);
 
     },
 
@@ -1108,10 +1116,12 @@ const components = {
 
         }
 
-        const gallery = oHtml.find('> div');
-        gallery.empty();
+        return () => {
+            const gallery = oHtml.find('> div');
+            gallery.empty();
 
-        galleryItems(oHtml.find('> input'), gallery);
+            galleryItems(oHtml.find('> input'), gallery);
+        };
 
     },
 
@@ -1165,8 +1175,10 @@ const components = {
 
         }
 
-        oHtml.empty();
-        highlightedResult(oHtml);
+        return () => {
+            oHtml.empty();
+            highlightedResult(oHtml);
+        };
 
     },
 
@@ -1208,7 +1220,7 @@ const components = {
 
         }
 
-        fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml);
 
     },
 
@@ -1241,8 +1253,10 @@ const components = {
 
         }
 
-        oHtml.empty();
-        tinyJsonResult(oHtml);
+        return () => {
+            oHtml.empty();
+            tinyJsonResult(oHtml);
+        };
 
     },
 
@@ -1304,8 +1318,10 @@ const components = {
 
         }
 
-        oHtml.empty();
-        labelCreate(oHtml);
+        return () => {
+            oHtml.empty();
+            labelCreate(oHtml);
+        };
 
     },
 
@@ -1335,7 +1351,7 @@ const components = {
 
         }
 
-        fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml);
 
     },
 
@@ -1438,8 +1454,10 @@ const components = {
 
         }
 
-        oHtml.empty();
-        createPlot(oHtml);
+        return () => {
+            oHtml.empty();
+            createPlot(oHtml);
+        };
 
     },
 
@@ -1496,8 +1514,10 @@ const components = {
 
         }
 
-        oHtml.empty();
-        createRadio(oHtml);
+        return () => {
+            oHtml.empty();
+            createRadio(oHtml);
+        };
 
     },
 
@@ -1561,8 +1581,10 @@ const components = {
 
         }
 
-        oHtml.empty();
-        createSlider(oHtml);
+        return () => {
+            oHtml.empty();
+            createSlider(oHtml);
+        };
 
     },
 
@@ -1672,8 +1694,10 @@ const components = {
 
         }
 
-        oHtml.empty();
-        createTextbox(oHtml);
+        return () => {
+            oHtml.empty();
+            createTextbox(oHtml);
+        };
 
     },
 
@@ -1712,7 +1736,7 @@ const components = {
 
         }
 
-        fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml);
 
     },
 
@@ -1806,7 +1830,7 @@ const components = {
 
         }
 
-        fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml);
 
     },
 

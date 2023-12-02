@@ -2265,17 +2265,17 @@ class GradioLayout {
             const values = root.data('gradio_values') ?? {};
             const type = root.attr('component_type');
 
-            if (antiRepeat && typeof callback === 'function') {
+            /* if (antiRepeat && typeof callback === 'function') {
                 callback(root, id);
-            }
+            } */
 
-            if (components[type]) {
+            /* if (components[type]) {
                 components[type](values.props ?? {}, values?.id, values?.appId, values?.url, root);
-            }
+            } */
 
         });
 
-        if (!antiRepeat) this.updateEmbed(callback, true);
+        // if (!antiRepeat) this.updateEmbed(callback, true);
 
     }
 

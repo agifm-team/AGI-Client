@@ -2,6 +2,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-empty */
 
+/*
+
+    HTML e markdown e atualizadores de display vão ser atualizados sozinhos.
+    Os outros elementos vão ter que ser reavaliados na forma que vão atualizar o conteúdo.
+
+*/
+
 import hljs from 'highlight.js';
 import sanitizeHtml from 'sanitize-html';
 import { marked } from 'marked';
@@ -2293,9 +2300,10 @@ class GradioLayout {
                 callback(root, id);
             } */
 
-            /* if (components[type]) {
-                components[type](values.props ?? {}, values?.id, values?.appId, values?.url, root);
-            } */
+            if (components[type]) {
+                const tinyFunction = components[type](values.props ?? {}, values?.id, values?.appId, values?.url, root);
+                // if (tinyFunction) console.log(tinyFunction);
+            }
 
         });
 

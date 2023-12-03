@@ -7,7 +7,7 @@ import initMatrix from '../../../../src/client/initMatrix';
 let tinyData = null;
 function updateAgentsList() {
     return new Promise((resolve) => {
-        fetch(`${serverAddress}api/v1/get_bots/${initMatrix.matrixClient.getUserId()}`, {
+        fetch(`${serverAddress}list/${initMatrix.matrixClient.getUserId()}`, {
             headers: {
                 'Accept': 'application/json'
             }

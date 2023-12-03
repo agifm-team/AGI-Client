@@ -250,6 +250,7 @@ function GradioEmbed({ agiData }) {
 
                                     // Target
                                     const value = $(event.target).val();
+                                    console.log(value);
                                     const tinyData = embedData.getComponentValue(compId);
                                     if (objType(tinyData, 'object')) {
 
@@ -271,21 +272,21 @@ function GradioEmbed({ agiData }) {
                                 };
 
                                 // Read component data
-                                /* if (component.input) {
+                                if (component.input) {
 
                                     // jQuery
                                     if (component.input.type === 'jquery') {
                                         component.input.value.on('change', valueUpdater);
                                     }
 
-                                } */
+                                }
 
                                 // Dropdown
-                                /* if (component.dropdown) {
+                                if (component.dropdown) {
                                     if (component.dropdown.type === 'jquery') {
                                         component.dropdown.value.on('change', valueUpdater);
                                     }
-                                } */
+                                }
 
                                 // Exist Default Data
                                 const defaultData = embedData.getDefaultEmbedData(compId);
@@ -455,7 +456,7 @@ function GradioEmbed({ agiData }) {
 
                                 // Complete
                                 if (subIndex < 0) {
-                                    // embedData.updateEmbed(insertEmbedData);
+                                    embedData.updateEmbed();
                                     console.log('Tiny Update', output, value, dataset);
                                 }
 
@@ -800,8 +801,7 @@ function GradioEmbed({ agiData }) {
                         const needsUpdate = embedData.readEmbedData(insertEmbedData);
 
                         if (needsUpdate) {
-                            // TEMP !
-                            // embedData.updateEmbed(insertEmbedData);
+                            embedData.updateEmbed();
                         }
 
                         // Reset embed

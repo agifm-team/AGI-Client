@@ -2,6 +2,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-empty */
 
+/*
+
+    HTML e markdown e atualizadores de display vão ser atualizados sozinhos.
+    Os outros elementos vão ter que ser reavaliados na forma que vão atualizar o conteúdo.
+
+*/
+
 import hljs from 'highlight.js';
 import sanitizeHtml from 'sanitize-html';
 import { marked } from 'marked';
@@ -378,13 +385,15 @@ const components = {
 
         }
 
-        if (props.value) {
-            const html = $(sanitizeHtml(props.value, htmlAllowed));
-            oHtml.replaceWith(html);
-            html.find('a').on('click', clickEvent);
-        } else {
-            oHtml.empty();
-        }
+        return () => {
+            if (props.value) {
+                const html = $(sanitizeHtml(props.value, htmlAllowed));
+                oHtml.replaceWith(html);
+                html.find('a').on('click', clickEvent);
+            } else {
+                oHtml.empty();
+            }
+        };
 
     },
 
@@ -406,13 +415,15 @@ const components = {
 
         }
 
-        if (props.value) {
-            const html = $(sanitizeHtml(marked.parse(props.value), htmlAllowed));
-            oHtml.replaceWith(html);
-            html.find('a').on('click', clickEvent);
-        } else {
-            oHtml.empty();
-        }
+        return () => {
+            if (props.value) {
+                const html = $(sanitizeHtml(marked.parse(props.value), htmlAllowed));
+                oHtml.replaceWith(html);
+                html.find('a').on('click', clickEvent);
+            } else {
+                oHtml.empty();
+            }
+        };
 
     },
 
@@ -475,7 +486,7 @@ const components = {
             return finalResult;
         }
 
-        oHtml.find('> table').empty().append(thead, tbody);
+        return () => oHtml.find('> table').empty().append(thead, tbody);
 
     },
 
@@ -521,7 +532,7 @@ const components = {
 
         }
 
-        fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml);
 
     },
 
@@ -560,16 +571,18 @@ const components = {
 
         }
 
-        const button = oHtml.find('> button');
-        button.empty().text(props.value).attr('class', classes);
+        return () => {
+            const button = oHtml.find('> button');
+            button.empty().text(props.value).attr('class', classes);
 
-        if (typeof props.icon === 'string' && props.icon.length > 0) {
-            button.prepend(
-                $('<img>', { src: props.icon, alt: 'icon', class: 'img-fluid me-2' }).css('height', sizes[sizeSelected])
-            );
-        }
+            if (typeof props.icon === 'string' && props.icon.length > 0) {
+                button.prepend(
+                    $('<img>', { src: props.icon, alt: 'icon', class: 'img-fluid me-2' }).css('height', sizes[sizeSelected])
+                );
+            }
 
-        button.prop('disabled', (props.interactive === false));
+            button.prop('disabled', (props.interactive === false));
+        };
 
     },
 
@@ -632,12 +645,14 @@ const components = {
 
         }
 
-        oHtml.empty();
-        if (props.show_label && props.label) {
-            oHtml.append(labelCreator(null, props, `${id}_chatbot`));
-        }
+        return () => {
+            oHtml.empty();
+            if (props.show_label && props.label) {
+                oHtml.append(labelCreator(null, props, `${id}_chatbot`));
+            }
 
-        addChatStuff(oHtml);
+            addChatStuff(oHtml);
+        };
 
     },
 
@@ -987,7 +1002,7 @@ const components = {
 
         }
 
-        fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml);
 
     },
 
@@ -1108,10 +1123,12 @@ const components = {
 
         }
 
-        const gallery = oHtml.find('> div');
-        gallery.empty();
+        return () => {
+            const gallery = oHtml.find('> div');
+            gallery.empty();
 
-        galleryItems(oHtml.find('> input'), gallery);
+            galleryItems(oHtml.find('> input'), gallery);
+        };
 
     },
 
@@ -1165,8 +1182,10 @@ const components = {
 
         }
 
-        oHtml.empty();
-        highlightedResult(oHtml);
+        return () => {
+            oHtml.empty();
+            highlightedResult(oHtml);
+        };
 
     },
 
@@ -1208,7 +1227,7 @@ const components = {
 
         }
 
-        fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml);
 
     },
 
@@ -1241,8 +1260,10 @@ const components = {
 
         }
 
-        oHtml.empty();
-        tinyJsonResult(oHtml);
+        return () => {
+            oHtml.empty();
+            tinyJsonResult(oHtml);
+        };
 
     },
 
@@ -1304,8 +1325,10 @@ const components = {
 
         }
 
-        oHtml.empty();
-        labelCreate(oHtml);
+        return () => {
+            oHtml.empty();
+            labelCreate(oHtml);
+        };
 
     },
 
@@ -1335,7 +1358,7 @@ const components = {
 
         }
 
-        fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml);
 
     },
 
@@ -1438,8 +1461,10 @@ const components = {
 
         }
 
-        oHtml.empty();
-        createPlot(oHtml);
+        return () => {
+            oHtml.empty();
+            createPlot(oHtml);
+        };
 
     },
 
@@ -1496,8 +1521,10 @@ const components = {
 
         }
 
-        oHtml.empty();
-        createRadio(oHtml);
+        return () => {
+            oHtml.empty();
+            createRadio(oHtml);
+        };
 
     },
 
@@ -1561,8 +1588,10 @@ const components = {
 
         }
 
-        oHtml.empty();
-        createSlider(oHtml);
+        return () => {
+            oHtml.empty();
+            createSlider(oHtml);
+        };
 
     },
 
@@ -1672,8 +1701,10 @@ const components = {
 
         }
 
-        oHtml.empty();
-        createTextbox(oHtml);
+        return () => {
+            oHtml.empty();
+            createTextbox(oHtml);
+        };
 
     },
 
@@ -1712,7 +1743,7 @@ const components = {
 
         }
 
-        fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml);
 
     },
 
@@ -1806,7 +1837,7 @@ const components = {
 
         }
 
-        fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml);
 
     },
 
@@ -2265,17 +2296,18 @@ class GradioLayout {
             const values = root.data('gradio_values') ?? {};
             const type = root.attr('component_type');
 
-            if (antiRepeat && typeof callback === 'function') {
+            /* if (antiRepeat && typeof callback === 'function') {
                 callback(root, id);
-            }
+            } */
 
             if (components[type]) {
-                components[type](values.props ?? {}, values?.id, values?.appId, values?.url, root);
+                const tinyFunction = components[type](values.props ?? {}, values?.id, values?.appId, values?.url, root);
+                // if (tinyFunction) console.log(tinyFunction);
             }
 
         });
 
-        if (!antiRepeat) this.updateEmbed(callback, true);
+        // if (!antiRepeat) this.updateEmbed(callback, true);
 
     }
 

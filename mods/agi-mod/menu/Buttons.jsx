@@ -34,9 +34,6 @@ const createButton = (id, title, icon) => jReact(
     </button>
 );
 
-// Matrix
-const mx = initMatrix.matrixClient;
-
 export function addRoomOptions(dt, roomType) {
 
     // Room Options list
@@ -94,50 +91,72 @@ export function addRoomOptions(dt, roomType) {
 
         // Bot List button
         botsMenu.find('> button').tooltip({ placement: 'bottom' }).on('click', () => {
+
             setLoadingPage();
-            fetch(`${serverAddress}api/v1/get_bots/${mx.getUserId()}`, {
+            const mx = initMatrix.matrixClient;
+
+            fetch(`${serverAddress}list/${mx.getUserId()}`, {
                 headers: {
                     'Accept': 'application/json'
                 }
             }).then(res => res.json()).then(data => {
+                if (Array.isArray(data)) {
 
-                setLoadingPage(false);
-                const users = [];
-                for (const item in data) {
+                    // Prepare to read data
+                    setLoadingPage(false);
+                    const users = [];
+                    for (const item in data) {
+                        if (objType(data[item], 'object')) {
 
-                    try {
+                            // Get Users
+                            try {
 
-                        const user = mx.getUser(data[item]);
-                        if (objType(user, 'object')) {
-                            users.push(userGenerator(
-                                user.userId,
-                                user.displayName ? user.displayName : user.userId,
-                                user.avatarUrl ? mx.mxcUrlToHttp(user.avatarUrl, 42, 42, 'crop') : defaultAvatar(1),
-                            ));
-                        } else {
-                            users.push(userGenerator(data[item], data[item], defaultAvatar(1),));
+                                const user = mx.getUser(data[item].bot_username) ?? { userId: data[item].bot_username, displayName: data[item].bot_name, avatarUrl: data[item].bot_avatar };
+                                if (objType(user, 'object')) {
+                                    users.push(userGenerator(
+                                        user.userId ?? data[item].bot_username,
+                                        user.displayName ? user.displayName : user.userId ?? data[item].bot_name ? data[item].bot_name : user.userId,
+                                        user.avatarUrl ? mx.mxcUrlToHttp(user.avatarUrl, 42, 42, 'crop') : data[item].bot_avatar ? data[item].bot_avatar : defaultAvatar(1),
+                                    ));
+                                } else {
+                                    users.push(userGenerator(
+                                        data[item].bot_username,
+                                        data[item].bot_name ? data[item].bot_name : data[item].bot_username,
+                                        data[item].bot_avatar ? data[item].bot_avatar : defaultAvatar(1)
+                                    ));
+                                }
+
+                            }
+
+                            // Error
+                            catch (err) {
+                                console.error(err);
+                                users.push(userGenerator(data[item], data[item], defaultAvatar(1),));
+                            }
+
                         }
-
-                    } catch (err) {
-                        console.error(err);
-                        users.push(userGenerator(data[item], data[item], defaultAvatar(1),));
                     }
 
+                    // Empty
+                    if (users.length < 1) {
+                        users.push($('<center>', { class: 'small mt-3' }).text('No bots were found.'));
+                    }
+
+                    // Show List
+                    btModal({
+
+                        id: 'agi-bots-menu-modal',
+                        dialog: 'modal-lg',
+                        title: 'Add AI bot to the room',
+
+                        body: $('<div>', { class: 'invite-user' }).append(
+                            $('<div>', { class: 'small mb-3' }).text('List of available bots to be added'),
+                            $('<div>', { class: 'invite-user__content' }).append(users)
+                        )
+
+                    });
+
                 }
-
-                btModal({
-
-                    id: 'agi-bots-menu-modal',
-                    dialog: 'modal-lg',
-                    title: 'Add AI bot to the room',
-
-                    body: $('<div>', { class: 'invite-user' }).append(
-                        $('<div>', { class: 'small mb-3' }).text('List of available bots to be added'),
-                        $('<div>', { class: 'invite-user__content' }).append(users)
-                    )
-
-                });
-
             }).catch(err => {
                 setLoadingPage(false);
                 console.error(err);

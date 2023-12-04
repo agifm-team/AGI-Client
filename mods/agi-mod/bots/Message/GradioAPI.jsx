@@ -221,7 +221,7 @@ function GradioEmbed({ agiData }) {
                         const syncUpdate = (tinyPromps, depId) => {
                             const props = clone(tinyPromps);
                             console.log(props);
-                            // ymap.set(depId, props);
+                            ymap.set(depId, props);
                         };
 
                         // Id
@@ -230,7 +230,7 @@ function GradioEmbed({ agiData }) {
 
                         // Read Template
                         const embedData = new GradioLayout(config, `gradio-embed[space='${id}']`, agiData.url, id, embedCache);
-                        // embedData.insertYdoc(ymap, 'ymap');
+                        embedData.insertYdoc(ymap, 'ymap');
 
                         const page = $('<gradio-embed>', { class: 'text-center', space: id });
                         embedData.insertHtml(page);
@@ -263,7 +263,7 @@ function GradioEmbed({ agiData }) {
                                                 !component.input.isNumber ? value : Number(value) :
                                                 null;
 
-                                            // ymap.set(compId, props);
+                                            ymap.set(compId, props);
 
                                         }
 
@@ -298,8 +298,7 @@ function GradioEmbed({ agiData }) {
                                 if (objType(props, 'object') && defaultData && defaultData?.data.props) {
 
                                     // Get Data
-                                    // const idData = ymap.get(compId);
-                                    const idData = null;
+                                    const idData = ymap.get(compId);
 
                                     // Insert Data
                                     if (idData) {
@@ -316,7 +315,7 @@ function GradioEmbed({ agiData }) {
 
                                     // New
                                     else if (objectHash(defaultProps) !== objectHash(props)) {
-                                        // ymap.set(compId, props);
+                                        ymap.set(compId, props);
                                     }
 
                                 }
@@ -810,7 +809,7 @@ function GradioEmbed({ agiData }) {
 
                                 const isConfirmed = await tinyConfirm('Are you sure? All data from this Gradio Embed will be lost.');
                                 if (isConfirmed) {
-                                    // ymap.clear();
+                                    ymap.clear();
                                     alert('The gradio embed has been successfully reset.');
                                     setIsVisible(0);
                                 }

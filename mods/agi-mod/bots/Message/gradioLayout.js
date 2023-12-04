@@ -2322,12 +2322,13 @@ class GradioLayout {
 
                     // jQuery
                     if (input.type === 'jquery') {
+                        input.value.val(values.props.value);
                         input.value.trigger('change');
                     }
 
                     // Blob
                     else if (input.type === 'blob') {
-                        input.input.trigger('change');
+                        input.value(values.props.value);
                     }
 
                 }

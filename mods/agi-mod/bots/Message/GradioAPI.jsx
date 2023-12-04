@@ -250,7 +250,6 @@ function GradioEmbed({ agiData }) {
 
                                     // Target
                                     const value = $(event.target).val();
-                                    console.log(value);
                                     const tinyData = embedData.getComponentValue(compId);
                                     if (objType(tinyData, 'object')) {
 

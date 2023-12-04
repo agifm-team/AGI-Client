@@ -2144,6 +2144,23 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, 
     }
 };
 
+// Upgrader Components
+const upgraderComponents = {
+
+    html: (values, type, input, tinyFunction) => {
+        if (typeof tinyFunction === 'function') tinyFunction();
+    },
+
+    markdown: (values, type, input, tinyFunction) => {
+        if (typeof tinyFunction === 'function') tinyFunction();
+    },
+
+    gallery: (values, type, input, tinyFunction) => {
+        if (typeof tinyFunction === 'function') tinyFunction();
+    },
+
+};
+
 class GradioLayout {
 
     // Constructor
@@ -2289,26 +2306,35 @@ class GradioLayout {
 
     }
 
-    updateEmbed(callback, antiRepeat = false) {
-
+    updateEmbed() {
         this.readEmbedData((root, id) => {
 
             const values = root.data('gradio_values') ?? {};
             const type = root.attr('component_type');
-
-            /* if (antiRepeat && typeof callback === 'function') {
-                callback(root, id);
-            } */
+            const input = root.data('gradio_input');
 
             if (components[type]) {
+
                 const tinyFunction = components[type](values.props ?? {}, values?.id, values?.appId, values?.url, root);
-                // if (tinyFunction) console.log(tinyFunction);
+                if (typeof upgraderComponents[type] === 'function') {
+                    upgraderComponents[type](values, type, input, tinyFunction);
+                } else if (objType(input, 'object')) {
+
+                    // jQuery
+                    if (input.type === 'jquery') {
+                        input.value.trigger('change');
+                    }
+
+                    // Blob
+                    else if (input.type === 'blob') {
+                        input.input.trigger('change');
+                    }
+
+                }
+
             }
 
         });
-
-        // if (!antiRepeat) this.updateEmbed(callback, true);
-
     }
 
     // Update Html

@@ -2,13 +2,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-/*
-
-quando a galeria contem apenas imagens sem nenhuma interação, use o sistema de galeria do client.
-Colocar atualizador no componente de json
-
-*/
-
 import React, { useRef, useEffect, useState } from 'react';
 import clone from 'clone';
 import { client } from '@gradio/client';

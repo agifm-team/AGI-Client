@@ -211,10 +211,11 @@ function GradioEmbed({ agiData }) {
                     else if (embed.find('gladio-embed').length < 1) {
 
                         // Sync Update
+                        let loadingUpdate = true;
                         const syncUpdate = (tinyPromps, depId) => {
                             const props = clone(tinyPromps);
                             console.log(props);
-                            ymap.set(depId, props);
+                            if (!loadingUpdate) ymap.set(depId, props);
                         };
 
                         // Id
@@ -255,7 +256,7 @@ function GradioEmbed({ agiData }) {
                                                 !component.input.isNumber ? value : Number(value) :
                                                 null;
 
-                                            ymap.set(compId, props);
+                                            if (!loadingUpdate) ymap.set(compId, props);
 
                                         }
 
@@ -307,7 +308,7 @@ function GradioEmbed({ agiData }) {
 
                                     // New
                                     else if (objectHash(defaultProps) !== objectHash(props)) {
-                                        ymap.set(compId, props);
+                                        if (!loadingUpdate) ymap.set(compId, props);
                                     }
 
                                 }
@@ -807,10 +808,11 @@ function GradioEmbed({ agiData }) {
                                 }
 
                             })
-                        ))
+                        ));
 
                         // Complete
                         // console.log(id, config);
+                        loadingUpdate = false;
                         return () => {
                             if (app && typeof app.destroy === 'function') app.destroy();
                             page.remove();

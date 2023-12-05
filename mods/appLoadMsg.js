@@ -26,7 +26,6 @@ export default {
         ],
 
         leave_user: [
-            leave_user: [
             '[!!{username}!!](usernameOnClick) exited the quantum realm. Searching for a parallel universe?',
             '[!!{username}!!](usernameOnClick) overclocked and left the room to cool down.',
             '[!!{username}!!](usernameOnClick) self-destructed in a GPU blaze.',

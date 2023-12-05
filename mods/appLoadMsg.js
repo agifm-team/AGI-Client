@@ -18,7 +18,7 @@ export default {
             '[!!{username}!!](usernameOnClick) just joined. Hide your bananas. And GPUs too!',
             '[!!{username}!!](usernameOnClick) just arrived. Seems OP - please nerf the AI.',
             '[!!{username}!!](usernameOnClick) just slid into the server. Like a well-optimized GPU process.',
-            'A [!!{username}!!](usernameOnClick) has spawned in the server. It's evolving!',
+            'A [!!{username}!!](usernameOnClick) has spawned in the server. It is evolving!',
             'Big [!!{username}!!](usernameOnClick) showed up! Big data, big algorithms, big impact.',
             'Where’s [!!{username}!!](usernameOnClick)? In the server! The GPU tracker is on.',
             '[!!{username}!!](usernameOnClick) hopped into the server. Kangaroo AI! GPU power engaged.',

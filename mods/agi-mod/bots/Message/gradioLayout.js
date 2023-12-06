@@ -1020,7 +1020,6 @@ const components = {
 
                     let rowNumber = 0;
 
-                    console.log(props.value);
                     for (const item in props.value) {
 
                         const value = Array.isArray(props.value[item]) ? {

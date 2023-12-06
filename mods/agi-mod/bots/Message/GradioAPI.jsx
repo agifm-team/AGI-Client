@@ -11,6 +11,7 @@ import GradioLayout, { fileUrlGenerator } from './gradioLayout';
 import { objType, tinyConfirm, toast } from '../../../../src/util/tools';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 import openTinyURL from '../../../../src/util/message/urlProtection';
+import { getRoomInfo } from '../../../../src/app/organisms/room/Room';
 
 const updateInputValue = (input, dropdown, value, filePath = '') => {
 
@@ -151,7 +152,6 @@ function GradioEmbed({ agiData }) {
     const embedRef = useRef(null);
     const [app, setApp] = useState(null);
     const [appError, setAppError] = useState(null);
-    const [ymap, setYmap] = useState(null);
     const [id, setId] = useState(null);
 
     const [isVisible, setIsVisible] = useState(0);
@@ -203,499 +203,580 @@ function GradioEmbed({ agiData }) {
                     }
 
                     // Load Ydoc
-                    else if (!ymap) {
-                        global.selectedRoom.ydocWait().then(() => setYmap(global.selectedRoom.ydoc.getMap(id)));
-                    }
+                    else {
+                        const selectedRoom = getRoomInfo().roomTimeline;
+                        selectedRoom.ydocWait().then(() => {
 
-                    // Insert Embed
-                    else if (embed.find('gladio-embed').length < 1) {
+                            const ymap = () => selectedRoom.ydoc().getMap(id);
 
-                        // Sync Update
-                        let loadingUpdate = true;
-                        const syncUpdate = (tinyPromps, depId) => {
-                            const props = clone(tinyPromps);
-                            if (!loadingUpdate) ymap.set(depId, props);
-                        };
+                            // Insert Embed
+                            if (embed.find('gladio-embed').length < 1) {
 
-                        // Id
-                        const embedCache = {};
-                        const config = app.config;
+                                console.log(ymap);
 
-                        // Read Template
-                        const embedData = new GradioLayout(config, `gradio-embed[space='${id}']`, agiData.url, id, embedCache);
-                        embedData.insertYdoc(ymap, 'ymap');
-
-                        const page = $('<gradio-embed>', { class: 'text-center', space: id });
-                        embedData.insertHtml(page);
-                        // chatboxScrollToBottom();
-                        embed.append(page);
-
-                        // Insert embed events
-                        const insertEmbedData = (root, compId) => {
-                            try {
-
-                                // Needs update
-                                let needsUpdate = false;
-
-                                // Value updater
-                                const component = { input: embedData.getInput(compId), dropdown: embedData.getDropdown(compId) };
-                                const valueUpdater = (event) => {
-
-                                    // Target
-                                    const value = $(event.target).val();
-                                    const tinyData = embedData.getComponentValue(compId);
-                                    if (objType(tinyData, 'object')) {
-
-                                        // Insert Props
-                                        const props = tinyData.props;
-                                        if (objType(props, 'object')) {
-
-                                            // Insert new value
-                                            props.value = typeof value === 'string' ?
-                                                !component.input.isNumber ? value : Number(value) :
-                                                null;
-
-                                            if (!loadingUpdate) ymap.set(compId, props);
-
-                                        }
-
-                                    }
-
+                                // Sync Update
+                                let loadingUpdate = true;
+                                const syncUpdate = (tinyPromps, depId) => {
+                                    const props = clone(tinyPromps);
+                                    if (!loadingUpdate) ymap().set(depId, props);
                                 };
 
-                                // Read component data
-                                if (component.input) {
+                                // Id
+                                const embedCache = {};
+                                const config = app.config;
 
-                                    // jQuery
-                                    if (component.input.type === 'jquery') {
-                                        component.input.value.on('change', valueUpdater);
-                                    }
+                                // Read Template
+                                const embedData = new GradioLayout(config, `gradio-embed[space='${id}']`, agiData.url, id, embedCache);
+                                embedData.insertYdoc(ymap, 'ymap');
 
-                                }
+                                const page = $('<gradio-embed>', { class: 'text-center', space: id });
+                                embedData.insertHtml(page);
+                                // chatboxScrollToBottom();
+                                embed.append(page);
 
-                                // Dropdown
-                                if (component.dropdown) {
-                                    if (component.dropdown.type === 'jquery') {
-                                        component.dropdown.value.on('change', valueUpdater);
-                                    }
-                                }
+                                // Insert embed events
+                                const insertEmbedData = (root, compId) => {
+                                    try {
 
-                                // Exist Default Data
-                                const defaultData = embedData.getDefaultEmbedData(compId);
-                                const defaultProps = defaultData?.data.props;
-                                const tinyData = embedData.getComponentValue(compId);
-                                const props = tinyData?.props;
+                                        // Needs update
+                                        let needsUpdate = false;
 
-                                // Validator
-                                if (objType(props, 'object') && defaultData && defaultData?.data.props) {
+                                        // Value updater
+                                        const component = { input: embedData.getInput(compId), dropdown: embedData.getDropdown(compId) };
+                                        const valueUpdater = (event) => {
 
-                                    // Get Data
-                                    const idData = ymap.get(compId);
+                                            // Target
+                                            const value = $(event.target).val();
+                                            const tinyData = embedData.getComponentValue(compId);
+                                            if (objType(tinyData, 'object')) {
 
-                                    // Insert Data
-                                    if (idData) {
+                                                // Insert Props
+                                                const props = tinyData.props;
+                                                if (objType(props, 'object')) {
 
-                                        // Update Data
-                                        needsUpdate = true;
-                                        for (const name in idData) {
-                                            if (name !== 'app_id' && name !== 'name') {
-                                                props[name] = idData[name];
-                                            }
-                                        }
+                                                    // Insert new value
+                                                    props.value = typeof value === 'string' ?
+                                                        !component.input.isNumber ? value : Number(value) :
+                                                        null;
 
-                                    }
+                                                    if (!loadingUpdate) ymap().set(compId, props);
 
-                                    // New
-                                    else if (objectHash(defaultProps) !== objectHash(props)) {
-                                        if (!loadingUpdate) ymap.set(compId, props);
-                                    }
-
-                                }
-
-                                // console.log(props?.value);
-
-                                // Complete
-                                return needsUpdate;
-
-                            } catch (err) {
-                                console.error(err);
-                                return false;
-                            }
-                        };
-
-                        // Send Update
-                        const sendTinyUpdate = (output, value, dataset, isSubmit = false, subIndex = -1, isLastSubIndex = false, subResult = []) => {
-
-                            if (
-                                objType(output, 'object') &&
-                                objType(output.data, 'object') &&
-                                typeof value !== 'undefined' &&
-                                (value || value === null)
-                            ) {
-
-                                let tinyValue = value;
-                                if (
-                                    value === null &&
-                                    dataset && (typeof dataset.index === 'string' || typeof dataset.index === 'number') &&
-                                    Array.isArray(dataset.props.samples) && Array.isArray(dataset.props.samples[dataset.index]) &&
-                                    typeof dataset.props.samples[dataset.index][0] === 'string'
-                                ) {
-                                    tinyValue = `${dataset.props.samples[dataset.index][0].startsWith('/') ? fileUrlGenerator(config.root) : ''}${dataset.props.samples[dataset.index][0]}`;
-                                }
-
-                                const data = embedData.getComponentValue(output.depId);
-                                const input = embedData.getInput(output.depId);
-                                const dropdown = embedData.getDropdown(output.depId);
-                                if (objType(input, 'object')) {
-                                    data.props.value = tinyValue;
-                                    syncUpdate(data.props, output.depId);
-                                    updateInputValue(input, dropdown, tinyValue);
-                                }
-
-                            }
-
-                            // Insert Database
-                            const insertDataset = (tinyIndex, compValue, type, component) => {
-
-                                const data = embedData.getComponentValue(component);
-                                const input = embedData.getInput(component);
-                                const dropdown = embedData.getDropdown(component);
-                                // console.log(backendFn, input, data);
-
-                                if (objType(input, 'object')) {
-                                    data.props.value = compValue;
-                                    syncUpdate(data.props, component);
-                                    updateInputValue(input, dropdown, compValue, fileUrlGenerator(config.root));
-                                }
-
-                            };
-
-                            // Dataset
-                            if (dataset && Array.isArray(dataset.props.samples)) {
-                                const sample = dataset.props.samples[dataset.index];
-                                if (sample) {
-
-                                    // Using Component Id
-                                    if (Array.isArray(dataset.props.component_ids) && dataset.props.component_ids.length > 0) {
-                                        for (const tinyIndex in dataset.props.component_ids) {
-
-                                            const compId = dataset.props.component_ids[tinyIndex];
-                                            const component = embedData.getComponent(compId);
-
-                                            insertDataset(
-                                                tinyIndex,
-                                                sample[tinyIndex],
-                                                dataset.props.components[tinyIndex],
-                                                component
-                                            );
-
-                                        }
-                                    }
-
-                                    // Plan B
-                                    else if (Array.isArray(dataset.props.components) && dataset.props.components.length > 0) {
-                                        for (const tinyIndex in dataset.props.components) {
-
-                                            // Get Values
-                                            const comp = dataset.props.components[tinyIndex];
-                                            const val = sample[tinyIndex];
-                                            const component = output.data.value;
-
-                                            // Compare
-                                            if (comp === output.data.type) {
-                                                insertDataset(
-                                                    tinyIndex,
-                                                    val,
-                                                    comp,
-                                                    component
-                                                );
-                                            }
-
-                                        }
-                                    }
-
-                                }
-                            }
-
-                            // Output send result
-                            if (isSubmit) {
-
-                                const embedValues = embedData.getComponentValue(output.depId);
-                                if (objType(embedValues, 'object') && objType(embedValues.props, 'object')) {
-
-                                    // Object
-                                    if (objType(value, 'object') && objType(value.value, 'object')) {
-                                        for (const item in value) {
-                                            embedValues.props[item] = value[item];
-                                        }
-                                    }
-
-                                    // Gallery Value
-                                    else if (embedValues.props.name === 'gallery') {
-                                        subResult.push({ name: value });
-                                    }
-
-                                    // Normal Value
-                                    else {
-                                        embedValues.props.value = value;
-                                        syncUpdate(embedValues.props, output.depId);
-                                    }
-
-                                }
-
-                                // console.log(subIndex, isLastSubIndex, subResult);
-
-                                // Complete
-                                if (subIndex < 0) {
-                                    embedData.updateEmbed();
-                                    console.log('Tiny Update', output, value, dataset);
-                                }
-
-                                // Complete 2
-                                else if (isLastSubIndex) {
-                                    embedValues.props.value = subResult;
-                                    syncUpdate(embedValues.props, output.depId);
-                                }
-
-                            }
-
-                        };
-
-                        // Submit
-                        const tinySubmit = (comps, tinyIndex) => {
-
-                            // Get input values
-                            const subData = getInputValues(comps);
-                            if (subData.allowed) {
-
-                                // https://www.gradio.app/docs/js-client#submit
-                                const submitName = comps.api_name ? `/${comps.api_name}` : Number(tinyIndex);
-
-                                console.log('Submit test', submitName, comps, subData.inputs);
-                                setLoadingPage('Starting gradio...');
-                                const job = app.submit(submitName, subData.inputs);
-
-                                // Sockets
-                                job.on('data', (data) => {
-
-                                    // Convert to momentjs
-                                    console.log('Data', data);
-                                    data.time = moment(data.time);
-
-                                    // Data
-                                    if (Array.isArray(data.data) && data.data.length > 0) {
-                                        for (const item in data.data) {
-
-                                            const finalResultSend = (tinyData, index, subIndex = -1, isLastSubIndex = false, subResult = []) => {
-
-                                                const value =
-                                                    objType(tinyData, 'object') ?
-                                                        typeof tinyData.name === 'string' && tinyData.is_file ? `${fileUrlGenerator(agiData.url)}${tinyData.name}` :
-                                                            typeof tinyData.data === 'string' && tinyData.is_file ? tinyData.data :
-                                                                objType(tinyData.value, 'object') ? tinyData : null :
-                                                        typeof tinyData === 'string' ? tinyData : null;
-
-                                                sendTinyUpdate(
-                                                    comps.output[index],
-                                                    value,
-                                                    null,
-                                                    true,
-                                                    subIndex,
-                                                    isLastSubIndex,
-                                                    subResult
-                                                );
-
-                                            };
-
-                                            if (Array.isArray(data.data[item]) && data.data[item].length > 0) {
-                                                const subResult = [];
-                                                for (const index in data.data[item]) {
-                                                    finalResultSend(data.data[item][index], item, index, index >= data.data[item].length - 1, subResult);
                                                 }
-                                            } else {
-                                                finalResultSend(data.data[item], item);
+
+                                            }
+
+                                        };
+
+                                        // Read component data
+                                        if (component.input) {
+
+                                            // jQuery
+                                            if (component.input.type === 'jquery') {
+                                                component.input.value.on('change', valueUpdater);
+                                            }
+
+                                        }
+
+                                        // Dropdown
+                                        if (component.dropdown) {
+                                            if (component.dropdown.type === 'jquery') {
+                                                component.dropdown.value.on('change', valueUpdater);
+                                            }
+                                        }
+
+                                        // Exist Default Data
+                                        const defaultData = embedData.getDefaultEmbedData(compId);
+                                        const defaultProps = defaultData?.data.props;
+                                        const tinyData = embedData.getComponentValue(compId);
+                                        const props = tinyData?.props;
+
+                                        // Validator
+                                        if (objType(props, 'object') && defaultData && defaultData?.data.props) {
+
+                                            // Get Data
+                                            const idData = ymap().get(compId);
+
+                                            // Insert Data
+                                            if (idData) {
+
+                                                // Update Data
+                                                needsUpdate = true;
+                                                for (const name in idData) {
+                                                    if (name !== 'app_id' && name !== 'name') {
+                                                        props[name] = idData[name];
+                                                    }
+                                                }
+
+                                            }
+
+                                            // New
+                                            else if (objectHash(defaultProps) !== objectHash(props)) {
+                                                if (!loadingUpdate) ymap().set(compId, props);
+                                            }
+
+                                        }
+
+                                        // console.log(props?.value);
+
+                                        // Complete
+                                        return needsUpdate;
+
+                                    } catch (err) {
+                                        console.error(err);
+                                        return false;
+                                    }
+                                };
+
+                                // Send Update
+                                const sendTinyUpdate = (output, value, dataset, isSubmit = false, subIndex = -1, isLastSubIndex = false, subResult = []) => {
+
+                                    if (
+                                        objType(output, 'object') &&
+                                        objType(output.data, 'object') &&
+                                        typeof value !== 'undefined' &&
+                                        (value || value === null)
+                                    ) {
+
+                                        let tinyValue = value;
+                                        if (
+                                            value === null &&
+                                            dataset && (typeof dataset.index === 'string' || typeof dataset.index === 'number') &&
+                                            Array.isArray(dataset.props.samples) && Array.isArray(dataset.props.samples[dataset.index]) &&
+                                            typeof dataset.props.samples[dataset.index][0] === 'string'
+                                        ) {
+                                            tinyValue = `${dataset.props.samples[dataset.index][0].startsWith('/') ? fileUrlGenerator(config.root) : ''}${dataset.props.samples[dataset.index][0]}`;
+                                        }
+
+                                        const data = embedData.getComponentValue(output.depId);
+                                        const input = embedData.getInput(output.depId);
+                                        const dropdown = embedData.getDropdown(output.depId);
+                                        if (objType(input, 'object')) {
+                                            data.props.value = tinyValue;
+                                            syncUpdate(data.props, output.depId);
+                                            updateInputValue(input, dropdown, tinyValue);
+                                        }
+
+                                    }
+
+                                    // Insert Database
+                                    const insertDataset = (tinyIndex, compValue, type, component) => {
+
+                                        const data = embedData.getComponentValue(component);
+                                        const input = embedData.getInput(component);
+                                        const dropdown = embedData.getDropdown(component);
+                                        // console.log(backendFn, input, data);
+
+                                        if (objType(input, 'object')) {
+                                            data.props.value = compValue;
+                                            syncUpdate(data.props, component);
+                                            updateInputValue(input, dropdown, compValue, fileUrlGenerator(config.root));
+                                        }
+
+                                    };
+
+                                    // Dataset
+                                    if (dataset && Array.isArray(dataset.props.samples)) {
+                                        const sample = dataset.props.samples[dataset.index];
+                                        if (sample) {
+
+                                            // Using Component Id
+                                            if (Array.isArray(dataset.props.component_ids) && dataset.props.component_ids.length > 0) {
+                                                for (const tinyIndex in dataset.props.component_ids) {
+
+                                                    const compId = dataset.props.component_ids[tinyIndex];
+                                                    const component = embedData.getComponent(compId);
+
+                                                    insertDataset(
+                                                        tinyIndex,
+                                                        sample[tinyIndex],
+                                                        dataset.props.components[tinyIndex],
+                                                        component
+                                                    );
+
+                                                }
+                                            }
+
+                                            // Plan B
+                                            else if (Array.isArray(dataset.props.components) && dataset.props.components.length > 0) {
+                                                for (const tinyIndex in dataset.props.components) {
+
+                                                    // Get Values
+                                                    const comp = dataset.props.components[tinyIndex];
+                                                    const val = sample[tinyIndex];
+                                                    const component = output.data.value;
+
+                                                    // Compare
+                                                    if (comp === output.data.type) {
+                                                        insertDataset(
+                                                            tinyIndex,
+                                                            val,
+                                                            comp,
+                                                            component
+                                                        );
+                                                    }
+
+                                                }
                                             }
 
                                         }
                                     }
 
-                                });
+                                    // Output send result
+                                    if (isSubmit) {
 
-                                job.on('status', (data) => {
+                                        const embedValues = embedData.getComponentValue(output.depId);
+                                        if (objType(embedValues, 'object') && objType(embedValues.props, 'object')) {
 
-                                    // Convert to momentjs
-                                    data.time = moment(data.time);
-
-                                    // Queue
-                                    if (data.queue) {
-                                        setLoadingPage('Queue...');
-                                    }
-
-                                    // Pending
-                                    if (data.stage === 'pending') {
-                                        setLoadingPage('Pending...');
-                                    }
-
-                                    // Complete
-                                    else if (data.stage === 'complete') {
-
-                                        // Success?
-                                        setLoadingPage(false);
-                                        if (data.success) {
-
-                                        }
-
-                                    }
-
-                                    // Error
-                                    else if (data.stage === 'error') {
-                                        setLoadingPage(false);
-                                        toast(data.message);
-                                        console.error(data.message, data.code);
-                                    }
-
-                                    // Generating
-                                    else if (data.stage === 'generating') {
-                                        setLoadingPage('Generating...');
-                                    }
-
-                                });
-
-                            }
-
-                        };
-
-                        embedCache.genDeps = (item) => {
-
-                            const depItem = config.dependencies[item];
-                            const comps = { output: [], input: [], cancel: [] };
-
-                            // Get Js Values
-                            if (typeof depItem.js === 'string' && depItem.js.length > 0) {
-                                try {
-
-                                    if (depItem.js.startsWith(`() => { window.open(\``) && depItem.js.endsWith(`\`, '_blank') }`)) {
-                                        depItem.js = { openUrl: depItem.js.substring(21, depItem.js.length - 14) };
-                                    } else {
-                                        depItem.js = JSON.parse(depItem.js.trim().replace('() => ', ''));
-                                    }
-
-                                } catch (err) {
-                                    console.error(err, depItem.js);
-                                    depItem.js = null;
-                                }
-                            } else {
-                                depItem.js = null;
-                            }
-
-                            // Action Base
-                            const tinyAction = function (depId, dataId) {
-
-                                // Outputs list
-                                // console.log(clone(getInputValues(comps)));
-                                const dataset = config.components.find(comp => comp.id === depId);
-                                for (const index in comps.output) {
-                                    sendTinyUpdate(
-                                        comps.output[index],
-                                        Array.isArray(depItem.js) && typeof depItem.js[index] !== 'undefined' ? depItem.js[index] : null,
-                                        objType(dataset, 'object') && objType(dataset.props, 'object') ? {
-                                            props: dataset.props,
-                                            index: Array.isArray(dataset.props.headers) && dataset.props.headers.length > 1 ? dataId - 1 : dataId
-                                        } : null,
-
-                                    );
-                                }
-
-                                // Cancel Parts
-                                for (const index in comps.cancel) {
-                                    // console.log('Cancel Component', comps.cancel[index].depId, comps.cancel[index].data);
-                                }
-
-                                if (comps.scroll_to_output) {
-
-                                }
-
-                                if (comps.show_progress !== 'hidden') {
-
-                                }
-
-                                if (comps.trigger_only_on_success) {
-
-                                }
-
-                                if (comps.trigger_after) {
-
-                                }
-
-                                if (comps.collects_event_data) {
-
-                                }
-
-                                // Inputs list
-                                if (comps.backend_fn) tinySubmit(comps, item);
-
-                            };
-
-
-                            // Inputs list
-                            if (Array.isArray(depItem.inputs) && depItem.inputs.length > 0) {
-                                for (const index in depItem.inputs) {
-                                    const depId = depItem.inputs[index];
-                                    comps.input.push({ depId, data: embedData.getInput(depId) });
-                                }
-                            }
-
-
-                            // Outputs list
-                            if (Array.isArray(depItem.outputs) && depItem.outputs.length > 0) {
-                                for (const index in depItem.outputs) {
-                                    const depId = depItem.outputs[index];
-                                    comps.output.push({ depId, data: embedData.getComponent(depId) });
-                                }
-                            }
-
-                            // Cancel Parts
-                            if (Array.isArray(depItem.cancels) && depItem.cancels.length > 0) {
-                                for (const index in depItem.cancels) {
-                                    const depId = depItem.cancels[index];
-                                    comps.cancel.push({ depId, data: embedData.getComponent(depId) });
-                                }
-                            }
-
-                            comps.show_progress = depItem.show_progress;
-                            comps.trigger_only_on_success = depItem.trigger_only_on_success;
-                            comps.trigger_after = depItem.trigger_after;
-                            comps.collects_event_data = depItem.collects_event_data;
-                            comps.backend_fn = depItem.backend_fn;
-
-                            const clickAction = (target, type, depId, outputs, triggerAfter) => {
-                                console.log('Target', type, target, depId);
-                                // if (!triggerAfter) {
-
-                                const executeArray = (value, targetType, input, targetId) => {
-
-                                    // jQuery
-                                    if (targetType === 'jquery') {
-                                        value.on(type, () => tinyAction(depId, targetId, outputs));
-                                    }
-
-                                    else if (targetType === 'blob') {
-                                        input.on('change', () => tinyAction(depId, targetId, outputs));
-                                    }
-
-                                    // Array
-                                    else if (targetType === 'array') {
-                                        for (const item2 in value) {
-
-                                            // Mode 1
-                                            if (!Array.isArray(value[item2])) {
-                                                value[item2].on(type, () => tinyAction(depId, item2, outputs));
+                                            // Object
+                                            if (objType(value, 'object') && objType(value.value, 'object')) {
+                                                for (const item in value) {
+                                                    embedValues.props[item] = value[item];
+                                                }
                                             }
 
-                                            // Mode 2
+                                            // Gallery Value
+                                            else if (embedValues.props.name === 'gallery') {
+                                                subResult.push({ name: value });
+                                            }
+
+                                            // Normal Value
                                             else {
-                                                for (const item3 in value[item2]) {
-                                                    executeArray(value[item2][item3], 'jquery', input, value.length < 2 ? item3 : item2);
+                                                embedValues.props.value = value;
+                                                syncUpdate(embedValues.props, output.depId);
+                                            }
+
+                                        }
+
+                                        // console.log(subIndex, isLastSubIndex, subResult);
+
+                                        // Complete
+                                        if (subIndex < 0) {
+                                            embedData.updateEmbed();
+                                            console.log('Tiny Update', output, value, dataset);
+                                        }
+
+                                        // Complete 2
+                                        else if (isLastSubIndex) {
+                                            embedValues.props.value = subResult;
+                                            syncUpdate(embedValues.props, output.depId);
+                                        }
+
+                                    }
+
+                                };
+
+                                // Submit
+                                const tinySubmit = (comps, tinyIndex) => {
+
+                                    // Get input values
+                                    const subData = getInputValues(comps);
+                                    if (subData.allowed) {
+
+                                        // https://www.gradio.app/docs/js-client#submit
+                                        const submitName = comps.api_name ? `/${comps.api_name}` : Number(tinyIndex);
+
+                                        console.log('Submit test', submitName, comps, subData.inputs);
+                                        setLoadingPage('Starting gradio...');
+                                        const job = app.submit(submitName, subData.inputs);
+
+                                        // Sockets
+                                        job.on('data', (data) => {
+
+                                            // Convert to momentjs
+                                            console.log('Data', data);
+                                            data.time = moment(data.time);
+
+                                            // Data
+                                            if (Array.isArray(data.data) && data.data.length > 0) {
+                                                for (const item in data.data) {
+
+                                                    const finalResultSend = (tinyData, index, subIndex = -1, isLastSubIndex = false, subResult = []) => {
+
+                                                        const value =
+                                                            objType(tinyData, 'object') ?
+                                                                typeof tinyData.name === 'string' && tinyData.is_file ? `${fileUrlGenerator(agiData.url)}${tinyData.name}` :
+                                                                    typeof tinyData.data === 'string' && tinyData.is_file ? tinyData.data :
+                                                                        objType(tinyData.value, 'object') ? tinyData : null :
+                                                                typeof tinyData === 'string' ? tinyData : null;
+
+                                                        sendTinyUpdate(
+                                                            comps.output[index],
+                                                            value,
+                                                            null,
+                                                            true,
+                                                            subIndex,
+                                                            isLastSubIndex,
+                                                            subResult
+                                                        );
+
+                                                    };
+
+                                                    if (Array.isArray(data.data[item]) && data.data[item].length > 0) {
+                                                        const subResult = [];
+                                                        for (const index in data.data[item]) {
+                                                            finalResultSend(data.data[item][index], item, index, index >= data.data[item].length - 1, subResult);
+                                                        }
+                                                    } else {
+                                                        finalResultSend(data.data[item], item);
+                                                    }
+
+                                                }
+                                            }
+
+                                        });
+
+                                        job.on('status', (data) => {
+
+                                            // Convert to momentjs
+                                            data.time = moment(data.time);
+
+                                            // Queue
+                                            if (data.queue) {
+                                                setLoadingPage('Queue...');
+                                            }
+
+                                            // Pending
+                                            if (data.stage === 'pending') {
+                                                setLoadingPage('Pending...');
+                                            }
+
+                                            // Complete
+                                            else if (data.stage === 'complete') {
+
+                                                // Success?
+                                                setLoadingPage(false);
+                                                if (data.success) {
+
+                                                }
+
+                                            }
+
+                                            // Error
+                                            else if (data.stage === 'error') {
+                                                setLoadingPage(false);
+                                                toast(data.message);
+                                                console.error(data.message, data.code);
+                                            }
+
+                                            // Generating
+                                            else if (data.stage === 'generating') {
+                                                setLoadingPage('Generating...');
+                                            }
+
+                                        });
+
+                                    }
+
+                                };
+
+                                embedCache.genDeps = (item) => {
+
+                                    const depItem = config.dependencies[item];
+                                    const comps = { output: [], input: [], cancel: [] };
+
+                                    // Get Js Values
+                                    if (typeof depItem.js === 'string' && depItem.js.length > 0) {
+                                        try {
+
+                                            if (depItem.js.startsWith(`() => { window.open(\``) && depItem.js.endsWith(`\`, '_blank') }`)) {
+                                                depItem.js = { openUrl: depItem.js.substring(21, depItem.js.length - 14) };
+                                            } else {
+                                                depItem.js = JSON.parse(depItem.js.trim().replace('() => ', ''));
+                                            }
+
+                                        } catch (err) {
+                                            console.error(err, depItem.js);
+                                            depItem.js = null;
+                                        }
+                                    } else {
+                                        depItem.js = null;
+                                    }
+
+                                    // Action Base
+                                    const tinyAction = function (depId, dataId) {
+
+                                        // Outputs list
+                                        // console.log(clone(getInputValues(comps)));
+                                        const dataset = config.components.find(comp => comp.id === depId);
+                                        for (const index in comps.output) {
+                                            sendTinyUpdate(
+                                                comps.output[index],
+                                                Array.isArray(depItem.js) && typeof depItem.js[index] !== 'undefined' ? depItem.js[index] : null,
+                                                objType(dataset, 'object') && objType(dataset.props, 'object') ? {
+                                                    props: dataset.props,
+                                                    index: Array.isArray(dataset.props.headers) && dataset.props.headers.length > 1 ? dataId - 1 : dataId
+                                                } : null,
+
+                                            );
+                                        }
+
+                                        // Cancel Parts
+                                        for (const index in comps.cancel) {
+                                            // console.log('Cancel Component', comps.cancel[index].depId, comps.cancel[index].data);
+                                        }
+
+                                        if (comps.scroll_to_output) {
+
+                                        }
+
+                                        if (comps.show_progress !== 'hidden') {
+
+                                        }
+
+                                        if (comps.trigger_only_on_success) {
+
+                                        }
+
+                                        if (comps.trigger_after) {
+
+                                        }
+
+                                        if (comps.collects_event_data) {
+
+                                        }
+
+                                        // Inputs list
+                                        if (comps.backend_fn) tinySubmit(comps, item);
+
+                                    };
+
+
+                                    // Inputs list
+                                    if (Array.isArray(depItem.inputs) && depItem.inputs.length > 0) {
+                                        for (const index in depItem.inputs) {
+                                            const depId = depItem.inputs[index];
+                                            comps.input.push({ depId, data: embedData.getInput(depId) });
+                                        }
+                                    }
+
+
+                                    // Outputs list
+                                    if (Array.isArray(depItem.outputs) && depItem.outputs.length > 0) {
+                                        for (const index in depItem.outputs) {
+                                            const depId = depItem.outputs[index];
+                                            comps.output.push({ depId, data: embedData.getComponent(depId) });
+                                        }
+                                    }
+
+                                    // Cancel Parts
+                                    if (Array.isArray(depItem.cancels) && depItem.cancels.length > 0) {
+                                        for (const index in depItem.cancels) {
+                                            const depId = depItem.cancels[index];
+                                            comps.cancel.push({ depId, data: embedData.getComponent(depId) });
+                                        }
+                                    }
+
+                                    comps.show_progress = depItem.show_progress;
+                                    comps.trigger_only_on_success = depItem.trigger_only_on_success;
+                                    comps.trigger_after = depItem.trigger_after;
+                                    comps.collects_event_data = depItem.collects_event_data;
+                                    comps.backend_fn = depItem.backend_fn;
+
+                                    const clickAction = (target, type, depId, outputs, triggerAfter) => {
+                                        console.log('Target', type, target, depId);
+                                        // if (!triggerAfter) {
+
+                                        const executeArray = (value, targetType, input, targetId) => {
+
+                                            // jQuery
+                                            if (targetType === 'jquery') {
+                                                value.on(type, () => tinyAction(depId, targetId, outputs));
+                                            }
+
+                                            else if (targetType === 'blob') {
+                                                input.on('change', () => tinyAction(depId, targetId, outputs));
+                                            }
+
+                                            // Array
+                                            else if (targetType === 'array') {
+                                                for (const item2 in value) {
+
+                                                    // Mode 1
+                                                    if (!Array.isArray(value[item2])) {
+                                                        value[item2].on(type, () => tinyAction(depId, item2, outputs));
+                                                    }
+
+                                                    // Mode 2
+                                                    else {
+                                                        for (const item3 in value[item2]) {
+                                                            executeArray(value[item2][item3], 'jquery', input, value.length < 2 ? item3 : item2);
+                                                        }
+                                                    }
+
+                                                }
+                                            }
+
+                                        };
+
+                                        executeArray(target.value, target.type, target.input);
+
+                                        // }
+                                    };
+
+                                    // Trigger
+                                    const trigger = config.dependencies[item].trigger;
+
+                                    // Target to execute the action
+                                    if (Array.isArray(depItem.targets) && depItem.targets.length > 0) {
+                                        for (const index in depItem.targets) {
+
+                                            // String
+                                            if (typeof trigger === 'string') {
+
+                                                // Get Id
+                                                const depId = depItem.targets[index];
+                                                let target = embedData.getTarget(depId);
+                                                if (!target) target = embedData.getInput(depId);
+                                                if (target) {
+
+                                                    // Click
+                                                    if (trigger === 'click') {
+                                                        clickAction(target, 'click', depId, depItem.outputs);
+                                                    }
+
+                                                    // Change
+                                                    else if (trigger === 'change') {
+                                                        clickAction(target, 'change', depId, depItem.outputs);
+                                                    }
+
+                                                    // Then
+                                                    else if (trigger === 'then' || trigger === 'upload' || trigger === 'select') {
+                                                        console.log(`Input "${trigger}"`, target, depId, depItem.outputs, config.dependencies[item].trigger_after);
+                                                        clickAction(target, 'change', depId, depItem.outputs, config.dependencies[item].trigger_after);
+                                                    }
+
+                                                }
+
+                                            }
+
+                                            // Array
+                                            else if (Array.isArray(depItem.targets[index]) && depItem.targets[index].length > 0) {
+                                                if (typeof depItem.targets[index][0] === 'number' && typeof depItem.targets[index][1] === 'string') {
+
+                                                    // Get Id
+                                                    const depId = depItem.targets[index][0];
+                                                    let target = embedData.getTarget(depId);
+                                                    if (!target) target = embedData.getInput(depId);
+                                                    if (target) {
+
+                                                        // Click
+                                                        if (depItem.targets[index][1] === 'click') {
+                                                            clickAction(target, 'click', depId, depItem.outputs);
+                                                        }
+
+                                                        // Change
+                                                        else if (depItem.targets[index][1] === 'change') {
+                                                            clickAction(target, 'change', depId, depItem.outputs);
+                                                        }
+
+                                                        // Then
+                                                        else if (depItem.targets[index][1] === 'then' || depItem.targets[index][1] === 'upload' || depItem.targets[index][1] === 'select') {
+                                                            console.log(`Input "${depItem.targets[index][1]}"`, target, depId, depItem.outputs, config.dependencies[item].trigger_after);
+                                                            clickAction(target, 'change', depId, depItem.outputs, config.dependencies[item].trigger_after);
+                                                        }
+
+                                                    }
+
                                                 }
                                             }
 
@@ -704,119 +785,45 @@ function GradioEmbed({ agiData }) {
 
                                 };
 
-                                executeArray(target.value, target.type, target.input);
-
-                                // }
-                            };
-
-                            // Trigger
-                            const trigger = config.dependencies[item].trigger;
-
-                            // Target to execute the action
-                            if (Array.isArray(depItem.targets) && depItem.targets.length > 0) {
-                                for (const index in depItem.targets) {
-
-                                    // String
-                                    if (typeof trigger === 'string') {
-
-                                        // Get Id
-                                        const depId = depItem.targets[index];
-                                        let target = embedData.getTarget(depId);
-                                        if (!target) target = embedData.getInput(depId);
-                                        if (target) {
-
-                                            // Click
-                                            if (trigger === 'click') {
-                                                clickAction(target, 'click', depId, depItem.outputs);
-                                            }
-
-                                            // Change
-                                            else if (trigger === 'change') {
-                                                clickAction(target, 'change', depId, depItem.outputs);
-                                            }
-
-                                            // Then
-                                            else if (trigger === 'then' || trigger === 'upload' || trigger === 'select') {
-                                                console.log(`Input "${trigger}"`, target, depId, depItem.outputs, config.dependencies[item].trigger_after);
-                                                clickAction(target, 'change', depId, depItem.outputs, config.dependencies[item].trigger_after);
-                                            }
-
-                                        }
-
+                                // Read dependencies
+                                if (Array.isArray(config.dependencies) && config.dependencies.length > 0) {
+                                    for (const item in config.dependencies) {
+                                        embedCache.genDeps(item);
                                     }
-
-                                    // Array
-                                    else if (Array.isArray(depItem.targets[index]) && depItem.targets[index].length > 0) {
-                                        if (typeof depItem.targets[index][0] === 'number' && typeof depItem.targets[index][1] === 'string') {
-
-                                            // Get Id
-                                            const depId = depItem.targets[index][0];
-                                            let target = embedData.getTarget(depId);
-                                            if (!target) target = embedData.getInput(depId);
-                                            if (target) {
-
-                                                // Click
-                                                if (depItem.targets[index][1] === 'click') {
-                                                    clickAction(target, 'click', depId, depItem.outputs);
-                                                }
-
-                                                // Change
-                                                else if (depItem.targets[index][1] === 'change') {
-                                                    clickAction(target, 'change', depId, depItem.outputs);
-                                                }
-
-                                                // Then
-                                                else if (depItem.targets[index][1] === 'then' || depItem.targets[index][1] === 'upload' || depItem.targets[index][1] === 'select') {
-                                                    console.log(`Input "${depItem.targets[index][1]}"`, target, depId, depItem.outputs, config.dependencies[item].trigger_after);
-                                                    clickAction(target, 'change', depId, depItem.outputs, config.dependencies[item].trigger_after);
-                                                }
-
-                                            }
-
-                                        }
-                                    }
-
-                                }
-                            }
-
-                        };
-
-                        // Read dependencies
-                        if (Array.isArray(config.dependencies) && config.dependencies.length > 0) {
-                            for (const item in config.dependencies) {
-                                embedCache.genDeps(item);
-                            }
-                        }
-
-                        // Read Embed Data
-                        const needsUpdate = embedData.readEmbedData(insertEmbedData);
-
-                        if (needsUpdate) {
-                            embedData.updateEmbed();
-                        }
-
-                        // Reset embed
-                        embed.append($('<center>', { class: 'mt-3' }).append(
-                            $('<button>', { class: 'btn btn-danger' }).text('Reset gradio session').on('click', async () => {
-
-                                const isConfirmed = await tinyConfirm('Are you sure? All data from this Gradio Embed will be lost.');
-                                if (isConfirmed) {
-                                    ymap.clear();
-                                    alert('The gradio embed has been successfully reset.');
-                                    setIsVisible(0);
                                 }
 
-                            })
-                        ));
+                                // Read Embed Data
+                                const needsUpdate = embedData.readEmbedData(insertEmbedData);
 
-                        // Complete
-                        // console.log(id, config);
-                        loadingUpdate = false;
-                        return () => {
-                            if (app && typeof app.destroy === 'function') app.destroy();
-                            page.remove();
-                        };
+                                if (needsUpdate) {
+                                    embedData.updateEmbed();
+                                }
 
+                                // Reset embed
+                                embed.append($('<center>', { class: 'mt-3' }).append(
+                                    $('<button>', { class: 'btn btn-danger' }).text('Reset gradio session').on('click', async () => {
+
+                                        const isConfirmed = await tinyConfirm('Are you sure? All data from this Gradio Embed will be lost.');
+                                        if (isConfirmed) {
+                                            ymap().clear();
+                                            alert('The gradio embed has been successfully reset.');
+                                            setIsVisible(0);
+                                        }
+
+                                    })
+                                ));
+
+                                // Complete
+                                // console.log(id, config);
+                                loadingUpdate = false;
+                                return () => {
+                                    if (app && typeof app.destroy === 'function') app.destroy();
+                                    page.remove();
+                                };
+
+                            }
+
+                        });
                     }
 
                 }

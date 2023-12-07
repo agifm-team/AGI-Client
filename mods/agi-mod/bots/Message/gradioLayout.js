@@ -1038,7 +1038,7 @@ const components = {
 
                             const img = new Image();
                             img.onload = function () {
-                                imageViewer(null, $(img), `${appId}_${compId}_${item}`, imgUrl, true);
+                                imageViewer(null, $(img), `${appId}_${compId}_${item}`, imgUrl);
                             };
 
                             img.src = imgUrl;

@@ -23,6 +23,7 @@ import { bootstrapItems } from '../../../../src/util/styles-bootstrap';
 import { twemojify } from '../../../../src/util/twemojify';
 import { selectButton as selectTheme } from '../../../../src/util/checkTheme';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
+import imageViewer from '../../../../src/util/imageViewer';
 
 const labelCreator = (icon, props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label).prepend(icon);
 const displayOptions = (props, id, appId, url, oHtml) => {
@@ -1033,6 +1034,18 @@ const components = {
                             imgUrl = `${tinyUrl}${imgUrl}`;
                         }
 
+                        const contextClick = () => {
+
+                            const img = new Image();
+                            img.onload = function () {
+                                imageViewer(null, $(img), `${appId}_${compId}_${item}`, imgUrl, true);
+                            };
+
+                            img.src = imgUrl;
+                            return false;
+
+                        };
+
                         const button = $('<button>', { class: 'w-100' }).append(
 
                             objType(value, 'object') && typeof value.name === 'string' && value.name.length > 0 ?
@@ -1045,7 +1058,7 @@ const components = {
                         gallery.append($('<div>', { class: `col-${rowsList[cols][rowNumber]}` }).append(button));
 
                         if (props.selectable) {
-                            button.on('click', () => {
+                            button.on('contextmenu', contextClick).on('click', () => {
 
                                 let tinyValue = value.data || value.name;
                                 if (typeof tinyValue === 'string') {
@@ -1082,7 +1095,7 @@ const components = {
 
                             });
                         } else {
-                            button.addClass('disabled');
+                            button.on('click', contextClick);
                         }
 
                         rowNumber++;

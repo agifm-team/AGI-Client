@@ -212,12 +212,11 @@ function GradioEmbed({ agiData }) {
                             // Insert Embed
                             if (embed.find('gladio-embed').length < 1) {
 
-                                console.log(ymap);
-
                                 // Sync Update
                                 let loadingUpdate = true;
-                                const syncUpdate = (tinyPromps, depId) => {
+                                const syncUpdate = (tinyPromps, depId, where) => {
                                     const props = clone(tinyPromps);
+                                    console.log(where, depId, props);
                                     if (!loadingUpdate) ymap().set(depId, props);
                                 };
 
@@ -246,7 +245,7 @@ function GradioEmbed({ agiData }) {
                                         const valueUpdater = (event) => {
 
                                             // Target
-                                            const value = $(event.target).val();
+                                            const value = !component.input.isCheckbox ? $(event.target).val() : $(event.target).is(':checked');
                                             const tinyData = embedData.getComponentValue(compId);
                                             if (objType(tinyData, 'object')) {
 
@@ -255,11 +254,11 @@ function GradioEmbed({ agiData }) {
                                                 if (objType(props, 'object')) {
 
                                                     // Insert new value
-                                                    props.value = typeof value === 'string' ?
+                                                    props.value = typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number' ?
                                                         !component.input.isNumber ? value : Number(value) :
                                                         null;
 
-                                                    if (!loadingUpdate) ymap().set(compId, props);
+                                                    syncUpdate(props, compId, 'valueUpdater');
 
                                                 }
 
@@ -311,7 +310,7 @@ function GradioEmbed({ agiData }) {
 
                                             // New
                                             else if (objectHash(defaultProps) !== objectHash(props)) {
-                                                if (!loadingUpdate) ymap().set(compId, props);
+                                                syncUpdate(props, compId, 'insertEmbedData');
                                             }
 
                                         }
@@ -352,7 +351,7 @@ function GradioEmbed({ agiData }) {
                                         const dropdown = embedData.getDropdown(output.depId);
                                         if (objType(input, 'object')) {
                                             data.props.value = tinyValue;
-                                            syncUpdate(data.props, output.depId);
+                                            syncUpdate(data.props, output.depId, 'sendTinyUpdate');
                                             updateInputValue(input, dropdown, tinyValue);
                                         }
 
@@ -368,7 +367,7 @@ function GradioEmbed({ agiData }) {
 
                                         if (objType(input, 'object')) {
                                             data.props.value = compValue;
-                                            syncUpdate(data.props, component);
+                                            syncUpdate(data.props, component, 'insertDataset');
                                             updateInputValue(input, dropdown, compValue, fileUrlGenerator(config.root));
                                         }
 
@@ -442,7 +441,7 @@ function GradioEmbed({ agiData }) {
                                             // Normal Value
                                             else {
                                                 embedValues.props.value = value;
-                                                syncUpdate(embedValues.props, output.depId);
+                                                syncUpdate(embedValues.props, output.depId, 'isSubmit');
                                             }
 
                                         }
@@ -458,7 +457,7 @@ function GradioEmbed({ agiData }) {
                                         // Complete 2
                                         else if (isLastSubIndex) {
                                             embedValues.props.value = subResult;
-                                            syncUpdate(embedValues.props, output.depId);
+                                            syncUpdate(embedValues.props, output.depId, 'isLastSubIndex');
                                         }
 
                                     }

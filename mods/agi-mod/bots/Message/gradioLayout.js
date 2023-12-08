@@ -665,13 +665,13 @@ const components = {
             const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('checkbox').addClass('w-100').addClass('text-start').addClass('h-100');
 
-            const checkbox = $('<input>', { id: `${id}_individual`, class: 'form-check-input', type: 'checkbox' }).prop('checked', (props.value === true)).prop('disabled', (props.interactive === false));
+            const checkbox = $('<input>', { id: `${id}_individual`, class: 'form-check-input', type: 'checkbox' }).prop('checked', (props.value === true || props.value === 'true')).prop('disabled', (props.interactive === false));
             const input = $(`<div>`, { class: 'form-check border border-bg checkboxradio-group w-100 p-2' }).append(
                 checkbox,
                 $('<label>', { for: `${id}_individual`, class: 'form-check-label' }).text(props.show_label && typeof props.label === 'string' ? props.label : 'Checkbox'),
             );
 
-            finalResult.data('gradio_input', { type: 'jquery', value: checkbox });
+            finalResult.data('gradio_input', { type: 'jquery', isCheckbox: true, value: checkbox });
             finalResult.append(input);
 
             return finalResult;

@@ -405,3 +405,13 @@
     background-color: #eee !important;
   }
 }
+
+.butter-theme-no-gradient,
+.dark-theme-no-gradient,
+.silver-theme-no-gradient,
+.white-theme-no-gradient {
+  --bg-surface-gradient: none !important;
+  --bg-surface-gradient-2: none !important;
+  --bg-surface-gradient-3: none !important;
+  --bg-auth-gradient: none !important;
+}

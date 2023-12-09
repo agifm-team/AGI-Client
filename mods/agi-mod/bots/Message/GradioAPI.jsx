@@ -233,6 +233,8 @@ function GradioEmbed({ agiData }) {
                                 // chatboxScrollToBottom();
                                 embed.append(page);
 
+                                const prepareEmbedsFunc = [];
+
                                 // Insert embed events
                                 const insertEmbedData = (root, compId) => {
                                     try {
@@ -271,7 +273,7 @@ function GradioEmbed({ agiData }) {
 
                                             // jQuery
                                             if (component.input.type === 'jquery') {
-                                                component.input.value.on('change', valueUpdater);
+                                                prepareEmbedsFunc.push(() => component.input.value.on('change', valueUpdater));
                                             }
 
                                         }
@@ -279,7 +281,7 @@ function GradioEmbed({ agiData }) {
                                         // Dropdown
                                         if (component.dropdown) {
                                             if (component.dropdown.type === 'jquery') {
-                                                component.dropdown.value.on('change', valueUpdater);
+                                                prepareEmbedsFunc.push(() => component.dropdown.value.on('change', valueUpdater));
                                             }
                                         }
 
@@ -811,6 +813,11 @@ function GradioEmbed({ agiData }) {
 
                                     })
                                 ));
+
+                                // Insert embeds function
+                                for (const item in prepareEmbedsFunc) {
+                                    prepareEmbedsFunc[item]();
+                                }
 
                                 // Complete
                                 // console.log(id, config);

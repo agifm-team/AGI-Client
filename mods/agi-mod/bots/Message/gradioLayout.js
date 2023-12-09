@@ -2168,7 +2168,6 @@ const upgraderComponents = {
     },
 
     gallery: (values, type, input, tinyFunction) => {
-        // O sistema funciona normal. mas ainda estamos tendo problemas com lista gigante de requests.
         if (typeof tinyFunction === 'function') tinyFunction();
     },
 

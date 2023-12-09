@@ -216,8 +216,7 @@ function GradioEmbed({ agiData }) {
                                 let loadingUpdate = true;
                                 const syncUpdate = (tinyPromps, depId, where) => {
                                     const props = clone(tinyPromps);
-                                    console.log(loadingUpdate, where, depId, props);
-                                    if (!loadingUpdate) ymap().set(depId, props);
+                                    if (!loadingUpdate) ymap().set(String(depId), props);
                                 };
 
                                 // Id

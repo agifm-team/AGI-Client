@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import clone from 'clone';
+import Web3 from 'web3';
 import provider from 'eth-provider';
 import Web3WsProvider from 'web3-providers-ws';
 
@@ -7,6 +8,7 @@ import { objType } from '../tools';
 import startStatus from './status';
 import initMatrix from '../../client/initMatrix';
 import modWeb3Cfg from '../../../mods/web3';
+import moment from '../libs/momentjs';
 
 const tinyCrypto = {};
 

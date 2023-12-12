@@ -9,8 +9,12 @@ import cons from './cons';
 import settings from './settings';
 import { messageIsClassicCrdt } from '../../util/libs/crdt';
 import { objType } from '../../util/tools';
+import moment from '../../util/libs/momentjs';
 
-global.Y = Y;
+const delayYdocUpdate = 100;
+const hashTryLimit = 10;
+
+if (__ENV_APP__.mode === 'development') { global.Y = Y; }
 let timeoutForceChatbox = null;
 
 function isEdited(mEvent) {
@@ -151,14 +155,19 @@ class RoomTimeline extends EventEmitter {
     this.isOngoingPagination = false;
     this.ongoingDecryptionCount = 0;
     this.initialized = false;
-    this.ydoc = null;
+    this._ydoc = null;
 
     this.ydoc_last_update = null;
 
     this._ydoc_matrix_update = [];
     this._ydoc_cache = [];
+    this._ydoc_send_events = [];
+    this._ydoc_sending_event = false;
+    this._ydoc_error_hash = null;
+    this._ydoc_error_hash_count = 0;
 
     this._ydoc_cache_timeout = null;
+    this._ydoc_update_time = { timeout: null, cache: [] };
 
     setTimeout(() => this.room.loadMembersIfNeeded());
 
@@ -171,7 +180,7 @@ class RoomTimeline extends EventEmitter {
     return new Promise((resolve) => {
 
       const tryYdoc = () => {
-        if (tinyThis.ydoc) { resolve(tinyThis.ydoc); } else {
+        if (tinyThis._ydoc) { resolve(tinyThis._ydoc); } else {
           setTimeout(tryYdoc, 100);
         }
       };
@@ -181,7 +190,7 @@ class RoomTimeline extends EventEmitter {
     });
   }
 
-  getYdoc() { return this.ydoc; }
+  ydoc() { return this._ydoc; }
 
   isServingLiveTimeline() {
     return getLastLinkedTimeline(this.activeTimeline) === this.liveTimeline;
@@ -214,7 +223,7 @@ class RoomTimeline extends EventEmitter {
       Array.isArray(tinyIds) ? tinyIds : null
 
     // Exist Doc
-    if (this.ydoc) {
+    if (this._ydoc) {
 
       // Prepare Functions
       const tinyResult = {};
@@ -228,14 +237,14 @@ class RoomTimeline extends EventEmitter {
       };
 
       // Null. Get all
-      if (!ids || ids.length < 1) { this.ydoc.share.forEach(getData); }
+      if (!ids || ids.length < 1) { this._ydoc.share.forEach(getData); }
 
       // Get Values
       else {
 
         for (const id in ids) {
 
-          const item = this.ydoc.share.get(ids[id]);
+          const item = this._ydoc.share.get(ids[id]);
 
           if (item) {
             getData(item, ids[0]);
@@ -261,7 +270,7 @@ class RoomTimeline extends EventEmitter {
     const tinyThis = this;
 
     // Checker
-    if (this.ydoc) {
+    if (this._ydoc) {
       try {
         if (this.ydoc_last_update === null || timestamp > this.ydoc_last_update) {
 
@@ -291,12 +300,12 @@ class RoomTimeline extends EventEmitter {
                 typeof content.parent === 'string' && typeof content.type === 'string' &&
                 content.parent.length > 0 && content.type.length > 0
               ) {
-                enableyJsItem.action(this.ydoc, content.type, content.parent);
+                enableyJsItem.action(this._ydoc, content.type, content.parent);
               }
 
               // Apply update
               const before = clone(this.ydocToJson());
-              Y.applyUpdate(this.ydoc, memoryData);
+              Y.applyUpdate(this._ydoc, memoryData);
               const after = clone(this.ydocToJson());
 
               if (objectHash(before) === objectHash(after)) {
@@ -321,7 +330,7 @@ class RoomTimeline extends EventEmitter {
             if (objType(content.snapshot.types, 'object')) {
               for (const key in content.snapshot.types) {
                 if (typeof content.snapshot.types[key] === 'string' && content.snapshot.types[key].length > 0) {
-                  enableyJsItem.action(this.ydoc, content.snapshot.types[key], key);
+                  enableyJsItem.action(this._ydoc, content.snapshot.types[key], key);
                 }
               }
             }
@@ -339,7 +348,7 @@ class RoomTimeline extends EventEmitter {
 
               // Apply update
               this.ydoc_last_update = timestamp;
-              Y.applyUpdate(this.ydoc, memoryData);
+              Y.applyUpdate(this._ydoc, memoryData);
 
             }
 
@@ -363,7 +372,7 @@ class RoomTimeline extends EventEmitter {
 
       const tinyTimeout = () => {
 
-        if (tinyThis.ydoc) {
+        if (tinyThis._ydoc) {
 
           for (const item in tinyThis._ydoc_cache) {
             tinyThis._addCrdt(tinyThis._ydoc_cache[item].content, tinyThis._ydoc_cache[item].timestamp);
@@ -441,9 +450,35 @@ class RoomTimeline extends EventEmitter {
         }
 
         // Send to Crdt
-        this._addCrdt(content, mEvent.getDate());
+        const eventDate = moment(mEvent.getDate());
+
+        // No Reset
+        if (!content.resetAll) {
+
+          // Single
+          if (!Array.isArray(content.multiData)) {
+            this._addCrdt(content, eventDate.toDate());
+          }
+
+          // Multi
+          else {
+            for (const item in content.multiData) {
+              if (objType(content.multiData[item], 'object')) {
+                this._addCrdt(content.multiData[item], eventDate.clone().add(Number(item), 'seconds').toDate());
+              }
+            }
+          }
+
+        }
+
+        // Reset
+        else {
+          this._disableYdoc();
+          this._ydocEnable(new Y.Doc());
+        }
 
       }
+
     } else {
       if (!Array.isArray(this.crdt.CLASSIC)) this.crdt.CLASSIC = [];
       this.crdt.CLASSIC.push(mEvent);
@@ -700,11 +735,11 @@ class RoomTimeline extends EventEmitter {
 
   snapshotCrdt() {
 
-    const update = enableyJsItem.convertToString(Y.encodeStateAsUpdate(this.ydoc));
-    const encode = enableyJsItem.convertToString(Y.encodeSnapshot(Y.snapshot(this.ydoc)));
+    const update = enableyJsItem.convertToString(Y.encodeStateAsUpdate(this._ydoc));
+    const encode = enableyJsItem.convertToString(Y.encodeSnapshot(Y.snapshot(this._ydoc)));
 
     const types = {};
-    this.ydoc.share.forEach((value, key) => {
+    this._ydoc.share.forEach((value, key) => {
 
       try {
         types[key] = String(value.constructor.name.startsWith('_') ? value.constructor.name.substring(1) : value.constructor.name).toLocaleLowerCase();
@@ -714,26 +749,193 @@ class RoomTimeline extends EventEmitter {
 
     });
 
+    const newDoc = new Y.Doc();
+    Y.applyUpdate(newDoc, update);
+
+    this._disableYdoc();
+    this._ydocEnable(newDoc);
+
     return { update, encode, types };
 
   }
 
+  _tryInsertCrdtAgain() {
+    const tinyThis = this;
+    return new Promise((resolve, reject) => {
+
+      if (tinyThis._ydoc_send_events.length > 0) {
+
+        const newData = tinyThis._ydoc_send_events.shift();
+
+        if (!tinyThis._ydoc_sending_event) {
+
+          tinyThis._ydoc_sending_event = true;
+
+          tinyThis.matrixClient.sendEvent(tinyThis.roomId, 'pony.house.crdt', newData).then(() => {
+            tinyThis._ydoc_sending_event = false;
+            tinyThis._ydoc_error_hash = null;
+            tinyThis._ydoc_error_hash_count = 0;
+            resolve(tinyThis._tryInsertCrdtAgain());
+          }).catch(err => {
+
+            console.error(err);
+            tinyThis._ydoc_send_events.unshift(newData);
+            tinyThis._ydoc_sending_event = false;
+
+            const newError = objectHash(newData);
+
+            if (newError !== tinyThis._ydoc_error_hash) {
+              tinyThis._ydoc_error_hash = newError;
+              tinyThis._ydoc_error_hash_count = 0;
+            } else {
+              tinyThis._ydoc_error_hash_count++;
+            }
+
+            if (tinyThis._ydoc_error_hash_count <= hashTryLimit) {
+              resolve(tinyThis._tryInsertCrdtAgain());
+            } else {
+              alert(err.message, 'CRDT SYNC ERROR!');
+              reject(err);
+            }
+
+          });
+
+        } else {
+          tinyThis._ydoc_send_events.unshift(newData);
+          tinyThis._ydoc_sending_event = false;
+          resolve(tinyThis._tryInsertCrdtAgain());
+        }
+
+      }
+
+      resolve(true);
+
+    });
+  }
+
   _insertCrdt(data, type, parent, store = 'DEFAULT') {
-    return this.matrixClient.sendEvent(this.roomId, 'pony.house.crdt', { data, store, type, parent });
+    const tinyThis = this;
+    return new Promise((resolve) => {
+
+      const newData = { data, store, type, parent };
+      if (!tinyThis._ydoc_sending_event) {
+
+        tinyThis._ydoc_sending_event = true;
+
+        tinyThis.matrixClient.sendEvent(tinyThis.roomId, 'pony.house.crdt', newData).then(() => {
+          tinyThis._ydoc_sending_event = false;
+          tinyThis._ydoc_error_hash = null;
+          resolve(tinyThis._tryInsertCrdtAgain());
+        }).catch(err => {
+          console.error(err);
+          tinyThis._ydoc_send_events.unshift(newData);
+          tinyThis._ydoc_sending_event = false;
+          tinyThis._ydoc_error_hash = objectHash(newData);
+          resolve(tinyThis._tryInsertCrdtAgain());
+        });
+
+      } else {
+        tinyThis._ydoc_send_events.push(newData);
+        resolve(tinyThis._tryInsertCrdtAgain());
+      }
+
+    });
+  }
+
+  resetCrdt() {
+    const tinyThis = this;
+    return new Promise((resolve) => {
+
+      const newData = { resetAll: true };
+      if (!tinyThis._ydoc_sending_event) {
+
+        tinyThis._ydoc_sending_event = true;
+
+        tinyThis.matrixClient.sendEvent(tinyThis.roomId, 'pony.house.crdt', newData).then(() => {
+          tinyThis._ydoc_sending_event = false;
+          tinyThis._ydoc_error_hash = null;
+          resolve(tinyThis._tryInsertCrdtAgain());
+        }).catch(err => {
+          console.error(err);
+          tinyThis._ydoc_send_events.unshift(newData);
+          tinyThis._ydoc_sending_event = false;
+          tinyThis._ydoc_error_hash = objectHash(newData);
+          resolve(tinyThis._tryInsertCrdtAgain());
+        });
+
+      } else {
+        tinyThis._ydoc_send_events.push(newData);
+        resolve(tinyThis._tryInsertCrdtAgain());
+      }
+
+    });
+  }
+
+  _insertCrdtMulti(multiData) {
+    const tinyThis = this;
+    return new Promise((resolve) => {
+
+      const newData = { multiData };
+      if (!tinyThis._ydoc_sending_event) {
+
+        tinyThis._ydoc_sending_event = true;
+
+        tinyThis.matrixClient.sendEvent(tinyThis.roomId, 'pony.house.crdt', newData).then(() => {
+          tinyThis._ydoc_sending_event = false;
+          tinyThis._ydoc_error_hash = null;
+          resolve(tinyThis._tryInsertCrdtAgain());
+        }).catch(err => {
+          console.error(err);
+          tinyThis._ydoc_send_events.unshift(newData);
+          tinyThis._ydoc_sending_event = false;
+          tinyThis._ydoc_error_hash = objectHash(newData);
+          resolve(tinyThis._tryInsertCrdtAgain());
+        });
+
+      } else {
+        tinyThis._ydoc_send_events.push(newData);
+        resolve(tinyThis._tryInsertCrdtAgain());
+      }
+
+    });
   }
 
   _insertSnapshotCrdt(snapshot, type, parent, store = 'DEFAULT') {
-    return this.matrixClient.sendEvent(this.roomId, 'pony.house.crdt', { snapshot, store, type, parent });
+    const tinyThis = this;
+    return new Promise((resolve) => {
+
+      const newData = { snapshot, store, type, parent };
+      if (!tinyThis._ydoc_sending_event) {
+
+        tinyThis._ydoc_sending_event = true;
+
+        tinyThis.matrixClient.sendEvent(tinyThis.roomId, 'pony.house.crdt', newData).then(() => {
+          tinyThis._ydoc_sending_event = false;
+          tinyThis._ydoc_error_hash = null;
+          resolve(tinyThis._tryInsertCrdtAgain());
+        }).catch(err => {
+          console.error(err);
+          tinyThis._ydoc_send_events.unshift(newData);
+          tinyThis._ydoc_sending_event = false;
+          tinyThis._ydoc_error_hash = objectHash(newData);
+          resolve(tinyThis._tryInsertCrdtAgain());
+        });
+
+      } else {
+        tinyThis._ydoc_send_events.push(newData);
+        resolve(tinyThis._tryInsertCrdtAgain());
+      }
+
+    });
   }
 
-  // Active Listens
-  _listenEvents() {
+  _ydocEnable(ydoc) {
 
     const tinyThis = this;
-    this.ydoc = new Y.Doc();
+    this._ydoc = ydoc;
     this._ydoc_matrix_update = [];
 
-    this.ydoc.on('update', (update) => {
+    this._ydoc.on('update', (update) => {
 
       const updateInfo = Y.decodeUpdate(update);
 
@@ -753,7 +955,7 @@ class RoomTimeline extends EventEmitter {
         // Get new value type
         else if (type === 'structs') {
 
-          const struct = tinyThis.ydoc.store.clients.get(info.key);
+          const struct = tinyThis._ydoc.store.clients.get(info.key);
           if (Array.isArray(struct) && struct.length > 0 && struct[struct.length - 1]) {
 
             const item = struct[struct.length - 1];
@@ -779,8 +981,7 @@ class RoomTimeline extends EventEmitter {
           // Event Name
           const eventName = 'DEFAULT';
 
-          // Insert CRDT and prepare to check snapshot sender
-          tinyThis._insertCrdt(enableyJsItem.convertToString(update), itemType, parent, eventName).then(() => {
+          const eventResult = () => {
 
             // Get CRDT List and user Id
             const items = tinyThis.crdt[eventName];
@@ -804,7 +1005,7 @@ class RoomTimeline extends EventEmitter {
                 ) {
 
                   // Is Data
-                  if (typeof content.data === 'string' && content.data.length > 0) {
+                  if ((typeof content.data === 'string' && content.data.length > 0) || (Array.isArray(content.multiData) && content.multiData.length > 0)) {
                     crdtCount++;
                   }
 
@@ -828,7 +1029,28 @@ class RoomTimeline extends EventEmitter {
               tinyThis._insertSnapshotCrdt(tinyThis.snapshotCrdt(), itemType, parent, eventName);
             }
 
-          });
+          };
+
+          // Prepare Data
+          tinyThis._ydoc_update_time.cache.push({ data: enableyJsItem.convertToString(update), type: itemType, parent, store: eventName });
+          if (tinyThis._ydoc_update_time.timeout) clearTimeout(tinyThis._ydoc_update_time.timeout);
+
+          // Insert CRDT and prepare to check snapshot sender
+          tinyThis._ydoc_update_time.timeout = setTimeout(() => {
+
+            if (tinyThis._ydoc_update_time.cache.length <= 1) {
+              if (tinyThis._ydoc_update_time.cache[0]) {
+                const newTinyData = clone(tinyThis._ydoc_update_time.cache[0]);
+                tinyThis._insertCrdt(newTinyData.data, newTinyData.type, newTinyData.parent, newTinyData.store).then(eventResult);
+              }
+            } else {
+              tinyThis._insertCrdtMulti(clone(tinyThis._ydoc_update_time.cache)).then(eventResult);
+            }
+
+            delete tinyThis._ydoc_update_time.cache;
+            tinyThis._ydoc_update_time.cache = [];
+
+          }, delayYdocUpdate);
 
         } catch (err) {
           console.error(err);
@@ -837,6 +1059,17 @@ class RoomTimeline extends EventEmitter {
 
     });
 
+  }
+
+  _disableYdoc() {
+    this._ydoc.destroy();
+    this._ydoc_matrix_update = [];
+  }
+
+  // Active Listens
+  _listenEvents() {
+
+    this._ydocEnable(new Y.Doc());
     this._listenRoomTimeline = (event, room, toStartOfTimeline, removed, data) => {
 
       if (room.roomId !== this.roomId) return;
@@ -935,8 +1168,7 @@ class RoomTimeline extends EventEmitter {
   // Remove listeners
   removeInternalListeners() {
     if (!this.initialized) return;
-    this.ydoc.destroy();
-    this._ydoc_matrix_update = [];
+    this._disableYdoc();
     this.matrixClient.removeListener('Room.timeline', this._listenRoomTimeline);
     this.matrixClient.removeListener('Room.redaction', this._listenRedaction);
     this.matrixClient.removeListener('Event.decrypted', this._listenDecryptEvent);

@@ -26,8 +26,7 @@ import TimelineScroll from './TimelineScroll';
 import EventLimit from './EventLimit';
 import { getCurrentState } from '../../../util/matrixUtil';
 import tinyAPI from '../../../util/mods';
-
-moment.locale('en');
+import moment, { momentFormat } from '../../../util/libs/momentjs';
 
 const PAG_LIMIT = 30;
 const MAX_MSG_DIFF_MINUTES = 5;
@@ -98,7 +97,7 @@ function RoomIntroContainer({ event, timeline }) {
       name={room.name}
       heading={twemojifyReact(heading)}
       desc={desc}
-      time={event ? `Created at ${moment(event.getDate()).format('DD MMMM YYYY, hh:mm A')}` : null}
+      time={event ? `Created at ${moment(event.getDate()).format(`DD MMMM YYYY, ${momentFormat.clock()}`)}` : null}
     />
   );
 }
@@ -258,7 +257,7 @@ function usePaginate(
     const limit = eventLimitRef.current;
 
     if (roomTimeline.isOngoingPagination) return;
-    const tLength = roomTimeline.timeline.length;
+    const tLength = roomTimeline && roomTimeline.timeline && typeof roomTimeline.timeline.length === 'number' ? roomTimeline.timeline.length : 0;
 
     if (timelineScroll.bottom < SCROLL_TRIGGER_POS) {
 
@@ -389,7 +388,7 @@ function useEventArrive(roomTimeline, readUptoEvtStore, timelineScrollRef, event
 
     const handleEvent = (event) => {
 
-      const tLength = roomTimeline.timeline.length;
+      const tLength = roomTimeline && roomTimeline.timeline && typeof roomTimeline.timeline.length === 'number' ? roomTimeline.timeline.length : 0;
       const isViewingLive = roomTimeline.isServingLiveTimeline() && limit.length >= tLength - 1;
       const isAttached = timelineScroll.bottom < SCROLL_TRIGGER_POS;
 

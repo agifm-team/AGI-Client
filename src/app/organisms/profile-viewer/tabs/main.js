@@ -1,6 +1,7 @@
 import { twemojify } from '../../../../util/twemojify';
 import { copyToClipboard } from '../../../../util/common';
 import { toast } from '../../../../util/tools';
+import moment, { momentFormat } from '../../../../util/libs/momentjs';
 
 const timezoneAutoUpdate = { text: null, html: null, value: null };
 setInterval(() => {
@@ -8,7 +9,7 @@ setInterval(() => {
 
         let timezoneText = 'null';
         try {
-            timezoneText = moment().tz(timezoneAutoUpdate.value).format('MMMM Do YYYY, hh:mm a');
+            timezoneText = moment().tz(timezoneAutoUpdate.value).format(`MMMM Do YYYY, ${momentFormat.clock()}`);
         } catch {
             timezoneText = 'ERROR!';
         }
@@ -29,7 +30,7 @@ const dNoneChange = (ref, enabled) => {
 
 };
 
-export default function renderAbout(ethereumValid, displayNameRef, customStatusRef, profileBanner, bioRef, timezoneRef, content) {
+export default function renderAbout(userPronounsRef, ethereumValid, displayNameRef, customStatusRef, profileBanner, bioRef, timezoneRef, content) {
 
     // Ethereum
     if (ethereumValid) {
@@ -104,7 +105,7 @@ export default function renderAbout(ethereumValid, displayNameRef, customStatusR
 
                 let timezoneText = 'null';
                 try {
-                    timezoneText = moment().tz(content.presenceStatusMsg.timezone).format('MMMM Do YYYY, hh:mm a');
+                    timezoneText = moment().tz(content.presenceStatusMsg.timezone).format(`MMMM Do YYYY, ${momentFormat.clock()}`);
                 } catch {
                     timezoneText = 'ERROR!';
                     dNoneChange(timezoneDOM, true);
@@ -125,6 +126,21 @@ export default function renderAbout(ethereumValid, displayNameRef, customStatusR
 
         } else {
             dNoneChange(timezoneDOM, true);
+        }
+
+    }
+
+
+    // Get Pronouns Data
+    if (userPronounsRef.current && content && content.presenceStatusMsg) {
+
+        const pronounsDOM = $(userPronounsRef.current);
+
+        // Message Icon
+        if (typeof content.presenceStatusMsg.pronouns === 'string' && content.presenceStatusMsg.pronouns.length > 0) {
+            pronounsDOM.removeClass('d-none').text(content.presenceStatusMsg.pronouns);
+        } else {
+            pronounsDOM.empty().addClass('d-none');
         }
 
     }

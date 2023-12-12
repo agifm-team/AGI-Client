@@ -77,8 +77,6 @@ export function addRoomOptions(dt, roomType) {
                     const userId = $(event.target).data('pony-house-username');
                     const roomId = getSelectRoom()?.roomId;
 
-                    console.log(`Invite test to ${userId} on the room ${roomId}!`);
-
                     roomActions.invite(roomId, userId).catch(err => {
                         console.error(err);
                         alert(err.message);
@@ -111,18 +109,18 @@ export function addRoomOptions(dt, roomType) {
                             // Get Users
                             try {
 
-                                const user = mx.getUser(data[item].bot_username) ?? { userId: data[item].bot_username, displayName: data[item].bot_name, avatarUrl: data[item].bot_avatar };
+                                const user = mx.getUser(data[item].bot_username) ?? { userId: data[item].bot_username, displayName: data[item].agent_name, avatarUrl: data[item].profile_photo };
                                 if (objType(user, 'object')) {
                                     users.push(userGenerator(
                                         user.userId ?? data[item].bot_username,
-                                        user.displayName ? user.displayName : user.userId ?? data[item].bot_name ? data[item].bot_name : user.userId,
-                                        user.avatarUrl ? mx.mxcUrlToHttp(user.avatarUrl, 42, 42, 'crop') : data[item].bot_avatar ? data[item].bot_avatar : defaultAvatar(1),
+                                        user.displayName ? user.displayName : user.userId ?? data[item].agent_name ? data[item].agent_name : user.userId,
+                                        user.avatarUrl ? mx.mxcUrlToHttp(user.avatarUrl, 42, 42, 'crop') : data[item].profile_photo ? data[item].profile_photo : defaultAvatar(1),
                                     ));
                                 } else {
                                     users.push(userGenerator(
                                         data[item].bot_username,
-                                        data[item].bot_name ? data[item].bot_name : data[item].bot_username,
-                                        data[item].bot_avatar ? data[item].bot_avatar : defaultAvatar(1)
+                                        data[item].agent_name ? data[item].agent_name : data[item].bot_username,
+                                        data[item].profile_photo ? data[item].profile_photo : defaultAvatar(1)
                                     ));
                                 }
 

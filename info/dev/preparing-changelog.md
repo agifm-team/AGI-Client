@@ -10,3 +10,10 @@
 - Friend nickname added
 - Appearance settings issues fixed
 - Auto start tab added.
+- Ydoc script update .
+- New ydoc snapshot updater.
+- roomtimeline issues fixed.
+- no-gradient themes added.
+- Image uploader firefox css fixed.
+- Pronouns profile support added.
+- New clock configs.

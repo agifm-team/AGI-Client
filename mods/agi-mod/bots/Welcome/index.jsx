@@ -118,7 +118,7 @@ function Welcome() {
         <center className='py-5 w-100 px-5'>
 
             <div id='menu' className='text-start'>
-                <button type="button" className='me-3 btn btn-primary d-none' id='leave-welcome' onClick={() => selectRoomMode('navigation')}><i class="fa-solid fa-left-long" /></button>
+                <button type="button" className='me-3 btn btn-primary d-none' id='leave-welcome' onClick={() => selectRoomMode('navigation')}><i className="fa-solid fa-left-long" /></button>
                 <button type="button" className={`me-3 btn btn-primary${tinyType === 'enterprise' ? ' active' : ''}`} onClick={() => setTinyType('enterprise')}>Enterprise</button>
                 <button type="button" className={`btn btn-primary${tinyType === 'community' ? ' active' : ''}`} onClick={() => setTinyType('community')}>Community</button>
             </div>

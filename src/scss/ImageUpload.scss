@@ -9,6 +9,12 @@
   cursor: pointer;
   position: relative;
 
+  @-moz-document url-prefix() {
+    .avatar-container__large {
+      margin-left: 2px;
+    }
+  }
+
   &__process {
     width: 100%;
     height: 100%;

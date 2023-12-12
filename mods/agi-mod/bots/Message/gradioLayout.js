@@ -23,6 +23,7 @@ import { bootstrapItems } from '../../../../src/util/styles-bootstrap';
 import { twemojify } from '../../../../src/util/twemojify';
 import { selectButton as selectTheme } from '../../../../src/util/checkTheme';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
+import imageViewer from '../../../../src/util/imageViewer';
 
 const labelCreator = (icon, props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label).prepend(icon);
 const displayOptions = (props, id, appId, url, oHtml) => {
@@ -664,13 +665,13 @@ const components = {
             const id = tinyIdGenerator(appId, props);
             finalResult.attr('id', id).addClass('checkbox').addClass('w-100').addClass('text-start').addClass('h-100');
 
-            const checkbox = $('<input>', { id: `${id}_individual`, class: 'form-check-input', type: 'checkbox' }).prop('checked', (props.value === true)).prop('disabled', (props.interactive === false));
+            const checkbox = $('<input>', { id: `${id}_individual`, class: 'form-check-input', type: 'checkbox' }).prop('checked', (props.value === true || props.value === 'true')).prop('disabled', (props.interactive === false));
             const input = $(`<div>`, { class: 'form-check border border-bg checkboxradio-group w-100 p-2' }).append(
                 checkbox,
                 $('<label>', { for: `${id}_individual`, class: 'form-check-label' }).text(props.show_label && typeof props.label === 'string' ? props.label : 'Checkbox'),
             );
 
-            finalResult.data('gradio_input', { type: 'jquery', value: checkbox });
+            finalResult.data('gradio_input', { type: 'jquery', isCheckbox: true, value: checkbox });
             finalResult.append(input);
 
             return finalResult;
@@ -1020,7 +1021,6 @@ const components = {
 
                     let rowNumber = 0;
 
-                    console.log(props.value);
                     for (const item in props.value) {
 
                         const value = Array.isArray(props.value[item]) ? {
@@ -1034,6 +1034,20 @@ const components = {
                             imgUrl = `${tinyUrl}${imgUrl}`;
                         }
 
+                        const contextClick = () => {
+
+                            const img = new Image();
+                            img.onload = function () {
+                                imageViewer(null, $(img), `${appId}_${compId}_${item}`, imgUrl).then((pswp) => {
+                                    pswp.on('close', pswp.destroy());
+                                });
+                            };
+
+                            img.src = imgUrl;
+                            return false;
+
+                        };
+
                         const button = $('<button>', { class: 'w-100' }).append(
 
                             objType(value, 'object') && typeof value.name === 'string' && value.name.length > 0 ?
@@ -1046,7 +1060,7 @@ const components = {
                         gallery.append($('<div>', { class: `col-${rowsList[cols][rowNumber]}` }).append(button));
 
                         if (props.selectable) {
-                            button.on('click', () => {
+                            button.on('contextmenu', contextClick).on('click', () => {
 
                                 let tinyValue = value.data || value.name;
                                 if (typeof tinyValue === 'string') {
@@ -1083,7 +1097,7 @@ const components = {
 
                             });
                         } else {
-                            button.addClass('disabled');
+                            button.on('click', contextClick);
                         }
 
                         rowNumber++;
@@ -2144,6 +2158,23 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, 
     }
 };
 
+// Upgrader Components
+const upgraderComponents = {
+
+    html: (values, type, input, tinyFunction) => {
+        if (typeof tinyFunction === 'function') tinyFunction();
+    },
+
+    markdown: (values, type, input, tinyFunction) => {
+        if (typeof tinyFunction === 'function') tinyFunction();
+    },
+
+    gallery: (values, type, input, tinyFunction) => {
+        if (typeof tinyFunction === 'function') tinyFunction();
+    },
+
+};
+
 class GradioLayout {
 
     // Constructor
@@ -2289,26 +2320,36 @@ class GradioLayout {
 
     }
 
-    updateEmbed(callback, antiRepeat = false) {
-
+    updateEmbed() {
         this.readEmbedData((root, id) => {
 
             const values = root.data('gradio_values') ?? {};
             const type = root.attr('component_type');
-
-            /* if (antiRepeat && typeof callback === 'function') {
-                callback(root, id);
-            } */
+            const input = root.data('gradio_input');
 
             if (components[type]) {
+
                 const tinyFunction = components[type](values.props ?? {}, values?.id, values?.appId, values?.url, root);
-                // if (tinyFunction) console.log(tinyFunction);
+                if (typeof upgraderComponents[type] === 'function') {
+                    upgraderComponents[type](values, type, input, tinyFunction);
+                } else if (objType(input, 'object')) {
+
+                    // jQuery
+                    if (input.type === 'jquery') {
+                        input.value.val(values.props.value);
+                        input.value.trigger('change');
+                    }
+
+                    // Blob
+                    else if (input.type === 'blob') {
+                        input.value(values.props.value);
+                    }
+
+                }
+
             }
 
         });
-
-        // if (!antiRepeat) this.updateEmbed(callback, true);
-
     }
 
     // Update Html

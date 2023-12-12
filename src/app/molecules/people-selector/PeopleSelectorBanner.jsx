@@ -12,6 +12,7 @@ import { objType, toast } from '../../../util/tools';
 import { copyToClipboard } from '../../../util/common';
 import copyText from '../../organisms/profile-viewer/copyText';
 import { getAppearance, getAnimatedImageUrl } from '../../../util/libs/appearance';
+import moment, { momentFormat } from '../../../util/libs/momentjs';
 
 const timezoneAutoUpdate = { text: null, html: null, value: null };
 setInterval(() => {
@@ -19,7 +20,7 @@ setInterval(() => {
 
     let timezoneText = 'null';
     try {
-      timezoneText = moment().tz(timezoneAutoUpdate.value).format('MMMM Do YYYY, hh:mm a');
+      timezoneText = moment().tz(timezoneAutoUpdate.value).format(`MMMM Do YYYY, ${momentFormat.clock()}`);
     } catch {
       timezoneText = 'ERROR!';
     }
@@ -38,6 +39,7 @@ function PeopleSelectorBanner({
   const customStatusRef = useRef(null);
   const profileBanner = useRef(null);
   const userNameRef = useRef(null);
+  const userPronounsRef = useRef(null);
   const displayNameRef = useRef(null);
   const profileAvatar = useRef(null);
 
@@ -95,6 +97,20 @@ function PeopleSelectorBanner({
 
       }
 
+      // Get Pronouns Data
+      if (userPronounsRef.current) {
+
+        const pronounsDOM = $(userPronounsRef.current);
+
+        // Message Icon
+        if (typeof presence.pronouns === 'string' && presence.pronouns.length > 0) {
+          pronounsDOM.removeClass('d-none').text(presence.pronouns);
+        } else {
+          pronounsDOM.empty().addClass('d-none');
+        }
+
+      }
+
       // Get Bio Data
       if (bioRef.current) {
 
@@ -130,7 +146,7 @@ function PeopleSelectorBanner({
 
             let timezoneText = 'null';
             try {
-              timezoneText = moment().tz(presence.timezone).format('MMMM Do YYYY, hh:mm a');
+              timezoneText = moment().tz(presence.timezone).format(`MMMM Do YYYY, ${momentFormat.clock()}`);
             } catch {
               timezoneText = 'ERROR!';
               timezoneDOM.addClass('d-none');
@@ -282,6 +298,7 @@ function PeopleSelectorBanner({
 
           <h6 ref={displayNameRef} className='emoji-size-fix m-0 mb-1 fw-bold display-name'><span className='button'>{twemojifyReact(name)}</span></h6>
           <small ref={userNameRef} className='text-gray emoji-size-fix username'><span className='button'>{twemojifyReact(user.userId)}</span></small>
+          <div ref={userPronounsRef} className='text-gray emoji-size-fix pronouns small d-none' />
 
           <div ref={customStatusRef} className='d-none mt-2 emoji-size-fix small user-custom-status' />
 
@@ -305,7 +322,7 @@ function PeopleSelectorBanner({
 
           <hr />
 
-          <label for="tiny-note" className="form-label text-gray text-uppercase fw-bold very-small mb-2">Note</label>
+          <label htmlFor="tiny-note" className="form-label text-gray text-uppercase fw-bold very-small mb-2">Note</label>
           <textarea ref={noteRef} spellCheck="false" className="form-control form-control-bg emoji-size-fix small" id="tiny-note" placeholder="Insert a note here" />
 
 

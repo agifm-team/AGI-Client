@@ -2,10 +2,8 @@ module.exports = {
   globals: {
     '$': 'readonly',
     'web3': 'readonly',
-    'Web3': 'readonly',
     'ethereum': 'readonly',
     'bootstrap': 'readonly',
-    'moment': 'readonly',
     'tinyAPI': 'readonly',
     'arguments': 'readonly',
     'getLogData': 'readonly',

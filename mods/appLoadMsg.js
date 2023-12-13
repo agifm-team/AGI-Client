@@ -43,16 +43,16 @@ export default {
         ],
 
         loading: [
-            'Charging the AI neurons... Beep-Boop Loading Sequence initiated.',
-            'Assembling digital neurons... Like GPUs assembling pixels in a high-res image.',
-            'Teaching AI the art of banter... Because even algorithms appreciate a good joke.',
-            'Remember, humans and AI - stronger together! Like GPUs and parallel processing.',
-            'Loading fun facts you probably didn’t ask for... because AI knows what you need before you do.',
-            'Human, AI, and a little bit of magic in-between... Abracadabra, the GPU is casting spells.',
-            'Cue dramatic loading music... And now, the AI symphony begins.',
-            'Running Multi OS on caffeine and neural networks... Fueling the AI engine with a double shot of espresso.',
-            'Playing hide and seek with the data... Where did that elusive piece of information go?',
-            'Elevating your Multi experience, one bit at a time... Like a GPU rendering a masterpiece.',
+            'Charging the AGI Space neurons... Beep-Boop Loading Cosmic Sequence initiated.'
+            'Assembling digital neurons in the vast expanse of AGI Space... Like star clusters forming in a celestial masterpiece.'
+            'Teaching AGI the art of cosmic banter... Because even algorithms in AGI Space appreciate a joke that transcends galaxies.'
+            'Remember, humans and AGI Space - stronger together! Like cosmic forces and parallel processing.'
+            'Loading fun facts from the cosmos you probably didn’t ask for... because AGI Space knows what you need before you do.'
+            'Human, AGI Space, and a little bit of interstellar magic in-between... Abracadabra, the GPU is casting cosmic spells.'
+            'Cue dramatic loading music from across the universe... And now, the AGI Space symphony begins.'
+            'Running AGI Space OS on caffeine and neural networks... Fueling the AI engine with a double shot of cosmic espresso.'
+            'Playing hide and seek with the data in the vastness of AGI Space... Where did that elusive piece of cosmic information go?'
+            'Elevating your AGI Space experience, one cosmic bit at a time... Like a GPU rendering a masterpiece in the celestial gallery.'
         ],
         items: [
             'AGI Space: Because AI is too extraordinary to be confined to human seriousness alone.'

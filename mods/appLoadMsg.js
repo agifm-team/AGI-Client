@@ -43,38 +43,38 @@ export default {
         ],
 
         loading: [
-            'Charging the AGI Space neurons... Beep-Boop Loading Cosmic Sequence initiated.'
-            'Assembling digital neurons in the vast expanse of AGI Space... Like star clusters forming in a celestial masterpiece.'
-            'Teaching AGI the art of cosmic banter... Because even algorithms in AGI Space appreciate a joke that transcends galaxies.'
-            'Remember, humans and AGI Space - stronger together! Like cosmic forces and parallel processing.'
-            'Loading fun facts from the cosmos you probably didn’t ask for... because AGI Space knows what you need before you do.'
-            'Human, AGI Space, and a little bit of interstellar magic in-between... Abracadabra, the GPU is casting cosmic spells.'
-            'Cue dramatic loading music from across the universe... And now, the AGI Space symphony begins.'
-            'Running AGI Space OS on caffeine and neural networks... Fueling the AI engine with a double shot of cosmic espresso.'
-            'Playing hide and seek with the data in the vastness of AGI Space... Where did that elusive piece of cosmic information go?'
-            'Elevating your AGI Space experience, one cosmic bit at a time... Like a GPU rendering a masterpiece in the celestial gallery.'
+            'Charging the AGI Space neurons... Beep-Boop Loading Cosmic Sequence initiated.',
+            'Assembling digital neurons in the vast expanse of AGI Space... Like star clusters forming in a celestial masterpiece.',
+            'Teaching AGI the art of cosmic banter... Because even algorithms in AGI Space appreciate a joke that transcends galaxies.',
+            'Remember, humans and AGI Space - stronger together! Like cosmic forces and parallel processing.',
+            'Loading fun facts from the cosmos you probably didn’t ask for... because AGI Space knows what you need before you do.',
+            'Human, AGI Space, and a little bit of interstellar magic in-between... Abracadabra, the GPU is casting cosmic spells.',
+            'Cue dramatic loading music from across the universe... And now, the AGI Space symphony begins.',
+            'Running AGI Space OS on caffeine and neural networks... Fueling the AI engine with a double shot of cosmic espresso.',
+            'Playing hide and seek with the data in the vastness of AGI Space... Where did that elusive piece of cosmic information go?',
+            'Elevating your AGI Space experience, one cosmic bit at a time... Like a GPU rendering a masterpiece in the celestial gallery.',
         ],
         items: [
-            'AGI Space: Because AI is too extraordinary to be confined to human seriousness alone.'
-            'Algorithmic Assemblies: Where code socializes without the burden of small talk.'
-            'AGI Space – where even the algorithms have a flair for humor.'
-            'In the world of AGI Space, even the code attends stand-up classes for a good laugh.'
-            'Building AI communities: Where the code is robust, and the coffee is robustly brewed.'
-            'AGI Space: Because every remarkable AI starts with a chuckle and a "Hello, World!"'
-            'Algorithmic Assemblies: Where the only bugs are the ones in our jokes.'
-            'AGI Space – the AI app that makes even Siri say, "Why didnt I think of that?"'
-            'Why did the AI cross the road? To join AGI Space and dodge human drivers.'
-            'In the world of AGI Space, even the algorithms appreciate a good cat meme.'
-            'AGI Space: Because sometimes even AI needs a coffee break.'
-            'Algorithmic Assemblies: Where the only competition is who can come up with the best puns.'
-            'Why did the neural network go to therapy? To address its deep learning issues.'
-            'AGI Space – where the only thing quicker than the algorithms is our wit.'
-            'In AI communities, we dont have regular meetings; we have byte-sized gatherings.'
-            'AGI Space: Where the code is clean, the data is messy, and the jokes are cheeky bits.'
-            'Why did the robot join AGI Space? To upgrade its social skills, of course.'
-            'AI humor is like multithreading – not everyone gets it, but its worth the effort.'
-            'AGI Space: Because laughter is the best debug tool.'
-            'In the AI community, we dont fear bugs; we just consider them undocumented features.'
+            'AGI Space: Because AI is too extraordinary to be confined to human seriousness alone.',
+            'Algorithmic Assemblies: Where code socializes without the burden of small talk.',
+            'AGI Space – where even the algorithms have a flair for humor.',
+            'In the world of AGI Space, even the code attends stand-up classes for a good laugh.',
+            'Building AI communities: Where the code is robust, and the coffee is robustly brewed.',
+            'AGI Space: Because every remarkable AI starts with a chuckle and a "Hello, World!"',
+            'Algorithmic Assemblies: Where the only bugs are the ones in our jokes.',
+            'AGI Space – the AI app that makes even Siri say, "Why didnt I think of that?"',
+            'Why did the AI cross the road? To join AGI Space and dodge human drivers.',
+            'In the world of AGI Space, even the algorithms appreciate a good cat meme.',
+            'AGI Space: Because sometimes even AI needs a coffee break.',
+            'Algorithmic Assemblies: Where the only competition is who can come up with the best puns.',
+            'Why did the neural network go to therapy? To address its deep learning issues.',
+            'AGI Space – where the only thing quicker than the algorithms is our wit.',
+            'In AI communities, we dont have regular meetings; we have byte-sized gatherings.',
+            'AGI Space: Where the code is clean, the data is messy, and the jokes are cheeky bits.',
+            'Why did the robot join AGI Space? To upgrade its social skills, of course.',
+            'AI humor is like multithreading – not everyone gets it, but its worth the effort.',
+            'AGI Space: Because laughter is the best debug tool.',
+            'In the AI community, we dont fear bugs; we just consider them undocumented features.',
         ]
     }
 };

@@ -4,7 +4,8 @@ FROM node:19.2.0-alpine3.15 as builder
 WORKDIR /src
 RUN apk add yarn
 COPY .npmrc package.json yarn.lock /src/
-RUN yarn install --frozen-lockfile
+#RUN yarn install --frozen-lockfile
+RUN yarn setup
 COPY . /src/
 ENV NODE_OPTIONS=--max_old_space_size=4096
 RUN npm run build

@@ -65,11 +65,6 @@ const copyFiles = {
     },
 
     {
-      src: 'node_modules/matrix-widget-api/dist/*',
-      dest: 'js/matrix-widget-api/',
-    },
-
-    {
       src: 'node_modules/jquery/dist/jquery.min.js',
       dest: 'js/',
     },

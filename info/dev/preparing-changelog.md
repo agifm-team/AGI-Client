@@ -17,3 +17,6 @@
 - Image uploader firefox css fixed.
 - Pronouns profile support added.
 - New clock configs.
+- Try load chat page button added.
+- Category button position fixed.
+- Icon status border added.

@@ -1,5 +1,3 @@
-    --> Colocar bordar nos ícones de status.
-
     --> Fazer o marcador que separa a lista de amigos da lista de DMs estranhos.
     --> Fazer uma configuração se o usuário vai ou não receber notificação de DMs estranhos.
 
@@ -42,8 +40,6 @@ Made by Me
         Clock das mensagens.
 
     =======================================================
-
-    --> Ajeitar o css do ocultador de lista de canais.
 
     --> Ajeitar... Ao criar uma sala, o app está jogando para o menu de homes. Isso não pode acotecer se a room for dentro de um space.
     (Isso também acontece quando tenta criar uma DM)

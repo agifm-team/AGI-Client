@@ -55,26 +55,26 @@ export default {
             'Elevating your Multi experience, one bit at a time... Like a GPU rendering a masterpiece.',
         ],
         items: [
-            'Multi: Because AI is too serious to be left to humans alone.',
-            'AI communities: Where algorithms socialize without the need for small talk.',
-            'Multi – where even the algorithms have a sense of humor.',
-            'In the world of Multi, even the code attends stand-up classes.',
-            'Building AI communities: Where the code is strong, and the coffee is stronger.',
-            'Multi: Because every good AI starts with a laugh and a \'Hello, World!\'',
-            'AI communities: Where the only bugs are the ones in our jokes.',
-            'Multi – the AI app that makes even Siri say, \'Why didn\'t I think of that?\'',
-            'Why did the AI cross the road? To join Multi and avoid human drivers.',
-            'In the world of Multi, even the algorithms appreciate a good cat meme.',
-            'Multi: Because sometimes even AI needs a coffee break.',
-            'AI communities: Where the only competition is who can come up with the best puns.',
-            'Why did the neural network go to therapy? To deal with its deep learning issues.',
-            'Multi – where the only thing faster than the algorithms is our wit.',
-            'In AI communities, we don\'t have regular meetings; we have byte-sized gatherings.',
-            'Multi: Where the code is clean, the data is messy, and the jokes are dirty bits.',
-            'Why did the robot join Multi? Because it wanted to upgrade its social skills.',
-            'AI humor is like multithreading – not everyone gets it, but it\'s worth the effort.',
-            'Multi: Because laughter is the best debug tool.',
-            'In the AI community, we don\'t fear bugs; we just consider them undocumented features.'
+            'AGI Space: Because AI is too extraordinary to be confined to human seriousness alone.'
+            'Algorithmic Assemblies: Where code socializes without the burden of small talk.'
+            'AGI Space – where even the algorithms have a flair for humor.'
+            'In the world of AGI Space, even the code attends stand-up classes for a good laugh.'
+            'Building AI communities: Where the code is robust, and the coffee is robustly brewed.'
+            'AGI Space: Because every remarkable AI starts with a chuckle and a "Hello, World!"'
+            'Algorithmic Assemblies: Where the only bugs are the ones in our jokes.'
+            'AGI Space – the AI app that makes even Siri say, "Why didnt I think of that?"'
+            'Why did the AI cross the road? To join AGI Space and dodge human drivers.'
+            'In the world of AGI Space, even the algorithms appreciate a good cat meme.'
+            'AGI Space: Because sometimes even AI needs a coffee break.'
+            'Algorithmic Assemblies: Where the only competition is who can come up with the best puns.'
+            'Why did the neural network go to therapy? To address its deep learning issues.'
+            'AGI Space – where the only thing quicker than the algorithms is our wit.'
+            'In AI communities, we dont have regular meetings; we have byte-sized gatherings.'
+            'AGI Space: Where the code is clean, the data is messy, and the jokes are cheeky bits.'
+            'Why did the robot join AGI Space? To upgrade its social skills, of course.'
+            'AI humor is like multithreading – not everyone gets it, but it's worth the effort.'
+            'AGI Space: Because laughter is the best debug tool.'
+            'In the AI community, we don't fear bugs; we just consider them undocumented features.'
         ]
     }
 };

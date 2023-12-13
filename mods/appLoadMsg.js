@@ -72,9 +72,9 @@ export default {
             'In AI communities, we dont have regular meetings; we have byte-sized gatherings.'
             'AGI Space: Where the code is clean, the data is messy, and the jokes are cheeky bits.'
             'Why did the robot join AGI Space? To upgrade its social skills, of course.'
-            'AI humor is like multithreading – not everyone gets it, but it's worth the effort.'
+            'AI humor is like multithreading – not everyone gets it, but its worth the effort.'
             'AGI Space: Because laughter is the best debug tool.'
-            'In the AI community, we don't fear bugs; we just consider them undocumented features.'
+            'In the AI community, we dont fear bugs; we just consider them undocumented features.'
         ]
     }
 };

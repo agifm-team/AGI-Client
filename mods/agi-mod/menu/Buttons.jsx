@@ -190,7 +190,7 @@ export default function buttons() {
         id: 'agi-superagent-modal',
         dialog: 'modal-fullscreen',
         title: 'SuperAgent',
-        body: jReact(<iframe title='SuperAgent' src={'https://super.multi.so'} className='w-100 height-modal-full-size' style={{ backgroundColor: '#000' }} />)
+        body: jReact(<iframe title='SuperAgent' src={'https://super.agispace.co'} className='w-100 height-modal-full-size' style={{ backgroundColor: '#000' }} />)
     }));
 
     // Append

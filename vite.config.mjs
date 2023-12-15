@@ -140,6 +140,9 @@ export default defineConfig(({ command, mode }) => {
       welcome: String(env.appWelcome)
     },
 
+    web3: !!(env.web3 === true || env.web3 === 'true'),
+    ipfs: !!(env.ipfs === true || env.ipfs === 'true'),
+
     login: {
       defaultHomeserver: Number(env.defaultHomeserver),
       allowCustomHomeservers: !!(typeof env.allowCustomHomeservers === 'string' && env.allowCustomHomeservers === 'true'),
@@ -217,6 +220,10 @@ export default defineConfig(({ command, mode }) => {
 
     result.clearScreen = false;
 
+    const rollupOptions = {
+      external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
+    };
+
     result.plugins.push(electron([
 
       {
@@ -237,9 +244,7 @@ export default defineConfig(({ command, mode }) => {
             sourcemap,
             minify: isBuild,
             outDir: 'dist-electron/main',
-            rollupOptions: {
-              external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
-            },
+            rollupOptions,
           },
         },
 
@@ -260,9 +265,7 @@ export default defineConfig(({ command, mode }) => {
             sourcemap: sourcemap ? 'inline' : undefined, // #332
             minify: isBuild,
             outDir: 'dist-electron/preload',
-            rollupOptions: {
-              external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
-            },
+            rollupOptions,
           },
         },
 

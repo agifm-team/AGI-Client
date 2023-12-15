@@ -174,6 +174,7 @@ export function getWeb3Cfg(folder, getDefault = true) {
     return null;
   }
 
+  if (!__ENV_APP__.web3) content.web3Enabled = false;
   return content;
 
 };
@@ -233,7 +234,7 @@ tinyCrypto.decimals = Object.freeze({
 const startWeb3 = () => {
 
   // Check if Web3 has been injected by the browser (Mist/MetaMask).
-  if ((typeof ethereum !== 'undefined' && (window.ethereum.isMetaMask || window.ethereum.isFrame)) || __ENV_APP__.electron_mode) {
+  if (__ENV_APP__.web3 && ((typeof ethereum !== 'undefined' && (window.ethereum.isMetaMask || window.ethereum.isFrame)) || __ENV_APP__.electron_mode)) {
 
     // Checker
     tinyCrypto.existEthereum = () => (typeof window.ethereum !== 'undefined' || __ENV_APP__.electron_mode);

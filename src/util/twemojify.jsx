@@ -25,8 +25,13 @@ linkify.registerCustomProtocol('irc');
 
 linkify.registerCustomProtocol('ftp');
 
+// ELECTRON GLITCH ON __ENV_APP__
+// if (__ENV_APP__.ipfs) {
 linkify.registerCustomProtocol('ipfs');
+// }
 
+// ELECTRON GLITCH ON __ENV_APP__
+// if (__ENV_APP__.web3) {
 linkify.registerCustomProtocol('bitcoin');
 linkify.registerCustomProtocol('dogecoin');
 linkify.registerCustomProtocol('monero');
@@ -36,6 +41,7 @@ linkify.registerCustomProtocol('web3');
 
 linkify.registerCustomProtocol('ar');
 linkify.registerCustomProtocol('lbry');
+// }
 
 // Register Keywords
 const tinywords = [];

@@ -12,6 +12,7 @@ import { objType, tinyConfirm, toast } from '../../../../src/util/tools';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 import openTinyURL from '../../../../src/util/message/urlProtection';
 import { getRoomInfo } from '../../../../src/app/organisms/room/Room';
+import moment from '../../../../src/util/libs/momentjs';
 
 const updateInputValue = (input, dropdown, value, filePath = '') => {
 

@@ -65,9 +65,18 @@ const getInputValues = (comps) => {
             try {
 
                 const value = !comps.input[index].data.isNumber ? comps.input[index].data.value.val() : Number(comps.input[index].data.value.val());
-                if (typeof value === 'string' || typeof value === 'number') {
-                    result = value;
+                if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+
+                    if (!comps.input[index].data.isCheckbox) {
+                        result = value;
+                    } else if (value === 'true' || value === true) {
+                        result = true
+                    } else {
+                        result = false;
+                    }
+
                     allowed = true;
+
                 } else {
                     result = null;
                 }

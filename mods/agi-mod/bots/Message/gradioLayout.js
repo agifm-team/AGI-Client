@@ -1039,7 +1039,7 @@ const components = {
                             const img = new Image();
                             img.onload = function () {
                                 imageViewer(null, $(img), `${appId}_${compId}_${item}`, imgUrl).then((pswp) => {
-                                    pswp.on('close', pswp.destroy());
+                                    // pswp.on('close', pswp.destroy());
                                 });
                             };
 

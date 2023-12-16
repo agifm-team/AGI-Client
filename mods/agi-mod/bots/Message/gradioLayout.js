@@ -2336,8 +2336,15 @@ class GradioLayout {
 
                     // jQuery
                     if (input.type === 'jquery') {
-                        input.value.val(values.props.value);
+
+                        if (!input.isCheckbox) {
+                            input.value.val(values.props.value);
+                        } else {
+                            input.value.prop('checked', values.props.value);
+                        }
+
                         input.value.trigger('change');
+
                     }
 
                     // Blob

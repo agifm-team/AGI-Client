@@ -1589,7 +1589,7 @@ const components = {
 
             input.val(props.value);
             numberInput.val(props.value);
-            tinyPlace.data('gradio_input', { type: 'jquery', isNumber: true, value: numberInput });
+            tinyPlace.data('gradio_input', { type: 'jquery', isNumber: true, value: numberInput, value2: input });
 
         };
 

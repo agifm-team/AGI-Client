@@ -226,6 +226,7 @@ function GradioEmbed({ agiData }) {
                                 let loadingUpdate = true;
                                 const syncUpdate = (tinyPromps, depId, where) => {
                                     const props = clone(tinyPromps);
+                                    // console.log(tinyPromps, depId, where);
                                     if (!loadingUpdate) ymap().set(String(depId), props);
                                 };
 
@@ -283,6 +284,7 @@ function GradioEmbed({ agiData }) {
                                             // jQuery
                                             if (component.input.type === 'jquery') {
                                                 prepareEmbedsFunc.push(() => component.input.value.on('change', valueUpdater));
+                                                if (component.input.value2) prepareEmbedsFunc.push(() => component.input.value2.on('change', valueUpdater));
                                             }
 
                                         }
@@ -291,6 +293,7 @@ function GradioEmbed({ agiData }) {
                                         if (component.dropdown) {
                                             if (component.dropdown.type === 'jquery') {
                                                 prepareEmbedsFunc.push(() => component.dropdown.value.on('change', valueUpdater));
+                                                if (component.dropdown.value2) prepareEmbedsFunc.push(() => component.dropdown.value2.on('change', valueUpdater));
                                             }
                                         }
 
@@ -325,8 +328,6 @@ function GradioEmbed({ agiData }) {
                                             }
 
                                         }
-
-                                        // console.log(props?.value);
 
                                         // Complete
                                         return needsUpdate;

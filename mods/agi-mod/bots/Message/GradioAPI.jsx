@@ -64,19 +64,18 @@ const getInputValues = (comps) => {
         if (comps.input[index].data.type === 'jquery') {
             try {
 
-                const value = !comps.input[index].data.isNumber ? comps.input[index].data.value.val() : Number(comps.input[index].data.value.val());
+                let value = null;
+                if (comps.input[index].data.isNumber) {
+                    value = Number(comps.input[index].data.value.val());
+                } else if (comps.input[index].data.isCheckbox) {
+                    value = comps.input[index].data.value.is(':checked');
+                } else {
+                    value = comps.input[index].data.value.val();
+                }
+
                 if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-
-                    if (!comps.input[index].data.isCheckbox) {
-                        result = value;
-                    } else if (value === 'true' || value === true) {
-                        result = true
-                    } else {
-                        result = false;
-                    }
-
+                    result = value;
                     allowed = true;
-
                 } else {
                     result = null;
                 }

@@ -222,6 +222,11 @@ const datasetComponents = {
         td.on('mouseout', () => video.get(0).pause());
         return video;
 
+    },
+
+    image: (fileName, url) => {
+        const img = $('<img>', { src: `${fileUrlGenerator(url)}${fileName}`, class: 'img-fluid', alt: url });
+        return img;
     }
 
 };

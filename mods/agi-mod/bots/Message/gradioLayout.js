@@ -496,7 +496,6 @@ const components = {
 
     },
 
-    /// 
     audio: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -793,7 +792,6 @@ const components = {
 
     },
 
-    ///
     dataset: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -808,6 +806,7 @@ const components = {
 
             const inputs = [];
             const table = $('<table>', { class: 'table table-hover table-bordered border border-bg' });
+            // const table = $('<div>', { class: 'row border border-bg' });
 
             let isSingle = true;
 

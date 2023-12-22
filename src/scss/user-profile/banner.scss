@@ -60,7 +60,7 @@
     height: 140px;
     background-position: center;
     background-repeat: no-repeat;
-    background-size: auto 100%;
+    background-size: 100% auto;
   }
 
   .profile-user-profile-avatar {
@@ -75,6 +75,12 @@
   .avatar-react {
     height: 87px !important;
     width: 101px !important;
+  }
+
+  .ff-canvas,
+  .ff-image {
+    height: 87px !important;
+    width: 87px !important;
   }
 
   .avatar-container {

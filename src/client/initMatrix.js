@@ -13,14 +13,35 @@ import logger from './logger';
 
 global.Olm = Olm;
 
+const startCustomDNS = () => {
+  if (__ENV_APP__.ELECTRON_MODE) {
+    if (typeof global.startCustomDNS === 'function') {
+      global.startCustomDNS({
+
+        port: __ENV_APP__.MODE !== 'development' ? __ENV_APP__.CUSTOM_DNS.PORT : __ENV_APP__.CUSTOM_DNS.PORT - 1,
+        devMode: __ENV_APP__.MODE === 'development',
+        enabled: __ENV_APP__.CUSTOM_DNS.ENABLED,
+
+        ud: {
+          polygon: __ENV_APP__.CUSTOM_DNS.BLOCKCHAIN.ud.polygon,
+        },
+
+        ens: __ENV_APP__.CUSTOM_DNS.BLOCKCHAIN.ens,
+
+      });
+    }
+  }
+};
+
 class InitMatrix extends EventEmitter {
   constructor() {
     super();
-
     navigation.initMatrix = this;
+    startCustomDNS();
   }
 
   async init() {
+    startCustomDNS();
     await this.startClient();
     this.setupSync();
     this.listenEvents();
@@ -28,13 +49,15 @@ class InitMatrix extends EventEmitter {
 
   async startClient() {
 
+    startCustomDNS();
+
     const indexedDBStore = new sdk.IndexedDBStore({
       indexedDB: global.indexedDB,
       localStorage: global.localStorage,
       dbName: 'web-sync-store',
     });
 
-    this.matrixClient = sdk.createClient({
+    const clientOps = {
 
       baseUrl: secret.baseUrl,
 
@@ -51,7 +74,16 @@ class InitMatrix extends EventEmitter {
         'm.sas.v1',
       ],
 
-    });
+    };
+
+    if (__ENV_APP__.ELECTRON_MODE) {
+      clientOps.fetchFn = (url, ops) => {
+        if (typeof global.nodeFetch === 'function') return global.nodeFetch(url.href, ops);
+        return global.fetch(url.href, ops);
+      };
+    }
+
+    this.matrixClient = sdk.createClient(clientOps);
 
     await indexedDBStore.startup();
 
@@ -66,6 +98,7 @@ class InitMatrix extends EventEmitter {
   }
 
   setupSync() {
+    startCustomDNS();
     const sync = {
       NULL: () => {
         logger.log(`NULL state`);
@@ -76,7 +109,7 @@ class InitMatrix extends EventEmitter {
       PREPARED: (prevState) => {
         logger.log(`PREPARED state`);
         logger.log(`Previous state: `, prevState);
-        if (__ENV_APP__.mode === 'development') { global.initMatrix = this; }
+        if (__ENV_APP__.MODE === 'development') { global.initMatrix = this; }
         if (prevState === null) {
           this.roomList = new RoomList(this.matrixClient);
           this.accountData = new AccountData(this.roomList);
@@ -105,6 +138,7 @@ class InitMatrix extends EventEmitter {
   }
 
   listenEvents() {
+    startCustomDNS();
     this.matrixClient.on('Session.logged_out', async () => {
       this.matrixClient.stopClient();
       await this.matrixClient.clearStores();
@@ -114,6 +148,7 @@ class InitMatrix extends EventEmitter {
   }
 
   async logout() {
+    startCustomDNS();
     this.matrixClient.stopClient();
     try {
       await this.matrixClient.logout();
@@ -126,6 +161,7 @@ class InitMatrix extends EventEmitter {
   }
 
   clearCacheAndReload() {
+    startCustomDNS();
     this.matrixClient.stopClient();
     this.matrixClient.store.deleteAllData().then(() => {
       window.location.reload();

@@ -68,7 +68,7 @@ function PeopleSelectorBanner({
     if (content && objType(content.presenceStatusMsg, 'object')) {
 
       const presence = content.presenceStatusMsg;
-      const ethereumValid = (presence.ethereum && presence.ethereum.valid);
+      const ethereumValid = (__ENV_APP__.WEB3 && presence.ethereum && presence.ethereum.valid);
 
       // Ethereum
       if (ethereumValid) {
@@ -250,7 +250,7 @@ function PeopleSelectorBanner({
 
       // Update Note
       const tinyNoteUpdate = (event) => {
-        addToDataFolder('user_cache', 'note', user.userId, $(event.target).val(), 500);
+        addToDataFolder('user_cache', 'note', user.userId, $(event.target).val(), 200);
       };
 
       // Read Events

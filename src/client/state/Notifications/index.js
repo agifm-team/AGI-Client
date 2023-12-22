@@ -14,6 +14,7 @@ import { html, plain } from '../../../util/markdown';
 import { getAccountStatus } from '../../../app/organisms/navigation/ProfileAvatarMenu';
 import { messageIsClassicCrdt } from '../../../util/libs/crdt';
 import { checkerFavIcon } from '../../../util/libs/favicon';
+import { getPrivacyRefuseRoom } from '../../../app/organisms/navigation/Sidebar/InviteSidebar';
 
 const soundFiles = {
   notification: new Audio('./sound/notification.ogg'),
@@ -267,7 +268,7 @@ class Notifications extends EventEmitter {
 
     // Check Window
     if (
-      (!__ENV_APP__.electron_mode || typeof window.getElectronShowStatus !== 'function' || window.getElectronShowStatus()) &&
+      (!__ENV_APP__.ELECTRON_MODE || typeof window.getElectronShowStatus !== 'function' || window.getElectronShowStatus()) &&
       !$('body').hasClass('modal-open') &&
       navigation.selectedRoomId === room.roomId &&
       document.visibilityState === 'visible' &&
@@ -348,7 +349,7 @@ class Notifications extends EventEmitter {
 
         // Silent Mode
         let noti;
-        if (__ENV_APP__.electron_mode) {
+        if (__ENV_APP__.ELECTRON_MODE) {
           notiData.silent = true;
           noti = await window.desktopNotification(notiData);
         } else {
@@ -357,7 +358,7 @@ class Notifications extends EventEmitter {
         }
 
         // Play Notification
-        if (__ENV_APP__.electron_mode) {
+        if (__ENV_APP__.ELECTRON_MODE) {
 
           if (settings.isNotificationSounds) {
             noti.on('show', () => this._playNotiSound());
@@ -387,7 +388,7 @@ class Notifications extends EventEmitter {
         }
 
         // Send Notification
-        if (__ENV_APP__.electron_mode) {
+        if (__ENV_APP__.ELECTRON_MODE) {
           noti.show();
         }
 
@@ -534,7 +535,7 @@ class Notifications extends EventEmitter {
         this.deleteNoti(room.roomId);
       }
 
-      if (membership === 'invite') {
+      if (membership === 'invite' && !getPrivacyRefuseRoom(null, room)) {
         this._playInviteSound();
       }
 

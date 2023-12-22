@@ -82,22 +82,6 @@ tabItems.push({
 tabItems.push({ type: 'divider', });
 
 tabItems.push({
-  text: tabText.IPFS,
-  faSrc: "fa-solid fa-cube",
-  disabled: false,
-  render: () => <IpfsSection />,
-});
-
-tabItems.push({
-  text: tabText.WEB3,
-  faSrc: "fa-brands fa-ethereum",
-  disabled: false,
-  render: () => <Web3Section />,
-});
-
-tabItems.push({ type: 'divider', });
-
-tabItems.push({
   text: tabText.NOTIFICATIONS,
   faSrc: "fa-solid fa-bell",
   disabled: false,
@@ -118,23 +102,47 @@ tabItems.push({
   render: () => <PrivacySection />,
 });
 
-if (__ENV_APP__.electron_mode) {
+if (__ENV_APP__.ELECTRON_MODE) {
   tabItems.push({
 
-    text: tabText.OS.replace('{OS}', __ENV_APP__.platform === 'win32' ? 'Windows' :
-      __ENV_APP__.platform === 'linux' ? 'Linux' :
-        __ENV_APP__.platform === 'darwin' ? 'Mac'
+    text: tabText.OS.replace('{OS}', __ENV_APP__.PLATFORM === 'win32' ? 'Windows' :
+      __ENV_APP__.PLATFORM === 'linux' ? 'Linux' :
+        __ENV_APP__.PLATFORM === 'darwin' ? 'Mac'
           : 'OS'),
 
-    faSrc: __ENV_APP__.platform === 'win32' ? 'fa-brands fa-windows' :
-      __ENV_APP__.platform === 'linux' ? 'fa-brands fa-linux' :
-        __ENV_APP__.platform === 'darwin' ? 'fa-brands fa-apple'
+    faSrc: __ENV_APP__.PLATFORM === 'win32' ? 'fa-brands fa-windows' :
+      __ENV_APP__.PLATFORM === 'linux' ? 'fa-brands fa-linux' :
+        __ENV_APP__.PLATFORM === 'darwin' ? 'fa-brands fa-apple'
           : 'fa-solid fa-computer',
 
     disabled: false,
     render: () => <OsSection />,
 
   });
+}
+
+if (__ENV_APP__.WEB3 || __ENV_APP__.IPFS) {
+
+  tabItems.push({ type: 'divider', });
+
+  if (__ENV_APP__.IPFS) {
+    tabItems.push({
+      text: tabText.IPFS,
+      faSrc: "fa-solid fa-cube",
+      disabled: false,
+      render: () => <IpfsSection />,
+    });
+  }
+
+  if (__ENV_APP__.WEB3) {
+    tabItems.push({
+      text: tabText.WEB3,
+      faSrc: "fa-brands fa-ethereum",
+      disabled: false,
+      render: () => <Web3Section />,
+    });
+  }
+
 }
 
 tabItems.push({ type: 'divider', });

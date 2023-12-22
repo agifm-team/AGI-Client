@@ -14,10 +14,12 @@ function UserOptions({ userId, afterOptionSelect }) {
 
     const mx = initMatrix.matrixClient;
     const user = mx.getUser(userId);
+    const isWhitelist = getDataList('user_cache', 'whitelist', userId);
 
     return (
         <div className="noselect emoji-size-fix w-100" style={{ maxWidth: '256px' }}>
             <MenuHeader>{twemojifyReact(`User Options for ${user?.userId}`)}</MenuHeader>
+
             <MenuItem className="text-start" faSrc="fa-solid fa-user-pen" onClick={async () => {
 
                 afterOptionSelect();
@@ -38,9 +40,21 @@ function UserOptions({ userId, afterOptionSelect }) {
                     }
                 });
 
-                if (typeof nickname === 'string') addToDataFolder('user_cache', 'friend_nickname', userId, nickname, 500);
+                if (typeof nickname === 'string') addToDataFolder('user_cache', 'friend_nickname', userId, nickname);
 
             }} >Change Friend Nickname</MenuItem>
+
+            {userId !== mx.getUserId() ? <MenuItem className="text-start" faSrc="fa-solid fa-envelope-circle-check" onClick={() => {
+
+                afterOptionSelect();
+                if (isWhitelist) {
+                    addToDataFolder('user_cache', 'whitelist', userId, false);
+                } else {
+                    addToDataFolder('user_cache', 'whitelist', userId, true);
+                }
+
+            }} >{!isWhitelist ? 'Add Invite Whitelist' : 'Remove Invite Whitelist'}</MenuItem> : null}
+
         </div>
     );
 }

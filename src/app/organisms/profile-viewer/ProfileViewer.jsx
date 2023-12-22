@@ -520,7 +520,7 @@ function ProfileViewer() {
         // Update Status Icon
         const content = updateUserStatusIcon(status, tinyUser);
         const existPresence = (content && content.presenceStatusMsg);
-        const ethereumValid = (existPresence && content.presenceStatusMsg.ethereum && content.presenceStatusMsg.ethereum.valid);
+        const ethereumValid = (__ENV_APP__.WEB3 && existPresence && content.presenceStatusMsg.ethereum && content.presenceStatusMsg.ethereum.valid);
         if (existPresence) {
 
           // Ethereum
@@ -550,7 +550,7 @@ function ProfileViewer() {
 
       // Update Note
       const tinyNoteUpdate = (event) => {
-        addToDataFolder('user_cache', 'note', userId, $(event.target).val(), 500);
+        addToDataFolder('user_cache', 'note', userId, $(event.target).val(), 200);
       };
 
       const tinyNoteSpacing = (event) => {

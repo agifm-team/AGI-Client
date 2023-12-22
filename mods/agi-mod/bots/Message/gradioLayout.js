@@ -222,6 +222,11 @@ const datasetComponents = {
         td.on('mouseout', () => video.get(0).pause());
         return video;
 
+    },
+
+    image: (fileName, url) => {
+        const img = $('<img>', { src: `${fileUrlGenerator(url)}${fileName}`, class: 'img-fluid', alt: url });
+        return img;
     }
 
 };
@@ -491,7 +496,6 @@ const components = {
 
     },
 
-    /// 
     audio: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -788,7 +792,6 @@ const components = {
 
     },
 
-    ///
     dataset: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -803,6 +806,7 @@ const components = {
 
             const inputs = [];
             const table = $('<table>', { class: 'table table-hover table-bordered border border-bg' });
+            // const table = $('<div>', { class: 'row border border-bg' });
 
             let isSingle = true;
 
@@ -1039,7 +1043,7 @@ const components = {
                             const img = new Image();
                             img.onload = function () {
                                 imageViewer(null, $(img), `${appId}_${compId}_${item}`, imgUrl).then((pswp) => {
-                                    pswp.on('close', pswp.destroy());
+                                    // pswp.on('close', pswp.destroy());
                                 });
                             };
 
@@ -1589,7 +1593,7 @@ const components = {
 
             input.val(props.value);
             numberInput.val(props.value);
-            tinyPlace.data('gradio_input', { type: 'jquery', isNumber: true, value: numberInput });
+            tinyPlace.data('gradio_input', { type: 'jquery', isNumber: true, value: numberInput, value2: input });
 
         };
 
@@ -2336,8 +2340,15 @@ class GradioLayout {
 
                     // jQuery
                     if (input.type === 'jquery') {
-                        input.value.val(values.props.value);
+
+                        if (!input.isCheckbox) {
+                            input.value.val(values.props.value);
+                        } else {
+                            input.value.prop('checked', values.props.value);
+                        }
+
                         input.value.trigger('change');
+
                     }
 
                     // Blob

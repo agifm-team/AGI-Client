@@ -1,9 +1,8 @@
-    --> Fazer o marcador que separa a lista de amigos da lista de DMs estranhos.
-    --> Fazer uma configuração se o usuário vai ou não receber notificação de DMs estranhos.
+    --> net::ERR_FAILED 429 (Too Many Requests)
+
+    --> Menu mobile de ícones precisa parar de ser table usar flex.
 
     --> Criar leitor de mensagens fixadas
-
-    Permissão para convidar usuários.
 
     =======================================================
 
@@ -37,7 +36,7 @@ Made by Me
         O atualizar de emojis de rooms só funciona quando muda de room.
         Lista de usuários online na room ainda não atualiza em tempo real.
         Banner do space.
-        Clock das mensagens.
+        Clock Mode das mensagens.
 
     =======================================================
 

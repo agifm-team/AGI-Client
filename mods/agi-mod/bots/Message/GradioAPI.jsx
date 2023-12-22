@@ -12,6 +12,7 @@ import { objType, tinyConfirm, toast } from '../../../../src/util/tools';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 import openTinyURL from '../../../../src/util/message/urlProtection';
 import { getRoomInfo } from '../../../../src/app/organisms/room/Room';
+import moment from '../../../../src/util/libs/momentjs';
 
 const updateInputValue = (input, dropdown, value, filePath = '') => {
 
@@ -63,8 +64,16 @@ const getInputValues = (comps) => {
         if (comps.input[index].data.type === 'jquery') {
             try {
 
-                const value = !comps.input[index].data.isNumber ? comps.input[index].data.value.val() : Number(comps.input[index].data.value.val());
-                if (typeof value === 'string' || typeof value === 'number') {
+                let value = null;
+                if (comps.input[index].data.isNumber) {
+                    value = Number(comps.input[index].data.value.val());
+                } else if (comps.input[index].data.isCheckbox) {
+                    value = comps.input[index].data.value.is(':checked');
+                } else {
+                    value = comps.input[index].data.value.val();
+                }
+
+                if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
                     result = value;
                     allowed = true;
                 } else {
@@ -216,6 +225,7 @@ function GradioEmbed({ agiData }) {
                                 let loadingUpdate = true;
                                 const syncUpdate = (tinyPromps, depId, where) => {
                                     const props = clone(tinyPromps);
+                                    // console.log(tinyPromps, depId, where);
                                     if (!loadingUpdate) ymap().set(String(depId), props);
                                 };
 
@@ -273,6 +283,7 @@ function GradioEmbed({ agiData }) {
                                             // jQuery
                                             if (component.input.type === 'jquery') {
                                                 prepareEmbedsFunc.push(() => component.input.value.on('change', valueUpdater));
+                                                if (component.input.value2) prepareEmbedsFunc.push(() => component.input.value2.on('change', valueUpdater));
                                             }
 
                                         }
@@ -281,6 +292,7 @@ function GradioEmbed({ agiData }) {
                                         if (component.dropdown) {
                                             if (component.dropdown.type === 'jquery') {
                                                 prepareEmbedsFunc.push(() => component.dropdown.value.on('change', valueUpdater));
+                                                if (component.dropdown.value2) prepareEmbedsFunc.push(() => component.dropdown.value2.on('change', valueUpdater));
                                             }
                                         }
 
@@ -316,8 +328,6 @@ function GradioEmbed({ agiData }) {
 
                                         }
 
-                                        // console.log(props?.value);
-
                                         // Complete
                                         return needsUpdate;
 
@@ -328,13 +338,14 @@ function GradioEmbed({ agiData }) {
                                 };
 
                                 // Send Update
-                                const sendTinyUpdate = (output, value, dataset, isSubmit = false, subIndex = -1, isLastSubIndex = false, subResult = []) => {
+                                const sendTinyUpdate = (where, output, value, dataset, isSubmit = false, subIndex = -1, isLastSubIndex = false, subResult = []) => {
 
                                     if (
                                         objType(output, 'object') &&
                                         objType(output.data, 'object') &&
                                         typeof value !== 'undefined' &&
-                                        (value || value === null)
+                                        // (value || value === null)
+                                        (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean')
                                     ) {
 
                                         let tinyValue = value;
@@ -352,7 +363,7 @@ function GradioEmbed({ agiData }) {
                                         const dropdown = embedData.getDropdown(output.depId);
                                         if (objType(input, 'object')) {
                                             data.props.value = tinyValue;
-                                            syncUpdate(data.props, output.depId, 'sendTinyUpdate');
+                                            syncUpdate(data.props, output.depId, `sendTinyUpdate_${where}`);
                                             updateInputValue(input, dropdown, tinyValue);
                                         }
 
@@ -430,7 +441,9 @@ function GradioEmbed({ agiData }) {
                                             // Object
                                             if (objType(value, 'object') && objType(value.value, 'object')) {
                                                 for (const item in value) {
-                                                    embedValues.props[item] = value[item];
+                                                    if (typeof value[item] === 'string' || typeof value[item] === 'number' || typeof value[item] === 'boolean') {
+                                                        embedValues.props[item] = value[item];
+                                                    }
                                                 }
                                             }
 
@@ -440,7 +453,7 @@ function GradioEmbed({ agiData }) {
                                             }
 
                                             // Normal Value
-                                            else {
+                                            else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
                                                 embedValues.props.value = value;
                                                 syncUpdate(embedValues.props, output.depId, 'isSubmit');
                                             }
@@ -500,6 +513,7 @@ function GradioEmbed({ agiData }) {
                                                                 typeof tinyData === 'string' ? tinyData : null;
 
                                                         sendTinyUpdate(
+                                                            'jobData',
                                                             comps.output[index],
                                                             value,
                                                             null,
@@ -600,6 +614,7 @@ function GradioEmbed({ agiData }) {
                                         const dataset = config.components.find(comp => comp.id === depId);
                                         for (const index in comps.output) {
                                             sendTinyUpdate(
+                                                'tinyAction',
                                                 comps.output[index],
                                                 Array.isArray(depItem.js) && typeof depItem.js[index] !== 'undefined' ? depItem.js[index] : null,
                                                 objType(dataset, 'object') && objType(dataset.props, 'object') ? {

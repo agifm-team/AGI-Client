@@ -124,34 +124,54 @@ export default defineConfig(({ command, mode }) => {
 
   const envData = {
 
-    mode,
-    command,
-    electron_mode: electronMode,
-    version: pkg.version,
-    deps: pkg.dependencies,
-    platform: process.platform,
+    MODE: mode,
+    COMMAND: command,
+    ELECTRON_MODE: electronMode,
+    VERSION: pkg.version,
+    DEPS: pkg.dependencies,
+    PLATFORM: process.platform,
+    CUSTOM_DNS: {
 
-    info: {
+      ENABLED: !!(env.CUSTOM_DNS === true || env.CUSTOM_DNS === 'true'),
+      PORT: Number(env.CUSTOM_DNS_PORT),
+
+      BLOCKCHAIN: {
+
+        ud: {
+          polygon: env.UD_POLYGON_DNS,
+        },
+
+        ens: env.ETHEREUM_DNS,
+
+      },
+
+    },
+
+    INFO: {
       name: String(pkg.short_name),
       description: pkg.description,
       keywords: pkg.keywords,
       author: pkg.author,
       license: pkg.license,
-      welcome: String(env.appWelcome)
+      welcome: String(env.APP_WELCOME)
     },
 
-    login: {
-      defaultHomeserver: Number(env.defaultHomeserver),
-      allowCustomHomeservers: !!(typeof env.allowCustomHomeservers === 'string' && env.allowCustomHomeservers === 'true'),
-      homeserverList: [],
+    WEB3: !!(env.WEB3 === true || env.WEB3 === 'true'),
+    IPFS: !!(env.IPFS === true || env.IPFS === 'true'),
+    USE_ANIM_PARAMS: !!(env.USE_ANIM_PARAMS === true || env.USE_ANIM_PARAMS === 'true'),
+
+    LOGIN: {
+      DEFAULT_HOMESERVER: Number(env.DEFAULT_HOMESERVER),
+      ALLOW_CUSTOM_HOMESERVERS: !!(typeof env.ALLOW_CUSTOM_HOMESERVERS === 'string' && env.ALLOW_CUSTOM_HOMESERVERS === 'true'),
+      HOMESERVER_LIST: [],
     },
 
   };
 
-  let homeserverList = 0;
-  while (typeof env[`homeserverList${homeserverList}`] === 'string') {
-    envData.login.homeserverList.push(env[`homeserverList${homeserverList}`]);
-    homeserverList++;
+  let HOMESERVER_LIST = 0;
+  while (typeof env[`HOMESERVER_LIST${HOMESERVER_LIST}`] === 'string') {
+    envData.LOGIN.HOMESERVER_LIST.push(env[`HOMESERVER_LIST${HOMESERVER_LIST}`]);
+    HOMESERVER_LIST++;
   }
 
   // Result object
@@ -217,6 +237,10 @@ export default defineConfig(({ command, mode }) => {
 
     result.clearScreen = false;
 
+    const rollupOptions = {
+      external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
+    };
+
     result.plugins.push(electron([
 
       {
@@ -237,9 +261,7 @@ export default defineConfig(({ command, mode }) => {
             sourcemap,
             minify: isBuild,
             outDir: 'dist-electron/main',
-            rollupOptions: {
-              external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
-            },
+            rollupOptions,
           },
         },
 
@@ -260,9 +282,7 @@ export default defineConfig(({ command, mode }) => {
             sourcemap: sourcemap ? 'inline' : undefined, // #332
             minify: isBuild,
             outDir: 'dist-electron/preload',
-            rollupOptions: {
-              external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
-            },
+            rollupOptions,
           },
         },
 

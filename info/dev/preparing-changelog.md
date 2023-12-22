@@ -20,3 +20,7 @@
 - Try load chat page button added.
 - Category button position fixed.
 - Icon status border added.
+- New privacy setting - auto refuse room.
+- New ENV values. (IPFS and Web3)
+- Freezeframe plugin added.
+- Check for Updates button added.

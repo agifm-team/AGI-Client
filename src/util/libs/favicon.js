@@ -22,7 +22,7 @@ export function changeFavIcon(value, unread = false, notis = 0) {
 
         favIconQuery().attr('href', newValue);
         // document.title = !unread ? favicon.title : `${typeof notis === 'number' && notis > 0 ? `${notis <= 99 ? `(${String(notis)})` : '(+99)'} ` : ''}${favicon.title}`;
-        document.title = !unread ? favicon.title : `${typeof notis === 'number' && notis > 0 ? `(⚫) ` : ''}${favicon.title}`;
+        document.title = !unread ? favicon.title : `${typeof notis === 'number' && notis > 0 ? `(•) ` : ''}${favicon.title}`;
 
     }
 };
@@ -56,13 +56,13 @@ export function checkerFavIcon() {
         const finalNumber = directCount || indirectCount;
         if (finalNumber > 0) {
             changeFavIcon('cinny-unread-red.png', true, finalNumber);
-            if (__ENV_APP__.electron_mode) {
+            if (__ENV_APP__.ELECTRON_MODE) {
                 global.changeTrayIcon('cinny-unread-red.png');
                 global.changeAppIcon('cinny-unread-red.png');
             }
         } else {
             changeFavIcon('cinny.png', false, finalNumber);
-            if (__ENV_APP__.electron_mode) {
+            if (__ENV_APP__.ELECTRON_MODE) {
                 global.changeTrayIcon('cinny.png');
                 global.changeAppIcon('cinny.png');
             }

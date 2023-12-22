@@ -226,7 +226,13 @@ if (!gotTheLock) {
       const tray = new Tray(icon);
       const contextMenu = Menu.buildFromTemplate([
         {
-          label: 'Show App',
+          label: title,
+          enabled: false,
+          icon,
+        },
+        { type: 'separator' },
+        {
+          label: `Open ${title}`,
           click: () => {
             if (appStarted) {
               if (win) win.show();
@@ -234,17 +240,27 @@ if (!gotTheLock) {
             }
           },
         },
-        { type: 'separator' },
         {
+          label: `Check for Updates`,
+          click: () => {
+            if (appStarted) {
+              if (win) win.show();
+              appShow.change(true);
+              if (win) win.webContents.send('check-version', true);
+            }
+          },
+        },
+        { type: 'separator' },
+        /* {
           label: 'DevTools (Advanced User)',
           click: () => {
             if (appStarted) {
               if (win) win.webContents.openDevTools();
             }
           },
-        },
+        }, */
         {
-          label: 'Quit',
+          label: `Quit ${title}`,
           click: () => {
             isQuiting = true;
             app.quit();

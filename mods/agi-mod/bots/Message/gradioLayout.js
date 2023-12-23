@@ -893,6 +893,10 @@ const components = {
                             for (const item2 in props.samples[item]) {
                                 if (typeof props.samples[item][item2] === 'string') {
 
+                                    if (!colsHeadUse && cols < 12) {
+                                        cols++;
+                                    }
+
                                     let td;
                                     if (typeof datasetComponents[props.components[item2]] !== 'function') {
                                         td = $('<div>', { class: 'text-bg-force border border-bg p-4' }).text(props.samples[item][item2]);

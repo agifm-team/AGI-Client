@@ -805,7 +805,7 @@ const components = {
             }
 
             const inputs = [];
-            const table = $('<div>', { class: 'dataset-hover dataset-bordered' });
+            const table = $('<div>', { class: 'dataset-table dataset-hover dataset-bordered' });
             let cols = 0;
             let colsHeadUse = false;
 

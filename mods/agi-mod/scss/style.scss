@@ -491,13 +491,15 @@
 
     /* Dataframe */
     .dataframe {
-      .table {
+      /*
+      .dataset-table {
         --bs-table-color: var(--tc-surface);
       }
 
-      .table > tbody > tr > * {
+      .dataset-table > tbody > tr > * {
         --bs-table-color-type: var(--tc-surface-low);
       }
+      */
     }
 
     /* Radio and Checkbox group */

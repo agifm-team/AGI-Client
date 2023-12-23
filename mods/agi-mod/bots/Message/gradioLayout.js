@@ -887,6 +887,7 @@ const components = {
                 } else {
 
                     // cols = 4;
+                    // CORREÇÃO AQUI!
                     const tds = [];
                     for (const item in props.samples) {
                         if (Array.isArray(props.samples[item]) && props.samples[item].length > 0) {

@@ -10,6 +10,29 @@
   }
 }
 
+/* Status Message */
+.message-body-status-cancelled {
+  color: var(--bs-danger) !important;
+}
+
+.message-body-status-encrypting {
+  color: var(--bs-secundary) !important;
+}
+
+.message-body-status-not_sent {
+  color: var(--bs-danger) !important;
+}
+
+.message-body-status-queued {
+  opacity: 0.6 !important;
+}
+
+.message-body-status-sending {
+  opacity: 0.6 !important;
+}
+
+/* message-body-status-sent */
+
 /* Code Editor */
 .hljs {
   display: block;
@@ -86,5 +109,49 @@
     text-decoration: underline dotted !important;
     -webkit-text-decoration-skip-ink: none !important;
     text-decoration-skip-ink: none !important;
+  }
+}
+
+/* Thread */
+.message__threadSummary {
+  background-color: var(--bg-surface-hover);
+  border-radius: calc(var(--bo-radius) / 2);
+  margin-top: var(--sp-extra-tight);
+  cursor: pointer;
+
+  & {
+    width: 350px;
+  }
+  &-count p {
+    color: var(--tc-link);
+  }
+
+  :hover > &-count p {
+    text-decoration: underline;
+  }
+
+  &-lastReply-sender span {
+    color: var(--tc-surface-high);
+  }
+
+  &-lastReply-body {
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: fit-content;
+  }
+  &-lastReply-body span {
+    color: var(--tc-surface-low);
+  }
+
+  &-lastReply {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-ultra-tight);
+
+    .avatar-container {
+      // move it sliiiightly down
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
   }
 }

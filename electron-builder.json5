@@ -2,8 +2,8 @@
  * @see https://www.electron.build/configuration/configuration
  */
 {
-  appId: 'immagine-ai-matrix',
-  productName: 'Multi.so',
+  appId: 'AGI-space',
+  productName: 'AGI-space',
   copyright: 'Copyright © 2023 ${author}',
   asar: true,
   directories: {

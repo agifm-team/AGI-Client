@@ -16,13 +16,13 @@ import AppearanceSection from './pages/Appearance';
 import NotificationsSection from './pages/Notifications';
 import SecuritySection from './pages/Security';
 import PrivacySection from './pages/Privacy';
-import DonateSection from './pages/Donate';
 import OsSection from './pages/OS';
 import AboutSection from './pages/About';
 import ExperimentalSection from './pages/Experimental';
 import VoiceVideoSection from './pages/VoiceVideo';
 import IpfsSection from './pages/Ipfs';
 import Web3Section from './pages/Web3';
+import { logout } from '../../../../mods/agi-mod/lib';
 
 function EmojiSection() {
   return (
@@ -172,7 +172,7 @@ tabItems.push({
   disabled: false,
   onClick: async () => {
     if (await confirmDialog('Logout', 'Are you sure that you want to logout your session?', 'Logout', 'danger')) {
-      initMatrix.logout();
+      logout();
     }
   }
 });

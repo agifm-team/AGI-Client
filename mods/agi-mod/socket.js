@@ -1,8 +1,9 @@
 // import socketIOClient from 'socket.io-client';
 
-const serverAddress = 'https://bots.agispace.co/';
+const serverDomain = 'agispace.co';
+const serverAddress = `https://bots.${serverDomain}/`;
 
-export { serverAddress };
+export { serverAddress, serverDomain };
 
 /*
 

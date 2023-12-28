@@ -145,7 +145,7 @@ const fileInputFixer = (compId, props, oHtml) => {
         const gradioInput = oHtml.data('gradio_input');
         setLoadingPage('Fetching gladio blob...');
 
-        fetch(props.value)
+        fetch(props.value, { mode: 'no-cors' })
             .then(response => response.blob())
             .then(blob => {
                 setLoadingPage(false);
@@ -805,8 +805,9 @@ const components = {
             }
 
             const inputs = [];
-            const table = $('<table>', { class: 'table table-hover table-bordered border border-bg' });
-            // const table = $('<div>', { class: 'row border border-bg' });
+            const table = $('<div>', { class: 'dataset-table dataset-hover dataset-bordered' });
+            let cols = 0;
+            let colsHeadUse = false;
 
             let isSingle = true;
 
@@ -820,88 +821,104 @@ const components = {
 
             if (!isSingle && Array.isArray(props.headers) && props.headers.length > 0) {
 
-                const thead = $('<thead>');
-                const tr = $('<tr>');
+                const thead = $('<div>', { class: 'row' });
                 const tds = [];
 
                 for (const item in props.headers) {
                     if (typeof props.headers[item] === 'string') {
-                        const td = $('<th>', { class: 'text-bg-force' }).text(props.headers[item]);
+                        if (cols < 12) cols++;
+                        colsHeadUse = true;
+                        const td = $('<div>', { class: 'text-bg-force border border-bg p-4' }).text(props.headers[item]);
                         tds.push(td);
-                        tr.append(td);
+                        thead.append(td);
                     }
                 }
 
-                inputs.push(tds);
+                for (const item in tds) {
+                    tds[item].addClass(`col-${rowsList[cols][item]}`);
+                }
 
-                thead.append(tr);
+                inputs.push(tds);
                 table.append(thead);
 
             } else {
-                table.removeClass('table-hover').addClass('table-td-hover');
+                table.removeClass('dataset-hover').addClass('dataset-td-hover');
             }
 
             if (Array.isArray(props.samples) && props.samples.length > 0) {
 
-                const tbody = $('<tbody>');
+                const tbody = $('<div>', { class: 'row' });
 
                 if (!isSingle) {
                     for (const item in props.samples) {
 
-                        const tr = $('<tr>');
                         const tds = [];
 
                         if (Array.isArray(props.samples[item]) && props.samples[item].length > 0) {
                             for (const item2 in props.samples[item]) {
                                 if (typeof props.samples[item][item2] === 'string') {
 
+                                    if (!colsHeadUse && cols < 12) {
+                                        cols++;
+                                    }
+
                                     let td;
                                     if (typeof datasetComponents[props.components[item2]] !== 'function') {
-                                        td = $('<td>', { class: 'text-bg-force' }).text(props.samples[item][item2]);
+                                        td = $('<div>', { class: 'text-bg-force border border-bg p-4' }).text(props.samples[item][item2]);
                                     } else {
-                                        td = $('<td>', { class: 'text-bg-force' });
+                                        td = $('<div>', { class: 'text-bg-force border border-bg p-4' });
                                         td.append(datasetComponents[props.components[item2]](props.samples[item][item2], url, td, props, compId, appId));
                                     }
 
                                     tds.push(td);
-                                    tr.append(td);
+                                    tbody.append(td);
 
                                 }
                             }
                         }
 
+                        for (const item2 in tds) {
+                            tds[item2].addClass(`col-${rowsList[cols][item2]}`);
+                        }
+
                         inputs.push(tds);
-                        tbody.append(tr);
 
                     }
                 } else {
 
-                    const tr = $('<tr>');
+                    // cols = 4;
+                    // CORREÇÃO AQUI!
                     const tds = [];
-
                     for (const item in props.samples) {
                         if (Array.isArray(props.samples[item]) && props.samples[item].length > 0) {
                             for (const item2 in props.samples[item]) {
                                 if (typeof props.samples[item][item2] === 'string') {
 
+                                    if (!colsHeadUse && cols < 12) {
+                                        cols++;
+                                    }
+
                                     let td;
                                     if (typeof datasetComponents[props.components[item2]] !== 'function') {
-                                        td = $('<td>', { class: 'text-bg-force' }).text(props.samples[item][item2]);
+                                        td = $('<div>', { class: 'text-bg-force border border-bg p-4' }).text(props.samples[item][item2]);
                                     } else {
-                                        td = $('<td>', { class: 'text-bg-force' });
+                                        td = $('<div>', { class: 'text-bg-force border border-bg p-4' });
                                         td.append(datasetComponents[props.components[item2]](props.samples[item][item2], url, td, props, compId, appId));
                                     }
 
                                     tds.push(td);
-                                    tr.append(td);
+                                    tbody.append(td);
 
                                 }
                             }
                         }
                     }
 
+                    for (const item in tds) {
+                        tds[item].addClass(`col-${rowsList[cols][item]}`);
+                    }
+
                     inputs.push(tds);
-                    tbody.append(tr);
 
                 }
 
@@ -1076,7 +1093,7 @@ const components = {
                                     if (tinyValue.startsWith('https://')) {
 
                                         setLoadingPage('Fetching gladio blob...');
-                                        fetch(tinyValue)
+                                        fetch(tinyValue, { mode: 'no-cors' })
                                             .then(response => response.blob())
                                             .then(blob => {
                                                 setLoadingPage(false);

@@ -24,3 +24,5 @@
 - New ENV values. (IPFS and Web3)
 - Freezeframe plugin added.
 - Check for Updates button added.
+- ENV Values uppercase.
+- Threads added.

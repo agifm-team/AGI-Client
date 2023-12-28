@@ -107,7 +107,7 @@ async function createWindow() {
 
     if (process.platform === 'win32') {
       win.setAppDetails({
-        appId: 'immagine-ai-matrix',
+        appId: 'AGI-space',
         appIconPath: icon,
         relaunchDisplayName: title,
       });

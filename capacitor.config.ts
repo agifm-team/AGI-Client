@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'immagine.ai',
-  appName: 'immagine-ai',
+  appId: 'AGI-space',
+  appName: 'AGI-space',
   webDir: 'dist',
 
   server: {

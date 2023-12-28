@@ -1,8 +1,8 @@
 {
-  "name": "immagine-ai-matrix",
+  "name": "AGI-Space",
   "version": "1.3.28",
-  "short_name": "Immagine.AI",
-  "description": "Immagine.AI: AI Agents for Power Users",
+  "short_name": "AGI-space",
+  "description": "AGI-space: Collaborative AI spaces",
   "main": "dist-electron/main/index.js",
   "engines": {
     "node": ">=16.0.0"
@@ -31,7 +31,7 @@
     "matrix-client",
     "brony",
     "brony-fandom",
-    "immagine-ai"
+    "AGI-space"
   ],
   "author": {
     "name": "seshu.bonam",

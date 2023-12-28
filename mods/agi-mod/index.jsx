@@ -13,7 +13,7 @@ export default function startAgiMod(firstTime) {
     if (!firstTime) {
 
         // Start Mod
-        console.log('[immagine.ai] Loading mod...');
+        console.log('[AGI Space] Loading mod...');
 
         // Start Buttons
         startPeopleSelector();
@@ -27,7 +27,7 @@ export default function startAgiMod(firstTime) {
         tinyAPI.on('emptyTimeline', (data, forceUpdateLimit) => forceUpdateLimit());
 
         // Mod Loaded
-        console.log('[immagine.ai] Loading complete!');
+        console.log('[AGI Space] Loading complete!');
 
     }
 

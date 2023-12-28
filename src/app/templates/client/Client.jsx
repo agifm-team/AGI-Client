@@ -23,7 +23,6 @@ import { startUserAfk, stopUserAfk } from '../../../util/userStatusEffects';
 import Mods from './Mods';
 import appLoadMsg from '../../../../mods/appLoadMsg';
 import LoadingPage from './Loading';
-import { logout } from '../../../../mods/agi-mod/lib';
 
 let versionChecked = false;
 
@@ -133,7 +132,7 @@ function Client() {
                 <MenuItem onClick={() => initMatrix.clearCacheAndReload()}>
                   Clear cache & reload
                 </MenuItem>
-                <MenuItem onClick={() => logout()}>Logout</MenuItem>
+                <MenuItem onClick={() => initMatrix.logout()}>Logout</MenuItem>
               </>
             )}
             render={(toggle) => <IconButton size="extra-small" onClick={toggle} fa="bi bi-three-dots-vertical" />}

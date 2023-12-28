@@ -27,7 +27,7 @@ const updateInputValue = (input, dropdown, value, filePath = '') => {
         if (!tinyUrl.startsWith('data:')) {
 
             setLoadingPage('Fetching gladio blob...');
-            fetch(tinyUrl)
+            fetch(tinyUrl, { mode: 'no-cors' })
                 .then(response => response.blob())
                 .then(blob => {
                     setLoadingPage(false);

@@ -145,7 +145,7 @@ const fileInputFixer = (compId, props, oHtml) => {
         const gradioInput = oHtml.data('gradio_input');
         setLoadingPage('Fetching gladio blob...');
 
-        fetch(props.value)
+        fetch(props.value, { mode: 'no-cors' })
             .then(response => response.blob())
             .then(blob => {
                 setLoadingPage(false);
@@ -1093,7 +1093,7 @@ const components = {
                                     if (tinyValue.startsWith('https://')) {
 
                                         setLoadingPage('Fetching gladio blob...');
-                                        fetch(tinyValue)
+                                        fetch(tinyValue, { mode: 'no-cors' })
                                             .then(response => response.blob())
                                             .then(blob => {
                                                 setLoadingPage(false);

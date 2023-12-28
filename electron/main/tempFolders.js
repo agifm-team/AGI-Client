@@ -11,7 +11,7 @@ const createDirName = (where) => {
 };
 
 // Validate Folders
-const tempFolder = path.join(app.getPath('temp'), './immagine-ai-matrix');
+const tempFolder = path.join(app.getPath('temp'), './AGI-space');
 if (!fs.existsSync(tempFolder)) {
     fs.mkdirSync(tempFolder);
 }

@@ -342,7 +342,7 @@
 
     /* Dataset */
     .dataset {
-      td {
+      .row > div {
         cursor: pointer;
         video {
           max-height: 100px;

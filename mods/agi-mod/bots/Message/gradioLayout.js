@@ -141,23 +141,29 @@ const fileInputFixer = (compId, props, oHtml) => {
         input.addClass('d-hide');
     }
 
-    if (typeof props.value === 'string' && props.value.startsWith('https://')) {
+    if (typeof props.value === 'string') {
 
         const gradioInput = oHtml.data('gradio_input');
-        setLoadingPage('Fetching gladio blob...');
+        if (props.value.startsWith('https://')) {
 
-        fetch(props.value, { mode: 'no-cors' })
-            .then(response => response.blob())
-            .then(blob => {
-                setLoadingPage(false);
-                const reader = new FileReader();
-                reader.onload = function () { gradioInput.value(this.result, true); }; // <--- `this.result` contains a base64 data URI
-                reader.readAsDataURL(blob);
-            }).catch(err => {
-                setLoadingPage(false);
-                toast(err.message);
-                console.error(err);
-            });
+            setLoadingPage('Fetching gladio blob...');
+
+            fetch(props.value, { mode: 'no-cors' })
+                .then(response => response.blob())
+                .then(blob => {
+                    setLoadingPage(false);
+                    const reader = new FileReader();
+                    reader.onload = function () { gradioInput.value(this.result, true); }; // <--- `this.result` contains a base64 data URI
+                    reader.readAsDataURL(blob);
+                }).catch(err => {
+                    setLoadingPage(false);
+                    toast(err.message);
+                    console.error(err);
+                });
+
+        } else {
+            gradioInput.value(props.value, false);
+        }
 
     }
 
@@ -538,7 +544,7 @@ const components = {
 
         }
 
-        return () => fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml, 'audio');
 
     },
 
@@ -1036,7 +1042,7 @@ const components = {
 
         }
 
-        return () => fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml, 'file');
 
     },
 
@@ -1274,7 +1280,7 @@ const components = {
 
         }
 
-        return () => fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml, 'image');
 
     },
 
@@ -1405,7 +1411,7 @@ const components = {
 
         }
 
-        return () => fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml, 'model3d');
 
     },
 
@@ -1790,7 +1796,7 @@ const components = {
 
         }
 
-        return () => fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml, 'timeseries');
 
     },
 
@@ -1884,7 +1890,7 @@ const components = {
 
         }
 
-        return () => fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml, 'video');
 
     },
 

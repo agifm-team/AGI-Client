@@ -27,7 +27,7 @@ const updateInputValue = (input, dropdown, value, filePath = '') => {
         if (!tinyUrl.startsWith('data:')) {
 
             setLoadingPage('Fetching gradio blob...');
-            fetch(tinyUrl, { mode: 'no-cors' })
+            fetch(tinyUrl)
                 .then(response => response.blob())
                 .then(blob => {
                     setLoadingPage(false);

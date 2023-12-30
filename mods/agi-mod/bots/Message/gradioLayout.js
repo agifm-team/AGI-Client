@@ -148,7 +148,7 @@ const fileInputFixer = (compId, props, oHtml) => {
 
             setLoadingPage('Fetching gradio blob...');
 
-            fetch(props.value, { mode: 'no-cors' })
+            fetch(props.value)
                 .then(response => response.blob())
                 .then(blob => {
                     setLoadingPage(false);
@@ -1111,7 +1111,7 @@ const components = {
                                     if (tinyValue.startsWith('https://')) {
 
                                         setLoadingPage('Fetching gradio blob...');
-                                        fetch(tinyValue, { mode: 'no-cors' })
+                                        fetch(tinyValue)
                                             .then(response => response.blob())
                                             .then(blob => {
                                                 setLoadingPage(false);

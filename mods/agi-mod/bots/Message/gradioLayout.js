@@ -811,7 +811,7 @@ const components = {
                 finalResult.append($('<div>', { id }).text(props.label));
             }
 
-            const tinyColsLimit = folderCount < 1 ? colsLimit : Math.round(colsLimit / folderCount);
+            const tinyColsLimit = folderCount < 1 ? colsLimit : Math.round(colsLimit / Number(folderCount + 5));
 
             const inputs = [];
             const table = $('<div>', { class: 'dataset-table dataset-hover dataset-bordered' });

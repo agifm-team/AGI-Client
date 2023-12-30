@@ -26,7 +26,7 @@ const updateInputValue = (input, dropdown, value, filePath = '') => {
         const tinyUrl = `${filePath}${typeof value === 'string' ? value.startsWith('/') || !filePath ? value : `/${value}` : ''}`;
         if (!tinyUrl.startsWith('data:')) {
 
-            setLoadingPage('Fetching gladio blob...');
+            setLoadingPage('Fetching gradio blob...');
             fetch(tinyUrl, { mode: 'no-cors' })
                 .then(response => response.blob())
                 .then(blob => {
@@ -219,7 +219,7 @@ function GradioEmbed({ agiData }) {
                             const ymap = () => selectedRoom.ydoc().getMap(id);
 
                             // Insert Embed
-                            if (embed.find('gladio-embed').length < 1) {
+                            if (embed.find('gradio-embed').length < 1) {
 
                                 // Sync Update
                                 let loadingUpdate = true;

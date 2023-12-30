@@ -153,7 +153,7 @@ const fileInputFixer = (compId, props, oHtml) => {
                 .then(blob => {
                     setLoadingPage(false);
                     const reader = new FileReader();
-                    reader.onload = function () { gradioInput.value(this.result, true); }; // <--- `this.result` contains a base64 data URI
+                    reader.onload = function () { gradioInput.value(this.result, true, props.value); }; // <--- `this.result` contains a base64 data URI
                     reader.readAsDataURL(blob);
                 }).catch(err => {
                     setLoadingPage(false);
@@ -319,7 +319,7 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
 
     let blob = null;
 
-    const valueUpdater = (value, convertBlob = false) => {
+    const valueUpdater = (value, convertBlob = false, originalValue = null) => {
 
         if (typeof value === 'undefined') {
             return blob;
@@ -336,7 +336,7 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
 
         blob = convertBlob ? blobCreator(value) : value;
         if (previewBase && typeof fileManagerReader[type] === 'function') {
-            fileManagerReader[type](previewBase, URL.createObjectURL(blob));
+            fileManagerReader[type](previewBase, !convertBlob && !originalValue ? value : originalValue);
         }
 
         return null;

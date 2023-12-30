@@ -32,7 +32,7 @@ const updateInputValue = (input, dropdown, value, filePath = '') => {
                 .then(blob => {
                     setLoadingPage(false);
                     const reader = new FileReader();
-                    reader.onload = function () { input.value(this.result, true); }; // <--- `this.result` contains a base64 data URI
+                    reader.onload = function () { input.value(this.result, true, tinyUrl); }; // <--- `this.result` contains a base64 data URI
                     reader.readAsDataURL(blob);
                 }).catch(err => {
                     setLoadingPage(false);

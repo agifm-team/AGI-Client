@@ -342,8 +342,11 @@
 
     /* Dataset */
     .dataset {
-      td {
+      .row > div {
         cursor: pointer;
+        &:hover {
+          background-color: rgba(30, 142, 161, 0.1);
+        }
         video {
           max-height: 100px;
           max-width: 165px;

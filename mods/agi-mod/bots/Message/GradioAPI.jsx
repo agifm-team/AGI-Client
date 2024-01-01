@@ -26,13 +26,13 @@ const updateInputValue = (input, dropdown, value, filePath = '') => {
         const tinyUrl = `${filePath}${typeof value === 'string' ? value.startsWith('/') || !filePath ? value : `/${value}` : ''}`;
         if (!tinyUrl.startsWith('data:')) {
 
-            setLoadingPage('Fetching gladio blob...');
-            fetch(tinyUrl, { mode: 'no-cors' })
+            setLoadingPage('Fetching gradio blob...');
+            fetch(tinyUrl)
                 .then(response => response.blob())
                 .then(blob => {
                     setLoadingPage(false);
                     const reader = new FileReader();
-                    reader.onload = function () { input.value(this.result, true); }; // <--- `this.result` contains a base64 data URI
+                    reader.onload = function () { input.value(this.result, true, tinyUrl); }; // <--- `this.result` contains a base64 data URI
                     reader.readAsDataURL(blob);
                 }).catch(err => {
                     setLoadingPage(false);
@@ -219,7 +219,7 @@ function GradioEmbed({ agiData }) {
                             const ymap = () => selectedRoom.ydoc().getMap(id);
 
                             // Insert Embed
-                            if (embed.find('gladio-embed').length < 1) {
+                            if (embed.find('gradio-embed').length < 1) {
 
                                 // Sync Update
                                 let loadingUpdate = true;

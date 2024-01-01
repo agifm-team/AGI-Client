@@ -48,6 +48,7 @@ const displayOptions = (props, id, appId, url, oHtml) => {
 
 };
 
+const colsLimit = 12;
 const rowsList = {
     0: [12],
     1: [12],
@@ -140,23 +141,29 @@ const fileInputFixer = (compId, props, oHtml) => {
         input.addClass('d-hide');
     }
 
-    if (typeof props.value === 'string' && props.value.startsWith('https://')) {
+    if (typeof props.value === 'string') {
 
         const gradioInput = oHtml.data('gradio_input');
-        setLoadingPage('Fetching gladio blob...');
+        if (props.value.startsWith('https://')) {
 
-        fetch(props.value, { mode: 'no-cors' })
-            .then(response => response.blob())
-            .then(blob => {
-                setLoadingPage(false);
-                const reader = new FileReader();
-                reader.onload = function () { gradioInput.value(this.result, true); }; // <--- `this.result` contains a base64 data URI
-                reader.readAsDataURL(blob);
-            }).catch(err => {
-                setLoadingPage(false);
-                toast(err.message);
-                console.error(err);
-            });
+            setLoadingPage('Fetching gradio blob...');
+
+            fetch(props.value)
+                .then(response => response.blob())
+                .then(blob => {
+                    setLoadingPage(false);
+                    const reader = new FileReader();
+                    reader.onload = function () { gradioInput.value(this.result, true, props.value); }; // <--- `this.result` contains a base64 data URI
+                    reader.readAsDataURL(blob);
+                }).catch(err => {
+                    setLoadingPage(false);
+                    toast(err.message);
+                    console.error(err);
+                });
+
+        } else {
+            gradioInput.value(props.value, false);
+        }
 
     }
 
@@ -312,7 +319,7 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
 
     let blob = null;
 
-    const valueUpdater = (value, convertBlob = false) => {
+    const valueUpdater = (value, convertBlob = false, originalValue = null) => {
 
         if (typeof value === 'undefined') {
             return blob;
@@ -329,7 +336,7 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
 
         blob = convertBlob ? blobCreator(value) : value;
         if (previewBase && typeof fileManagerReader[type] === 'function') {
-            fileManagerReader[type](previewBase, URL.createObjectURL(blob));
+            fileManagerReader[type](previewBase, !convertBlob && !originalValue ? value : originalValue);
         }
 
         return null;
@@ -537,7 +544,7 @@ const components = {
 
         }
 
-        return () => fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml, 'audio');
 
     },
 
@@ -792,7 +799,7 @@ const components = {
 
     },
 
-    dataset: (props, compId, appId, url, oHtml) => {
+    dataset: (props, compId, appId, url, oHtml, folderCount) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
@@ -804,12 +811,23 @@ const components = {
                 finalResult.append($('<div>', { id }).text(props.label));
             }
 
+            const tinyColsLimit = folderCount < 1 ? colsLimit : Math.round(colsLimit / Number(folderCount + 5));
+
             const inputs = [];
             const table = $('<div>', { class: 'dataset-table dataset-hover dataset-bordered' });
             let cols = 0;
             let colsHeadUse = false;
 
             let isSingle = true;
+            const getRowClass = (item) => {
+
+                const tinyNumber = rowsList[cols][item];
+                let padding = 'p-4';
+
+                if (tinyNumber === 1) padding = '';
+                return `${padding} col-${rowsList[cols][item]}`;
+
+            };
 
             if (Array.isArray(props.samples) && props.samples.length > 0) {
                 for (const item in props.samples) {
@@ -826,16 +844,16 @@ const components = {
 
                 for (const item in props.headers) {
                     if (typeof props.headers[item] === 'string') {
-                        if (cols < 12) cols++;
+                        if (cols < tinyColsLimit) cols++;
                         colsHeadUse = true;
-                        const td = $('<div>', { class: 'text-bg-force border border-bg p-4' }).text(props.headers[item]);
+                        const td = $('<div>', { class: `text-bg-force border border-bg` }).text(props.headers[item]);
                         tds.push(td);
                         thead.append(td);
                     }
                 }
 
                 for (const item in tds) {
-                    tds[item].addClass(`col-${rowsList[cols][item]}`);
+                    tds[item].addClass(getRowClass(item));
                 }
 
                 inputs.push(tds);
@@ -858,15 +876,15 @@ const components = {
                             for (const item2 in props.samples[item]) {
                                 if (typeof props.samples[item][item2] === 'string') {
 
-                                    if (!colsHeadUse && cols < 12) {
+                                    if (!colsHeadUse && cols < tinyColsLimit) {
                                         cols++;
                                     }
 
                                     let td;
                                     if (typeof datasetComponents[props.components[item2]] !== 'function') {
-                                        td = $('<div>', { class: 'text-bg-force border border-bg p-4' }).text(props.samples[item][item2]);
+                                        td = $('<div>', { class: `text-bg-force border border-bg` }).text(props.samples[item][item2]);
                                     } else {
-                                        td = $('<div>', { class: 'text-bg-force border border-bg p-4' });
+                                        td = $('<div>', { class: `text-bg-force border border-bg` });
                                         td.append(datasetComponents[props.components[item2]](props.samples[item][item2], url, td, props, compId, appId));
                                     }
 
@@ -878,7 +896,7 @@ const components = {
                         }
 
                         for (const item2 in tds) {
-                            tds[item2].addClass(`col-${rowsList[cols][item2]}`);
+                            tds[item2].addClass(getRowClass(item2));
                         }
 
                         inputs.push(tds);
@@ -894,15 +912,15 @@ const components = {
                             for (const item2 in props.samples[item]) {
                                 if (typeof props.samples[item][item2] === 'string') {
 
-                                    if (!colsHeadUse && cols < 12) {
+                                    if (!colsHeadUse && cols < tinyColsLimit) {
                                         cols++;
                                     }
 
                                     let td;
                                     if (typeof datasetComponents[props.components[item2]] !== 'function') {
-                                        td = $('<div>', { class: 'text-bg-force border border-bg p-4' }).text(props.samples[item][item2]);
+                                        td = $('<div>', { class: `text-bg-force border border-bg` }).text(props.samples[item][item2]);
                                     } else {
-                                        td = $('<div>', { class: 'text-bg-force border border-bg p-4' });
+                                        td = $('<div>', { class: `text-bg-force border border-bg` });
                                         td.append(datasetComponents[props.components[item2]](props.samples[item][item2], url, td, props, compId, appId));
                                     }
 
@@ -915,7 +933,7 @@ const components = {
                     }
 
                     for (const item in tds) {
-                        tds[item].addClass(`col-${rowsList[cols][item]}`);
+                        tds[item].addClass(getRowClass(item));
                     }
 
                     inputs.push(tds);
@@ -1024,7 +1042,7 @@ const components = {
 
         }
 
-        return () => fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml, 'file');
 
     },
 
@@ -1036,7 +1054,7 @@ const components = {
         const galleryItems = (input, gallery) => {
             const cols = (typeof props.grid_cols === 'number' ? props.grid_cols : null) || props.columns;
 
-            if (typeof cols === 'number' && !Number.isNaN(cols) && Number.isFinite(cols) && cols <= 12 && rowsList[cols]) {
+            if (typeof cols === 'number' && !Number.isNaN(cols) && Number.isFinite(cols) && cols <= colsLimit && rowsList[cols]) {
 
                 if (Array.isArray(rowsList[cols]) && Array.isArray(props.value)) {
 
@@ -1092,8 +1110,8 @@ const components = {
 
                                     if (tinyValue.startsWith('https://')) {
 
-                                        setLoadingPage('Fetching gladio blob...');
-                                        fetch(tinyValue, { mode: 'no-cors' })
+                                        setLoadingPage('Fetching gradio blob...');
+                                        fetch(tinyValue)
                                             .then(response => response.blob())
                                             .then(blob => {
                                                 setLoadingPage(false);
@@ -1262,7 +1280,7 @@ const components = {
 
         }
 
-        return () => fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml, 'image');
 
     },
 
@@ -1393,7 +1411,7 @@ const components = {
 
         }
 
-        return () => fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml, 'model3d');
 
     },
 
@@ -1778,7 +1796,7 @@ const components = {
 
         }
 
-        return () => fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml, 'timeseries');
 
     },
 
@@ -1872,7 +1890,7 @@ const components = {
 
         }
 
-        return () => fileInputFixer(compId, props, oHtml);
+        return () => fileInputFixer(compId, props, oHtml, 'video');
 
     },
 
@@ -1999,7 +2017,7 @@ const components = {
 };
 
 // Children
-const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, rootTabs = { type: null, data: null }) => {
+const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, rootTabs = { type: null, data: null }, folderCount = 0) => {
     if (Array.isArray(items)) {
 
         // HTML Items
@@ -2015,9 +2033,10 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, 
                 let newPage;
                 const existChildrens = (Array.isArray(items[item].children) && items[item].children.length > 0);
                 const component = config.components.find(c => c.id === items[item].id);
+                if (component.type === 'row') { folderCount++; }
 
                 // New Children
-                if (existChildrens) newPage = childrenLoader(items[item].children, config, url, appId, comps, root, clone(tinyIndex), rootTabs);
+                if (existChildrens) newPage = childrenLoader(items[item].children, config, url, appId, comps, root, clone(tinyIndex), rootTabs, folderCount);
 
                 // Componet
                 if (objType(component, 'object') && objType(component.props, 'object') && typeof component.type === 'string' && (
@@ -2072,13 +2091,14 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, 
                         if (component.type !== 'form') {
 
                             // Get Component
-                            const tinyHtml = components[component.type](component.props, component.id, appId, url);
+                            const tinyHtml = components[component.type](component.props, component.id, appId, url, null, folderCount);
                             root[component.id] = tinyHtml;
+                            // eslint-disable-next-line no-loop-func
                             const addUpdateData = (theHtml) => {
                                 theHtml.data('gradio_update', () => {
 
                                     const values = theHtml.data('gradio_values');
-                                    const newHtml = components[component.type](values.props, values.id, values.appId, values.url);
+                                    const newHtml = components[component.type](values.props, values.id, values.appId, values.url, null, folderCount);
                                     root[values.id] = newHtml;
 
                                     theHtml.replaceWith(newHtml);
@@ -2350,7 +2370,7 @@ class GradioLayout {
 
             if (components[type]) {
 
-                const tinyFunction = components[type](values.props ?? {}, values?.id, values?.appId, values?.url, root);
+                const tinyFunction = components[type](values.props ?? {}, values?.id, values?.appId, values?.url, root, null);
                 if (typeof upgraderComponents[type] === 'function') {
                     upgraderComponents[type](values, type, input, tinyFunction);
                 } else if (objType(input, 'object')) {

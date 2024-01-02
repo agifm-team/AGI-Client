@@ -20,7 +20,8 @@
     "electron:start": "cross-env ELECTRON_MODE=true vite dev",
     "electron:build": "cross-env ELECTRON_MODE=true vite build && electron-builder",
     "electron:preview": "cross-env ELECTRON_MODE=true vite preview",
-    "electron:pree2e": "cross-env ELECTRON_MODE=true vite build --mode=test"
+    "electron:pree2e": "cross-env ELECTRON_MODE=true vite build --mode=test",
+    "pony-merge": "git fetch upstream && git merge upstream/dev"
   },
   "keywords": [
     "react",

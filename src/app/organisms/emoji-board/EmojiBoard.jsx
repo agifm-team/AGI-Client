@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 import parse from 'html-react-parser';
 import twemoji from 'twemoji';
-import { emojiGroups, emojis, } from './emoji';
+import { emojis, } from './emoji';
 import { loadEmojiData, getEmojiData, ROW_EMOJIS_COUNT, ROW_STICKERS_COUNT } from './emojiData';
 
 import initMatrix from '../../../client/initMatrix';
@@ -13,26 +13,17 @@ import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
 import AsyncSearch from '../../../util/AsyncSearch';
 import { addToEmojiList, removeFromEmojiList } from './recent';
-import { TWEMOJI_BASE_URL } from '../../../util/twemojify';
+import { TWEMOJI_BASE_URL, twemojifyUrl } from '../../../util/twemojify';
 import { checkVisible } from '../../../util/tools';
 
 import Text from '../../atoms/text/Text';
 import IconButton from '../../atoms/button/IconButton';
 import Input from '../../atoms/input/Input';
 import ScrollView from '../../atoms/scroll/ScrollView';
+import { emojiCateogoryList as cateogoryList, emojiGroups } from './data/emojibase-data';
 
 // Emoji Config
 let ROW_COUNT;
-const cateogoryList = [
-    [0, 'fa-solid fa-face-smile', 'Smilies'],
-    [1, 'fa-solid fa-dog', 'Animals'],
-    [2, 'fa-solid fa-mug-saucer', 'Food'],
-    [3, 'fa-solid fa-futbol', 'Activities'],
-    [4, 'fa-solid fa-camera', 'Travel'],
-    [5, 'fa-solid fa-building', 'Objects'],
-    [6, 'fa-solid fa-peace', 'Symbols'],
-    [7, 'fa-solid fa-flag', 'Flags'],
-];
 
 // Emoji Groups
 const EmojiGroup = React.memo(({ name, groupEmojis, className, isFav, }) => {
@@ -55,6 +46,8 @@ const EmojiGroup = React.memo(({ name, groupEmojis, className, isFav, }) => {
                                 className={`emoji${emoji.isFav || isFav ? ' fav-emoji' : ''}`}
                                 draggable="false"
 
+                                version={emoji.version?.toString()}
+
                                 alt={emoji.shortcodes?.toString()}
                                 unicode={emoji.unicode}
                                 shortcodes={emoji.shortcodes?.toString()}
@@ -62,7 +55,7 @@ const EmojiGroup = React.memo(({ name, groupEmojis, className, isFav, }) => {
                                 label={emoji.label?.toString()}
 
                                 hexcode={emoji.hexcode}
-                                style={{ backgroundImage: `url("${TWEMOJI_BASE_URL}72x72/${emoji.hexcode.toLowerCase()}.png")` }}
+                                style={{ backgroundImage: `url("${twemojifyUrl(emoji.hexcode)}")` }}
 
                             />
                         ) : (
@@ -343,7 +336,7 @@ function EmojiBoard({ onSelect, searchRef, emojiBoardRef, scrollEmojisRef }) {
             setEmojiInfo({
                 unicode: '🙂',
                 shortcode: 'slight_smile',
-                src: 'https://twemoji.maxcdn.com/v/13.1.0/72x72/1f642.png',
+                src: twemojifyUrl('1f642'),
             });
             return;
         }

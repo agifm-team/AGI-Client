@@ -16,6 +16,9 @@ import Chatroom from './app/embed/Chatroom';
 
 function startApp(appProtocol) {
 
+    global.getEnvApp = () => clone(__ENV_APP__);
+    global.Buffer = Buffer;
+
     const params = new URLSearchParams(window.location.search);
     const pageType = params.get('type');
     const pageId = params.get('id');
@@ -36,7 +39,7 @@ function startApp(appProtocol) {
 
         if (pageType === 'chatroom') {
             const hs = params.get('hs');
-            return root.render(<Chatroom roomId={params.get('id')} homeserver={typeof hs === 'string' && hs.length ? hs : null} />);
+            return root.render(<Chatroom roomId={pageId} homeserver={typeof hs === 'string' && hs.length ? hs : null} joinGuest={params.get('join_guest')} refreshTime={params.get('refresh_time')} theme={params.get('theme')} />);
         }
 
         return root.render('');
@@ -46,9 +49,6 @@ function startApp(appProtocol) {
     startWeb3();
 
     console.log(`[app] Starting app using the protocol "${appProtocol}" mode.`);
-    global.getEnvApp = () => clone(__ENV_APP__);
-    global.Buffer = Buffer;
-
     if (osSettings.startMinimized && typeof global.electronWindowIsVisible === 'function') {
         global.electronWindowIsVisible(false);
     }

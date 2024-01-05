@@ -147,6 +147,7 @@ function renderEvent(
   cancelEdit,
   isUserList,
   isDM,
+  isGuest,
 ) {
   const isBodyOnly =
     prevMEvent !== null &&
@@ -170,6 +171,7 @@ function renderEvent(
   }
   return (
     <Message
+      isGuest={isGuest}
       isDM={isDM}
       isUserList={isUserList}
       timelineSVRef={timelineSVRef}
@@ -416,7 +418,7 @@ function useEventArrive(
       }
 
       const { timeline } = roomTimeline;
-      const unreadMsgIsLast = timeline[timeline.length - 2].getId() === readUpToId;
+      const unreadMsgIsLast = timeline[timeline.length - 2] && timeline[timeline.length - 2].getId() === readUpToId;
       if (unreadMsgIsLast) {
         requestAnimationFrame(() => markAsRead(roomTimeline.roomId));
       }
@@ -472,6 +474,7 @@ function RoomViewContent({
   eventId,
   roomTimeline,
   isUserList,
+  isGuest,
 }) {
 
   const [throttle] = useState(new Throttle());
@@ -726,11 +729,11 @@ function RoomViewContent({
     jumpToItemIndex = -1;
     const readUptoEvent = readUptoEvtStore.getItem();
     let unreadDivider = false;
-    const isDM = initMatrix.roomList.directs.has(roomTimeline.roomId);
+    const isDM = initMatrix.roomList && initMatrix.roomList.directs.has(roomTimeline.roomId);
 
     let renderingHolders = false;
     if (roomTimeline.canPaginateBackward() || limit.from > 0) {
-      tl.push(loadingMsgPlaceholders(1, PLACEHOLDER_COUNT));
+      if (!isGuest) tl.push(loadingMsgPlaceholders(1, PLACEHOLDER_COUNT));
       itemCountIndex += PLACEHOLDER_COUNT;
     }
 
@@ -797,6 +800,7 @@ function RoomViewContent({
           cancelEdit,
           isUserList,
           isDM,
+          isGuest,
         ),
       );
       itemCountIndex += 1;
@@ -804,7 +808,7 @@ function RoomViewContent({
 
     if (roomTimeline.canPaginateForward() || limit.length < timeline.length) {
       renderingHolders = true;
-      tl.push(loadingMsgPlaceholders(2, PLACEHOLDER_COUNT));
+      if (!isGuest) tl.push(loadingMsgPlaceholders(2, PLACEHOLDER_COUNT));
     }
 
     if (renderingHolders) {
@@ -815,6 +819,7 @@ function RoomViewContent({
 
     body.removeClass('cb-top-page');
 
+    if (tl.length < 1 && isGuest) { tl.push(<center className='small p-3'>Empty Timeline</center>); }
     return tl;
 
   };
@@ -860,9 +865,11 @@ function RoomViewContent({
 
 RoomViewContent.defaultProps = {
   eventId: null,
+  isGuest: false,
 };
 RoomViewContent.propTypes = {
   eventId: PropTypes.string,
+  isGuest: PropTypes.bool,
   roomTimeline: PropTypes.shape({}).isRequired,
 };
 

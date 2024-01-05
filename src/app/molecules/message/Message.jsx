@@ -1052,6 +1052,7 @@ function Message({
   timelineSVRef,
   isDM,
   isGuest,
+  usernameHover,
 }) {
 
   // Get Room Data
@@ -1311,6 +1312,7 @@ function Message({
           <div className='mb-1'>
 
             <MessageHeader
+              usernameHover={usernameHover}
               userId={senderId}
               username={username}
             />
@@ -1436,6 +1438,7 @@ function Message({
         <div className='mb-1'>
 
           <MessageHeader
+            usernameHover={usernameHover}
             userId={senderId}
             username={username}
           />

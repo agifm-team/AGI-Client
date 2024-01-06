@@ -5,10 +5,10 @@ import { selectRoomMode } from '../../../../src/client/action/navigation';
 import defaultAvatar from '../../../../src/app/atoms/avatar/defaultAvatar';
 import { serverAddress } from '../../socket';
 import ItemWelcome from './item';
-import { ChatroomFrame } from '../../../../src/app/embed/Chatroom';
+import { ChatRoomFrame } from '../../../../src/app/embed/Chatroom';
 
 /*
-    <ChatroomFrame roomId='#imagegen:agispace.co' refreshTime={1} />
+    <ChatRoomFrame roomId='#imagegen:agispace.co' refreshTime={1} />
     This is the component that embeds the chat room.
 */
 

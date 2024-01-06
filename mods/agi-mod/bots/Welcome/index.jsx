@@ -8,7 +8,7 @@ import ItemWelcome from './item';
 import { ChatRoomFrame } from '../../../../src/app/embed/Chatroom';
 
 /*
-    <ChatRoomFrame roomId='#imagegen:agispace.co' refreshTime={1} />
+    <ChatRoomFrame roomId='#imagegen:agispace.co' className='p-3' refreshTime={1} />
     This is the component that embeds the chat room.
 */
 

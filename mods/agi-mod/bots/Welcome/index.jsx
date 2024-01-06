@@ -152,6 +152,8 @@ function Welcome() {
                 </p>
             }
 
+            <ChatRoomFrame roomId='#imagegen:agispace.co' className='m-2 border border-bg' style={{ height: 300, width: 500 }} refreshTime={1} />
+
         </center>
     </div>;
 

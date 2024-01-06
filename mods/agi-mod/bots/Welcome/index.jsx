@@ -5,6 +5,8 @@ import { selectRoomMode } from '../../../../src/client/action/navigation';
 import defaultAvatar from '../../../../src/app/atoms/avatar/defaultAvatar';
 import { serverAddress } from '../../socket';
 import ItemWelcome from './item';
+import settings from '../../../../src/client/state/settings';
+import cons from '../../../../src/client/state/cons';
 
 let connectionTestTimeout = false;
 
@@ -70,6 +72,15 @@ function Welcome() {
             });
 
         }
+
+        const applyWelcomeTheme = (index, theme) => {
+            console.log(index, theme);
+        };
+
+        settings.on(cons.events.settings.THEME_APPLIED, applyWelcomeTheme);
+        return () => {
+            settings.off(cons.events.settings.THEME_APPLIED, applyWelcomeTheme);
+        };
 
     });
 

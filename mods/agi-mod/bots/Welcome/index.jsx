@@ -152,6 +152,8 @@ function Welcome() {
                 </p>
             }
 
+            <hr />
+
             <div className='row mt-2'>
 
                 <div className='col-md-6'>

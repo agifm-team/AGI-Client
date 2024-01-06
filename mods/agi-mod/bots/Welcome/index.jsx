@@ -5,8 +5,12 @@ import { selectRoomMode } from '../../../../src/client/action/navigation';
 import defaultAvatar from '../../../../src/app/atoms/avatar/defaultAvatar';
 import { serverAddress } from '../../socket';
 import ItemWelcome from './item';
-import settings from '../../../../src/client/state/settings';
-import cons from '../../../../src/client/state/cons';
+import { ChatroomFrame } from '../../../../src/app/embed/Chatroom';
+
+/*
+    <ChatroomFrame roomId='#imagegen:agispace.co' refreshTime={1} />
+    This is the component that embeds the chat room.
+*/
 
 let connectionTestTimeout = false;
 
@@ -72,15 +76,6 @@ function Welcome() {
             });
 
         }
-
-        const applyWelcomeTheme = (index, theme) => {
-            console.log(index, theme);
-        };
-
-        settings.on(cons.events.settings.THEME_APPLIED, applyWelcomeTheme);
-        return () => {
-            settings.off(cons.events.settings.THEME_APPLIED, applyWelcomeTheme);
-        };
 
     });
 

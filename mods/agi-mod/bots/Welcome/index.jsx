@@ -136,14 +136,14 @@ function Welcome() {
         {data.categories.map((item) =>
           item
             ? item[where].map((bot) => (
-                <ItemWelcome
-                  bot={bot}
-                  type={type}
-                  item={item}
-                  title={title}
-                  itemsLength={items.length}
-                />
-              ))
+              <ItemWelcome
+                bot={bot}
+                type={type}
+                item={item}
+                title={title}
+                itemsLength={items.length}
+              />
+            ))
             : null
         )}
       </ul>
@@ -186,6 +186,7 @@ function Welcome() {
         </div>
         <form className="Formy" onSubmit={handleSearchSubmit}>
           <input
+            className='btn btn-bg w-100'
             type="text"
             value={tempSearch}
             onChange={handleSearchChange}
@@ -197,7 +198,7 @@ function Welcome() {
           {list &&
             list.map((tag) => (
               <button
-                className="taggyButton"
+                className="btn taggyButton btn-bg very-small"
                 style={selectedTag === tag ? { backgroundColor: 'white', color: 'black' } : {}}
                 key={tag}
                 onClick={() => setSelectedTag(tag)}
@@ -213,7 +214,7 @@ function Welcome() {
               .filter((room) =>
                 selectedTag
                   ? room.meta.tags.includes(selectedTag) ||
-                    room.username.toLowerCase().includes(selectedTag.toLowerCase())
+                  room.username.toLowerCase().includes(selectedTag.toLowerCase())
                   : true
               )
               .map((room) => <AgentCard agent={room} key={room.id} Img={defaultAvatar(1)} />)}
@@ -225,12 +226,12 @@ function Welcome() {
               .filter((room) =>
                 selectedTag
                   ? room.meta.tags.includes(selectedTag) ||
-                    room.username.toLowerCase().includes(selectedTag.toLowerCase())
+                  room.username.toLowerCase().includes(selectedTag.toLowerCase())
                   : true
               )
               .map((room) => <AgentCard agent={room} key={room.id} Img={defaultAvatar(1)} />)}
         </div>
-{/*         <div id="menu" className="text-start">
+        {/*         <div id="menu" className="text-start">
           <button
             type="button"
             className="me-3 btn btn-primary d-none"

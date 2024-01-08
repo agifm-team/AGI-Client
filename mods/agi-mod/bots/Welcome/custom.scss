@@ -5,16 +5,16 @@
 
   .taggyButton {
     color: var(--button-text-color);
-    text-align: left;
-    border-radius: 15px;
     background-color: var(--button-background-color);
-    padding: 4px 8px;
-    border: 1px solid var(--bg-surface);
+    border: 1px solid var(--bg-surface-border);
     border-radius: 50px;
-    font-size: 5px;
     margin-right: 10px;
     margin-bottom: 10px;
-    border-color: 2px solid var(--button-text-color);
+    border-color: var(--button-text-color);
     cursor: pointer;
+
+    &:hover {
+      background-color: var(--bg-surface-border) !important;
+    }
   }
 }

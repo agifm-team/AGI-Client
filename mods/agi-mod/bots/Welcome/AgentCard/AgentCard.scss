@@ -1,15 +1,20 @@
 .AgentCard {
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
   border-radius: 15px;
-  padding: 7px;
+  padding: 15px;
   width: 170px;
   text-align: left;
-  margin: 5px;
+  margin: 5px 5px;
   position: relative;
   z-index: 20;
   cursor: pointer;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background-size: cover;
+  background-position: center;
 }
 
 .AgentCard .agent-avatar {
@@ -18,37 +23,39 @@
 }
 
 .AgentCard .agent-username {
-  font-size: 0.75rem;
+  font-size: 1rem;
   font-weight: bold;
-  margin-top: 15px;
+  margin-top: 100px;
   line-height: 1.2;
+  margin-bottom: 5px;
 }
 
 .AgentCard .agent-description {
-  font-size: 0.6rem; // 10px
+  font-size: 0.7rem;
   font-weight: semi-bold;
-  margin-top: 3px;
   position: relative;
   z-index: 1;
   line-height: 1.2;
+  margin-bottom: 5px;
 }
 
 .AgentCard .agent-tags {
   display: flex;
   flex-wrap: wrap;
-  margin-top: -5px;
   position: relative;
   z-index: 1;
+  margin-top: 0;
+  padding-top: 0;
+  color: rgb(167, 167, 167);
 }
 
 .AgentCard .agent-tag {
-  margin-right: 0.6rem;
-  font-size: 0.5rem;
+  margin-right: 0.4rem;
+  font-size: 0.68rem;
   border-radius: 10px;
-  padding: 0.1rem 0.3rem;
+  // padding: 0.1rem 0.3rem;
   transition: all 0.3s ease;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-  margin: 1px;
   overflow: hidden;
   text-overflow: ellipsis;
 
@@ -62,20 +69,26 @@
   }
   .AgentCard .agent-avatar {
     font-size: 1rem;
-    margin-right: 3px;
+    // margin-right: 3px;
+  }
+  .AgentCard .agent-username {
+    font-size: 0.8rem;
+    font-weight: bold;
+    line-height: 1.2;
+    margin-bottom: 3px;
   }
   .AgentCard .agent-description {
     font-size: 0.5rem;
-    margin-top: 3px;
+    margin-top: 2px;
     position: relative;
     z-index: 1;
     line-height: 1.2;
+    margin-bottom: 3px;
   }
   .AgentCard .agent-tag {
     margin-right: 0.4rem;
-    font-size: 0.4rem;
+    font-size: 0.5rem;
     border-radius: 10px;
-    padding: 0.1rem 0.3rem;
     transition: all 0.3s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
     overflow: hidden;

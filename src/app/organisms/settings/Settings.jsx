@@ -22,6 +22,7 @@ import ExperimentalSection from './pages/Experimental';
 import VoiceVideoSection from './pages/VoiceVideo';
 import IpfsSection from './pages/Ipfs';
 import Web3Section from './pages/Web3';
+import { logout } from '../../../../mods/agi-mod/lib';
 
 function EmojiSection() {
   return (
@@ -171,7 +172,7 @@ tabItems.push({
   disabled: false,
   onClick: async () => {
     if (await confirmDialog('Logout', 'Are you sure that you want to logout your session?', 'Logout', 'danger')) {
-      initMatrix.logout();
+      logout();
     }
   }
 });

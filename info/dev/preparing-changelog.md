@@ -26,3 +26,5 @@
 - Check for Updates button added.
 - ENV Values uppercase.
 - Threads added.
+- Emoji list fix.
+- New embed to guest chatroom.

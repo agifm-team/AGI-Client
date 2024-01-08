@@ -67,6 +67,7 @@ import tinyAPI from '../../../util/mods';
 import { getAnimatedImageUrl, getAppearance } from '../../../util/libs/appearance';
 import UserOptions from '../user-options/UserOptions';
 import { getDataList } from '../../../util/selectedRoom';
+import { tinyLinkifyFixer } from '../../../util/clear-urls/clearUrls';
 
 function PlaceholderMessage() {
   return <tr className="ph-msg">
@@ -379,7 +380,7 @@ MessageBody.propTypes = {
 };
 
 // Message Edit
-function MessageEdit({ body, onSave, onCancel }) {
+function MessageEdit({ body, onSave, onCancel, refRoomInput }) {
   const editInputRef = useRef(null);
 
   useEffect(() => {
@@ -394,8 +395,9 @@ function MessageEdit({ body, onSave, onCancel }) {
       onCancel();
     }
 
-    if (e.key === 'Enter' && settings.sendMessageOnEnter && e.shiftKey === false) {
+    if (e.key === 'Enter' && e.shiftKey === false) {
       e.preventDefault();
+      $(refRoomInput.current).find('#message-textarea').focus();
       onSave(editInputRef.current.value, body);
     }
   };
@@ -404,6 +406,7 @@ function MessageEdit({ body, onSave, onCancel }) {
     className="message__edit"
     onSubmit={(e) => {
       e.preventDefault();
+      $(refRoomInput.current).find('#message-textarea').focus();
       onSave(editInputRef.current.value, body);
     }}
   >
@@ -887,7 +890,7 @@ const MessageThreadSummary = React.memo(({ thread }) => {
                 imageSrc={lastSenderAvatarSrc}
                 text={lastSender?.name}
                 bgColor={backgroundColorMXID(lastSender?.userId)}
-                size="ultra-small"
+                size="small"
               />
               <span className="message__threadSummary-lastReply-sender very-small text-truncate">
                 {lastSender?.name}{' '}
@@ -1050,6 +1053,10 @@ function Message({
   classNameMessage,
   timelineSVRef,
   isDM,
+  isGuest,
+  disableActions,
+  usernameHover,
+  refRoomInput,
 }) {
 
   // Get Room Data
@@ -1091,21 +1098,30 @@ function Message({
   // Content Data
   let isCustomHTML = content.format === 'org.matrix.custom.html';
   let customHTML = isCustomHTML ? content.formatted_body : null;
-  let bodyUrls;
 
+  const bodyUrls = [];
   if (typeof body === 'string' && body.length > 0) {
 
     try {
-      bodyUrls = linkify.find(
+
+      const newBodyUrls = linkify.find(
         body.replace(/\> \<\@([\S\s]+?)\> ([\S\s]+?)\n\n|\> \<\@([\S\s]+?)\> ([\S\s]+?)\\n\\n/gm, '')
           .replace(/^((?:(?:[ ]{4}|\t).*(\R|$))+)|`{3}([\w]*)\n([\S\s]+?)`{3}|`{3}([\S\s]+?)`{3}|`{2}([\S\s]+?)`{2}|`([\S\s]+?)|\[([\S\s]+?)\]|\{([\S\s]+?)\}|\<([\S\s]+?)\>|\(([\S\s]+?)\)/gm, '')
       );
+
+      if (Array.isArray(newBodyUrls)) {
+        for (const item in newBodyUrls) {
+          if (tinyLinkifyFixer(newBodyUrls[item].type, newBodyUrls[item].value)) {
+            bodyUrls.push(newBodyUrls[item]);
+          }
+        }
+      }
+
     } catch (err) {
       console.error(err);
-      bodyUrls = [];
     }
 
-  } else { bodyUrls = []; }
+  }
 
   // Edit Data
   const edit = useCallback(() => {
@@ -1173,7 +1189,7 @@ function Message({
 
       // Check Urls on the message
       const appAppearance = getAppearance();
-      if (appAppearance.isEmbedEnabled === true && Array.isArray(bodyUrls) && bodyUrls.length > 0) {
+      if (appAppearance.isEmbedEnabled === true && bodyUrls.length > 0) {
 
         // Create embed base
         const newEmbeds = clone(embeds);
@@ -1281,7 +1297,7 @@ function Message({
 
       <td className='p-0 pe-3 py-1' colSpan={!children ? '2' : ''}>
 
-        {roomTimeline && !isEdit && (
+        {!isGuest && !disableActions && roomTimeline && !isEdit && (
           <MessageOptions
             customHTML={customHTML}
             body={body}
@@ -1300,6 +1316,7 @@ function Message({
           <div className='mb-1'>
 
             <MessageHeader
+              usernameHover={usernameHover}
               userId={senderId}
               username={username}
             />
@@ -1344,6 +1361,7 @@ function Message({
 
         {isEdit && (
           <MessageEdit
+            refRoomInput={refRoomInput}
             body={(customHTML
               ? html(customHTML, { kind: 'edit', onlyPlain: true }).plain
               : plain(body, { kind: 'edit', onlyPlain: true }).plain)}
@@ -1408,7 +1426,7 @@ function Message({
 
     <td className='p-0 pe-3 py-1'>
 
-      {roomTimeline && !isEdit && (
+      {!isGuest && !disableActions && roomTimeline && !isEdit && (
         <MessageOptions
           roomid={roomId}
           senderid={senderId}
@@ -1425,6 +1443,7 @@ function Message({
         <div className='mb-1'>
 
           <MessageHeader
+            usernameHover={usernameHover}
             userId={senderId}
             username={username}
           />
@@ -1459,6 +1478,7 @@ function Message({
 
       {isEdit && (
         <MessageEdit
+          refRoomInput={refRoomInput}
           body={(customHTML
             ? html(customHTML, { kind: 'edit', onlyPlain: true }).plain
             : plain(body, { kind: 'edit', onlyPlain: true }).plain)}
@@ -1497,6 +1517,8 @@ Message.defaultProps = {
   isEdit: false,
   setEdit: null,
   cancelEdit: null,
+  isGuest: false,
+  disableActions: false,
 };
 
 Message.propTypes = {
@@ -1508,6 +1530,8 @@ Message.propTypes = {
   focus: PropTypes.bool,
   fullTime: PropTypes.bool,
   isEdit: PropTypes.bool,
+  isGuest: PropTypes.bool,
+  disableActions: PropTypes.bool,
   setEdit: PropTypes.func,
   cancelEdit: PropTypes.func,
 };

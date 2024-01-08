@@ -1,5 +1,3 @@
-    --> net::ERR_FAILED 429 (Too Many Requests)
-
     --> Menu mobile de ícones precisa parar de ser table usar flex.
 
     --> Criar leitor de mensagens fixadas
@@ -30,7 +28,6 @@ Made by Me
 
     selectedRoom.room.eventNames()
     Coisas que não atualiza sozinho:
-        Room name (Na home / no titulo da room).
         Alteração de friend nickname.
         O username do display da conta logada.
         O atualizar de emojis de rooms só funciona quando muda de room.

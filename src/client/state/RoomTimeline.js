@@ -7,9 +7,11 @@ import {
   Direction,
   EventTimeline,
   MatrixEventEvent,
+  Room,
   RoomEvent,
   RoomMemberEvent,
 } from 'matrix-js-sdk';
+// import initMatrix, { fetchFn as fetch } from '../initMatrix';
 import initMatrix from '../initMatrix';
 import cons from './cons';
 
@@ -17,6 +19,7 @@ import settings from './settings';
 import { messageIsClassicCrdt } from '../../util/libs/crdt';
 import { objType } from '../../util/tools';
 import moment from '../../util/libs/momentjs';
+import { updateRoomInfo } from '../action/navigation';
 
 const delayYdocUpdate = 100;
 const hashTryLimit = 10;
@@ -146,9 +149,11 @@ const enableyJsItem = {
 // Class
 class RoomTimeline extends EventEmitter {
 
-  constructor(roomId) {
+  constructor(roomId, roomAlias = null, isGuest = false, guestId = null, refreshTime = null) {
 
+    // Super!
     super();
+
     // These are local timelines
     this.timeline = [];
     this.crdt = {};
@@ -156,21 +161,91 @@ class RoomTimeline extends EventEmitter {
     this.reactionTimeline = new Map();
     this.typingMembers = new Set();
 
+    // Guest Data
+    this.isGuest = isGuest;
+    this.guestId = guestId;
+    this.refreshTime = refreshTime;
+
+    // Client Prepare
     this.matrixClient = initMatrix.matrixClient;
     this.roomId = roomId;
-    this.room = this.matrixClient.getRoom(roomId);
+    this.roomAlias = roomAlias;
+
+    this.room = !this.isGuest ? this.matrixClient.getRoom(roomId) : new Room(roomId, this.matrixClient, this.guestId, {
+      lazyLoadMembers: true,
+      timelineSupport: true,
+    });
+
+    // Nothing! Tiny cancel time.
     if (this.room === null) {
       throw new Error(`Created a RoomTimeline for a room that doesn't exist: ${roomId}`);
     }
 
+    // Is Guest
+    if (this.isGuest) {
+
+      // Load Guest timeline
+      this.loadGuestTimeline = () => {
+
+        const tinyThis = this;
+
+        this.room.refreshLiveTimeline().then(() => {
+
+          // Insert guest timeline
+          tinyThis.liveTimeline = tinyThis.room.getLiveTimeline();
+          tinyThis.activeTimeline = tinyThis.liveTimeline;
+
+          // Update room info to RoomViewHeader.jsx
+          updateRoomInfo();
+
+          // Read Timeline
+          if (objType(tinyThis.liveTimeline, 'object') && Array.isArray(tinyThis.liveTimeline.events)) {
+            for (const item in tinyThis.liveTimeline.events) {
+
+              // Anti Repeat
+              let repeated = false;
+              if (tinyThis.timeline.find(event => typeof event.getId === 'function' && typeof tinyThis.liveTimeline.events[item].getId === 'function' && event.getId() === tinyThis.liveTimeline.events[item].getId())) {
+                repeated = true;
+              }
+
+              // Send events
+              if (!repeated) {
+                const event = tinyThis.liveTimeline.events[item];
+                tinyThis.matrixClient.emit(RoomEvent.Timeline,
+                  event,
+                  tinyThis.room,
+                  true,
+                  false,
+                  {
+                    liveEvent: true,
+                    timeline: tinyThis.liveTimeline,
+                  }
+                );
+              }
+
+            }
+          }
+
+        });
+
+      };
+
+      // First load
+      this.loadGuestTimeline();
+
+    }
+
+    // Insert live timeline
     this.liveTimeline = this.room.getLiveTimeline();
     this.activeTimeline = this.liveTimeline;
 
+    // More data
     this.isOngoingPagination = false;
     this.ongoingDecryptionCount = 0;
     this.initialized = false;
-    this._ydoc = null;
 
+    // Ydoc data
+    this._ydoc = null;
     this.ydoc_last_update = null;
 
     this._ydoc_matrix_update = [];
@@ -183,8 +258,10 @@ class RoomTimeline extends EventEmitter {
     this._ydoc_cache_timeout = null;
     this._ydoc_update_time = { timeout: null, cache: [] };
 
+    // Load Members
     setTimeout(() => this.room.loadMembersIfNeeded());
 
+    // Dev
     if (__ENV_APP__.MODE === 'development') { window.selectedRoom = this; }
 
   }
@@ -528,6 +605,26 @@ class RoomTimeline extends EventEmitter {
     this._populateAllLinkedEvents(this.activeTimeline);
   }
 
+  // History Get
+  /*
+    https://matrix.org/docs/older/matrix-enact/
+    https://github.com/benparsons/matrix-enact/blob/master/src/App.js
+    https://github.com/matrix-org/matrix-js-sdk/issues/494
+    https://matrix-org.github.io/matrix-js-sdk/stable/classes/MatrixClient.html#isGuest
+  */
+  /* loadScriptFromEventId(startEventId, isFirst = true) {
+    const url = `${this.matrixClient.baseUrl}/_matrix/client/r0/rooms/${encodeURIComponent(this.roomId)}/context/${encodeURIComponent(startEventId)}?limit=100&access_token=${this.matrixClient.getAccessToken()}`;
+    return new Promise((resolve, reject) => {
+      fetch(url, {
+        'Content-Type': 'application/json',
+      }).then(res => res.json()).then(data => {
+
+        resolve(data);
+
+      }).catch(reject);
+    });
+  } */
+
   // Reset
   async _reset() {
 
@@ -546,6 +643,7 @@ class RoomTimeline extends EventEmitter {
     this.activeTimeline = this.liveTimeline;
     await this._reset();
     this.emit(cons.events.roomTimeline.READY, null);
+    updateRoomInfo();
     return true;
   }
 
@@ -624,6 +722,8 @@ class RoomTimeline extends EventEmitter {
       // Complete
       this.emit(cons.events.roomTimeline.PAGINATED, backwards, loaded);
       this.isOngoingPagination = false;
+
+      updateRoomInfo();
       return true;
 
     }
@@ -1211,9 +1311,14 @@ class RoomTimeline extends EventEmitter {
     this.matrixClient.on(RoomMemberEvent.Typing, this._listenTypingEvent);
     this.matrixClient.on(RoomEvent.Receipt, this._listenReciptEvent);
 
+    if (this.isGuest && typeof this.refreshTime === 'number' && this.refreshTime > 0) {
+      this.refreshTimelineInterval = setInterval(() => this.loadGuestTimeline(), 60000 * this.refreshTime);
+    }
+
   }
 
   removeInternalListeners() {
+
     if (!this.initialized) return;
     this._disableYdoc();
 
@@ -1222,6 +1327,9 @@ class RoomTimeline extends EventEmitter {
     this.matrixClient.removeListener(MatrixEventEvent.Decrypted, this._listenDecryptEvent);
     this.matrixClient.removeListener(RoomMemberEvent.Typing, this._listenTypingEvent);
     this.matrixClient.removeListener(RoomEvent.Receipt, this._listenReciptEvent);
+
+    if (this.refreshTimelineInterval) clearInterval(this.refreshTimelineInterval);
+
   }
 }
 

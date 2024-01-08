@@ -10,8 +10,18 @@ import Notifications from './state/Notifications';
 import { cryptoCallbacks } from './state/secretStorageKeys';
 import navigation from './state/navigation';
 import logger from './logger';
+import { logout } from '../../mods/agi-mod/lib';
 
 global.Olm = Olm;
+
+// eslint-disable-next-line import/no-mutable-exports
+const fetchBase = (url, ops) => {
+  if (typeof global.nodeFetch === 'function') return global.nodeFetch(url.href, ops);
+  return global.fetch(url.href, ops);
+};
+
+const fetchFn = __ENV_APP__.ELECTRON_MODE ? (url, ops) => fetchFn({ href: url }, ops) : global.fetch;
+export { fetchFn };
 
 const startCustomDNS = () => {
   if (__ENV_APP__.ELECTRON_MODE) {
@@ -40,14 +50,20 @@ class InitMatrix extends EventEmitter {
     startCustomDNS();
   }
 
-  async init() {
-    startCustomDNS();
-    await this.startClient();
-    this.setupSync();
-    this.listenEvents();
+  setMatrixClient(mx) {
+    this.matrixClient = mx;
+    if (__ENV_APP__.MODE === 'development') { global.initMatrix = { matrixClient: mx }; }
   }
 
-  async startClient() {
+  async init(isGuest = false) {
+    startCustomDNS();
+    await this.startClient(isGuest);
+    this.setupSync();
+    this.listenEvents();
+    return secret.userId;
+  }
+
+  async startClient(isGuest = false) {
 
     startCustomDNS();
 
@@ -68,7 +84,12 @@ class InitMatrix extends EventEmitter {
       cryptoStore: new sdk.IndexedDBCryptoStore(global.indexedDB, 'crypto-store'),
 
       deviceId: secret.deviceId,
+
+      useE2eForGroupCall: !isGuest,
+      isVoipWithNoMediaAllowed: !isGuest,
       timelineSupport: true,
+      supportsCallTransfer: !isGuest,
+
       cryptoCallbacks,
       verificationMethods: [
         'm.sas.v1',
@@ -77,10 +98,7 @@ class InitMatrix extends EventEmitter {
     };
 
     if (__ENV_APP__.ELECTRON_MODE) {
-      clientOps.fetchFn = (url, ops) => {
-        if (typeof global.nodeFetch === 'function') return global.nodeFetch(url.href, ops);
-        return global.fetch(url.href, ops);
-      };
+      clientOps.fetchFn = fetchBase;
     }
 
     this.matrixClient = sdk.createClient(clientOps);
@@ -152,7 +170,7 @@ class InitMatrix extends EventEmitter {
     startCustomDNS();
     this.matrixClient.stopClient();
     try {
-      await this.matrixClient.logout();
+      await logout();
     } catch {
       // ignore if failed to logout
     }

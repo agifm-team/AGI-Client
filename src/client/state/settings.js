@@ -135,6 +135,24 @@ class Settings extends EventEmitter {
 
   }
 
+  getThemeIndexById(id) {
+
+    if (typeof id === 'string') {
+
+      const result = this.themes.findIndex(theme => theme.id === id);
+
+      if (result > -1) {
+        return result;
+      }
+
+      return null;
+
+    }
+
+    return null;
+
+  }
+
   getThemeNameById(id) {
 
     if (typeof id === 'string') {
@@ -213,12 +231,12 @@ class Settings extends EventEmitter {
 
   }
 
-  applyTheme() {
+  applyTheme(index = this.themeIndex, useSystemTheme = this.useSystemTheme) {
 
     this._clearTheme();
     const body = $('body');
 
-    if (this.useSystemTheme) {
+    if (useSystemTheme) {
 
       body.addClass('system-theme');
 
@@ -228,14 +246,20 @@ class Settings extends EventEmitter {
         body.addClass(`theme-type-light`);
       }
 
-    } else if (this.themes[this.themeIndex]) {
-      body.addClass(this.themes[this.themeIndex].id !== '' ? this.themes[this.themeIndex].id : 'default-theme').addClass(
-        this.themes[this.themeIndex]?.type === 'dark' || this.themes[this.themeIndex]?.type === 'dark-solid' ||
-          this.themes[this.themeIndex]?.type === 'dark2' || this.themes[this.themeIndex]?.type === 'dark2-solid' ||
-          this.themes[this.themeIndex]?.type === 'light' || this.themes[this.themeIndex]?.type === 'light-solid' ||
-          this.themes[this.themeIndex]?.type === 'silver' || this.themes[this.themeIndex]?.type === 'silver-solid' ?
-          `theme-type-${this.themes[this.themeIndex]?.type}` : ''
+      this.emit(cons.events.settings.THEME_APPLIED, null, null);
+
+    } else if (this.themes[index]) {
+
+      body.addClass(this.themes[index].id !== '' ? this.themes[index].id : 'default-theme').addClass(
+        this.themes[index]?.type === 'dark' || this.themes[index]?.type === 'dark-solid' ||
+          this.themes[index]?.type === 'dark2' || this.themes[index]?.type === 'dark2-solid' ||
+          this.themes[index]?.type === 'light' || this.themes[index]?.type === 'light-solid' ||
+          this.themes[index]?.type === 'silver' || this.themes[index]?.type === 'silver-solid' ?
+          `theme-type-${this.themes[index]?.type}` : ''
       );
+
+      this.emit(cons.events.settings.THEME_APPLIED, index, this.themes[index]);
+
     }
 
     this.changeMobileBackground('default');
@@ -243,17 +267,23 @@ class Settings extends EventEmitter {
   }
 
   setTheme(themeIndex) {
+
     this.themeIndex = themeIndex;
     setSettings('themeIndex', this.themeIndex);
     this.applyTheme();
+
+    this.emit(cons.events.settings.THEME_TOGGLED, this.themeIndex, this.themes[this.themeIndex]);
+
   }
 
   toggleUseSystemTheme() {
+
     this.useSystemTheme = !this.useSystemTheme;
     setSettings('useSystemTheme', this.useSystemTheme);
     this.applyTheme();
 
     this.emit(cons.events.settings.SYSTEM_THEME_TOGGLED, this.useSystemTheme);
+
   }
 
   getUseSystemTheme() {

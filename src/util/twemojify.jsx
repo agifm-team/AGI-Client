@@ -14,6 +14,7 @@ import { sanitizeText } from './sanitize';
 
 import keywords from '../../mods/keywords';
 import openTinyURL from './message/urlProtection';
+import { tinyLinkifyFixer } from './clear-urls/clearUrls';
 
 // Register Protocols
 linkify.registerCustomProtocol('matrix');
@@ -71,7 +72,7 @@ export const TWEMOJI_BASE_URL = './img/twemoji/';
 
 // String Protocols
 global.String.prototype.toUnicode = function () {
-  let result = "";
+  let result = '';
   for (let i = 0; i < this.length; i++) {
     // Assumption: all characters are < 0xffff
     result += `\\u${(`000${this[i].charCodeAt(0).toString(16)}`).substring(-4)}`;
@@ -108,27 +109,51 @@ const tinyRender = {
 
   html: type => ({ attributes, content }) => {
 
-    let tinyAttr = '';
-    for (const attr in attributes) {
-      tinyAttr += ` ${attr}${attributes[attr].length > 0 ? `=${attributes[attr]}` : ''}`;
+    if (tinyLinkifyFixer(type, content)) {
+
+      let tinyAttr = '';
+      for (const attr in attributes) {
+        tinyAttr += ` ${attr}${attributes[attr].length > 0 ? `=${attributes[attr]}` : ''}`;
+      }
+
+      if (type === 'keyword') {
+        tinyAttr += ' iskeyword="true"';
+      } else {
+        tinyAttr += ' iskeyword="false"';
+      }
+
+      const db = tinywordsDB[content.toLowerCase()];
+      return `<a${tinyAttr} title="${db?.title}">${content}</a>`;
+
     }
 
-    if (type === 'keyword') {
-      tinyAttr += ' iskeyword="true"';
-    } else {
-      tinyAttr += ' iskeyword="false"';
-    }
-
-    const db = tinywordsDB[content.toLowerCase()];
-    return `<a${tinyAttr} title="${db?.title}">${content}</a>`;
+    return content;
 
   },
 
   react: type => ({ attributes, content }) => {
-    const { href, ...props } = attributes;
-    const db = tinywordsDB[content.toLowerCase()];
-    const result = <a href={href} onClick={(e) => { e.preventDefault(); openTinyURL($(e.target).attr('href'), $(e.target).attr('href')); return false; }} {...props} iskeyword={type === 'keyword' ? 'true' : 'false'} className='lk-href'>{content}</a>;
-    return db?.title ? <Tooltip content={<small>{db.title}</small>} >{result}</Tooltip> : result;
+
+    if (tinyLinkifyFixer(type, content)) {
+
+      const { href, ...props } = attributes;
+      const db = tinywordsDB[content.toLowerCase()];
+      const result = <a
+        href={href}
+        onClick={(e) => {
+          e.preventDefault();
+          openTinyURL($(e.target).attr('href'), $(e.target).attr('href')); return false;
+        }} {...props}
+        iskeyword={type === 'keyword' ? 'true' : 'false'}
+        className='lk-href'>
+        {content}
+      </a>;
+
+      return db?.title ? <Tooltip content={<small>{db.title}</small>} >{result}</Tooltip> : result;
+
+    }
+
+    return <span>{content}</span>;
+
   }
 
 };
@@ -247,6 +272,41 @@ export function twemojifyReact(text, opts, linkifyEnabled = false, sanitize = tr
   return twemojifyAction(text, opts, linkifyEnabled, sanitize, maths, true);
 };
 
-export function twemojifyIcon(text, size = 72) {
-  return `${TWEMOJI_BASE_URL}${size}x${size}/${text.emojiToCode().toLowerCase()}.png`;
+const unicodeEmojiFix = (text) => {
+
+  let code = text.toLowerCase();
+
+  // Fix for "copyright" and "trademark" emojis
+  if (code.substring(0, 2) === "00") {
+    code = code.substring(2);
+
+    // Fix for keycap emojis
+    const regex = /-fe0f/i;
+    code = code.replace(regex, '');
+  }
+
+  // Fix for "Eye in Speech Bubble" emoji
+  if (code.includes("1f441")) {
+    const regex = /-fe0f/gi;
+    code = code.replace(regex, '');
+  }
+
+  return code;
+
+};
+
+export function twemojifyIcon(text, format = 'png', size = 72) {
+  return `${TWEMOJI_BASE_URL}${size}x${size}/${unicodeEmojiFix(text)}.${format}`;
+}
+
+export function twemojifyUrl(text, format = 'png', size = 72) {
+  return `${TWEMOJI_BASE_URL}${format !== 'svg' ? `${size}x${size}` : 'svg'}/${unicodeEmojiFix(text)}.${format}`;
+}
+
+export function twemojifyToUrl(text) {
+  try {
+    return twemojifyIcon(twemoji.convert.toCodePoint(text).toLowerCase());
+  } catch {
+    return '';
+  }
 }

@@ -46,7 +46,36 @@
       }
     }
   }
+  .taggy button {
+    color: var(--button-text-color);
+    text-align: left;
+    border-radius: 15px;
+    background-color: var(--button-background-color);
+    padding: 5px 9px 5px 9px;
+    border: 1px solid var(--bg-surface);
+    border-radius: 50px;
+    font-size: 14px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border-color: 2px solid var(--button-text-color);
+    cursor: pointer;
+  }
 
+  .Formy input {
+    color: var(--button-text-color);
+    text-align: left;
+    border-radius: 15px;
+    background-color: var(--button-background-color);
+    padding: 5px 9px 5px 9px;
+    border: 1px solid var(--bg-surface);
+    border-radius: 50px;
+    font-size: 14px;
+    margin-top: 20px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border-color: 2px solid var(--button-text-color);
+    width: 100%;
+  }
   center {
     width: 40%;
   }

@@ -12,27 +12,54 @@ import { getPWADisplayMode } from "./util/PWA.js";
 import App from './app/pages/App';
 import { startCustomThemes } from '../mods';
 import { getOsSettings } from './util/libs/osSettings';
+import ChatRoom from './app/embed/ChatRoom';
 
 function startApp(appProtocol) {
+
+    global.getEnvApp = () => clone(__ENV_APP__);
+    global.Buffer = Buffer;
+
+    const params = new URLSearchParams(window.location.search);
+    const pageType = params.get('type');
+    const pageId = params.get('id');
 
     const osSettings = getOsSettings();
     startCustomThemes();
     startSettings();
 
     getPWADisplayMode();
-
-    startWeb3();
     startQuery();
 
-    console.log(`[app] Starting app using the protocol "${appProtocol}" mode.`);
-    global.getEnvApp = () => clone(__ENV_APP__);
-    global.Buffer = Buffer;
+    const root = ReactDOM.createRoot(document.getElementById('root'));
 
+    if (
+        typeof pageType === 'string' && pageType.length > 0 &&
+        typeof pageId === 'string' && pageId.length > 0
+    ) {
+
+        if (pageType === 'chatroom') {
+            const hs = params.get('hs');
+            return root.render(<ChatRoom
+                roomId={pageId}
+                homeserver={typeof hs === 'string' && hs.length ? hs : null}
+                joinGuest={params.get('join_guest')}
+                refreshTime={params.get('refresh_time')}
+                usernameHover={params.get('username_hover')}
+                theme={params.get('theme')}
+            />);
+        }
+
+        return root.render('');
+
+    }
+
+    startWeb3();
+
+    console.log(`[app] Starting app using the protocol "${appProtocol}" mode.`);
     if (osSettings.startMinimized && typeof global.electronWindowIsVisible === 'function') {
         global.electronWindowIsVisible(false);
     }
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
     return root.render(<App />);
 
 }

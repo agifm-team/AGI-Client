@@ -184,7 +184,6 @@ function Welcome() {
             />
           </div>
         </div>
-        {/* <Agent /> */}
         <form className="Formy" onSubmit={handleSearchSubmit}>
           <input
             type="text"
@@ -231,7 +230,7 @@ function Welcome() {
               )
               .map((room) => <AgentCard agent={room} key={room.id} Img={defaultAvatar(1)} />)}
         </div>
-        <div id="menu" className="text-start">
+{/*         <div id="menu" className="text-start">
           <button
             type="button"
             className="me-3 btn btn-primary d-none"
@@ -283,7 +282,7 @@ function Welcome() {
         )}
 
         <hr />
-
+ */}
         {/* <div className="row mt-2">
           <div className="col-md-6">
             <ChatRoomFrame

@@ -184,7 +184,6 @@ function Welcome() {
             />
           </div>
         </div>
-        {/* <Agent /> */}
         <form className="Formy" onSubmit={handleSearchSubmit}>
           <input
             type="text"

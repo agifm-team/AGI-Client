@@ -8,8 +8,6 @@ function AgentCard({ agent, Img }) {
       className="AgentCard"
       style={{
         backgroundImage: `linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0) 100%), url("${imageUrl}")`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
       }}
     >
       <h3 className="agent-username">{agent.username}</h3>

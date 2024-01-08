@@ -164,7 +164,7 @@ function Welcome() {
   // Result
   return (
     <div className="tiny-welcome p-3 border-0 h-100 noselect px-5" style={{ alignItems: 'center' }}>
-      <center className="py-5 w-100 px-5">
+      <center className="py-5 w-100 px-3">
         <div className="row mt-2">
           <div className="col-md-6">
             <ChatRoomFrame

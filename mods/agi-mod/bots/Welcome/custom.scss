@@ -6,11 +6,9 @@
   .taggyButton {
     color: var(--button-text-color);
     background-color: var(--button-background-color);
-    border: 1px solid var(--bg-surface-border);
     border-radius: 50px;
     margin-right: 10px;
     margin-bottom: 10px;
-    border-color: var(--button-text-color);
     cursor: pointer;
 
     &:hover {

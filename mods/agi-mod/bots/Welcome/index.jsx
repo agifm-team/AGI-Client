@@ -186,7 +186,7 @@ function Welcome() {
         </div>
         <form className="Formy" onSubmit={handleSearchSubmit}>
           <input
-            className='btn btn-bg w-100'
+            className='btn btn-bg w-100 border'
             type="text"
             value={tempSearch}
             onChange={handleSearchChange}
@@ -198,8 +198,7 @@ function Welcome() {
           {list &&
             list.map((tag) => (
               <button
-                className="btn taggyButton btn-bg very-small"
-                style={selectedTag === tag ? { backgroundColor: 'white', color: 'black' } : {}}
+                className="btn taggyButton btn-bg very-small border"
                 key={tag}
                 onClick={() => setSelectedTag(tag)}
               >

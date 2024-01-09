@@ -51,8 +51,7 @@ function Auth() {
 
     </>)}
 
-    yay
-    <Welcome />
+
 
   </>;
 

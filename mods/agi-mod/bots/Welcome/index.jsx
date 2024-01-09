@@ -3,13 +3,14 @@ import React, { useEffect, useState } from 'react';
 
 import { selectRoomMode } from '../../../../src/client/action/navigation';
 import defaultAvatar from '../../../../src/app/atoms/avatar/defaultAvatar';
-import { serverAddress } from '../../socket';
+import { serverAddress, serverDomain } from '../../socket';
 import ItemWelcome from './item';
 import { ChatRoomFrame } from '../../../../src/app/embed/ChatRoom';
 import AgentCard from './AgentCard/AgentCard.jsx';
 import './custom.scss';
+
 /*
-    <ChatRoomFrame roomId='#imagegen:agispace.co' className='m-3 border border-bg' style={{ height: 300, width: 500 }} refreshTime={1} />
+    <ChatRoomFrame roomId=`#imagegen:${serverDomain}` className='m-3 border border-bg' style={{ height: 300, width: 500 }} refreshTime={1} />
     This is the component that embeds the chat room.
 */
 
@@ -50,7 +51,7 @@ function Welcome() {
   };
 
   const fetchJson = () => {
-    fetch('https://bots.agispace.co/list')
+    fetch(`https://bots.${serverDomain}/list`)
       .then((res) => {
         if (!res.ok) {
           throw new Error('Network response was not ok');
@@ -168,7 +169,7 @@ function Welcome() {
       <div className="row mt-2">
         <div className="col-md-6">
           <ChatRoomFrame
-            roomId="#imagegen:agispace.co"
+            roomId={`#imagegen:${serverDomain}`}
             className="border border-bg w-100"
             style={{ height: 300 }}
             refreshTime={1}
@@ -177,7 +178,7 @@ function Welcome() {
 
         <div className="col-md-6">
           <ChatRoomFrame
-            roomId="#previews:agispace.co"
+            roomId={`#previews:${serverDomain}`}
             className="border border-bg w-100"
             style={{ height: 300 }}
             refreshTime={1}
@@ -291,7 +292,7 @@ function Welcome() {
       {/* <div className="row mt-2">
           <div className="col-md-6">
             <ChatRoomFrame
-              roomId="#imagegen:agispace.co"
+              roomId={`#imagegen:${serverDomain}`}
               className="border border-bg w-100"
               style={{ height: 300 }}
               refreshTime={1}
@@ -300,7 +301,7 @@ function Welcome() {
 
           <div className="col-md-6">
             <ChatRoomFrame
-              roomId="#previews:agispace.co"
+              roomId={`#previews:${serverDomain}`}
               className="border border-bg w-100"
               style={{ height: 300 }}
               refreshTime={1}

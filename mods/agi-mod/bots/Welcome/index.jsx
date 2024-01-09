@@ -163,8 +163,9 @@ function Welcome() {
 
   // Result
   return (
-    <div className="tiny-welcome p-3 border-0 h-100 noselect px-5" style={{ alignItems: 'center' }}>
+    <div className="tiny-welcome p-3 border-0 h-100 noselect px-5">
       <center className="py-5 w-100 px-3">
+
         <div className="row mt-2">
           <div className="col-md-6">
             <ChatRoomFrame
@@ -184,6 +185,7 @@ function Welcome() {
             />
           </div>
         </div>
+
         <form className="Formy" onSubmit={handleSearchSubmit}>
           <input
             className='btn btn-bg w-100 border'
@@ -194,6 +196,7 @@ function Welcome() {
             placeholder="Search for bots and rooms..."
           />
         </form>
+
         <div className="taggy">
           {list &&
             list.map((tag) => (
@@ -206,8 +209,9 @@ function Welcome() {
               </button>
             ))}
         </div>
-        <h1 style={{ textAlign: 'left' }}>Bots</h1>
-        <div style={{ display: 'flex', flexWrap: 'wrap' }} className="bots">
+
+        <h1 className='title'>Bots</h1>
+        <div className="bots">
           {roomData &&
             roomData
               .filter((room) =>
@@ -218,8 +222,9 @@ function Welcome() {
               )
               .map((room) => <AgentCard agent={room} key={room.id} Img={defaultAvatar(1)} />)}
         </div>
-        <h1 style={{ textAlign: 'left' }}>Rooms</h1>
-        <div style={{ display: 'flex', flexWrap: 'wrap', marginBottom: '10px' }} className="bots">
+
+        <h1 className='title'>Rooms</h1>
+        <div className="bots rooms">
           {roomData &&
             roomData
               .filter((room) =>
@@ -230,6 +235,7 @@ function Welcome() {
               )
               .map((room) => <AgentCard agent={room} key={room.id} Img={defaultAvatar(1)} />)}
         </div>
+
         {/*         <div id="menu" className="text-start">
           <button
             type="button"

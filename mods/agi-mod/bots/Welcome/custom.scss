@@ -1,18 +1,39 @@
-.taggy {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+/* Welcome Page */
+.tiny-welcome {
+  .Formy {
+    input {
+      color: var(--button-text-color);
+      text-align: left;
+      border-radius: 50px;
+      font-size: 14px;
+      margin-top: 20px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+  }
+  .taggy {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
 
-  .taggyButton {
-    color: var(--button-text-color);
-    background-color: var(--button-background-color);
-    border-radius: 50px;
-    margin-right: 10px;
-    margin-bottom: 10px;
-    cursor: pointer;
+    .taggyButton {
+      color: var(--button-text-color);
+      background-color: var(--button-background-color);
+      border-radius: 50px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      cursor: pointer;
 
-    &:hover {
-      background-color: var(--bg-surface-border) !important;
+      &:hover {
+        background-color: var(--bg-surface-border) !important;
+      }
+    }
+  }
+  .bots {
+    display: flex;
+    flex-wrap: wrap;
+    &.room {
+      margin-bottom: 10px;
     }
   }
 }

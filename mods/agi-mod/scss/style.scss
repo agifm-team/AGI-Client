@@ -26,6 +26,11 @@
 /* Welcome Page */
 .tiny-welcome {
   overflow-y: auto;
+  align-items: center;
+
+  .title {
+    text-align: left;
+  }
 
   #menu {
     .btn {
@@ -44,18 +49,6 @@
       &.active {
         background-color: var(--bg-surface);
       }
-    }
-  }
-
-  .Formy {
-    input {
-      color: var(--button-text-color);
-      text-align: left;
-      border-radius: 50px;
-      font-size: 14px;
-      margin-top: 20px;
-      margin-right: 10px;
-      margin-bottom: 10px;
     }
   }
   center {

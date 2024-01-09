@@ -2,9 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { createTemporaryClient, startSsoLogin } from '../../../client/action/auth';
-
-// import Button from '../../atoms/button/Button';
-import { setLoadingPage } from '../../templates/client/Loading';
+import Button from "../../atoms/button/Button";
 
 function SSOButtons({ type, identityProviders, baseUrl }) {
 
@@ -21,15 +19,11 @@ function SSOButtons({ type, identityProviders, baseUrl }) {
       })
       .map((idp) => {
 
-        setLoadingPage();
-        handleClick(idp.id);
-
-        /* idp.icon
-          ? (
-            <button key={idp.id} type="button" className="sso-btn" onClick={() => handleClick(idp.id)}>
-              <img className="sso-btn__img rounded-circle" src={tempClient.mxcUrlToHttp(idp.icon)} alt={idp.name} />
-            </button>
-          ) : <Button key={idp.id} className="sso-btn__text-only" onClick={() => }>{`Login with ${idp.name}`}</Button>; */
+        return idp.icon ?
+          <button key={idp.id} type="button" className="sso-btn" onClick={() => handleClick(idp.id)}>
+            <img className="sso-btn__img rounded-circle" src={tempClient.mxcUrlToHttp(idp.icon)} alt={idp.name} />
+          </button>
+          : <Button key={idp.id} className="sso-btn__text-only" onClick={() => handleClick(idp.id)}>{`Login with ${idp.name}`}</Button>;
 
       })}
   </div>;

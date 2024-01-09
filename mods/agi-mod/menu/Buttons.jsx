@@ -11,7 +11,7 @@ import defaultAvatar from '../../../src/app/atoms/avatar/defaultAvatar';
 
 import * as roomActions from '../../../src/client/action/room';
 import { getSelectRoom } from '../../../src/util/selectedRoom';
-import { serverAddress } from '../socket';
+import { serverAddress, serverDomain } from '../socket';
 import { setLoadingPage } from '../../../src/app/templates/client/Loading';
 
 const createButton = (id, title, icon) => jReact(
@@ -190,7 +190,7 @@ export default function buttons() {
         id: 'agi-superagent-modal',
         dialog: 'modal-fullscreen',
         title: 'SuperAgent',
-        body: jReact(<iframe title='SuperAgent' src={'https://super.agispace.co'} className='w-100 height-modal-full-size' style={{ backgroundColor: '#000' }} />)
+        body: jReact(<iframe title='SuperAgent' src={`https://super.${serverDomain}`} className='w-100 height-modal-full-size' style={{ backgroundColor: '#000' }} />)
     }));
 
     // Append

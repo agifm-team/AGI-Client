@@ -3,6 +3,7 @@ import './AgentCard.scss';
 
 function AgentCard({ agent, Img }) {
   const imageUrl = Img;
+  let keyId = -1;
   return (
     <div
       className="AgentCard"
@@ -17,11 +18,14 @@ function AgentCard({ agent, Img }) {
           : agent.meta.description}
       </p>
       <div className="agent-tags">
-        {agent.meta.tags.map((tag) => (
-          <span key={tag} className="agent-tag">
+        {agent.meta.tags.map((tag) => {
+
+          keyId++;
+          <span key={`${tag}${String(keyId)}`} className="agent-tag">
             {tag}
           </span>
-        ))}
+
+        })}
       </div>
     </div>
   );

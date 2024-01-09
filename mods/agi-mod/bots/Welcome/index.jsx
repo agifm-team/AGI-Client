@@ -6,7 +6,7 @@ import defaultAvatar from '../../../../src/app/atoms/avatar/defaultAvatar';
 import { serverAddress, serverDomain } from '../../socket';
 import ItemWelcome from './item';
 import { ChatRoomFrame } from '../../../../src/app/embed/ChatRoom';
-import AgentCard from './AgentCard/AgentCard.jsx';
+// import AgentCard from './AgentCard/AgentCard.jsx';
 import './custom.scss';
 
 /*
@@ -24,10 +24,12 @@ function Welcome() {
   const [tinyType, setTinyType] = useState('community');
   const [data, setData] = useState(null);
   const [list, setList] = useState(null); // [data, setData
-  const [roomData, setRoomData] = useState(null); // room data
   const [tempSearch, setTempSearch] = useState('');
   const [loadingData, setLoadingData] = useState(false);
+
+  const [roomData, setRoomData] = useState(null); // room data
   const [selectedTag, setSelectedTag] = useState(null);
+
   const selectJson = (newData) => {
     selected = tinyType;
 
@@ -69,33 +71,6 @@ function Welcome() {
         console.error('There has been a problem with your fetch operation:', error);
       });
   };
-  // Effect
-  useEffect(() => {
-    fetchJson();
-    // Set Data
-    if ((selected !== tinyType || !data) && !loadingData) {
-      // Load Data
-      setLoadingData(true);
-      fetch(`${apiAddress}get_list/${tinyType}`, {
-        headers: {
-          Accept: 'application/json',
-        },
-      })
-        .then((res) => res.json())
-        .then(selectJson)
-        .catch((err) => {
-          console.error(err);
-          alert(err.message);
-
-          if (!connectionTestTimeout) {
-            connectionTestTimeout = true;
-            setTimeout(() => {
-              setLoadingData(false);
-            }, 3000);
-          }
-        });
-    }
-  }, []);
 
   // Items
   const items = [];
@@ -160,7 +135,46 @@ function Welcome() {
     event.preventDefault();
     setSelectedTag(tempSearch);
   };
+
   // Room
+  console.log('roomData', roomData);
+  console.log('selectedTag', selectedTag);
+
+  // Effect
+  useEffect(() => {
+
+    // fetchJson();
+
+    console.log('selected', selected);
+    console.log('tinyType', tinyType);
+    console.log('data', data);
+    console.log('loadingData', loadingData);
+
+    // Set Data
+    if ((selected !== tinyType || !data) && !loadingData) {
+
+      // Load Data
+      setLoadingData(true);
+      fetch(`${apiAddress}get_list/${tinyType}`, {
+        headers: {
+          Accept: 'application/json',
+        },
+      })
+        .then((res) => res.json())
+        .then(selectJson)
+        .catch((err) => {
+          console.error(err);
+          alert(err.message);
+
+          if (!connectionTestTimeout) {
+            connectionTestTimeout = true;
+            setTimeout(() => {
+              setLoadingData(false);
+            }, 3000);
+          }
+        });
+    }
+  });
 
   // Result
   return <div className="tiny-welcome p-3 border-0 h-100 noselect px-5">
@@ -210,85 +224,59 @@ function Welcome() {
           ))}
       </div>
 
-      <h1 className='title'>Bots</h1>
-      <div className="bots">
-        {roomData &&
-          roomData
-            .filter((room) =>
-              selectedTag
-                ? room.meta.tags.includes(selectedTag) ||
-                room.username.toLowerCase().includes(selectedTag.toLowerCase())
-                : true
-            )
-            .map((room) => <AgentCard agent={room} key={room.id} Img={defaultAvatar(1)} />)}
+      <div id="menu" className="text-start">
+        <button
+          type="button"
+          className="me-3 btn btn-primary d-none"
+          id="leave-welcome"
+          onClick={() => selectRoomMode('navigation')}
+        >
+          <i className="fa-solid fa-left-long" />
+        </button>
+        <button
+          type="button"
+          className={`me-3 btn btn-primary${tinyType === 'enterprise' ? ' active' : ''}`}
+          onClick={() => setTinyType('enterprise')}
+        >
+          Enterprise
+        </button>
+        <button
+          type="button"
+          className={`btn btn-primary${tinyType === 'community' ? ' active' : ''}`}
+          onClick={() => setTinyType('community')}
+        >
+          Community
+        </button>
       </div>
 
-      <h1 className='title'>Rooms</h1>
-      <div className="bots rooms">
-        {roomData &&
-          roomData
-            .filter((room) =>
-              selectedTag
-                ? room.meta.tags.includes(selectedTag) ||
-                room.username.toLowerCase().includes(selectedTag.toLowerCase())
-                : true
-            )
-            .map((room) => <AgentCard agent={room} key={room.id} Img={defaultAvatar(1)} />)}
-      </div>
+      <hr />
 
-      {/*         <div id="menu" className="text-start">
-          <button
-            type="button"
-            className="me-3 btn btn-primary d-none"
-            id="leave-welcome"
-            onClick={() => selectRoomMode('navigation')}
-          >
-            <i className="fa-solid fa-left-long" />
-          </button>
-          <button
-            type="button"
-            className={`me-3 btn btn-primary${tinyType === 'enterprise' ? ' active' : ''}`}
-            onClick={() => setTinyType('enterprise')}
-          >
-            Enterprise
-          </button>
-          <button
-            type="button"
-            className={`btn btn-primary${tinyType === 'community' ? ' active' : ''}`}
-            onClick={() => setTinyType('community')}
-          >
-            Community
-          </button>
-        </div>
+      {!loadingData && data && Array.isArray(data.categories) ? (
+        categories.map((citem) => (
+          <>
+            {categoryGenerator('popular_bots', 'bots', 'Bots', citem)}
+            {categoryGenerator('popular_rooms', 'rooms', 'Rooms', citem)}
+          </>
+        ))
+      ) : (
+        <p className="placeholder-glow mt-5">
+          <span className="placeholder col-12" />
+          <span className="placeholder col-12" />
+          <span className="placeholder col-12" />
+          <span className="placeholder col-12" />
+          <span className="placeholder col-12" />
+          <span className="placeholder col-12" />
+          <span className="placeholder col-12" />
+          <span className="placeholder col-12" />
+          <span className="placeholder col-12" />
+          <span className="placeholder col-12" />
+          <span className="placeholder col-12" />
+          <span className="placeholder col-12" />
+          <span className="placeholder col-12" />
+          <span className="placeholder col-12" />
+        </p>
+      )}
 
-        {!loadingData && data && Array.isArray(data.categories) ? (
-          categories.map((citem) => (
-            <>
-              {categoryGenerator('popular_bots', 'bots', 'Bots', citem)}
-              {categoryGenerator('popular_rooms', 'rooms', 'Rooms', citem)}
-            </>
-          ))
-        ) : (
-          <p className="placeholder-glow mt-5">
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-          </p>
-        )}
-
-        <hr />
- */}
       {/* <div className="row mt-2">
           <div className="col-md-6">
             <ChatRoomFrame

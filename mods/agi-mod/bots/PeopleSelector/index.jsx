@@ -55,12 +55,16 @@ export default function startPeopleSelector() {
             }
         }
 
-        /* items.unshift({
-            name: 'Agents-Joined', value: 'agents-joined', custom: [
+        items.push({
+            name: 'Agents', value: 'agents-joined', custom: [
 
             ]
-        }); */
+        });
 
+        const banItem = items.findIndex(item => item.value === 'ban');
+        if (banItem > -1) items.splice(banItem, 1);
+
+        console.log(items);
     });
 
 };

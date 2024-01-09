@@ -162,81 +162,80 @@ function Welcome() {
   // Room
 
   // Result
-  return (
-    <div className="tiny-welcome p-3 border-0 h-100 noselect px-5">
-      <center className="py-5 w-100 px-3">
+  return <div className="tiny-welcome p-3 border-0 h-100 noselect px-5">
+    <center className="py-5 w-100 px-3">
 
-        <div className="row mt-2">
-          <div className="col-md-6">
-            <ChatRoomFrame
-              roomId="#imagegen:agispace.co"
-              className="border border-bg w-100"
-              style={{ height: 300 }}
-              refreshTime={1}
-            />
-          </div>
-
-          <div className="col-md-6">
-            <ChatRoomFrame
-              roomId="#previews:agispace.co"
-              className="border border-bg w-100"
-              style={{ height: 300 }}
-              refreshTime={1}
-            />
-          </div>
-        </div>
-
-        <form className="Formy" onSubmit={handleSearchSubmit}>
-          <input
-            className='btn btn-bg w-100 border'
-            type="text"
-            value={tempSearch}
-            onChange={handleSearchChange}
-            onSubmit={handleSearchSubmit}
-            placeholder="Search for bots and rooms..."
+      <div className="row mt-2">
+        <div className="col-md-6">
+          <ChatRoomFrame
+            roomId="#imagegen:agispace.co"
+            className="border border-bg w-100"
+            style={{ height: 300 }}
+            refreshTime={1}
           />
-        </form>
-
-        <div className="taggy">
-          {list &&
-            list.map((tag) => (
-              <button
-                className="btn taggyButton btn-bg very-small border"
-                key={tag}
-                onClick={() => setSelectedTag(tag)}
-              >
-                {tag}
-              </button>
-            ))}
         </div>
 
-        <h1 className='title'>Bots</h1>
-        <div className="bots">
-          {roomData &&
-            roomData
-              .filter((room) =>
-                selectedTag
-                  ? room.meta.tags.includes(selectedTag) ||
-                  room.username.toLowerCase().includes(selectedTag.toLowerCase())
-                  : true
-              )
-              .map((room) => <AgentCard agent={room} key={room.id} Img={defaultAvatar(1)} />)}
+        <div className="col-md-6">
+          <ChatRoomFrame
+            roomId="#previews:agispace.co"
+            className="border border-bg w-100"
+            style={{ height: 300 }}
+            refreshTime={1}
+          />
         </div>
+      </div>
 
-        <h1 className='title'>Rooms</h1>
-        <div className="bots rooms">
-          {roomData &&
-            roomData
-              .filter((room) =>
-                selectedTag
-                  ? room.meta.tags.includes(selectedTag) ||
-                  room.username.toLowerCase().includes(selectedTag.toLowerCase())
-                  : true
-              )
-              .map((room) => <AgentCard agent={room} key={room.id} Img={defaultAvatar(1)} />)}
-        </div>
+      <form className="Formy" onSubmit={handleSearchSubmit}>
+        <input
+          className='btn btn-bg w-100 border'
+          type="text"
+          value={tempSearch}
+          onChange={handleSearchChange}
+          onSubmit={handleSearchSubmit}
+          placeholder="Search for bots and rooms..."
+        />
+      </form>
 
-        {/*         <div id="menu" className="text-start">
+      <div className="taggy">
+        {list &&
+          list.map((tag) => (
+            <button
+              className="btn taggyButton btn-bg very-small border"
+              key={tag}
+              onClick={() => setSelectedTag(tag)}
+            >
+              {tag}
+            </button>
+          ))}
+      </div>
+
+      <h1 className='title'>Bots</h1>
+      <div className="bots">
+        {roomData &&
+          roomData
+            .filter((room) =>
+              selectedTag
+                ? room.meta.tags.includes(selectedTag) ||
+                room.username.toLowerCase().includes(selectedTag.toLowerCase())
+                : true
+            )
+            .map((room) => <AgentCard agent={room} key={room.id} Img={defaultAvatar(1)} />)}
+      </div>
+
+      <h1 className='title'>Rooms</h1>
+      <div className="bots rooms">
+        {roomData &&
+          roomData
+            .filter((room) =>
+              selectedTag
+                ? room.meta.tags.includes(selectedTag) ||
+                room.username.toLowerCase().includes(selectedTag.toLowerCase())
+                : true
+            )
+            .map((room) => <AgentCard agent={room} key={room.id} Img={defaultAvatar(1)} />)}
+      </div>
+
+      {/*         <div id="menu" className="text-start">
           <button
             type="button"
             className="me-3 btn btn-primary d-none"
@@ -289,7 +288,7 @@ function Welcome() {
 
         <hr />
  */}
-        {/* <div className="row mt-2">
+      {/* <div className="row mt-2">
           <div className="col-md-6">
             <ChatRoomFrame
               roomId="#imagegen:agispace.co"
@@ -308,9 +307,8 @@ function Welcome() {
             />
           </div>
         </div> */}
-      </center>
-    </div>
-  );
+    </center>
+  </div>;
 }
 
 export default Welcome;

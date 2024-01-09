@@ -7,6 +7,7 @@ import Avatar from '../../atoms/avatar/Avatar';
 
 import LoadingScreen from './modules/LoadingScreen';
 import AuthCard from './modules/AuthCard';
+import Welcome from '../../../../mods/agi-mod/bots/Welcome';
 
 function Auth() {
   const [loginToken, setLoginToken] = useState(getUrlPrams('loginToken'));
@@ -36,6 +37,26 @@ function Auth() {
 
   }, []);
 
+  return <>
+
+    {loginToken && <LoadingScreen message="Redirecting..." />}
+    {!loginToken && (<>
+
+      <div className="d-flex align-items-center mb-3 pb-1">
+        <Avatar imageSrc="./img/png/cinny-main.png" />
+        <span className="ms-3 h2 fw-bold mb-0">{__ENV_APP__.INFO.name}</span>
+      </div>
+
+      <AuthCard />
+
+    </>)}
+
+    yay
+    <Welcome />
+
+  </>;
+
+  /*
   return (
     <section className="vh-100 auth-base">
       <div className="container py-5 h-100">
@@ -91,6 +112,7 @@ function Auth() {
       </div>
     </section>
   );
+  */
 }
 
 export default Auth;

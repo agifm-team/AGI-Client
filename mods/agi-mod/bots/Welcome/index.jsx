@@ -21,14 +21,15 @@ const apiAddress = `${serverAddress}`;
 
 function Welcome() {
   // Data
-  const [tinyType, setTinyType] = useState('community');
-  const [data, setData] = useState(null);
   const [list, setList] = useState(null); // [data, setData
   const [tempSearch, setTempSearch] = useState('');
   const [loadingData, setLoadingData] = useState(false);
 
-  const [roomData, setRoomData] = useState(null); // room data
-  const [selectedTag, setSelectedTag] = useState(null);
+  const [data, setData] = useState(null);
+  const [tinyType, setTinyType] = useState('community');
+
+  const [data2, setRoomData] = useState(null); // room data
+  const [data2Tag, setSelectedTag] = useState(null);
 
   const selectJson = (newData) => {
     selected = tinyType;
@@ -52,7 +53,7 @@ function Welcome() {
     setLoadingData(false);
   };
 
-  const fetchJson = () => {
+  const fetchJson = () => new Promise((resolve, reject) => {
     fetch(`https://bots.${serverDomain}/list`)
       .then((res) => {
         if (!res.ok) {
@@ -65,12 +66,11 @@ function Welcome() {
         setRoomData(newData[1]);
         // console.log('Fetched JSON:', newData);
         // console.log('List:', list)
-        // console.log('Room Data:', roomData)
+        // console.log('Room Data:', data2)
+        resolve(newData);
       })
-      .catch((error) => {
-        console.error('There has been a problem with your fetch operation:', error);
-      });
-  };
+      .catch(reject);
+  });
 
   // Items
   const items = [];
@@ -137,18 +137,12 @@ function Welcome() {
   };
 
   // Room
-  console.log('roomData', roomData);
-  console.log('selectedTag', selectedTag);
+  console.log('data2', data2);
+  console.log('data2Tag', data2Tag);
+  console.log('data', data);
 
   // Effect
   useEffect(() => {
-
-    // fetchJson();
-
-    console.log('selected', selected);
-    console.log('tinyType', tinyType);
-    console.log('data', data);
-    console.log('loadingData', loadingData);
 
     // Set Data
     if ((selected !== tinyType || !data) && !loadingData) {
@@ -161,7 +155,11 @@ function Welcome() {
         },
       })
         .then((res) => res.json())
-        .then(selectJson)
+        .then(data1 => {
+          fetchJson().then(() => selectJson(data1)).catch((error) => {
+            console.error('There has been a problem with your fetch operation:', error);
+          });
+        })
         .catch((err) => {
           console.error(err);
           alert(err.message);

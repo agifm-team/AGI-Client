@@ -120,20 +120,28 @@ function Welcome() {
   if (!loadingData && Array.isArray(data)) {
     for (const item in data) {
 
-      if (typeof data[item].room_id === 'string') {
-        rooms.push({
-          id: data[item].room_id,
-          description: data[item].meta.description,
-          title: data[item].meta.title,
-        });
-      }
+      if (data[item].meta && Array.isArray(data[item].meta.tags) && data[item].meta.tags.length > 0 &&
+        (
+          (typeof dataTag === 'string' && dataTag.length > 0 && data[item].meta.tags.indexOf(dataTag)) ||
+          dataTag === null
+        )) {
 
-      if (typeof data[item].username === 'string') {
-        users.push({
-          id: data[item].username,
-          description: data[item].meta.description,
-          title: data[item].meta.title,
-        });
+        if (typeof data[item].room_id === 'string') {
+          rooms.push({
+            id: data[item].room_id,
+            description: data[item].meta.description,
+            title: data[item].meta.title,
+          });
+        }
+
+        if (typeof data[item].username === 'string') {
+          users.push({
+            id: data[item].username,
+            description: data[item].meta.description,
+            title: data[item].meta.title,
+          });
+        }
+
       }
 
     }

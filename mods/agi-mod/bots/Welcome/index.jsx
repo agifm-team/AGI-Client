@@ -230,25 +230,6 @@ function Welcome() {
         </p>
       )}
 
-      {/* <div className="row mt-2">
-          <div className="col-md-6">
-            <ChatRoomFrame
-              roomId={`#imagegen:${serverDomain}`}
-              className="border border-bg w-100"
-              style={{ height: 300 }}
-              refreshTime={1}
-            />
-          </div>
-
-          <div className="col-md-6">
-            <ChatRoomFrame
-              roomId={`#previews:${serverDomain}`}
-              className="border border-bg w-100"
-              style={{ height: 300 }}
-              refreshTime={1}
-            />
-          </div>
-        </div> */}
     </center>
   </div>;
 }

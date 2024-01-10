@@ -147,12 +147,6 @@ function Welcome() {
     }
   }
 
-  // Room
-  console.log('data', data);
-  console.log('dataTag', dataTag);
-  console.log('users', users);
-  console.log('rooms', rooms);
-
   // Result
   return <div className="tiny-welcome p-3 border-0 h-100 noselect px-5">
     <center className="py-5 w-100 px-3">

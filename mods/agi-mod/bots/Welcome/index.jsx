@@ -147,9 +147,41 @@ function Welcome() {
 
   // Result
   return <div className="tiny-welcome p-3 border-0 h-100 noselect px-5">
-    <center className="py-5 w-100 px-3">
-
+    <center className="py-1 w-100 px-3">
+      <div id="menu" className="text-start">
+        <button
+          type="button"
+          className="me-3 btn btn-primary rounded-pill "
+        // onClick={() => history.goBack()}
+        >
+          <i className="fa-solid fa-left-long mr-2 btn-primary" />{" "}
+          Rooms
+        </button>
+        <button
+          type="button"
+          className="me-5 btn btn-primary d-none "
+          id="leave-welcome"
+          onClick={() => selectRoomMode('navigation')}
+        >
+          <i className="fa-solid fa-left-long" />
+        </button>
+        <button
+          type="button"
+          className={`me-3 btn btn-primary${tinyType === 'enterprise' ? ' active' : ''} rounded-pill`}
+          onClick={() => setTinyType('enterprise')}
+        >
+          Enterprise
+        </button>
+        <button
+          type="button"
+          className={`btn btn-primary${tinyType === 'community' ? ' active' : ''} rounded-pill`}
+          onClick={() => setTinyType('community')}
+        >
+          Community
+        </button>
+      </div>
       <div className="row mt-2">
+        <h3 className=' text-start'>Popular spaces </h3>
         <div className="col-md-6">
           <ChatRoomFrame
             roomId={`#imagegen:${serverDomain}`}
@@ -171,7 +203,7 @@ function Welcome() {
 
       <form className="Formy" onSubmit={handleSearchSubmit}>
         <input
-          className='btn btn-bg w-100 border'
+          className='btn btn-bg w-100 border my-3'
           type="text"
           value={tempSearch}
           onChange={handleSearchChange}
@@ -179,8 +211,13 @@ function Welcome() {
           placeholder="Search for bots and rooms..."
         />
       </form>
-
       <div className="taggy">
+        <button
+          className="btn taggyButton btn-bg very-small border"
+          onClick={() => setSelectedTag(null)}
+        >
+          All
+        </button>
         {list &&
           list.map((tag) => (
             <button
@@ -206,10 +243,16 @@ function Welcome() {
 
       <hr />
 
-      {!loadingData ? <>
-        {users.length > 0 ? categoryGenerator('popular_bots', 'bots', 'Bots', users) : null}
-        {rooms.length > 0 ? categoryGenerator('popular_rooms', 'rooms', 'Rooms', rooms) : null}
-      </> : (
+
+      {/* 
+      {!loadingData && data && Array.isArray(data.categories) ? (
+        categories.map((citem) => (
+          <>
+            {categoryGenerator('popular_bots', 'bots', 'Bots', citem)}
+            {categoryGenerator('popular_rooms', 'rooms', 'Rooms', citem)}
+          </>
+        ))
+      ) : (
         <p className="placeholder-glow mt-5">
           <span className="placeholder col-12" />
           <span className="placeholder col-12" />

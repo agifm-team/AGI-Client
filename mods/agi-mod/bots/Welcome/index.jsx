@@ -123,7 +123,7 @@ function Welcome() {
 
       if (data[item].meta && Array.isArray(data[item].meta.tags) && data[item].meta.tags.length > 0 &&
         (
-          (typeof dataTag === 'string' && dataTag.length > 0 && data[item].meta.tags.indexOf(dataTag)) ||
+          (typeof dataTag === 'string' && dataTag.length > 0 && data[item].meta.tags.indexOf(dataTag) > -1) ||
           dataTag === null
         )) {
 

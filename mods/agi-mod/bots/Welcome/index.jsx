@@ -37,14 +37,15 @@ function Welcome() {
       <br />
 
       <div className="cover" />
-      <ul className="list-group list-group-horizontal border-0">
+
+      <div className="row">
         {citem.map((bot) => <ItemWelcome
           bot={bot}
           type={type}
           index={0}
           itemsLength={bot.length}
         />)}
-      </ul>
+      </div>
     </div>
   );
 

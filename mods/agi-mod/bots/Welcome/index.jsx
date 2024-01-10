@@ -120,7 +120,7 @@ function Welcome() {
   if (!loadingData && Array.isArray(data)) {
     for (const item in data) {
 
-      if (typeof data[item].room_id === 'string' && data[item].room_id !== 'Coming soon!') {
+      if (typeof data[item].room_id === 'string') {
         rooms.push({
           id: data[item].room_id,
           description: data[item].meta.description,
@@ -128,7 +128,7 @@ function Welcome() {
         });
       }
 
-      if (typeof data[item].username === 'string' && data[item].username !== 'Coming soon!') {
+      if (typeof data[item].username === 'string') {
         users.push({
           id: data[item].username,
           description: data[item].meta.description,

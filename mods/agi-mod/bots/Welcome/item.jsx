@@ -128,7 +128,7 @@ function ItemWelcome({ bot, type, index, itemsLength }) {
     });
 
     // Complete
-    return <li ref={buttonRef} className={`list-group-item border border-bg m${index > 0 ? index < itemsLength - 1 ? 'x-3' : 's-3' : 'e-3'}`} bot={typeof bot.id === 'string' ? bot.id : null}>
+    return <li ref={buttonRef} className={`list-group-item border border-bg m${index > 0 ? index < itemsLength - 1 ? 'x-3' : 's-3' : 'e-3'}`} bot={typeof bot.id === 'string' && bot.id !== 'Coming soon!' ? bot.id : null}>
         <img className='img-fluid avatar' draggable={false} alt='avatar' src={defaultAvatar(1)} />
         {typeof bot.title === 'string' ? <h6 className="card-title text-bg">{bot.title}</h6> : null}
         <p className="card-text text-bg-low">{bot.description}</p>

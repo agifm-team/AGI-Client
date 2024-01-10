@@ -33,18 +33,17 @@ function Welcome() {
       <h5 className="title mt-2 mb-3 float-start">
         {title}
       </h5>
-      <h6 className="see-all mt-2 mb-3 float-end">See all</h6>
       <br className="clearfix" />
       <br />
 
       <div className="cover" />
       <ul className="list-group list-group-horizontal border-0">
-        <ItemWelcome
-          bot={citem}
+        {citem.map((bot) => <ItemWelcome
+          bot={bot}
           type={type}
           index={0}
-          itemsLength={citem.length}
-        />
+          itemsLength={bot.length}
+        />)}
       </ul>
     </div>
   );
@@ -209,7 +208,7 @@ function Welcome() {
 
       {!loadingData ? <>
         {users.length > 0 ? categoryGenerator('popular_bots', 'bots', 'Bots', users) : null}
-        {rooms.rooms > 0 ? categoryGenerator('popular_rooms', 'rooms', 'Rooms', rooms) : null}
+        {rooms.length > 0 ? categoryGenerator('popular_rooms', 'rooms', 'Rooms', rooms) : null}
       </> : (
         <p className="placeholder-glow mt-5">
           <span className="placeholder col-12" />

@@ -9,18 +9,13 @@ function Login({ loginFlow, baseUrl }) {
 
     const ssoProviders = loginFlow?.filter((flow) => flow.type === 'm.login.sso')[0];
 
-    return <>
-        <div className="auth-form__heading">
-            <h5>Welcome back</h5>
-        </div>
-        {ssoProviders && (
-            <SSOButtons
-                type="sso"
-                identityProviders={ssoProviders.identity_providers}
-                baseUrl={baseUrl}
-            />
-        )}
-    </>;
+    return ssoProviders && (
+        <SSOButtons
+            type="sso"
+            identityProviders={ssoProviders.identity_providers}
+            baseUrl={baseUrl}
+        />
+    );
 
 }
 

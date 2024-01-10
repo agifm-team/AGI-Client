@@ -35,10 +35,6 @@ const valuesLoad = {
 
         // Tab
         tab: cons.tabs.DIRECTS,
-        id: 'bot_id',
-
-        // Title
-        title: 'bot_name',
 
         // Data Button
         getRoom: async (userId) => {
@@ -70,10 +66,6 @@ const valuesLoad = {
 
         // Tab
         tab: cons.tabs.HOME,
-        id: 'room_id',
-
-        // Title
-        title: 'room_name',
 
         // Data Button
         getRoom: async (alias) => {
@@ -107,7 +99,7 @@ const valuesLoad = {
 
 };
 
-function ItemWelcome({ bot, type, item, itemsLength }) {
+function ItemWelcome({ bot, type, index, itemsLength }) {
 
     // Refs
     const buttonRef = useRef(null);
@@ -136,9 +128,9 @@ function ItemWelcome({ bot, type, item, itemsLength }) {
     });
 
     // Complete
-    return <li ref={buttonRef} className={`list-group-item border border-bg m${item.index > 0 ? item.index < itemsLength - 1 ? 'x-3' : 's-3' : 'e-3'}`} bot={typeof valuesLoad[type].id === 'string' ? bot[valuesLoad[type].id] : null}>
+    return <li ref={buttonRef} className={`list-group-item border border-bg m${index > 0 ? index < itemsLength - 1 ? 'x-3' : 's-3' : 'e-3'}`} bot={typeof bot.id === 'string' ? bot.id : null}>
         <img className='img-fluid avatar' draggable={false} alt='avatar' src={defaultAvatar(1)} />
-        {valuesLoad[type] && typeof valuesLoad[type].title === 'string' ? <h6 className="card-title text-bg">{bot[valuesLoad[type].title]}</h6> : null}
+        {typeof bot.title === 'string' ? <h6 className="card-title text-bg">{bot.title}</h6> : null}
         <p className="card-text text-bg-low">{bot.description}</p>
     </li>;
 

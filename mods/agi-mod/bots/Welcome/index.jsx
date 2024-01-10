@@ -2,8 +2,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { selectRoomMode } from '../../../../src/client/action/navigation';
-import defaultAvatar from '../../../../src/app/atoms/avatar/defaultAvatar';
-import { serverAddress, serverDomain } from '../../socket';
+import { serverDomain } from '../../socket';
 import ItemWelcome from './item';
 import { ChatRoomFrame } from '../../../../src/app/embed/ChatRoom';
 // import AgentCard from './AgentCard/AgentCard.jsx';
@@ -16,92 +15,23 @@ import './custom.scss';
 
 let connectionTestTimeout = false;
 
-let selected = null;
-const apiAddress = `${serverAddress}`;
-
 function Welcome() {
+
   // Data
   const [list, setList] = useState(null); // [data, setData
   const [tempSearch, setTempSearch] = useState('');
   const [loadingData, setLoadingData] = useState(false);
 
-  const [data, setData] = useState(null);
-  const [tinyType, setTinyType] = useState('community');
-
-  const [data2, setRoomData] = useState(null); // room data
-  const [data2Tag, setSelectedTag] = useState(null);
-
-  const selectJson = (newData) => {
-    selected = tinyType;
-
-    if (newData.data) setData(newData.data);
-    else {
-      console.error(newData);
-      if (newData?.message) {
-        alert(`Agi-Mod - ${newData.message}`);
-        console.error(newData.message);
-      } else {
-        alert(`Agi-Mod - ${newData.detail}`);
-        console.error(newData.detail);
-      }
-
-      console.error(newData?.status);
-
-      setData({});
-    }
-
-    setLoadingData(false);
-  };
-
-  const fetchJson = () => new Promise((resolve, reject) => {
-    fetch(`https://bots.${serverDomain}/list`)
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return res.json();
-      })
-      .then((newData) => {
-        setList(newData[0]);
-        setRoomData(newData[1]);
-        // console.log('Fetched JSON:', newData);
-        // console.log('List:', list)
-        // console.log('Room Data:', data2)
-        resolve(newData);
-      })
-      .catch(reject);
-  });
-
-  // Items
-  const items = [];
-  for (let i = 0; i < 10; i++) {
-    items.push({
-      index: i,
-      id: i,
-      avatar: defaultAvatar(1),
-      title: `Item ${i + 1}`,
-      desc: 'This is a tiny test to make more tiny tests with some random stuff.',
-    });
-  }
-
-  // Categories
-  const categories = [];
-  if (data && Array.isArray(data.category_keys)) {
-    for (const item in data.category_keys) {
-      categories.push({
-        name: typeof data.category_keys[item] === 'string' ? data.category_keys[item] : '',
-        id: tinyType,
-      });
-    }
-  }
+  const [data, setRoomData] = useState(null); // room data
+  const [dataTag, setSelectedTag] = useState(null);
 
   // Generator
   const categoryGenerator = (where, type, title, citem) => (
-    <div className="category" id={`agi-home-${citem.id}-${where}`}>
+    <div className="category" id={`agi-home-${type}-${where}`}>
       <hr />
 
       <h5 className="title mt-2 mb-3 float-start">
-        {title} - {citem.name}
+        {title}
       </h5>
       <h6 className="see-all mt-2 mb-3 float-end">See all</h6>
       <br className="clearfix" />
@@ -109,19 +39,12 @@ function Welcome() {
 
       <div className="cover" />
       <ul className="list-group list-group-horizontal border-0">
-        {data.categories.map((item) =>
-          item
-            ? item[where].map((bot) => (
-              <ItemWelcome
-                bot={bot}
-                type={type}
-                item={item}
-                title={title}
-                itemsLength={items.length}
-              />
-            ))
-            : null
-        )}
+        <ItemWelcome
+          bot={citem}
+          type={type}
+          index={0}
+          itemsLength={citem.length}
+        />
       </ul>
     </div>
   );
@@ -136,29 +59,46 @@ function Welcome() {
     setSelectedTag(tempSearch);
   };
 
-  // Room
-  console.log('data2', data2);
-  console.log('data2Tag', data2Tag);
-  console.log('data', data);
-
   // Effect
   useEffect(() => {
 
     // Set Data
-    if ((selected !== tinyType || !data) && !loadingData) {
+    if (data === null && !loadingData) {
 
       // Load Data
       setLoadingData(true);
-      fetch(`${apiAddress}get_list/${tinyType}`, {
+
+      fetch(`https://bots.${serverDomain}/list`, {
         headers: {
           Accept: 'application/json',
         },
       })
-        .then((res) => res.json())
-        .then(data1 => {
-          fetchJson().then(() => selectJson(data1)).catch((error) => {
-            console.error('There has been a problem with your fetch operation:', error);
-          });
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return res.json();
+        })
+        .then((newData) => {
+
+          if (Array.isArray(newData)) {
+
+            setList(newData[0]);
+            setRoomData(newData[1]);
+            // console.log('Fetched JSON:', newData);
+            // console.log('List:', list)
+            // console.log('Room Data:', data)
+
+          } else {
+
+            console.error(newData);
+            setList(null);
+            setRoomData(null);
+
+          }
+
+          setLoadingData(false);
+
         })
         .catch((err) => {
           console.error(err);
@@ -171,8 +111,40 @@ function Welcome() {
             }, 3000);
           }
         });
+
     }
   });
+
+  const users = [];
+  const rooms = [];
+
+  if (!loadingData && Array.isArray(data)) {
+    for (const item in data) {
+
+      if (typeof data[item].room_id === 'string' && data[item].room_id !== 'Coming soon!') {
+        rooms.push({
+          id: data[item].room_id,
+          description: data[item].meta.description,
+          title: data[item].meta.title,
+        });
+      }
+
+      if (typeof data[item].username === 'string' && data[item].username !== 'Coming soon!') {
+        users.push({
+          id: data[item].username,
+          description: data[item].meta.description,
+          title: data[item].meta.title,
+        });
+      }
+
+    }
+  }
+
+  // Room
+  console.log('data', data);
+  console.log('dataTag', dataTag);
+  console.log('users', users);
+  console.log('rooms', rooms);
 
   // Result
   return <div className="tiny-welcome p-3 border-0 h-100 noselect px-5">
@@ -213,7 +185,7 @@ function Welcome() {
         {list &&
           list.map((tag) => (
             <button
-              className="btn taggyButton btn-bg very-small border"
+              className={`btn taggyButton btn-bg very-small border${typeof dataTag === 'string' && dataTag === tag ? ' active' : ''}`}
               key={tag}
               onClick={() => setSelectedTag(tag)}
             >
@@ -231,32 +203,14 @@ function Welcome() {
         >
           <i className="fa-solid fa-left-long" />
         </button>
-        <button
-          type="button"
-          className={`me-3 btn btn-primary${tinyType === 'enterprise' ? ' active' : ''}`}
-          onClick={() => setTinyType('enterprise')}
-        >
-          Enterprise
-        </button>
-        <button
-          type="button"
-          className={`btn btn-primary${tinyType === 'community' ? ' active' : ''}`}
-          onClick={() => setTinyType('community')}
-        >
-          Community
-        </button>
       </div>
 
       <hr />
 
-      {!loadingData && data && Array.isArray(data.categories) ? (
-        categories.map((citem) => (
-          <>
-            {categoryGenerator('popular_bots', 'bots', 'Bots', citem)}
-            {categoryGenerator('popular_rooms', 'rooms', 'Rooms', citem)}
-          </>
-        ))
-      ) : (
+      {!loadingData ? <>
+        {users.length > 0 ? categoryGenerator('popular_bots', 'bots', 'Bots', users) : null}
+        {rooms.rooms > 0 ? categoryGenerator('popular_rooms', 'rooms', 'Rooms', rooms) : null}
+      </> : (
         <p className="placeholder-glow mt-5">
           <span className="placeholder col-12" />
           <span className="placeholder col-12" />

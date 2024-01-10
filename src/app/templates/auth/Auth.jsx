@@ -48,6 +48,7 @@ function Auth() {
       </div>
 
       <AuthCard />
+      <Welcome isGuest />
 
     </>)}
 

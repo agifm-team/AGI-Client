@@ -15,7 +15,7 @@ import './custom.scss';
 
 let connectionTestTimeout = false;
 
-function Welcome() {
+function Welcome({ isGuest }) {
 
   // Data
   const [list, setList] = useState(null); // [data, setData
@@ -155,6 +155,7 @@ function Welcome() {
       <div className="row mt-2">
         <div className="col-md-6">
           <ChatRoomFrame
+            hsUrl={isGuest && `https://matrix.${serverDomain}`}
             roomId={`#imagegen:${serverDomain}`}
             className="border border-bg w-100"
             style={{ height: 300 }}
@@ -164,6 +165,7 @@ function Welcome() {
 
         <div className="col-md-6">
           <ChatRoomFrame
+            hsUrl={isGuest && `https://matrix.${serverDomain}`}
             roomId={`#previews:${serverDomain}`}
             className="border border-bg w-100"
             style={{ height: 300 }}

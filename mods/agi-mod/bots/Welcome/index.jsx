@@ -9,7 +9,7 @@ import { ChatRoomFrame } from '../../../../src/app/embed/ChatRoom';
 import './custom.scss';
 
 /*
-    <ChatRoomFrame roomId=`#imagegen:${serverDomain}` className='m-3 border border-bg' style={{ height: 300, width: 500 }} refreshTime={1} />
+    <ChatRoomFrame roomId=`#imagegen:${serverDomain}` hsUrl={isGuest && `https://matrix.${serverDomain}`} className='m-3 border border-bg' style={{ height: 300, width: 500 }} refreshTime={1} />
     This is the component that embeds the chat room.
 */
 

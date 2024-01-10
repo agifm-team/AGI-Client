@@ -40,6 +40,7 @@ function Welcome({ isGuest }) {
 
       <div className="row">
         {citem.map((bot) => <ItemWelcome
+          isGuest={isGuest}
           bot={bot}
           type={type}
           index={0}

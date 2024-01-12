@@ -191,7 +191,7 @@ function Welcome({ isGuest }) {
           <>
 
             <button
-              className={`btn taggyButton btn-bg very-small border${dataTag === null ? ' active' : ''}`}
+              className={`btn taggyButton btn-bg very-small border${dataTag === null ? ' active' : ''} text-lowercase`}
               key='CLEAR_ALL'
               onClick={() => setSelectedTag(null)}
             >
@@ -200,7 +200,7 @@ function Welcome({ isGuest }) {
 
             {list.map((tag) => (
               <button
-                className={`btn taggyButton btn-bg very-small border${typeof dataTag === 'string' && dataTag === tag ? ' active' : ''}`}
+                className={`btn taggyButton btn-bg very-small border${typeof dataTag === 'string' && dataTag === tag ? ' active' : ''} text-lowercase`}
                 key={tag}
                 onClick={() => setSelectedTag(tag)}
               >

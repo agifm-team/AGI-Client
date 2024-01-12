@@ -134,7 +134,6 @@ function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
     });
 
     const avatar = defaultAvatar(1);
-    // bot.tags
 
     // Complete
     return <div
@@ -142,15 +141,25 @@ function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
         className={`citem col-md-2 col-sm-4 col-6${isGuest ? ' guest-mode' : ''}`} bot={typeof bot.id === 'string' && bot.id !== 'Coming soon!' ? bot.id : null}
     >
         <div className={`border border-bg p-3 my-3 m${index > 0 ? index < itemsLength - 1 ? 'x-3' : 's-3' : 'e-3'}`}>
+
             <img className='img-fluid d-block avatar avatar-bg' draggable={false} alt='avatar' src={avatar} />
             <img className='img-fluid d-block avatar' draggable={false} alt='avatar' src={avatar} />
             {typeof bot.title === 'string' ? <h6 className="card-title text-bg">{bot.title}</h6> : null}
+
             <p className="card-text text-bg-low">{bot.description.length < 100 ? bot.description :
                 <>
                     <div className='card-normal-text'>{`${bot.description.substring(0, 100)}...`}</div>
                     <div className='card-normal-text-hover'>{bot.description}</div>
                 </>
             }</p>
+
+            {bot.tags.map((tag) => (
+                <button
+                    className='badge bg-bg2 border border-bg very-small mx-1 text-lowercase'
+                    key={`${tag}_click`}
+                >{tag}</button>
+            ))}
+
         </div>
     </div>;
 

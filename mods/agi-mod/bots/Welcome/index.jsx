@@ -40,6 +40,7 @@ function Welcome({ isGuest }) {
 
     <div className="row">
       {citem.map((bot) => <ItemWelcome
+        setSelectedTag={setSelectedTag}
         isGuest={isGuest}
         bot={bot}
         type={type}

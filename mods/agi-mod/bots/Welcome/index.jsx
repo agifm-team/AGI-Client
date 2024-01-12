@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
+import clone from 'clone';
 
 import { selectRoomMode } from '../../../../src/client/action/navigation';
 import { serverDomain } from '../../socket';
@@ -127,20 +128,22 @@ function Welcome({ isGuest }) {
           dataTag === null
         )) {
 
+        const roomData = {
+          description: data[item].meta.description,
+          title: data[item].meta.title,
+          tags: data[item].meta.tags,
+        };
+
         if (typeof data[item].room_id === 'string') {
-          rooms.push({
-            id: data[item].room_id,
-            description: data[item].meta.description,
-            title: data[item].meta.title,
-          });
+          const newRoomData = clone(roomData);
+          newRoomData.id = data[item].room_id;
+          rooms.push(newRoomData);
         }
 
         if (typeof data[item].username === 'string') {
-          users.push({
-            id: data[item].username,
-            description: data[item].meta.description,
-            title: data[item].meta.title,
-          });
+          const newRoomData = clone(roomData);
+          newRoomData.id = data[item].username;
+          users.push(newRoomData);
         }
 
       }

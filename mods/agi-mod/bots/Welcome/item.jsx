@@ -134,6 +134,7 @@ function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
     });
 
     const avatar = defaultAvatar(1);
+    // bot.tags
 
     // Complete
     return <div

@@ -26,29 +26,28 @@ function Welcome({ isGuest }) {
   const [dataTag, setSelectedTag] = useState(null);
 
   // Generator
-  const categoryGenerator = (where, type, title, citem) => (
-    <div className="category" id={`agi-home-${type}-${where}`}>
-      <hr />
+  const categoryGenerator = (where, type, title, citem) => <div className="category" id={`agi-home-${type}-${where}`}>
+    <hr />
 
-      <h5 className="title mt-2 mb-3 float-start">
-        {title}
-      </h5>
-      <br className="clearfix" />
-      <br />
+    <h5 className="title mt-2 mb-3 float-start">
+      {title}
+    </h5>
+    <br className="clearfix" />
+    <br />
 
-      <div className="cover" />
+    <div className="cover" />
 
-      <div className="row">
-        {citem.map((bot) => <ItemWelcome
-          isGuest={isGuest}
-          bot={bot}
-          type={type}
-          index={0}
-          itemsLength={bot.length}
-        />)}
-      </div>
-    </div>
-  );
+    <div className="row">
+      {citem.map((bot) => <ItemWelcome
+        isGuest={isGuest}
+        bot={bot}
+        type={type}
+        index={0}
+        itemsLength={bot.length}
+      />)}
+    </div>;
+
+  </div>;
 
   // handleSearch
   const handleSearchChange = (event) => {

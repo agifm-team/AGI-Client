@@ -67,7 +67,9 @@
         cursor: pointer;
         border-radius: 5px !important;
         background-color: var(--bg-surface);
-        overflow-y: auto;
+        & > div {
+          overflow-y: auto;
+        }
 
         .avatar {
           border-radius: 15% !important;

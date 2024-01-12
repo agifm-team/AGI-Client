@@ -46,7 +46,7 @@ function Welcome({ isGuest }) {
         index={0}
         itemsLength={bot.length}
       />)}
-    </div>;
+    </div>
 
   </div>;
 

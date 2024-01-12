@@ -56,7 +56,6 @@
   }
 
   .category {
-    height: 280px;
     margin-bottom: 27px;
 
     hr {
@@ -68,15 +67,39 @@
         cursor: pointer;
         border-radius: 5px !important;
         background-color: var(--bg-surface);
+        overflow-y: auto;
 
         .avatar {
           border-radius: 15% !important;
           max-height: 100px;
           margin-bottom: 25px !important;
+          &.avatar-bg {
+            filter: blur(35px);
+            margin-top: -110px;
+            position: relative;
+            top: 40px;
+          }
         }
 
         .card-text {
           font-size: 10pt;
+          height: 130px;
+
+          .card-normal-text-hover {
+            display: none;
+          }
+        }
+
+        &:hover {
+          .card-normal-text {
+            display: none;
+          }
+
+          .card-normal-text-hover {
+            display: block;
+            overflow-y: auto;
+            height: 130px;
+          }
         }
 
         .list-group-item * {

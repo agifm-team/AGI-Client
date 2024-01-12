@@ -133,11 +133,22 @@ function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
         }
     });
 
+    const avatar = defaultAvatar(1);
+
     // Complete
-    return <div ref={buttonRef} className={`citem col-md-1 border border-bg m${index > 0 ? index < itemsLength - 1 ? 'x-3' : 's-3' : 'e-3'}${isGuest ? ' guest-mode' : ''}`} bot={typeof bot.id === 'string' && bot.id !== 'Coming soon!' ? bot.id : null}>
-        <img className='img-fluid avatar' draggable={false} alt='avatar' src={defaultAvatar(1)} />
+    return <div
+        ref={buttonRef}
+        className={`citem col-md-1 my-2 border border-bg m${index > 0 ? index < itemsLength - 1 ? 'x-3' : 's-3' : 'e-3'}${isGuest ? ' guest-mode' : ''}`} bot={typeof bot.id === 'string' && bot.id !== 'Coming soon!' ? bot.id : null}
+    >
+        <img className='img-fluid avatar avatar-bg' draggable={false} alt='avatar' src={avatar} />
+        <img className='img-fluid avatar' draggable={false} alt='avatar' src={avatar} />
         {typeof bot.title === 'string' ? <h6 className="card-title text-bg">{bot.title}</h6> : null}
-        <p className="card-text text-bg-low">{bot.description}</p>
+        <p className="card-text text-bg-low">{bot.description.length < 100 ? bot.description :
+            <>
+                <div className='card-normal-text'>{`${bot.description.substring(0, 100)}...`}</div>
+                <div className='card-normal-text-hover'>{bot.description}</div>
+            </>
+        }</p>
     </div>;
 
 }

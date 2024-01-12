@@ -188,15 +188,27 @@ function Welcome({ isGuest }) {
 
       <div className="taggy">
         {list &&
-          list.map((tag) => (
+          <>
+
             <button
-              className={`btn taggyButton btn-bg very-small border${typeof dataTag === 'string' && dataTag === tag ? ' active' : ''}`}
-              key={tag}
-              onClick={() => setSelectedTag(tag)}
+              className={`btn taggyButton btn-bg very-small border${dataTag === null ? ' active' : ''}`}
+              key='CLEAR_ALL'
+              onClick={() => setSelectedTag(null)}
             >
-              {tag}
+              all
             </button>
-          ))}
+
+            {list.map((tag) => (
+              <button
+                className={`btn taggyButton btn-bg very-small border${typeof dataTag === 'string' && dataTag === tag ? ' active' : ''}`}
+                key={tag}
+                onClick={() => setSelectedTag(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+
+          </>}
       </div>
 
       <div id="menu" className="text-start">

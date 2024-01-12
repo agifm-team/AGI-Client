@@ -56,31 +56,52 @@
   }
 
   .category {
-    height: 280px;
     margin-bottom: 27px;
 
     hr {
       margin-bottom: 0px;
     }
 
-    ul {
-      overflow-x: auto;
-      overflow-y: hidden;
-      width: auto !important;
-
-      li {
+    .row {
+      .citem {
         cursor: pointer;
         border-radius: 5px !important;
         background-color: var(--bg-surface);
+        & > div {
+          overflow-y: auto;
+        }
 
         .avatar {
           border-radius: 15% !important;
           max-height: 100px;
           margin-bottom: 25px !important;
+          &.avatar-bg {
+            filter: blur(35px);
+            margin-top: -110px;
+            position: relative;
+            top: 40px;
+          }
         }
 
         .card-text {
           font-size: 10pt;
+          height: 130px;
+
+          .card-normal-text-hover {
+            display: none;
+          }
+        }
+
+        &:hover {
+          .card-normal-text {
+            display: none;
+          }
+
+          .card-normal-text-hover {
+            display: block;
+            overflow-y: auto;
+            height: 130px;
+          }
         }
 
         .list-group-item * {
@@ -103,22 +124,6 @@
           background-color: var(--bg-surface-low);
         }
       }
-    }
-
-    ul li {
-      width: 200px !important;
-      min-width: 200px !important;
-    }
-
-    .cover,
-    ul li {
-      height: 240px !important;
-      min-height: 240px !important;
-    }
-
-    .cover {
-      top: 240px !important;
-      margin-top: -240px;
     }
 
     .cover {

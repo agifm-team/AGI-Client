@@ -21,11 +21,14 @@ import cons from '../../client/state/cons';
 
 global.Olm = Olm;
 
-function ChatRoomFrame({ roomId, refreshTime, className, style }) {
+function ChatRoomFrame({ roomId, refreshTime, className, style, hsUrl, joinGuest }) {
 
     // Theme
     const frameRef = useRef(null);
     const theme = settings.getTheme();
+
+    // hsUrl: null (Custom homeserver url to use hs param)
+    const baseUrl = typeof hsUrl === 'string' ? hsUrl : initMatrix && initMatrix.matrixClient && typeof initMatrix.matrixClient.baseUrl === 'string' ? initMatrix.matrixClient.baseUrl : null;
 
     // Effect
     useEffect(() => {
@@ -54,7 +57,7 @@ function ChatRoomFrame({ roomId, refreshTime, className, style }) {
         title={roomId}
         style={style}
         className={className}
-        src={`/?type=chatroom&id=${encodeURIComponent(roomId)}&join_guest=true&hs=${encodeURIComponent(new URL(initMatrix.matrixClient.baseUrl).hostname)}${typeof refreshTime === 'number' && refreshTime > 0 ? `&refresh_time=${encodeURIComponent(refreshTime)}` : ''}${objType(theme, 'object') && typeof theme.id === 'string' && theme.id.length > 0 ? `&theme=${encodeURIComponent(theme.id)}` : ''}`}
+        src={`/?type=chatroom&id=${encodeURIComponent(roomId)}&join_guest=${typeof joinGuest === 'boolean' && joinGuest ? 'true' : 'false'}${baseUrl !== null ? `&hs=${encodeURIComponent(new URL(baseUrl).hostname)}` : ''}${typeof refreshTime === 'number' && refreshTime > 0 ? `&refresh_time=${encodeURIComponent(refreshTime)}` : ''}${objType(theme, 'object') && typeof theme.id === 'string' && theme.id.length > 0 ? `&theme=${encodeURIComponent(theme.id)}` : ''}`}
     />;
 
 };
@@ -64,13 +67,17 @@ ChatRoomFrame.defaultProps = {
     roomId: null,
     className: null,
     style: null,
+    hsUrl: null,
+    joinGuest: false,
 };
 
 ChatRoomFrame.propTypes = {
+    hsUrl: PropTypes.string,
     roomId: PropTypes.string,
     className: PropTypes.string,
     refreshTime: PropTypes.number,
     style: PropTypes.object,
+    joinGuest: PropTypes.bool,
 };
 
 export { ChatRoomFrame };

@@ -35,10 +35,6 @@ const valuesLoad = {
 
         // Tab
         tab: cons.tabs.DIRECTS,
-        id: 'bot_id',
-
-        // Title
-        title: 'bot_name',
 
         // Data Button
         getRoom: async (userId) => {
@@ -70,10 +66,6 @@ const valuesLoad = {
 
         // Tab
         tab: cons.tabs.HOME,
-        id: 'room_id',
-
-        // Title
-        title: 'room_name',
 
         // Data Button
         getRoom: async (alias) => {
@@ -107,7 +99,7 @@ const valuesLoad = {
 
 };
 
-function ItemWelcome({ bot, type, item, itemsLength }) {
+function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
 
     // Refs
     const buttonRef = useRef(null);
@@ -120,9 +112,15 @@ function ItemWelcome({ bot, type, item, itemsLength }) {
             const button = $(buttonRef.current);
             const tinyButton = () => {
 
-                // Select tab and bot id
-                selectTab(valuesLoad[type].tab);
-                return valuesLoad[type].getRoom(button.attr('bot'));
+                if (!isGuest) {
+
+                    // Select tab and bot id
+                    selectTab(valuesLoad[type].tab);
+                    return valuesLoad[type].getRoom(button.attr('bot'));
+
+                }
+
+                alert('To make this action, you need to log in.');
 
             };
 
@@ -135,12 +133,35 @@ function ItemWelcome({ bot, type, item, itemsLength }) {
         }
     });
 
+    const avatar = defaultAvatar(1);
+
     // Complete
-    return <li ref={buttonRef} className={`list-group-item border border-bg m${item.index > 0 ? item.index < itemsLength - 1 ? 'x-3' : 's-3' : 'e-3'}`} bot={typeof valuesLoad[type].id === 'string' ? bot[valuesLoad[type].id] : null}>
-        <img className='img-fluid avatar' draggable={false} alt='avatar' src={defaultAvatar(1)} />
-        {valuesLoad[type] && typeof valuesLoad[type].title === 'string' ? <h6 className="card-title text-bg">{bot[valuesLoad[type].title]}</h6> : null}
-        <p className="card-text text-bg-low">{bot.description}</p>
-    </li>;
+    return <div
+        ref={buttonRef}
+        className={`citem col-md-2 col-sm-4 col-6${isGuest ? ' guest-mode' : ''}`} bot={typeof bot.id === 'string' && bot.id !== 'Coming soon!' ? bot.id : null}
+    >
+        <div className={`border border-bg p-3 py-3 p${index > 0 ? index < itemsLength - 1 ? 'x-3' : 's-3' : 'e-3'}`}>
+
+            <img className='img-fluid d-block avatar avatar-bg' draggable={false} alt='avatar' src={avatar} />
+            <img className='img-fluid d-block avatar' draggable={false} alt='avatar' src={avatar} />
+            {typeof bot.title === 'string' ? <h6 className="card-title text-bg">{bot.title}</h6> : null}
+
+            <p className="card-text text-bg-low">{bot.description.length < 100 ? bot.description :
+                <>
+                    <div className='card-normal-text'>{`${bot.description.substring(0, 100)}...`}</div>
+                    <div className='card-normal-text-hover'>{bot.description}</div>
+                </>
+            }</p>
+
+            {bot.tags.map((tag) => (
+                <button
+                    className='badge bg-bg2 border border-bg very-small mx-1 text-lowercase'
+                    key={`${tag}_click`}
+                >{tag}</button>
+            ))}
+
+        </div>
+    </div>;
 
 }
 

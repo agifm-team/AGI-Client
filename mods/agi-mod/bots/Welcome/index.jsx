@@ -1,88 +1,107 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
+import clone from 'clone';
 
 import { selectRoomMode } from '../../../../src/client/action/navigation';
-import defaultAvatar from '../../../../src/app/atoms/avatar/defaultAvatar';
-import { serverAddress, serverDomain } from '../../socket';
+import { serverDomain } from '../../socket';
 import ItemWelcome from './item';
 import { ChatRoomFrame } from '../../../../src/app/embed/ChatRoom';
-import AgentCard from './AgentCard/AgentCard.jsx';
+// import AgentCard from './AgentCard/AgentCard.jsx';
 import './custom.scss';
 
 /*
-    <ChatRoomFrame roomId=`#imagegen:${serverDomain}` className='m-3 border border-bg' style={{ height: 300, width: 500 }} refreshTime={1} />
+    <ChatRoomFrame roomId=`#imagegen:${serverDomain}` hsUrl={isGuest && `https://matrix.${serverDomain}`} className='m-3 border border-bg' style={{ height: 300, width: 500 }} refreshTime={1} />
     This is the component that embeds the chat room.
 */
 
 let connectionTestTimeout = false;
 
-let selected = null;
-const apiAddress = `${serverAddress}`;
+function Welcome({ isGuest }) {
 
-function Welcome() {
   // Data
-  const [tinyType, setTinyType] = useState('community');
-  const [data, setData] = useState(null);
   const [list, setList] = useState(null); // [data, setData
-  const [roomData, setRoomData] = useState(null); // room data
   const [tempSearch, setTempSearch] = useState('');
   const [loadingData, setLoadingData] = useState(false);
-  const [selectedTag, setSelectedTag] = useState(null);
-  const selectJson = (newData) => {
-    selected = tinyType;
 
-    if (newData.data) setData(newData.data);
-    else {
-      console.error(newData);
-      if (newData?.message) {
-        alert(`Agi-Mod - ${newData.message}`);
-        console.error(newData.message);
-      } else {
-        alert(`Agi-Mod - ${newData.detail}`);
-        console.error(newData.detail);
-      }
+  const [data, setRoomData] = useState(null); // room data
+  const [dataTag, setSelectedTag] = useState(null);
 
-      console.error(newData?.status);
+  // Generator
+  const categoryGenerator = (where, type, title, citem) => <div className="category" id={`agi-home-${type}-${where}`}>
+    <hr />
 
-      setData({});
-    }
+    <h5 className="title mt-2 mb-3 float-start">
+      {title}
+    </h5>
+    <br className="clearfix" />
+    <br />
 
-    setLoadingData(false);
+    <div className="cover" />
+
+    <div className="row">
+      {citem.map((bot) => <ItemWelcome
+        setSelectedTag={setSelectedTag}
+        isGuest={isGuest}
+        bot={bot}
+        type={type}
+        index={0}
+        itemsLength={bot.length}
+      />)}
+    </div>
+
+  </div>;
+
+  // handleSearch
+  const handleSearchChange = (event) => {
+    setTempSearch(event.target.value);
   };
 
-  const fetchJson = () => {
-    fetch(`https://bots.${serverDomain}/list`)
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return res.json();
-      })
-      .then((newData) => {
-        setList(newData[0]);
-        setRoomData(newData[1]);
-        // console.log('Fetched JSON:', newData);
-        // console.log('List:', list)
-        // console.log('Room Data:', roomData)
-      })
-      .catch((error) => {
-        console.error('There has been a problem with your fetch operation:', error);
-      });
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+    setSelectedTag(tempSearch);
   };
+
   // Effect
   useEffect(() => {
-    fetchJson();
+
     // Set Data
-    if ((selected !== tinyType || !data) && !loadingData) {
+    if (data === null && !loadingData) {
+
       // Load Data
       setLoadingData(true);
-      fetch(`${apiAddress}get_list/${tinyType}`, {
+
+      fetch(`https://bots.${serverDomain}/list`, {
         headers: {
           Accept: 'application/json',
         },
       })
-        .then((res) => res.json())
-        .then(selectJson)
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return res.json();
+        })
+        .then((newData) => {
+
+          if (Array.isArray(newData)) {
+
+            setList(newData[0]);
+            setRoomData(newData[1]);
+            // console.log('Fetched JSON:', newData);
+            // console.log('List:', list)
+            // console.log('Room Data:', data)
+
+          } else {
+
+            console.error(newData);
+            setList(null);
+            setRoomData(null);
+
+          }
+
+          setLoadingData(false);
+
+        })
         .catch((err) => {
           console.error(err);
           alert(err.message);
@@ -94,113 +113,53 @@ function Welcome() {
             }, 3000);
           }
         });
+
     }
-  }, []);
+  });
 
-  // Items
-  const items = [];
-  for (let i = 0; i < 10; i++) {
-    items.push({
-      index: i,
-      id: i,
-      avatar: defaultAvatar(1),
-      title: `Item ${i + 1}`,
-      desc: 'This is a tiny test to make more tiny tests with some random stuff.',
-    });
-  }
+  const users = [];
+  const rooms = [];
 
-  // Categories
-  const categories = [];
-  if (data && Array.isArray(data.category_keys)) {
-    for (const item in data.category_keys) {
-      categories.push({
-        name: typeof data.category_keys[item] === 'string' ? data.category_keys[item] : '',
-        id: tinyType,
-      });
+  if (!loadingData && Array.isArray(data)) {
+    for (const item in data) {
+
+      if (data[item].meta && Array.isArray(data[item].meta.tags) && data[item].meta.tags.length > 0 &&
+        (
+          (typeof dataTag === 'string' && dataTag.length > 0 && data[item].meta.tags.indexOf(dataTag) > -1) ||
+          dataTag === null
+        )) {
+
+        const roomData = {
+          description: data[item].meta.description,
+          title: data[item].meta.title,
+          tags: data[item].meta.tags,
+        };
+
+        if (typeof data[item].room_id === 'string') {
+          const newRoomData = clone(roomData);
+          newRoomData.id = data[item].room_id;
+          rooms.push(newRoomData);
+        }
+
+        if (typeof data[item].username === 'string') {
+          const newRoomData = clone(roomData);
+          newRoomData.id = data[item].username;
+          users.push(newRoomData);
+        }
+
+      }
+
     }
   }
-
-  // Generator
-  const categoryGenerator = (where, type, title, citem) => (
-    <div className="category" id={`agi-home-${citem.id}-${where}`}>
-      <hr />
-
-      <h5 className="title mt-2 mb-3 float-start">
-        {title} - {citem.name}
-      </h5>
-      <h6 className="see-all mt-2 mb-3 float-end">See all</h6>
-      <br className="clearfix" />
-      <br />
-
-      <div className="cover" />
-      <ul className="list-group list-group-horizontal border-0">
-        {data.categories.map((item) =>
-          item
-            ? item[where].map((bot) => (
-              <ItemWelcome
-                bot={bot}
-                type={type}
-                item={item}
-                title={title}
-                itemsLength={items.length}
-              />
-            ))
-            : null
-        )}
-      </ul>
-    </div>
-  );
-
-  // handleSearch
-  const handleSearchChange = (event) => {
-    setTempSearch(event.target.value);
-  };
-
-  const handleSearchSubmit = (event) => {
-    event.preventDefault();
-    setSelectedTag(tempSearch);
-  };
-  // Room
 
   // Result
-  return <div className="tiny-welcome p-3 border-0 h-100 noselect px-5">
-    <center className="py-1 w-100 px-3">
-      <div id="menu" className="text-start">
-        <button
-          type="button"
-          className="me-3 btn btn-primary rounded-pill "
-        // onClick={() => history.goBack()}
-        >
-          <i className="fa-solid fa-left-long mr-2 btn-primary" />{" "}
-          Rooms
-        </button>
-        <button
-          type="button"
-          className="me-5 btn btn-primary d-none "
-          id="leave-welcome"
-          onClick={() => selectRoomMode('navigation')}
-        >
-          <i className="fa-solid fa-left-long" />
-        </button>
-        <button
-          type="button"
-          className={`me-3 btn btn-primary${tinyType === 'enterprise' ? ' active' : ''} rounded-pill`}
-          onClick={() => setTinyType('enterprise')}
-        >
-          Enterprise
-        </button>
-        <button
-          type="button"
-          className={`btn btn-primary${tinyType === 'community' ? ' active' : ''} rounded-pill`}
-          onClick={() => setTinyType('community')}
-        >
-          Community
-        </button>
-      </div>
+  return <div className="tiny-welcome border-0 h-100 noselect">
+    <center className="py-5 px-4 w-100">
+
       <div className="row mt-2">
-        <h3 className=' text-start'>Popular spaces </h3>
         <div className="col-md-6">
           <ChatRoomFrame
+            hsUrl={isGuest && `https://matrix.${serverDomain}`}
             roomId={`#imagegen:${serverDomain}`}
             className="border border-bg w-100"
             style={{ height: 300 }}
@@ -210,6 +169,7 @@ function Welcome() {
 
         <div className="col-md-6">
           <ChatRoomFrame
+            hsUrl={isGuest && `https://matrix.${serverDomain}`}
             roomId={`#previews:${serverDomain}`}
             className="border border-bg w-100"
             style={{ height: 300 }}
@@ -220,7 +180,7 @@ function Welcome() {
 
       <form className="Formy" onSubmit={handleSearchSubmit}>
         <input
-          className='btn btn-bg w-100 border my-3'
+          className='btn btn-bg w-100 border'
           type="text"
           value={tempSearch}
           onChange={handleSearchChange}
@@ -228,61 +188,49 @@ function Welcome() {
           placeholder="Search for bots and rooms..."
         />
       </form>
+
       <div className="taggy">
-        <button
-          className="btn taggyButton btn-bg very-small border"
-          onClick={() => setSelectedTag(null)}
-        >
-          All
-        </button>
         {list &&
-          list.map((tag) => (
-            <button
-              className="btn taggyButton btn-bg very-small border"
-              key={tag}
-              onClick={() => setSelectedTag(tag)}
-            >
-              {tag}
-            </button>
-          ))}
-      </div>
-
-      <h1 className='title'>Bots</h1>
-      <div className="bots">
-        {roomData &&
-          roomData
-            .filter((room) =>
-              selectedTag
-                ? room.meta.tags.includes(selectedTag) ||
-                room.username.toLowerCase().includes(selectedTag.toLowerCase())
-                : true
-            )
-            .map((room) => <AgentCard agent={room} key={room.id} Img={defaultAvatar(1)} />)}
-      </div>
-
-      <h1 className='title'>Rooms</h1>
-      <div className="bots rooms">
-        {roomData &&
-          roomData
-            .filter((room) =>
-              selectedTag
-                ? room.meta.tags.includes(selectedTag) ||
-                room.username.toLowerCase().includes(selectedTag.toLowerCase())
-                : true
-            )
-            .map((room) => <AgentCard agent={room} key={room.id} Img={defaultAvatar(1)} />)}
-      </div>
-
-
-      {/* 
-      {!loadingData && data && Array.isArray(data.categories) ? (
-        categories.map((citem) => (
           <>
-            {categoryGenerator('popular_bots', 'bots', 'Bots', citem)}
-            {categoryGenerator('popular_rooms', 'rooms', 'Rooms', citem)}
-          </>
-        ))
-      ) : (
+
+            <button
+              className={`btn taggyButton btn-bg very-small border${dataTag === null ? ' active' : ''} text-lowercase`}
+              key='CLEAR_ALL'
+              onClick={() => setSelectedTag(null)}
+            >
+              all
+            </button>
+
+            {list.map((tag) => (
+              <button
+                className={`btn taggyButton btn-bg very-small border${typeof dataTag === 'string' && dataTag === tag ? ' active' : ''} text-lowercase`}
+                key={tag}
+                onClick={() => setSelectedTag(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+
+          </>}
+      </div>
+
+      <div id="menu" className="text-start">
+        <button
+          type="button"
+          className="me-3 btn btn-primary d-none"
+          id="leave-welcome"
+          onClick={() => selectRoomMode('navigation')}
+        >
+          <i className="fa-solid fa-left-long" />
+        </button>
+      </div>
+
+      <hr />
+
+      {!loadingData ? <>
+        {users.length > 0 ? categoryGenerator('popular_bots', 'bots', 'Bots', users) : null}
+        {rooms.length > 0 ? categoryGenerator('popular_rooms', 'rooms', 'Rooms', rooms) : null}
+      </> : (
         <p className="placeholder-glow mt-5">
           <span className="placeholder col-12" />
           <span className="placeholder col-12" />
@@ -301,26 +249,6 @@ function Welcome() {
         </p>
       )}
 
-      <hr />
-      <div className="row mt-2">
-        <div className="col-md-6">
-          <ChatRoomFrame
-            roomId={`#imagegen:${serverDomain}`}
-            className="border border-bg w-100"
-            style={{ height: 300 }}
-            refreshTime={1}
-          />
-        </div>
-
-        <div className="col-md-6">
-          <ChatRoomFrame
-            roomId={`#previews:${serverDomain}`}
-            className="border border-bg w-100"
-            style={{ height: 300 }}
-            refreshTime={1}
-          />
-        </div>
-      </div> */}
     </center>
   </div>;
 }

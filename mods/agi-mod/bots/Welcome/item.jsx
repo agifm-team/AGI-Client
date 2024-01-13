@@ -11,6 +11,9 @@ import {
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 import initMatrix from '../../../../src/client/initMatrix';
 import { join } from '../../../../src/client/action/room';
+import { btModal } from '../../../../src/util/tools';
+import { ChatRoomjFrame } from '../../../../src/app/embed/ChatRoom';
+import { serverDomain } from '../../socket';
 
 const openRoom = (roomId) => {
 
@@ -120,7 +123,30 @@ function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
 
                 }
 
-                alert('To make this action, you need to log in.');
+                if (type === 'rooms') {
+
+                    btModal({
+
+                        id: 'agi-chatroom-modal',
+                        bodyClass: 'p-0',
+                        title: null,
+
+                        dialog: 'modal-fullscreen modal-dialog-scrollable modal-popup',
+                        body: [ChatRoomjFrame(bot.id, {
+                            hsUrl: isGuest && `https://matrix.${serverDomain}`,
+                            refreshTime: 1,
+                            style: {
+                                'min-width': '100%',
+                                'min-height': '100%'
+                            }
+                        })]
+                    });
+
+                }
+
+                else {
+                    alert('To make this action, you need to log in.');
+                }
 
             };
 

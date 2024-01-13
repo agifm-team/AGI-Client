@@ -154,9 +154,9 @@ function Welcome({ isGuest }) {
 
   // Result
   return <div className="tiny-welcome border-0 h-100 noselect">
-    <center className="py-5 px-4 w-100">
+    <center className="py-4 px-4 w-100">
 
-      <div id="menu" className="text-start">
+      {!isGuest ? <div id="menu" className="text-start">
         <button
           type="button"
           className="me-3 btn btn-primary d-none"
@@ -165,7 +165,7 @@ function Welcome({ isGuest }) {
         >
           <i className="fa-solid fa-left-long" />
         </button>
-      </div>
+      </div> : null}
 
       <div className="row mt-2">
         <div className="col-md-6">

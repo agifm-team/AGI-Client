@@ -21,7 +21,7 @@ function AuthCard() {
             <nav className='navbar navbar-expand-lg bg-bg border-bottom border-bg'>
                 <div className='container-fluid'>
 
-                    <a className='navbar-brand text-bg-force' href='#'>{__ENV_APP__.INFO.name}</a>
+                    <a className='navbar-brand text-bg-force'>{__ENV_APP__.INFO.name}</a>
                     <button className='navbar-toggler' type='button' data-bs-toggle='collapse' data-bs-target='#loginNavBarAltMarkup' aria-controls='loginNavBarAltMarkup' aria-expanded='false' aria-label='Toggle navigation'>
                         <span className='navbar-toggler-icon' />
                     </button>

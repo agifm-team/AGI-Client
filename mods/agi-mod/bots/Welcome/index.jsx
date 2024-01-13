@@ -156,6 +156,17 @@ function Welcome({ isGuest }) {
   return <div className="tiny-welcome border-0 h-100 noselect">
     <center className="py-5 px-4 w-100">
 
+      <div id="menu" className="text-start">
+        <button
+          type="button"
+          className="me-3 btn btn-primary d-none"
+          id="leave-welcome"
+          onClick={() => selectRoomMode('navigation')}
+        >
+          <i className="fa-solid fa-left-long" />
+        </button>
+      </div>
+
       <div className="row mt-2">
         <div className="col-md-6">
           <ChatRoomFrame
@@ -212,17 +223,6 @@ function Welcome({ isGuest }) {
             ))}
 
           </>}
-      </div>
-
-      <div id="menu" className="text-start">
-        <button
-          type="button"
-          className="me-3 btn btn-primary d-none"
-          id="leave-welcome"
-          onClick={() => selectRoomMode('navigation')}
-        >
-          <i className="fa-solid fa-left-long" />
-        </button>
       </div>
 
       <hr />

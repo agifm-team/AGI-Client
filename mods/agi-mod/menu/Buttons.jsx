@@ -9,10 +9,26 @@ import RawIcon from '../../../src/app/atoms/system-icons/RawIcon';
 
 import defaultAvatar from '../../../src/app/atoms/avatar/defaultAvatar';
 
-import * as roomActions from '../../../src/client/action/room';
-import { getSelectRoom } from '../../../src/util/selectedRoom';
+// import * as roomActions from '../../../src/client/action/room';
+// import { getSelectRoom } from '../../../src/util/selectedRoom';
 import { serverAddress, serverDomain } from '../socket';
 import { setLoadingPage } from '../../../src/app/templates/client/Loading';
+import { selectRoom, selectRoomMode } from '../../../src/client/action/navigation';
+
+const openRoom = (roomId) => {
+
+    const mx = initMatrix.matrixClient;
+    const room = mx.getRoom(roomId);
+
+    if (!room) return;
+    if (room.isSpaceRoom()) selectTab(roomId);
+
+    else {
+        selectRoomMode('room');
+        selectRoom(roomId);
+    }
+
+};
 
 const createButton = (id, title, icon) => jReact(
     <button
@@ -72,7 +88,9 @@ export function addRoomOptions(dt, roomType) {
             ),
 
             $('<div>', { class: 'room-tile__options' }).append(
-                $('<button>', { class: 'btn btn-primary btn-sm noselect', type: 'button' }).data('pony-house-username', username).text('Invite').on('click', (event) => {
+                $('<button>', { class: 'btn btn-primary btn-sm noselect', type: 'button' }).data('pony-house-username', username).text('Invite').on('click', async (event) => {
+
+                    /*
 
                     const userId = $(event.target).data('pony-house-username');
                     const roomId = getSelectRoom()?.roomId;
@@ -81,6 +99,33 @@ export function addRoomOptions(dt, roomType) {
                         console.error(err);
                         alert(err.message);
                     });
+
+                    */
+
+                    setLoadingPage('Looking for address...');
+                    const alias = $(event.target).data('pony-house-username');
+                    const mx = initMatrix.matrixClient;
+                    setLoadingPage('Looking for address...');
+                    let via;
+                    if (alias.startsWith('#')) {
+                        try {
+                            const aliasData = await mx.getRoomIdForAlias(alias);
+                            via = aliasData?.servers.slice(0, 3) || [];
+                            setLoadingPage(`Joining ${alias}...`);
+                        } catch (err) {
+                            setLoadingPage(false);
+                            console.error(err);
+                            alert(`Unable to find room/space with ${alias}. Either room/space is private or doesn't exist.`);
+                        }
+                    }
+                    try {
+                        const roomId = await join(alias, false, via);
+                        openRoom(roomId);
+                        setLoadingPage(false);
+                    } catch {
+                        setLoadingPage(false);
+                        alert(`Unable to join ${alias}. Either room/space is private or doesn't exist.`);
+                    }
 
                 })
             )
@@ -109,20 +154,28 @@ export function addRoomOptions(dt, roomType) {
                             // Get Users
                             try {
 
-                                const user = mx.getUser(data[item].bot_username) ?? { userId: data[item].bot_username, displayName: data[item].agent_name, avatarUrl: data[item].profile_photo };
+                                /* const userId = !data[item].bot_username.startsWith('@') ? `@${data[item].bot_username}` : data[item].bot_username;
+                                const user = mx.getUser(userId) ?? { userId, displayName: data[item].agent_name, avatarUrl: data[item].profile_photo };
                                 if (objType(user, 'object')) {
                                     users.push(userGenerator(
-                                        user.userId ?? data[item].bot_username,
+                                        user.userId ?? userId,
                                         user.displayName ? user.displayName : user.userId ?? data[item].agent_name ? data[item].agent_name : user.userId,
                                         user.avatarUrl ? mx.mxcUrlToHttp(user.avatarUrl, 42, 42, 'crop') : data[item].profile_photo ? data[item].profile_photo : defaultAvatar(1),
                                     ));
                                 } else {
                                     users.push(userGenerator(
-                                        data[item].bot_username,
-                                        data[item].agent_name ? data[item].agent_name : data[item].bot_username,
+                                        userId,
+                                        data[item].agent_name ? data[item].agent_name : userId,
                                         data[item].profile_photo ? data[item].profile_photo : defaultAvatar(1)
                                     ));
-                                }
+                                } */
+
+                                const userId = !data[item].bot_username.startsWith('#') ? `#${data[item].bot_username}` : data[item].bot_username;
+                                users.push(userGenerator(
+                                    userId,
+                                    data[item].agent_name ? data[item].agent_name : userId,
+                                    data[item].profile_photo ? data[item].profile_photo : defaultAvatar(1)
+                                ));
 
                             }
 

@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { createTemporaryClient, startSsoLogin } from '../../../client/action/auth';
-import Button from "../../atoms/button/Button";
 
 function SSOButtons({ type, identityProviders, baseUrl }) {
 
@@ -11,22 +10,18 @@ function SSOButtons({ type, identityProviders, baseUrl }) {
     startSsoLogin(baseUrl, type, id);
   }
 
-  return <div className="sso-buttons mb-3">
-    {identityProviders
-      .sort((idp, idp2) => {
-        if (typeof idp.icon !== 'string') return -1;
-        return idp.name.toLowerCase() > idp2.name.toLowerCase() ? 1 : -1;
-      })
-      .map((idp) => {
-
-        return idp.icon ?
-          <button key={idp.id} type="button" className="sso-btn" onClick={() => handleClick(idp.id)}>
-            <img className="sso-btn__img rounded-circle" src={tempClient.mxcUrlToHttp(idp.icon)} alt={idp.name} />
-          </button>
-          : <Button key={idp.id} className="sso-btn__text-only" onClick={() => handleClick(idp.id)}>{`Login with ${idp.name}`}</Button>;
-
-      })}
-  </div>;
+  return identityProviders
+    .sort((idp, idp2) => {
+      if (typeof idp.icon !== 'string') return -1;
+      return idp.name.toLowerCase() > idp2.name.toLowerCase() ? 1 : -1;
+    })
+    .map((idp) => <a
+      onClick={() => handleClick(idp.id)}
+      className="nav-link text-bg-force"
+      href="#"
+    >
+      {idp.icon ? <img className="img-fluid rounded-circle" src={tempClient.mxcUrlToHttp(idp.icon)} alt={idp.name} /> : `Login with ${idp.name}`}
+    </a>);
 
 }
 

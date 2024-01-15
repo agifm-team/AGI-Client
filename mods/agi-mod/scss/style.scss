@@ -33,6 +33,18 @@
   }
 
   #menu {
+    .title-place {
+      padding-left: 42px;
+      margin-top: -30px;
+    }
+
+    @media (min-width: 768px) {
+      .title-place {
+        padding-left: 0px;
+        margin-top: -0px;
+      }
+    }
+
     .btn {
       background-color: var(--bg-surface-extra-low);
       border-color: --bg-surface-border;

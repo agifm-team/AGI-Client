@@ -64,7 +64,6 @@ export default function startPeopleSelector() {
         const banItem = items.findIndex(item => item.value === 'ban');
         if (banItem > -1) items.splice(banItem, 1);
 
-        console.log(items);
     });
 
 };

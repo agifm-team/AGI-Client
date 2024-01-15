@@ -1,7 +1,5 @@
     --> Menu mobile de ícones precisa parar de ser table usar flex.
 
-    --> Criar leitor de mensagens fixadas
-
     =======================================================
 
 https://help.soundcloud.com/hc/en-us/articles/115003568008-Embedding-a-track-or-playlist-
@@ -34,6 +32,8 @@ Made by Me
         Lista de usuários online na room ainda não atualiza em tempo real.
         Banner do space.
         Clock Mode das mensagens.
+        Esconder Pin messages event
+        Revelar Pin messages event
 
     =======================================================
 

@@ -13,7 +13,8 @@ import defaultAvatar from '../../../src/app/atoms/avatar/defaultAvatar';
 // import { getSelectRoom } from '../../../src/util/selectedRoom';
 import { serverAddress, serverDomain } from '../socket';
 import { setLoadingPage } from '../../../src/app/templates/client/Loading';
-import { selectRoom, selectRoomMode } from '../../../src/client/action/navigation';
+import { selectRoom, selectRoomMode, selectTab } from '../../../src/client/action/navigation';
+import { join } from '../../../src/client/action/room';
 
 const openRoom = (roomId) => {
 

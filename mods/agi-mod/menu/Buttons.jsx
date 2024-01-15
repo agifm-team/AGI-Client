@@ -9,11 +9,12 @@ import RawIcon from '../../../src/app/atoms/system-icons/RawIcon';
 
 import defaultAvatar from '../../../src/app/atoms/avatar/defaultAvatar';
 
-// import * as roomActions from '../../../src/client/action/room';
-// import { getSelectRoom } from '../../../src/util/selectedRoom';
+import * as roomActions from '../../../src/client/action/room';
 import { serverAddress, serverDomain } from '../socket';
 import { setLoadingPage } from '../../../src/app/templates/client/Loading';
 import { selectRoom, selectRoomMode, selectTab } from '../../../src/client/action/navigation';
+import { getRoomInfo } from '../../../src/app/organisms/room/Room';
+
 import { join } from '../../../src/client/action/room';
 
 const openRoom = (roomId) => {
@@ -91,19 +92,15 @@ export function addRoomOptions(dt, roomType) {
             $('<div>', { class: 'room-tile__options' }).append(
                 $('<button>', { class: 'btn btn-primary btn-sm noselect', type: 'button' }).data('pony-house-username', username).text('Invite').on('click', async (event) => {
 
-                    /*
-
                     const userId = $(event.target).data('pony-house-username');
-                    const roomId = getSelectRoom()?.roomId;
+                    const roomId = getRoomInfo().roomTimeline.room.roomId;
 
                     roomActions.invite(roomId, userId).catch(err => {
                         console.error(err);
                         alert(err.message);
                     });
 
-                    */
-
-                    setLoadingPage('Looking for address...');
+                    /* setLoadingPage('Looking for address...');
                     const alias = $(event.target).data('pony-house-username');
                     const mx = initMatrix.matrixClient;
                     setLoadingPage('Looking for address...');
@@ -126,7 +123,7 @@ export function addRoomOptions(dt, roomType) {
                     } catch {
                         setLoadingPage(false);
                         alert(`Unable to join ${alias}. Either room/space is private or doesn't exist.`);
-                    }
+                    } */
 
                 })
             )
@@ -155,7 +152,7 @@ export function addRoomOptions(dt, roomType) {
                             // Get Users
                             try {
 
-                                /* const userId = !data[item].bot_username.startsWith('@') ? `@${data[item].bot_username}` : data[item].bot_username;
+                                const userId = !data[item].bot_username.startsWith('@') ? `@${data[item].bot_username}` : data[item].bot_username;
                                 const user = mx.getUser(userId) ?? { userId, displayName: data[item].agent_name, avatarUrl: data[item].profile_photo };
                                 if (objType(user, 'object')) {
                                     users.push(userGenerator(
@@ -169,14 +166,16 @@ export function addRoomOptions(dt, roomType) {
                                         data[item].agent_name ? data[item].agent_name : userId,
                                         data[item].profile_photo ? data[item].profile_photo : defaultAvatar(1)
                                     ));
-                                } */
+                                }
 
+                                /* 
                                 const userId = !data[item].bot_username.startsWith('#') ? `#${data[item].bot_username}` : data[item].bot_username;
                                 users.push(userGenerator(
                                     userId,
                                     data[item].agent_name ? data[item].agent_name : userId,
                                     data[item].profile_photo ? data[item].profile_photo : defaultAvatar(1)
                                 ));
+                                */
 
                             }
 

@@ -33,15 +33,17 @@
   }
 
   #menu {
-    .title-place {
-      padding-left: 42px;
-      margin-top: -30px;
-    }
-
-    @media (min-width: 768px) {
+    &:not(.is-guest) {
       .title-place {
-        padding-left: 0px;
-        margin-top: -0px;
+        padding-left: 42px;
+        margin-top: -30px;
+      }
+
+      @media (min-width: 768px) {
+        .title-place {
+          padding-left: 0px;
+          margin-top: -0px;
+        }
       }
     }
 

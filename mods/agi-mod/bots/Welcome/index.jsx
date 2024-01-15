@@ -156,7 +156,7 @@ function Welcome({ isGuest }) {
   return <div className="tiny-welcome border-0 h-100 noselect">
     <center className="py-4 px-4 w-100">
 
-      <div id="menu" className="text-start">
+      <div id="menu" className={`text-start${isGuest ? ' is-guest' : ''}`}>
 
         {!isGuest ? <button
           type="button"

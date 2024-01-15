@@ -23,6 +23,12 @@ function TimelineChange({
     case 'invite-cancel':
       faSrc = "fa-solid fa-user-minus";
       break;
+    case 'pinned-events-added':
+      faSrc = "bi bi-pin-angle-fill";
+      break;
+    case 'pinned-events-removed':
+      faSrc = "bi bi-pin-angle";
+      break;
     case 'avatar':
       faSrc = "fa-solid fa-id-badge";
       break;
@@ -57,6 +63,7 @@ TimelineChange.propTypes = {
   variant: PropTypes.oneOf([
     'join', 'leave', 'invite',
     'invite-cancel', 'avatar', 'other',
+    'pinned-events-added', 'pinned-events-removed', 'pinned-events',
   ]),
   content: PropTypes.oneOfType([
     PropTypes.string,

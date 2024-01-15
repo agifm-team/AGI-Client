@@ -156,16 +156,22 @@ function Welcome({ isGuest }) {
   return <div className="tiny-welcome border-0 h-100 noselect">
     <center className="py-4 px-4 w-100">
 
-      {!isGuest ? <div id="menu" className="text-start">
-        <button
+      <div id="menu" className="text-start">
+
+        {!isGuest ? <button
           type="button"
           className="me-3 btn btn-primary d-none"
           id="leave-welcome"
           onClick={() => selectRoomMode('navigation')}
         >
           <i className="fa-solid fa-left-long" />
-        </button>
-      </div> : null}
+        </button> : null}
+
+        <center className='w-100 h3 title-place'>
+          Popular Spaces
+        </center>
+
+      </div>
 
       <div className="row mt-2">
         <div className="col-md-6">

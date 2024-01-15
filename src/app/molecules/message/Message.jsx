@@ -14,12 +14,9 @@ import * as linkify from "linkifyjs";
 
 import Text from '../../atoms/text/Text';
 import { hljsFixer, resizeWindowChecker, chatboxScrollToBottom, toast } from '../../../util/tools';
-import { twemojifyReact } from '../../../util/twemojify';
-
-
+import { twemojify, twemojifyReact } from '../../../util/twemojify';
 import initMatrix from '../../../client/initMatrix';
 
-import settings from '../../../client/state/settings';
 import {
   getUsername,
   getUsernameOfRoomMember,
@@ -68,6 +65,7 @@ import { getAnimatedImageUrl, getAppearance } from '../../../util/libs/appearanc
 import UserOptions from '../user-options/UserOptions';
 import { getDataList } from '../../../util/selectedRoom';
 import { tinyLinkifyFixer } from '../../../util/clear-urls/clearUrls';
+import { canPinMessage, isPinnedMessage, setPinMessage } from '../../../util/libs/pinMessage';
 
 function PlaceholderMessage() {
   return <tr className="ph-msg">
@@ -224,6 +222,127 @@ MessageReplyWrapper.propTypes = {
   eventId: PropTypes.string.isRequired,
 };
 
+// Is Emoji only
+const isEmojiOnly = (msgContent) => {
+
+  // Determine if this message should render with large emojis
+  // Criteria:
+  // - Contains only emoji
+  // - Contains no more than 10 emoji
+  let emojiOnly = false;
+  if (msgContent) {
+
+    if (msgContent.type === 'img') {
+      // If this messages contains only a single (inline) image
+      emojiOnly = true;
+    } else if (msgContent.constructor.name === 'Array') {
+
+      // Otherwise, it might be an array of images / text
+
+      // Count the number of emojis
+      const nEmojis = msgContent.filter((e) => e.type === 'img').length;
+
+      // Make sure there's no text besides whitespace and variation selector U+FE0F
+      if (nEmojis <= 10 && msgContent.every((element) => (
+        (typeof element === 'object' && element.type === 'img')
+        || (typeof element === 'string' && /^[\s\ufe0f]*$/g.test(element))
+      ))) {
+        emojiOnly = true;
+      }
+
+    }
+
+  }
+
+  return emojiOnly;
+
+};
+
+const createMessageData = (content, body, isCustomHTML = false, isSystem = false, isJquery = false) => {
+
+  let msgData = null;
+  if (isCustomHTML) {
+    try {
+
+      const insertMsg = () => !isJquery ? twemojifyReact(
+        sanitizeCustomHtml(initMatrix.matrixClient, body),
+        undefined,
+        true,
+        false,
+        true,
+      ) : twemojify(
+        sanitizeCustomHtml(initMatrix.matrixClient, body),
+        undefined,
+        true,
+        false,
+        true,
+      );
+
+      const msgOptions = tinyAPI.emit('messageBody', content, insertMsg);
+
+      if (typeof msgOptions.custom === 'undefined') {
+        msgData = insertMsg();
+      } else {
+        msgData = msgOptions.custom;
+      }
+
+    } catch {
+      console.error(`[matrix] [msg] Malformed custom html: `, body);
+      msgData = !isJquery ? twemojifyReact(body, undefined) : twemojify(body, undefined);
+    }
+  } else if (!isSystem) {
+    msgData = !isJquery ? twemojifyReact(body, undefined, true) : twemojify(body, undefined, true);
+  } else {
+    msgData = !isJquery ? twemojifyReact(body, undefined, true, false, true) : twemojify(body, undefined, true, false, true);
+  }
+
+  return msgData;
+
+};
+
+const messageDataEffects = (messageBody) => {
+
+  messageBody.find('pre code').each((index, value) => {
+
+    const el = $(value);
+    resizeWindowChecker();
+
+    if (!el.hasClass('hljs')) {
+      hljs.highlightElement(value);
+      el.addClass('chatbox-size-fix');
+    }
+
+    if (!el.hasClass('hljs-fix')) {
+      el.addClass('hljs-fix');
+      hljsFixer(el, 'MessageBody');
+    }
+
+    if (!el.hasClass('hljs')) {
+      el.addClass('hljs');
+    }
+
+  });
+
+  // Add tooltip on the emoji
+  messageBody.find('[data-mx-emoticon], .emoji').each((index, value) => {
+
+    const el = $(value);
+
+    if (!el.hasClass('emoji-fix')) {
+
+      if (!el.attr('title') && el.attr('alt')) el.attr('title', el.attr('alt'));
+
+      new bootstrap.Tooltip(value, { customClass: 'small' });
+      el.addClass('emoji-fix');
+
+    }
+
+  });
+
+};
+
+export { createMessageData, isEmojiOnly, messageDataEffects };
+
 // Message Body
 const MessageBody = React.memo(
   ({
@@ -241,102 +360,17 @@ const MessageBody = React.memo(
     const messageBody = useRef(null);
 
     useEffect(() => {
-      $(messageBody.current).find('pre code').each((index, value) => {
-
-        const el = $(value);
-        resizeWindowChecker();
-
-        if (!el.hasClass('hljs')) {
-          hljs.highlightElement(value);
-          el.addClass('chatbox-size-fix');
-        }
-
-        if (!el.hasClass('hljs-fix')) {
-          el.addClass('hljs-fix');
-          hljsFixer(el, 'MessageBody');
-        }
-
-        if (!el.hasClass('hljs')) {
-          el.addClass('hljs');
-        }
-
-      });
-
-      // Add tooltip on the emoji
-      $(messageBody.current).find('[data-mx-emoticon], .emoji').each((index, value) => {
-
-        const el = $(value);
-
-        if (!el.hasClass('emoji-fix')) {
-
-          if (!el.attr('title') && el.attr('alt')) el.attr('title', el.attr('alt'));
-
-          new bootstrap.Tooltip(value, { customClass: 'small' });
-          el.addClass('emoji-fix');
-
-        }
-
-      });
+      messageDataEffects($(messageBody.current))
     });
 
     // if body is not string it is a React element.
     if (typeof body !== 'string') return <div className="message__body">{body}</div>;
 
-    let msgData = null;
-    if (isCustomHTML) {
-      try {
+    // Message Data
+    let msgData = createMessageData(content, body, isCustomHTML, isSystem);
 
-        const insertMsg = () => twemojifyReact(
-          sanitizeCustomHtml(initMatrix.matrixClient, body),
-          undefined,
-          true,
-          false,
-          true,
-        );
-
-        const msgOptions = tinyAPI.emit('messageBody', content, insertMsg);
-
-        if (typeof msgOptions.custom === 'undefined') {
-          msgData = insertMsg();
-        } else {
-          msgData = msgOptions.custom;
-        }
-
-      } catch {
-        console.error(`[matrix] [msg] Malformed custom html: `, body);
-        msgData = twemojifyReact(body, undefined);
-      }
-    } else if (!isSystem) {
-      msgData = twemojifyReact(body, undefined, true);
-    } else {
-      msgData = twemojifyReact(body, undefined, true, false, true);
-    }
-
-    // Determine if this message should render with large emojis
-    // Criteria:
-    // - Contains only emoji
-    // - Contains no more than 10 emoji
-    let emojiOnly = false;
-    const msgContent = msgData?.props?.children?.props?.children;
-    if (msgContent) {
-      if (msgContent.type === 'img') {
-        // If this messages contains only a single (inline) image
-        emojiOnly = true;
-      } else if (msgContent.constructor.name === 'Array') {
-        // Otherwise, it might be an array of images / texb
-
-        // Count the number of emojis
-        const nEmojis = msgContent.filter((e) => e.type === 'img').length;
-
-        // Make sure there's no text besides whitespace and variation selector U+FE0F
-        if (nEmojis <= 10 && msgContent.every((element) => (
-          (typeof element === 'object' && element.type === 'img')
-          || (typeof element === 'string' && /^[\s\ufe0f]*$/g.test(element))
-        ))) {
-          emojiOnly = true;
-        }
-      }
-    }
+    // Emoji Only
+    const emojiOnly = isEmojiOnly(msgData?.props?.children?.props?.children);
 
     if (!isCustomHTML) {
       // If this is a plaintext message, wrap it in a <p> element (automatically applying
@@ -706,6 +740,7 @@ function handleOpenViewSource(mEvent, roomTimeline) {
 
 const MessageOptions = React.memo(
   ({
+    refRoomInput,
     roomTimeline,
     mEvent,
     edit,
@@ -792,7 +827,7 @@ const MessageOptions = React.memo(
           />
         )}
         <ContextMenu
-          content={() => (
+          content={(hideMenu) => (
             <>
               <MenuHeader>Options</MenuHeader>
 
@@ -813,6 +848,18 @@ const MessageOptions = React.memo(
               >
                 Copy text
               </MenuItem>
+
+              {!mx.isRoomEncrypted(roomId) && canPinMessage(room, myUserId) ? <MenuItem
+                className="text-start"
+                faSrc={`bi bi-pin-angle${!isPinnedMessage(room, eventid) ? '-fill' : ''}`}
+                onClick={() => {
+                  setPinMessage(room, eventid, !isPinnedMessage(room, eventid));
+                  $(refRoomInput.current).find('#message-textarea').focus();
+                  hideMenu();
+                }}
+              >
+                {!isPinnedMessage(room, eventid) ? 'Pin message' : 'Unpin message'}
+              </MenuItem> : null}
 
               <MenuItem
                 className="text-start"
@@ -1325,6 +1372,7 @@ function Message({
 
         {!isGuest && !disableActions && roomTimeline && !isEdit && (
           <MessageOptions
+            refRoomInput={refRoomInput}
             customHTML={customHTML}
             body={body}
             roomid={roomId}
@@ -1456,6 +1504,7 @@ function Message({
 
       {!isGuest && !disableActions && roomTimeline && !isEdit && (
         <MessageOptions
+          refRoomInput={refRoomInput}
           roomid={roomId}
           senderid={senderId}
           eventid={eventId}

@@ -1,6 +1,6 @@
     --> Menu mobile de ícones precisa parar de ser table usar flex.
 
-    --> Criar leitor de mensagens fixadas
+    --> Concertar o que está fazendo code markdown não ler quando está colado com o texto acima.
 
     =======================================================
 
@@ -34,6 +34,8 @@ Made by Me
         Lista de usuários online na room ainda não atualiza em tempo real.
         Banner do space.
         Clock Mode das mensagens.
+        Esconder Pin messages event
+        Revelar Pin messages event
 
     =======================================================
 

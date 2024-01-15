@@ -160,7 +160,8 @@ function renderEvent(
     diffMinutes(mEvent.getDate(), prevMEvent.getDate()) <= MAX_MSG_DIFF_MINUTES;
   const timestamp = mEvent.getTs();
 
-  if (mEvent.getType() === 'm.room.member') {
+  const eventType = mEvent.getType();
+  if (eventType === 'm.room.member' || eventType === 'm.room.pinned_events') {
     const timelineChange = parseTimelineChange(mEvent);
     if (timelineChange === null) return <div key={mEvent.getId()} />;
     return (
@@ -747,6 +748,7 @@ function RoomViewContent({
     }
 
     for (let i = limit.from; i < limit.length; i += 1) {
+
       if (i >= timeline.length) break;
       const mEvent = timeline[i];
       const prevMEvent = timeline[i - 1] ?? null;
@@ -816,6 +818,7 @@ function RoomViewContent({
         ),
       );
       itemCountIndex += 1;
+
     }
 
     if (roomTimeline.canPaginateForward() || limit.length < timeline.length) {

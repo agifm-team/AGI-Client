@@ -10,11 +10,30 @@ import { ChatRoomFrame } from '../../../../src/app/embed/ChatRoom';
 import './custom.scss';
 
 /*
-    <ChatRoomFrame roomId=`#imagegen:${serverDomain}` hsUrl={isGuest && `https://matrix.${serverDomain}`} className='m-3 border border-bg' style={{ height: 300, width: 500 }} refreshTime={1} />
+    <ChatRoomFrame roomId=`#imagegen:${serverDomain}` hsUrl={isGuest && `https://matrix.${serverDomain}`} className='m-3 border border-bg' refreshTime={1} />
     This is the component that embeds the chat room.
 */
 
 let connectionTestTimeout = false;
+
+// Rainbow Border Apply
+const rainbowBorder = (chatroom, dreg = 124) => {
+  chatroom.each((index, value) => {
+    $(value).attr('style', `border-image: linear-gradient(
+      ${String(dreg)}deg,
+      #ff2400,
+      #e81d1d,
+      #e8b71d,
+      #e3e81d,
+      #1de840,
+      #1ddde8,
+      #2b1de8,
+      #dd00f3,
+      #dd00f3
+    )
+    1 !important`);
+  });
+};
 
 function Welcome({ isGuest }) {
 
@@ -115,6 +134,20 @@ function Welcome({ isGuest }) {
         });
 
     }
+
+    const chatroom = $('.tiny-welcome #chatrooms .chatroom');
+    let rainbowPosition = 124;
+    const intervalChatRoom = setInterval(() => {
+      rainbowBorder(chatroom, rainbowPosition);
+      rainbowPosition += 1;
+      if (rainbowPosition > 360) rainbowPosition = 0;
+    }, 12);
+
+    rainbowBorder(chatroom, rainbowPosition);
+    return () => {
+      clearInterval(intervalChatRoom);
+    };
+
   });
 
   const users = [];
@@ -173,13 +206,12 @@ function Welcome({ isGuest }) {
 
       </div>
 
-      <div className="row mt-2">
+      <div className="row mt-2" id="chatrooms">
         <div className="col-md-6">
           <ChatRoomFrame
             hsUrl={isGuest && `https://matrix.${serverDomain}`}
             roomId={`#imagegen:${serverDomain}`}
-            className="border border-bg w-100 chatroom"
-            style={{ height: 300 }}
+            className='border border-bg w-100 chatroom'
             refreshTime={1}
           />
         </div>
@@ -188,8 +220,7 @@ function Welcome({ isGuest }) {
           <ChatRoomFrame
             hsUrl={isGuest && `https://matrix.${serverDomain}`}
             roomId={`#previews:${serverDomain}`}
-            className="border border-bg w-100 chatroom"
-            style={{ height: 300 }}
+            className='border border-bg w-100 chatroom'
             refreshTime={1}
           />
         </div>

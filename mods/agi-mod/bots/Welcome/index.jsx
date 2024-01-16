@@ -178,7 +178,7 @@ function Welcome({ isGuest }) {
           <ChatRoomFrame
             hsUrl={isGuest && `https://matrix.${serverDomain}`}
             roomId={`#imagegen:${serverDomain}`}
-            className="border border-bg w-100"
+            className="border border-bg w-100 chatroom"
             style={{ height: 300 }}
             refreshTime={1}
           />
@@ -188,7 +188,7 @@ function Welcome({ isGuest }) {
           <ChatRoomFrame
             hsUrl={isGuest && `https://matrix.${serverDomain}`}
             roomId={`#previews:${serverDomain}`}
-            className="border border-bg w-100"
+            className="border border-bg w-100 chatroom"
             style={{ height: 300 }}
             refreshTime={1}
           />

@@ -139,7 +139,7 @@ function Welcome({ isGuest }) {
     let rainbowPosition = 124;
     const intervalChatRoom = setInterval(() => {
       rainbowBorder(chatroom, rainbowPosition);
-      rainbowPosition += 1;
+      rainbowPosition += rainbowPosition > 20 && rainbowPosition < 320 ? 1 : 0.2;
       if (rainbowPosition > 360) rainbowPosition = 0;
     }, 12);
 

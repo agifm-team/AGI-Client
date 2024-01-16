@@ -156,7 +156,7 @@ function Welcome({ isGuest }) {
   return <div className="tiny-welcome border-0 h-100 noselect">
     <center className="py-4 px-4 w-100">
 
-      <div id="menu" className="text-start">
+      <div id="menu" className={`text-start${isGuest ? ' is-guest' : ''}`}>
 
         {!isGuest ? <button
           type="button"
@@ -178,7 +178,7 @@ function Welcome({ isGuest }) {
           <ChatRoomFrame
             hsUrl={isGuest && `https://matrix.${serverDomain}`}
             roomId={`#imagegen:${serverDomain}`}
-            className="border border-bg w-100"
+            className="border border-bg w-100 chatroom"
             style={{ height: 300 }}
             refreshTime={1}
           />
@@ -188,7 +188,7 @@ function Welcome({ isGuest }) {
           <ChatRoomFrame
             hsUrl={isGuest && `https://matrix.${serverDomain}`}
             roomId={`#previews:${serverDomain}`}
-            className="border border-bg w-100"
+            className="border border-bg w-100 chatroom"
             style={{ height: 300 }}
             refreshTime={1}
           />

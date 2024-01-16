@@ -22,14 +22,9 @@ function AuthCard() {
                 <div className='container-fluid'>
 
                     <a className='navbar-brand text-bg-force'>{__ENV_APP__.INFO.name}</a>
-                    <button className='navbar-toggler' type='button' data-bs-toggle='collapse' data-bs-target='#loginNavBarAltMarkup' aria-controls='loginNavBarAltMarkup' aria-expanded='false' aria-label='Toggle navigation'>
-                        <span className='navbar-toggler-icon' />
-                    </button>
 
-                    <div className='collapse navbar-collapse' id='loginNavBarAltMarkup'>
-                        <div className='navbar-nav small'>
-                            <Login loginFlow={hsConfig.login.flows} baseUrl={hsConfig.baseUrl} />
-                        </div>
+                    <div className='navbar-nav small'>
+                        <Login loginFlow={hsConfig.login.flows} baseUrl={hsConfig.baseUrl} />
                     </div>
 
                 </div>

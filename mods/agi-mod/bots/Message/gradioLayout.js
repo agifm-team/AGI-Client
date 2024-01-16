@@ -119,7 +119,7 @@ const htmlAllowed = {
         a: ['href', 'name', 'target'],
         // We don't currently allow img itself by default, but
         // these attributes would make sense if we did.
-        img: ['src', 'srcset', 'alt', 'title', 'width', 'height', 'loading', 'class']
+        img: ['src', 'srcset', 'alt', 'title', 'width', 'height', 'loading', 'style']
     },
 
 };

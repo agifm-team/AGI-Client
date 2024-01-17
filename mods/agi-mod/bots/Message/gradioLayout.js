@@ -814,9 +814,8 @@ const components = {
             const tinyColsLimit = folderCount < 1 ? colsLimit : Math.round(colsLimit / Number(folderCount + 5));
 
             const inputs = [];
-            const table = $('<div>', { class: 'dataset-table dataset-hover dataset-bordered' });
+            let table;
             let cols = 0;
-            let colsHeadUse = false;
 
             let isSingle = true;
             const getRowClass = (item) => {
@@ -837,82 +836,87 @@ const components = {
                 }
             }
 
+            let headerMode = false;
+
             if (!isSingle && Array.isArray(props.headers) && props.headers.length > 0) {
 
-                const thead = $('<div>', { class: 'row' });
+                headerMode = true;
+                table = $('<table>');
+                table.addClass('table table-hover table-bordered border border-bg');
+
+                const thead = $('<thead>');
+                const tr = $('<tr>');
                 const tds = [];
 
                 for (const item in props.headers) {
                     if (typeof props.headers[item] === 'string') {
-                        if (cols < tinyColsLimit) cols++;
-                        colsHeadUse = true;
-                        const td = $('<div>', { class: `text-bg-force border border-bg` }).text(props.headers[item]);
+                        const td = $('<th>', { class: 'text-bg-force' }).text(props.headers[item]);
                         tds.push(td);
-                        thead.append(td);
+                        tr.append(td);
                     }
                 }
 
-                for (const item in tds) {
-                    tds[item].addClass(getRowClass(item));
-                }
-
                 inputs.push(tds);
+
+                thead.append(tr);
                 table.append(thead);
 
             } else {
-                table.removeClass('dataset-hover').addClass('dataset-td-hover');
+                table = $('<div>');
+                table.addClass('dataset-table dataset-td-hover dataset-bordered');
             }
 
             if (Array.isArray(props.samples) && props.samples.length > 0) {
 
-                const tbody = $('<div>', { class: 'row' });
+                if (headerMode) {
 
-                if (!isSingle) {
+                    const tbody = $('<tbody>');
                     for (const item in props.samples) {
 
+                        const tr = $('<tr>');
                         const tds = [];
 
-                        if (Array.isArray(props.samples[item]) && props.samples[item].length > 0) {
+                        if (Array.isArray(props.samples[item])) {
                             for (const item2 in props.samples[item]) {
                                 if (typeof props.samples[item][item2] === 'string') {
 
-                                    if (!colsHeadUse && cols < tinyColsLimit) {
-                                        cols++;
-                                    }
-
                                     let td;
                                     if (typeof datasetComponents[props.components[item2]] !== 'function') {
-                                        td = $('<div>', { class: `text-bg-force border border-bg` }).text(props.samples[item][item2]);
+                                        td = $('<td>', { class: 'text-bg-force' }).text(props.samples[item][item2]);
                                     } else {
-                                        td = $('<div>', { class: `text-bg-force border border-bg` });
+                                        td = $('<td>', { class: 'text-bg-force' });
                                         td.append(datasetComponents[props.components[item2]](props.samples[item][item2], url, td, props, compId, appId));
                                     }
 
                                     tds.push(td);
-                                    tbody.append(td);
+                                    tr.append(td);
 
                                 }
                             }
                         }
 
-                        for (const item2 in tds) {
-                            tds[item2].addClass(getRowClass(item2));
-                        }
-
                         inputs.push(tds);
+                        tbody.append(tr);
 
                     }
-                } else {
+
+                    table.append(tbody);
+
+                }
+
+                else {
+
+                    const tbody = $('<div>', { class: 'row' });
 
                     // cols = 4;
                     // CORREÇÃO AQUI!
                     const tds = [];
                     for (const item in props.samples) {
-                        if (Array.isArray(props.samples[item]) && props.samples[item].length > 0) {
+                        if (Array.isArray(props.samples[item])) {
                             for (const item2 in props.samples[item]) {
                                 if (typeof props.samples[item][item2] === 'string') {
 
-                                    if (!colsHeadUse && cols < tinyColsLimit) {
+                                    if (cols < tinyColsLimit) {
                                         cols++;
                                     }
 
@@ -937,10 +941,9 @@ const components = {
                     }
 
                     inputs.push(tds);
+                    table.append(tbody);
 
                 }
-
-                table.append(tbody);
 
             }
 

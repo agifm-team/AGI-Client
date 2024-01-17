@@ -224,7 +224,8 @@
 
     /* Dataset */
     .dataset {
-      .row > div {
+      .row > div,
+      td {
         cursor: pointer;
         &:hover {
           background-color: rgba(30, 142, 161, 0.1);
@@ -233,6 +234,10 @@
           max-height: 100px;
           max-width: 165px;
         }
+      }
+
+      tr:hover > td {
+        background-color: rgba(30, 142, 161, 0.1);
       }
     }
 

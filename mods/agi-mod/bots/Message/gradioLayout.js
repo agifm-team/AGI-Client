@@ -112,14 +112,14 @@ const htmlAllowed = {
         'ul', 'a', 'abbr', 'b', 'bdi', 'bdo', 'br', 'cite', 'code', 'data', 'dfn',
         'em', 'i', 'kbd', 'mark', 'q', 'rb', 'rp', 'rt', 'rtc', 'ruby', 's', 'samp',
         'small', 'span', 'strong', 'sub', 'sup', 'time', 'u', 'var', 'wbr', 'caption',
-        'col', 'colgroup', 'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'tr', 'img'
+        'col', 'colgroup', 'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'tr', 'img', 'center'
     ],
 
     allowedAttributes: {
         a: ['href', 'name', 'target'],
         // We don't currently allow img itself by default, but
         // these attributes would make sense if we did.
-        img: ['src', 'srcset', 'alt', 'title', 'width', 'height', 'loading', 'class']
+        img: ['src', 'srcset', 'alt', 'title', 'width', 'height', 'loading', 'style']
     },
 
 };

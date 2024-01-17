@@ -801,6 +801,7 @@ const components = {
 
     dataset: (props, compId, appId, url, oHtml, folderCount) => {
 
+        console.log('dataset', props);
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
         if (!oHtml) {
 

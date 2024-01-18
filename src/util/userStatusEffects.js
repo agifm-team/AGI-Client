@@ -1,4 +1,6 @@
 import { App } from '@capacitor/app';
+import clone from 'clone';
+
 import initMatrix from '../client/initMatrix';
 import { emitUpdateProfile } from '../client/action/navigation';
 import tinyAPI from './mods';
@@ -7,6 +9,7 @@ import moment from './libs/momentjs';
 import { matrixDevices } from '../app/hooks/useDeviceList';
 
 // Cache Data
+let mainDeviceAfkCheck = null;
 const userInteractions = {
 
     enabled: false,
@@ -78,7 +81,7 @@ const intervalTimestamp = () => {
         const counter = getUserAfk();
         tinyAPI.emit('afkTimeCounter', counter);
         const content = initMatrix.matrixClient.getAccountData('pony.house.profile')?.getContent() ?? {};
-        const originalAfk = content.active_devices;
+        const originalAfk = clone(content.active_devices);
         if (countObj(content) > 0) {
 
             // API progress...
@@ -117,7 +120,8 @@ const intervalTimestamp = () => {
                 content.active_devices.push(deviceId);
             }
 
-            if (!Array.isArray(originalAfk) || originalAfk.length !== content.active_devices.length) {
+            if (!Array.isArray(originalAfk) || originalAfk.length !== content.active_devices.length || typeof mainDeviceAfkCheck !== 'string' || (typeof content.active_devices[0] === 'string' && mainDeviceAfkCheck !== content.active_devices[0])) {
+                mainDeviceAfkCheck = typeof content.active_devices[0] === 'string' ? content.active_devices[0] : null;
                 tinyAPI.emit('afkTimeCounterUpdated', counter);
                 initMatrix.matrixClient.setAccountData('pony.house.profile', content);
                 emitUpdateProfile(content);

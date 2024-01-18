@@ -4,6 +4,7 @@ import { emitUpdateProfile } from '../client/action/navigation';
 import tinyAPI from './mods';
 import { countObj } from './tools';
 import moment from './libs/momentjs';
+import { matrixDevices } from '../app/hooks/useDeviceList';
 
 // Cache Data
 const userInteractions = {
@@ -21,6 +22,8 @@ const userInteractions = {
         value: null,
         interval: null
     },
+
+    devices: matrixDevices.getDevices(),
 
 };
 
@@ -61,6 +64,11 @@ export function enableAfkSystem(value = true) {
     if (typeof value === 'boolean') userInteractions.enabled = value;
 };
 
+// Devices
+const devicesUpdater = (devices) => {
+    userInteractions.devices = devices;
+};
+
 // Interval
 const intervalTimestamp = () => {
     if (userInteractions.enabled) {
@@ -69,10 +77,14 @@ const intervalTimestamp = () => {
         const counter = getUserAfk();
         tinyAPI.emit('afkTimeCounter', counter);
         const content = initMatrix.matrixClient.getAccountData('pony.house.profile')?.getContent() ?? {};
-        const originalAfk = content.afk;
+        const originalAfk = content.active_devices;
         if (countObj(content) > 0) {
 
             tinyAPI.emit('afkTimeCounterProgress', counter);
+
+            if (!Array.isArray(!content.active_devices)) content.active_devices = [];
+            const deviceId = initMatrix.matrixClient.getDeviceId();
+            const deviceIdIndex = content.active_devices.indexOf(deviceId);
 
             // 10 Minutes later...
             if (
@@ -80,15 +92,15 @@ const intervalTimestamp = () => {
                 (content.status === '🟢' || content.status === 'online') &&
                 (counter > 600 || content.status === '🟠' || content.status === 'idle' || !userInteractions.mobile.isActive)
             ) {
-                content.afk = true;
+                if (deviceIdIndex > -1) content.active_devices.splice(deviceIdIndex, 1);
             }
 
             // Nope
-            else {
-                content.afk = false;
+            else if (deviceIdIndex < 0 && content.active_devices.length < 1) {
+                content.active_devices.push(deviceId);
             }
 
-            if (typeof originalAfk !== 'boolean' || originalAfk !== content.afk) {
+            if (!Array.isArray(originalAfk) || originalAfk.length !== content.active_devices.length) {
                 tinyAPI.emit('afkTimeCounterUpdated', counter);
                 initMatrix.matrixClient.setAccountData('pony.house.profile', content);
                 emitUpdateProfile(content);
@@ -105,6 +117,7 @@ export function startUserAfk() {
     if (userInteractions.afkTime.interval) {
         clearInterval(userInteractions.afkTime.interval);
         userInteractions.afkTime.interval = null;
+        matrixDevices.off('devicesUpdated', devicesUpdater);
     }
 
     if (!__ENV_APP__.ELECTRON_MODE) {
@@ -112,7 +125,9 @@ export function startUserAfk() {
         userInteractions.afkTime.value = moment().valueOf();
     }
 
+    userInteractions.devices = matrixDevices.getDevices();
     userInteractions.afkTime.interval = setInterval(intervalTimestamp, 1000);
+    matrixDevices.on('devicesUpdated', devicesUpdater);
 
 };
 
@@ -123,6 +138,7 @@ export function stopUserAfk() {
     if (userInteractions.afkTime.interval) {
         clearInterval(userInteractions.afkTime.interval);
         userInteractions.afkTime.interval = null;
+        matrixDevices.off('devicesUpdated', devicesUpdater);
     }
 
     if (!__ENV_APP__.ELECTRON_MODE) userInteractions.afkTime.value = null;

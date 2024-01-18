@@ -166,7 +166,7 @@ function GradioEmbed({ agiData }) {
     const [isVisible, setIsVisible] = useState(0);
 
     useEffect(() => {
-        if (!appError) {
+        if (!appError && embedRef.current) {
             try {
 
                 // Error

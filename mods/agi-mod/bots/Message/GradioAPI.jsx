@@ -880,7 +880,8 @@ function GradioEmbed({ agiData }) {
     });
 
     // Temp result. (I'm using this only to have a preview. This will be removed later.)
-    return <gradio-app src={agiData.url} theme_mode={body.hasClass('theme-type-dark') || body.hasClass('theme-type-dark-solid') || body.hasClass('theme-type-dark2') || body.hasClass('theme-type-dark2-solid') ? 'dark' : 'light'} autoscroll />;
+    return <iframe src={agiData.url} style={{ height: '500px', width: '100%' }} title='Gradio' />;
+    // return <gradio-app src={agiData.url} theme_mode={body.hasClass('theme-type-dark') || body.hasClass('theme-type-dark-solid') || body.hasClass('theme-type-dark2') || body.hasClass('theme-type-dark2-solid') ? 'dark' : 'light'} autoscroll />;
 
     // return <div ref={embedRef} className='mt-2 agi-client-embed chatbox-size-fix border border-bg p-4' />;
 

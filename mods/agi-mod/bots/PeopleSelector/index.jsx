@@ -3,6 +3,7 @@ import { serverAddress } from '../../socket';
 import PeopleSelector from './Item';
 import tinyAPI from '../../../../src/util/mods';
 import initMatrix from '../../../../src/client/initMatrix';
+import { objType } from '../../../../src/util/tools';
 
 let tinyData = null;
 function updateAgentsList() {
@@ -30,37 +31,31 @@ export default function startPeopleSelector() {
 
         updateAgentsList();
 
+        const customItems = [];
         if (Array.isArray(tinyData)) {
+
             for (const item in tinyData) {
-                if (typeof tinyData[item] === 'string') {
-                    items.unshift({
-                        name: 'Agents', value: 'agents', custom: [
-                            {
+                if (objType(tinyData[item], 'object')) {
+                    customItems.push({
 
-                                avatarSrc: defaultAvatar(1),
-                                name: tinyData[item],
+                        avatarSrc: defaultAvatar(1),
+                        name: tinyData[item].agent_name,
 
-                                peopleRole: "Bot",
-                                powerLevel: undefined,
-                                userId: tinyData[item],
-                                username: tinyData[item],
+                        peopleRole: "Bot",
+                        powerLevel: undefined,
+                        userId: tinyData[item].bot_username,
+                        username: tinyData[item].bot_username,
 
-                                customClick: () => { console.log('event test'); },
-                                customSelector: PeopleSelector,
+                        customClick: () => { console.log('event test'); },
+                        customSelector: PeopleSelector,
 
-                            }
-                        ]
                     });
                 }
             }
+
         }
 
-        items.push({
-            name: 'Agents', value: 'agents-joined', custom: [
-
-            ]
-        });
-
+        items.unshift({ name: 'Agents', value: 'agents', custom: customItems });
         const banItem = items.findIndex(item => item.value === 'ban');
         if (banItem > -1) items.splice(banItem, 1);
 

@@ -39,14 +39,15 @@ export default function startPeopleSelector() {
                     customItems.push({
 
                         avatarSrc: defaultAvatar(1),
-                        name: tinyData[item].agent_name,
+                        // name: tinyData[item].agent_name,
+                        name: tinyData[item].bot_username,
 
                         peopleRole: "Bot",
                         powerLevel: undefined,
                         userId: tinyData[item].bot_username,
                         username: tinyData[item].bot_username,
 
-                        customClick: () => { console.log('event test'); },
+                        customClick: (event) => { event.preventDefault(); },
                         customSelector: PeopleSelector,
 
                     });

@@ -12,12 +12,12 @@ import defaultAvatar from '../../../src/app/atoms/avatar/defaultAvatar';
 import * as roomActions from '../../../src/client/action/room';
 import { serverAddress, serverDomain } from '../socket';
 import { setLoadingPage } from '../../../src/app/templates/client/Loading';
-import { selectRoom, selectRoomMode, selectTab } from '../../../src/client/action/navigation';
+// import { selectRoom, selectRoomMode, selectTab } from '../../../src/client/action/navigation';
 import { getRoomInfo } from '../../../src/app/organisms/room/Room';
 
-import { join } from '../../../src/client/action/room';
+// import { join } from '../../../src/client/action/room';
 
-const openRoom = (roomId) => {
+/* const openRoom = (roomId) => {
 
     const mx = initMatrix.matrixClient;
     const room = mx.getRoom(roomId);
@@ -30,7 +30,7 @@ const openRoom = (roomId) => {
         selectRoom(roomId);
     }
 
-};
+}; */
 
 const createButton = (id, title, icon) => jReact(
     <button

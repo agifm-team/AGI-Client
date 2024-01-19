@@ -95,9 +95,11 @@ export function addRoomOptions(dt, roomType) {
                     const userId = $(event.target).data('pony-house-username');
                     const roomId = getRoomInfo().roomTimeline.room.roomId;
 
-                    roomActions.invite(roomId, userId).catch(err => {
+                    setLoadingPage();
+                    roomActions.invite(roomId, userId).then(() => setLoadingPage(false)).catch(err => {
                         console.error(err);
                         alert(err.message);
+                        setLoadingPage(false);
                     });
 
                     /* setLoadingPage('Looking for address...');

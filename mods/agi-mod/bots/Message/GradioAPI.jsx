@@ -165,6 +165,9 @@ function GradioEmbed({ agiData }) {
 
     const [isVisible, setIsVisible] = useState(0);
 
+    // Temp
+    const body = $('body');
+
     useEffect(() => {
         if (!appError && embedRef.current) {
             try {
@@ -877,8 +880,9 @@ function GradioEmbed({ agiData }) {
     });
 
     // Temp result. (I'm using this only to have a preview. This will be removed later.)
-    // <iframe title='gradio' src={agiData.url} />
-    return <div ref={embedRef} className='mt-2 agi-client-embed chatbox-size-fix border border-bg p-4' />;
+    return <gradio-app src={agiData.url} theme_mode={body.hasClass('theme-type-dark') || body.hasClass('theme-type-dark-solid') || body.hasClass('theme-type-dark2') || body.hasClass('theme-type-dark2-solid') ? 'dark' : 'light'} autoscroll />;
+
+    // return <div ref={embedRef} className='mt-2 agi-client-embed chatbox-size-fix border border-bg p-4' />;
 
 };
 

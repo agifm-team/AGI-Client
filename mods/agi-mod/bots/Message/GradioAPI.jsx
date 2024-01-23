@@ -219,7 +219,7 @@ function GradioEmbed({ agiData }) {
                         const selectedRoom = getRoomInfo().roomTimeline;
                         selectedRoom.ydocWait().then(() => {
 
-                            const ymap = () => selectedRoom.ydoc().getMap(id);
+                            const ymap = () => selectedRoom.getYmap(id);
 
                             // Insert Embed
                             if (embed.find('gradio-embed').length < 1) {

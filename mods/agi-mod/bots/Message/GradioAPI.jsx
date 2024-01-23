@@ -217,6 +217,7 @@ function GradioEmbed({ agiData }) {
                     // Load Ydoc
                     else {
                         const selectedRoom = getRoomInfo().roomTimeline;
+                        selectedRoom.initYdoc();
                         selectedRoom.ydocWait().then(() => {
 
                             const ymap = () => selectedRoom.getYmap(id);

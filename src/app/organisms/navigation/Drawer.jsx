@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Modal from 'react-bootstrap/Modal';
+import objectHash from 'object-hash';
 
 import tinyAPI from '../../../util/mods';
 import initMatrix from '../../../client/initMatrix';
@@ -21,38 +22,72 @@ import { useSelectedSpace } from '../../hooks/useSelectedSpace';
 import { getSelectRoom, getSelectSpace } from '../../../util/selectedRoom';
 import { getCurrentState } from '../../../util/matrixUtil';
 import { selectRoomMode } from '../../../client/action/navigation';
+import { setLoadingPage } from '../../templates/client/Loading';
+import { objType } from '../../../util/tools';
 
+// System State
 function useSystemState() {
+
+  // Data
   const [systemState, setSystemState] = useState({ status: null, value: null });
+  const [oldSystemState, setOldSystemState] = useState({ status: null, value: null });
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
 
+    // State Check
     const handleSystemState = (state) => {
+      if (!isRefreshing) {
 
-      if (state === 'ERROR' || state === 'RECONNECTING' || state === 'STOPPED') {
-        const tinyStatus = { status: 'Connection lost!', value: state };
-        tinyAPI.emit('systemState', tinyStatus);
-        setSystemState(tinyStatus);
+        if (state === 'ERROR' || state === 'RECONNECTING' || state === 'STOPPED') {
+          const tinyStatus = { status: 'Connection lost!', value: state };
+          tinyAPI.emit('systemState', tinyStatus);
+          setSystemState(tinyStatus);
+        }
+
+        if (systemState !== null && systemState.status !== null) {
+          const tinyStatus = { status: null, value: state }
+          tinyAPI.emit('systemState', tinyStatus);
+          setSystemState(tinyStatus);
+        }
+
       }
-
-      if (systemState !== null && systemState.status !== null) {
-        const tinyStatus = { status: null, value: state }
-        tinyAPI.emit('systemState', tinyStatus);
-        setSystemState(tinyStatus);
-      }
-
     };
 
+    // Detect recover from reconnect
+    if (oldSystemState.value === 'ERROR' || oldSystemState.value === 'RECONNECTING' || oldSystemState.value === 'STOPPED') {
+
+      if (__ENV_APP__.ELECTRON_MODE && objType(global.useLoadingElectron, 'object') && typeof global.useLoadingElectron.appendLoading === 'function') {
+        global.useLoadingElectron.appendLoading();
+      } else {
+        $('body').empty();
+        setLoadingPage('Refreshing...');
+      }
+
+      setIsRefreshing(true);
+
+      window.location.reload();
+
+    }
+
+    // Insert new old
+    if (objectHash(systemState) !== objectHash(oldSystemState)) setOldSystemState(systemState);
+
+    // Sync
     initMatrix.matrixClient.on('sync', handleSystemState);
     return () => {
       initMatrix.matrixClient.removeListener('sync', handleSystemState);
     };
 
+
   }, [systemState]);
 
+  // Complete
   return [systemState];
+
 }
 
+// Drawer
 function Drawer() {
 
   const [systemState] = useSystemState();
@@ -142,6 +177,7 @@ function Drawer() {
     </Modal> : null}
 
   </>;
+
 }
 
 export default Drawer;

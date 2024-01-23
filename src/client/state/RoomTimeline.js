@@ -263,6 +263,7 @@ class RoomTimeline extends EventEmitter {
       cache_timeout: null,
 
       update_time: { timeout: null, cache: [] },
+      init_cache: [],
 
     };
 
@@ -519,40 +520,10 @@ class RoomTimeline extends EventEmitter {
 
   }
 
-  // Add to timeline
-  addToTimeline(mEvent) {
+  // Add CRDT to timeline
+  addCrdtToTimeline(evType, mEvent) {
 
-    const evType = mEvent.getType();
-    if (evType !== 'pony.house.crdt' && !messageIsClassicCrdt(mEvent)) {
-
-      // Filter Room Member Event and Matrix CRDT Events
-      if ((evType === 'm.room.member' && hideMemberEvents(mEvent))) {
-        return;
-      }
-
-      // Redacted
-      if (mEvent.isRedacted()) return;
-
-      // Is Reaction
-      if (isReaction(mEvent)) {
-        addToMap(this.reactionTimeline, mEvent);
-        return;
-      }
-
-      // Support event types filter
-      if (!cons.supportEventTypes.includes(evType)) return;
-      if (isEdited(mEvent)) {
-        addToMap(this.editedTimeline, mEvent);
-        return;
-      }
-
-      // Timeline insert
-      this.timeline.push(mEvent);
-
-    }
-
-    // CRDT
-    else if (evType === 'pony.house.crdt') {
+    if (evType === 'pony.house.crdt') {
 
       const content = mEvent.getContent();
       if (objType(content, 'object')) {
@@ -602,6 +573,47 @@ class RoomTimeline extends EventEmitter {
     } else {
       if (!Array.isArray(this.crdt.CLASSIC)) this.crdt.CLASSIC = [];
       this.crdt.CLASSIC.push(mEvent);
+    }
+
+  }
+
+  // Add to timeline
+  addToTimeline(mEvent) {
+
+    const evType = mEvent.getType();
+    if (evType !== 'pony.house.crdt' && !messageIsClassicCrdt(mEvent)) {
+
+      // Filter Room Member Event and Matrix CRDT Events
+      if ((evType === 'm.room.member' && hideMemberEvents(mEvent))) {
+        return;
+      }
+
+      // Redacted
+      if (mEvent.isRedacted()) return;
+
+      // Is Reaction
+      if (isReaction(mEvent)) {
+        addToMap(this.reactionTimeline, mEvent);
+        return;
+      }
+
+      // Support event types filter
+      if (!cons.supportEventTypes.includes(evType)) return;
+      if (isEdited(mEvent)) {
+        addToMap(this.editedTimeline, mEvent);
+        return;
+      }
+
+      // Timeline insert
+      this.timeline.push(mEvent);
+
+    }
+
+    // CRDT
+    else if (this._ydoc.initialized) {
+      this.addCrdtToTimeline(evType, mEvent);
+    } else {
+      this._ydoc.init_cache.push({ evType, mEvent });
     }
 
   }
@@ -1226,8 +1238,26 @@ class RoomTimeline extends EventEmitter {
 
   initYdoc() {
     if (!this._ydoc.initialized) {
+
       this._ydoc.initialized = true;
       this._ydocEnable(new Y.Doc());
+
+      const initLength = this._ydoc.init_cache.length;
+      if (initLength > 0) {
+
+        for (let i = 0; i < initLength; i++) {
+
+          let initData;
+          try {
+            initData = this._ydoc.init_cache.shift();
+          } catch { initData = null; }
+
+          if (initData) this.addCrdtToTimeline(initData.evType, initData.mEvent);
+
+        }
+
+      }
+
     }
   }
 

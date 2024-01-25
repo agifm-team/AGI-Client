@@ -13,6 +13,7 @@ import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 import openTinyURL from '../../../../src/util/message/urlProtection';
 import { getRoomInfo } from '../../../../src/app/organisms/room/Room';
 import moment from '../../../../src/util/libs/momentjs';
+import initMatrix from '../../../../src/client/initMatrix';
 
 const updateInputValue = (input, dropdown, value, filePath = '') => {
 
@@ -155,7 +156,7 @@ const getInputValues = (comps) => {
 
 };
 
-function GradioEmbed({ agiData }) {
+function GradioEmbed({ agiData, msgInfo }) {
 
     // Prepare Data
     const embedRef = useRef(null);
@@ -881,7 +882,7 @@ function GradioEmbed({ agiData }) {
     });
 
     // Temp result. (I'm using this only to have a preview. This will be removed later.)
-    return <iframe src={agiData.url} style={{ height: '500px', width: '100%' }} title='Gradio' />;
+    return <iframe src={`${agiData.url}${!agiData.url.endsWith('/') ? '/' : ''}?room_id=${encodeURIComponent(msgInfo.roomId)}&msg_id=${encodeURIComponent(msgInfo.eventId)}&owner_id=${encodeURIComponent(initMatrix.matrixClient.getUserId())}`} style={{ height: '500px', width: '100%' }} title='Gradio' />;
     // return <gradio-app src={agiData.url} theme_mode={body.hasClass('theme-type-dark') || body.hasClass('theme-type-dark-solid') || body.hasClass('theme-type-dark2') || body.hasClass('theme-type-dark2-solid') ? 'dark' : 'light'} autoscroll />;
 
     // return <div ref={embedRef} className='mt-2 agi-client-embed chatbox-size-fix border border-bg p-4' />;

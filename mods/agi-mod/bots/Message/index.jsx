@@ -3,7 +3,7 @@ import GradioEmbed from './GradioAPI';
 import tinyAPI from '../../../../src/util/mods';
 
 export default function startMessage() {
-    tinyAPI.on('messageBody', (data, content) => {
+    tinyAPI.on('messageBody', (data, content, msgInfo) => {
         if (content['agi.client.iframe.item']) {
 
             // Get Data
@@ -14,7 +14,7 @@ export default function startMessage() {
 
                 // Gradio
                 if (agiData.source === 'gradio') {
-                    data.custom = <GradioEmbed agiData={agiData} />;
+                    data.custom = <GradioEmbed msgInfo={msgInfo} agiData={agiData} />;
                 }
 
             }

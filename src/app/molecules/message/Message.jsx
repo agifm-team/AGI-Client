@@ -258,7 +258,7 @@ const isEmojiOnly = (msgContent) => {
 
 };
 
-const createMessageData = (content, body, isCustomHTML = false, isSystem = false, isJquery = false) => {
+const createMessageData = (content, body, isCustomHTML = false, isSystem = false, isJquery = false, roomId = null, senderId = null, eventId = null) => {
 
   let msgData = null;
   if (isCustomHTML) {
@@ -278,7 +278,7 @@ const createMessageData = (content, body, isCustomHTML = false, isSystem = false
         true,
       );
 
-      const msgOptions = tinyAPI.emit('messageBody', content, insertMsg);
+      const msgOptions = tinyAPI.emit('messageBody', content, { roomId, senderId, eventId }, insertMsg);
 
       if (typeof msgOptions.custom === 'undefined') {
         msgData = insertMsg();
@@ -346,6 +346,9 @@ export { createMessageData, isEmojiOnly, messageDataEffects };
 // Message Body
 const MessageBody = React.memo(
   ({
+    roomId,
+    senderId,
+    eventId,
     content,
     className,
     senderName,
@@ -367,7 +370,7 @@ const MessageBody = React.memo(
     if (typeof body !== 'string') return <div className="message__body">{body}</div>;
 
     // Message Data
-    let msgData = createMessageData(content, body, isCustomHTML, isSystem);
+    let msgData = createMessageData(content, body, isCustomHTML, isSystem, roomId, senderId, eventId);
 
     // Emoji Only
     const emojiOnly = isEmojiOnly(msgData?.props?.children?.props?.children);
@@ -405,6 +408,9 @@ MessageBody.defaultProps = {
 MessageBody.propTypes = {
   content: PropTypes.object,
   senderName: PropTypes.string.isRequired,
+  roomId: PropTypes.string.isRequired,
+  senderId: PropTypes.string.isRequired,
+  eventId: PropTypes.string.isRequired,
   body: PropTypes.node.isRequired,
   isSystem: PropTypes.bool,
   isCustomHTML: PropTypes.bool,
@@ -1452,6 +1458,9 @@ function Message({
         {!isEdit && (<>
 
           <MessageBody
+            roomId={roomId}
+            senderId={senderId}
+            eventId={eventId}
             className={classNameMessage}
             senderName={username}
             isCustomHTML={isCustomHTML}
@@ -1581,6 +1590,9 @@ function Message({
 
       {!isEdit && (
         <MessageBody
+          roomId={roomId}
+          senderId={senderId}
+          eventId={eventId}
           senderName={username}
           isSystem={isCustomHTML}
           body={errorMessage}

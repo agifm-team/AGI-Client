@@ -889,7 +889,7 @@ function GradioEmbed({ agiData, msgInfo }) {
             const iframeMessage = (message) => {
                 if (message.source !== iframeRef.current.contentWindow) {
 
-                    console.log(message.data);
+                    console.log(`[${agiData.url}]`, message.data);
 
                 }
 

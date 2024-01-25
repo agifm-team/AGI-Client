@@ -160,6 +160,7 @@ function GradioEmbed({ agiData, msgInfo }) {
 
     // Prepare Data
     const embedRef = useRef(null);
+    const iframeRef = useRef(null);
     const [app, setApp] = useState(null);
     const [appError, setAppError] = useState(null);
     const [id, setId] = useState(null);
@@ -881,8 +882,35 @@ function GradioEmbed({ agiData, msgInfo }) {
         }
     });
 
+    // iFrame communication
+    useEffect(() => {
+        if (iframeRef.current) {
+
+            const iframeMessage = (message) => {
+                if (message.source !== iframeRef.current.contentWindow) {
+
+                    console.log(message.data);
+
+                }
+
+            };
+
+            window.addEventListener('message', iframeMessage);
+
+            /* iframeRef.current.contentWindow.postMessage({
+
+            }); */
+
+
+            return () => {
+                window.removeEventListener('message', iframeMessage);
+            };
+
+        }
+    });
+
     // Temp result. (I'm using this only to have a preview. This will be removed later.)
-    return <iframe src={`${agiData.url}${!agiData.url.endsWith('/') ? '/' : ''}?room_id=${encodeURIComponent(msgInfo.roomId)}&msg_id=${encodeURIComponent(msgInfo.eventId)}&owner_id=${encodeURIComponent(initMatrix.matrixClient.getUserId())}`} style={{ height: '500px', width: '100%' }} title='Gradio' />;
+    return <iframe ref={iframeRef} src={`${agiData.url}${!agiData.url.endsWith('/') ? '/' : ''}?room_id=${encodeURIComponent(msgInfo.roomId)}&msg_id=${encodeURIComponent(msgInfo.eventId)}&owner_id=${encodeURIComponent(initMatrix.matrixClient.getUserId())}`} style={{ height: '500px', width: '100%' }} title='Gradio' />;
     // return <gradio-app src={agiData.url} theme_mode={body.hasClass('theme-type-dark') || body.hasClass('theme-type-dark-solid') || body.hasClass('theme-type-dark2') || body.hasClass('theme-type-dark2-solid') ? 'dark' : 'light'} autoscroll />;
 
     // return <div ref={embedRef} className='mt-2 agi-client-embed chatbox-size-fix border border-bg p-4' />;

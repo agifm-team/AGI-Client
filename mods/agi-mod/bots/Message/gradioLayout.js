@@ -25,6 +25,7 @@ import { selectButton as selectTheme } from '../../../../src/util/checkTheme';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 import imageViewer from '../../../../src/util/imageViewer';
 
+// Label and display to components.
 const labelCreator = (icon, props, id) => $('<label>', { for: id, class: 'form-label' }).text(props.label).prepend(icon);
 const displayOptions = (props, id, appId, url, oHtml) => {
 
@@ -48,6 +49,7 @@ const displayOptions = (props, id, appId, url, oHtml) => {
 
 };
 
+// Bootstrap 5 row manager.
 const colsLimit = 12;
 const rowsList = {
     0: [12],
@@ -65,6 +67,7 @@ const rowsList = {
     12: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 };
 
+// This is the filter to keep components safe within the matrix client. (Avoid things like exploit or backdor)
 const htmlAllowed = {
 
     transformTags: {
@@ -124,6 +127,7 @@ const htmlAllowed = {
 
 };
 
+// When a new file arrives into the embed. We will start reading here.
 const fileInputFixer = (compId, props, oHtml) => {
 
     const input = oHtml.find('input:not([type=\'hidden\'])');
@@ -172,7 +176,7 @@ const fileInputFixer = (compId, props, oHtml) => {
 // Id Generator
 const tinyIdGenerator = (appId, props) => `gradio_${appId}${props.elem_id ? `_${props.elem_id}` : ''}`;
 
-// File Input Accept Generator
+// File input accept generator to html file inputs
 const fileInputAccept = (fileTypes) => {
     if (Array.isArray(fileTypes) && fileTypes.length > 0) {
 
@@ -196,7 +200,7 @@ const fileInputAccept = (fileTypes) => {
     return null;
 }
 
-// File Url fixer
+// File Url fixer. This will correct the URL of some files that normally come from spaces or some external files.
 const fileUrlGenerator = (url) => {
 
     let tinyUrl = url;
@@ -217,7 +221,7 @@ const fileUrlGenerator = (url) => {
 
 export { fileUrlGenerator };
 
-// Dataset Components
+// The design of components within the dataset are managed here.
 const datasetComponents = {
 
     video: (fileName, url, td) => {
@@ -238,6 +242,7 @@ const datasetComponents = {
 
 };
 
+// The final design of external file components is generated here.
 const fileManagerReader = {
 
     image: (previewBase, blobUrl) => previewBase.css('background-image', `url('${blobUrl}')`).addClass('with-image'),
@@ -308,6 +313,7 @@ const fileManagerReader = {
 
 };
 
+// All components that involve the use of external files will be passed here. This is the place that prepares the processing of external files within the embed.
 const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept, tinyValue) => {
 
     const inputData = { type: 'blob' };
@@ -378,8 +384,11 @@ const fileManagerEditor = (previewBase, finalResult, id, type, props, fileAccept
 
 // Components
 // https://www.gradio.app/docs
+
+// Here are all the html data of all components that can be read by this API.
 const components = {
 
+    // https://www.gradio.app/docs/html
     html: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -410,6 +419,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/markdown
     markdown: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -440,6 +450,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/dataframe
     dataframe: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml).addClass('dataframe');
@@ -503,6 +514,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/audio
     audio: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -548,6 +560,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/button
     button: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -598,6 +611,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/chatbot
     chatbot: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -668,6 +682,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/checkbox
     checkbox: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -691,6 +706,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/checkboxgroup
     checkboxgroup: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -730,6 +746,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/code
     code: (props, compId, appId, url, oHtml) => {
         try {
 
@@ -776,6 +793,7 @@ const components = {
         }
     },
 
+    // https://www.gradio.app/docs/colorpicker
     colorpicker: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -799,6 +817,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/dataset
     dataset: (props, compId, appId, url, oHtml, folderCount) => {
 
         console.log('dataset', props);
@@ -957,6 +976,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/dropdown
     dropdown: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1020,6 +1040,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/file
     file: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1050,6 +1071,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/gallery
     gallery: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1189,6 +1211,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/highlightedtext
     highlightedtext: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1246,6 +1269,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/image
     image: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1288,6 +1312,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/json
     json: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1324,6 +1349,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/label
     label: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1389,6 +1415,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/model3d (Incomplete)
     model3d: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1419,6 +1446,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/number
     number: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1461,6 +1489,10 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/plot
+    // https://www.gradio.app/docs/barplot
+    // https://www.gradio.app/docs/lineplot
+    // https://www.gradio.app/docs/scatterplot
     plot: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1525,6 +1557,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/radio
     radio: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1585,6 +1618,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/slider
     slider: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1652,6 +1686,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/textbox
     textbox: (props, compId, appId, url, oHtml) => {
 
         // values
@@ -1765,6 +1800,7 @@ const components = {
 
     },
 
+    // ???
     timeseries: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1804,6 +1840,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/button
     uploadbutton: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1844,6 +1881,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/video
     video: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml);
@@ -1898,6 +1936,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/column
     column: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'column');
@@ -1916,6 +1955,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/row
     row: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'row');
@@ -1934,6 +1974,7 @@ const components = {
 
     },
 
+    // ???
     box: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'box');
@@ -1952,7 +1993,7 @@ const components = {
 
     },
 
-    // Accordion
+    // https://www.gradio.app/docs/accordion
     accordion: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'accordion');
@@ -2000,6 +2041,7 @@ const components = {
 
     },
 
+    // https://www.gradio.app/docs/group
     group: (props, compId, appId, url, oHtml) => {
 
         const finalResult = displayOptions(props, compId, appId, url, oHtml).attr('component_type', 'group');
@@ -2020,11 +2062,14 @@ const components = {
 
 };
 
-// Children
+export { components };
+
+// Children loader
+// This is where all the component loading actually starts.
 const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, rootTabs = { type: null, data: null }, folderCount = 0) => {
     if (Array.isArray(items)) {
 
-        // HTML Items
+        // HTML Items. This is the final value that is sent into the embed containing the html of all components.
         const html = [];
         tinyIndex++;
 
@@ -2032,17 +2077,23 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, 
         for (const item in items) {
             if (objType(items[item], 'object') && typeof items[item].id === 'number' && !Number.isNaN(items[item].id) && Number.isFinite(items[item].id)) {
 
-                // Page Data
+                // Prepare page data
                 let page = [];
                 let newPage;
+
+                // Exist Children gradio values?
                 const existChildrens = (Array.isArray(items[item].children) && items[item].children.length > 0);
+
+                // Get component values.
                 const component = config.components.find(c => c.id === items[item].id);
+
+                // Is row? This is useful for some things involving row html.
                 if (component.type === 'row') { folderCount++; }
 
-                // New Children
+                // New Children load start. This new page will be added into the page.
                 if (existChildrens) newPage = childrenLoader(items[item].children, config, url, appId, comps, root, clone(tinyIndex), rootTabs, folderCount);
 
-                // Componet
+                // Componet value exist. If a function value exists to read the component in "components" variable. This will execute. This will also come into play if the component type is compatible with secondary scripts that are used in creating HTML.
                 if (objType(component, 'object') && objType(component.props, 'object') && typeof component.type === 'string' && (
                     typeof components[component.type] === 'function'
                     || component.type === 'form'
@@ -2050,7 +2101,7 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, 
                     || component.type === 'tabs'
                 )) {
 
-                    // Row and Accordion
+                    // If the script is related to visual things as mentioned below, we will adapt the next components to the current visual component.
                     if (existChildrens && (component.type === 'row' || component.type === 'accordion' || component.type === 'tabitem' || component.type === 'tabs')) {
 
                         // Row
@@ -2072,7 +2123,10 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, 
                                 if (rowItem > rowItems) rowItem = 0;
                             });
 
-                        } else if (component.type === 'tabitem') {
+                        }
+
+                        // Tab Item
+                        else if (component.type === 'tabitem') {
 
                             if (rootTabs.type === null) {
                                 rootTabs.data = [];
@@ -2085,18 +2139,24 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, 
 
                     }
 
-                    // Others
+                    // Nothing? So we will continue normal progress.
                     else {
                         page = newPage;
                     }
 
-                    // Others
+                    // If this is not a tab, then let's continue the service here.
                     if (component.type !== 'tabitem' && component.type !== 'tabs') {
+
+                        // Normal mode.
                         if (component.type !== 'form') {
 
-                            // Get Component
+                            // Get component by function to insert into data.
                             const tinyHtml = components[component.type](component.props, component.id, appId, url, null, folderCount);
+
+                            // Now let's insert it into the root. This is the root that is inside the class of this file.
                             root[component.id] = tinyHtml;
+
+                            // This is where we add some html update functions using new component update replace. (used on the class function "updateHtml")
                             // eslint-disable-next-line no-loop-func
                             const addUpdateData = (theHtml) => {
                                 theHtml.data('gradio_update', () => {
@@ -2114,7 +2174,7 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, 
                             // Add data updater
                             addUpdateData(tinyHtml);
 
-                            // Fix Accordion
+                            // Fix Accordion bootstrap html
                             if (component.type === 'accordion') {
                                 tinyHtml.find('.card .card-body .collapse').append(newPage);
                             }
@@ -2127,7 +2187,7 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, 
 
                         }
 
-                        // Build Form Data
+                        // Build Form Data. As we don't have a script to create a form data manually. So let's convert this to a normal div.
                         else if (page) {
                             page.forEach(item2 => {
                                 component.props.app_id = appId;
@@ -2152,7 +2212,7 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, 
                         const tabsWindow = $('<div>');
                         const tab = $('<div>', { id: tabId }).append(tabsNav, tabsWindow);
 
-                        // Read Tab Data
+                        // Read Tab Data. Be aware that this content will be inserted during the tab component's reading loops.
                         for (const tabItem in rootTabs.data) {
 
                             const tabTargetId = `${appId}_tabs_${component.id}_${rootTabs.data[tabItem].component?.id}`;
@@ -2196,7 +2256,7 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, 
             }
         }
 
-        // Complete
+        // Complete. Insert the html value.
         comps[tinyIndex] = html;
         return html;
 
@@ -2204,6 +2264,7 @@ const childrenLoader = (items, config, url, appId, comps, root, tinyIndex = -1, 
 };
 
 // Upgrader Components
+// Some components need to be 100% rebuilt when loading updated values. Everything will be executed here when the embed update is taking place.
 const upgraderComponents = {
 
     html: (values, type, input, tinyFunction) => {
@@ -2233,23 +2294,15 @@ class GradioLayout {
             // Get Children
             this.root = {};
             this.components = {};
+
+            // Start children loader...
             const page = childrenLoader(config.layout.children, config, url, appId, this.components, this.root);
-            if (typeof config.css === 'string' && config.css.length > 0 && typeof cssBase === 'string' && cssBase.length > 0) {
-
-                /*
-                const tinyStyle = sass.compileString(`${cssBase} {
-                        ${config.css}
-                    }`);
-                */
-
-                // if (typeof tinyStyle.css === 'string') page.push($('<style>').append(tinyStyle.css));
-
-            }
 
             // Complete
             this.cache = objType(embedCache, 'object') ? embedCache : {};
             this.html = page;
 
+            // Insert default values here.
             this.defaultStore = {};
             this.readEmbedData((root, id) => {
 
@@ -2268,6 +2321,7 @@ class GradioLayout {
         }
     }
 
+    // Don't touch it. This function is just to fix some possible glitches when obtaining a component.
     _getCompFix(id) {
 
         if (!objType(id, 'object')) {
@@ -2281,7 +2335,7 @@ class GradioLayout {
     // Insert Html
     insertHtml(html, mode = 'append') { this.page = html[mode](this.html); }
 
-    // Insert Ydoc
+    // Insert Ydoc (Not used for now)
     insertYdoc(ydoc, type) {
         this.ydoc = ydoc;
         this._ydoc_type = typeof type === 'string' ? type : null;
@@ -2290,7 +2344,7 @@ class GradioLayout {
     // Get Html
     getHtml() { return this.page ? this.page : $('<div>'); }
 
-    // Get Component
+    // Get Component by Id. If you don't know the component's Id, the Id will be visible within the embed's html.
     getComponent(id) {
 
         const comp = {};
@@ -2317,6 +2371,7 @@ class GradioLayout {
 
     }
 
+    // Get values within the data that is normally stored using jQuery Data. The entire embed will always have these values stored within jQuery.
     getInput(id) {
         const data = this._getCompFix(id);
         if (objType(data, 'object') && data.value) return data.value.data('gradio_input');
@@ -2338,6 +2393,7 @@ class GradioLayout {
         if (objType(data, 'object') && data.value) return data.value.data('gradio_values');
     }
 
+    // Get default data
     getDefaultEmbedData(id) {
 
         if (this.defaultStore[id]) {
@@ -2365,19 +2421,30 @@ class GradioLayout {
 
     }
 
+    /*
+        Whenever Gradio needs to be updated, this function will be called. This script will look for all inputs to have the values validated for each one.
+    */
     updateEmbed() {
         this.readEmbedData((root, id) => {
 
+            // Get value
             const values = root.data('gradio_values') ?? {};
             const type = root.attr('component_type');
             const input = root.data('gradio_input');
 
+            // Exist component time
             if (components[type]) {
 
+                // Execute component e get function to update
                 const tinyFunction = components[type](values.props ?? {}, values?.id, values?.appId, values?.url, root, null);
+
+                // Exist custom load component function?
                 if (typeof upgraderComponents[type] === 'function') {
                     upgraderComponents[type](values, type, input, tinyFunction);
-                } else if (objType(input, 'object')) {
+                }
+
+                // Nope. Read input
+                else if (objType(input, 'object')) {
 
                     // jQuery
                     if (input.type === 'jquery') {

@@ -1,27 +1,24 @@
 /* Welcome Page */
 .tiny-welcome {
-  .Formy {
-    input {
-      color: var(--button-text-color);
-      text-align: left;
-      border-radius: 50px;
-      font-size: 14px;
-      margin-top: 20px;
-      margin-right: 10px;
-      margin-bottom: 10px;
+  #search-title {
+    .search-info {
+      max-width: 700px;
+      .search-form {
+        border: var(--bg-surface-extra-low) 6px solid;
+        border-radius: 14px;
+        .search-input {
+          border-color: var(--bg-surface-low) !important;
+        }
+      }
     }
   }
+
   .taggy {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+    width: auto !important;
 
     .taggyButton {
       color: var(--button-text-color);
       background-color: var(--button-background-color);
-      border-radius: 50px;
-      margin-right: 10px;
-      margin-bottom: 10px;
       cursor: pointer;
 
       &:hover {

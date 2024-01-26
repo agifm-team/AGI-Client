@@ -189,6 +189,55 @@ function Welcome({ isGuest }) {
   return <div className="tiny-welcome border-0 h-100 noselect">
     <center className="py-4 px-4 w-100">
 
+      <div id='search-title'>
+
+        <h3 className='mb-1'>{__ENV_APP__.INFO.name}</h3>
+        <div className='small'>{__ENV_APP__.INFO.description}</div>
+
+        <div className='search-info'>
+
+          <form className="search-form mb-2 mt-3" onSubmit={handleSearchSubmit}>
+            <input
+              className='search-input btn btn-bg w-100 border'
+              type="text"
+              value={tempSearch}
+              onChange={handleSearchChange}
+              onSubmit={handleSearchSubmit}
+              placeholder="Search for bots and rooms..."
+            />
+          </form>
+
+          <center className="taggy">
+            {list &&
+              <>
+
+                <button
+                  className={`m-1 btn taggyButton btn-bg very-small border${dataTag === null ? ' active' : ''} text-lowercase`}
+                  key='CLEAR_ALL'
+                  onClick={() => setSelectedTag(null)}
+                >
+                  all
+                </button>
+
+                {list.map((tag) => (
+                  <button
+                    className={`m-1 btn taggyButton btn-bg very-small border${typeof dataTag === 'string' && dataTag === tag ? ' active' : ''} text-lowercase`}
+                    key={tag}
+                    onClick={() => setSelectedTag(tag)}
+                  >
+                    {tag}
+                  </button>
+                ))}
+
+              </>}
+          </center>
+
+        </div>
+
+      </div>
+
+      <hr />
+
       <div id="menu" className={`text-start${isGuest ? ' is-guest' : ''}`}>
 
         {!isGuest ? <button
@@ -225,44 +274,6 @@ function Welcome({ isGuest }) {
           />
         </div>
       </div>
-
-      <form className="Formy" onSubmit={handleSearchSubmit}>
-        <input
-          className='btn btn-bg w-100 border'
-          type="text"
-          value={tempSearch}
-          onChange={handleSearchChange}
-          onSubmit={handleSearchSubmit}
-          placeholder="Search for bots and rooms..."
-        />
-      </form>
-
-      <div className="taggy">
-        {list &&
-          <>
-
-            <button
-              className={`btn taggyButton btn-bg very-small border${dataTag === null ? ' active' : ''} text-lowercase`}
-              key='CLEAR_ALL'
-              onClick={() => setSelectedTag(null)}
-            >
-              all
-            </button>
-
-            {list.map((tag) => (
-              <button
-                className={`btn taggyButton btn-bg very-small border${typeof dataTag === 'string' && dataTag === tag ? ' active' : ''} text-lowercase`}
-                key={tag}
-                onClick={() => setSelectedTag(tag)}
-              >
-                {tag}
-              </button>
-            ))}
-
-          </>}
-      </div>
-
-      <hr />
 
       {!loadingData ? <>
         {users.length > 0 ? categoryGenerator('popular_bots', 'bots', 'Bots', users) : null}

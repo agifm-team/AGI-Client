@@ -964,10 +964,10 @@ function GradioEmbed({ agiData, msgInfo }) {
                 <a href="#" class="btn btn-primary" onClick={(event) => {
 
                     initMatrix.matrixClient.sendMessage(msgInfo.roomId, {
-                        body: `.demo ${agiData.url}`,
+                        body: `.demo ${agiData.url} ${msgInfo.eventId}`,
                         external_url: agiData.url,
                         format: 'org.matrix.custom.html',
-                        formatted_body: `.demo ${agiData.url}`,
+                        formatted_body: `.demo ${agiData.url} ${msgInfo.eventId}`,
                         msgtype: 'm.text',
                     });
 

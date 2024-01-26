@@ -181,7 +181,7 @@ const getInputValues = (comps) => {
 };
 
 // Gradio Embed React
-function GradioEmbed({ agiData, msgInfo }) {
+function GradioEmbed({ agiData, msgInfo, replyId }) {
 
     // Prepare Data
     const embedRef = useRef(null);
@@ -955,7 +955,29 @@ function GradioEmbed({ agiData, msgInfo }) {
     });
 
     // Temp result. (I'm using this only to have a preview. This will be removed later.)
-    return <iframe ref={iframeRef} src={`${agiData.url}${!agiData.url.endsWith('/') ? '/' : ''}?room_id=${encodeURIComponent(msgInfo.roomId)}&msg_id=${encodeURIComponent(msgInfo.eventId)}&owner_id=${encodeURIComponent(initMatrix.matrixClient.getUserId())}&theme=${getTheme()}`} style={{ height: '500px', width: '100%' }} title='Gradio' />;
+    return <div>
+
+        <iframe ref={iframeRef} src={`${agiData.url}${!agiData.url.endsWith('/') ? '/' : ''}?room_id=${encodeURIComponent(msgInfo.roomId)}&msg_id=${encodeURIComponent(msgInfo.eventId)}&owner_id=${encodeURIComponent(initMatrix.matrixClient.getUserId())}&reply_id=${encodeURIComponent(replyId)}&theme=${getTheme()}`} style={{ height: '500px', width: '100%' }} title='Gradio' />
+
+        <div class="card">
+            <div class="card-body">
+                <a href="#" class="btn btn-primary" onClick={(event) => {
+
+                    initMatrix.matrixClient.sendMessage(msgInfo.roomId, {
+                        body: `.demo ${agiData.url} ${msgInfo.eventId}`,
+                        external_url: agiData.url,
+                        format: 'org.matrix.custom.html',
+                        formatted_body: `.demo ${agiData.url} ${msgInfo.eventId}`,
+                        msgtype: 'm.text',
+                    });
+
+                    event.preventDefault();
+
+                }}>Clone Space</a>
+            </div>
+        </div>
+
+    </div>;
     // return <gradio-app src={agiData.url} theme_mode={getTheme()} autoscroll />;
 
     // The original gradio sandbox of the gradioLayout.js

@@ -196,19 +196,19 @@ function Welcome({ isGuest }) {
 
         <div className='search-info'>
 
-          <form className="search-form mb-2 mt-3" onSubmit={handleSearchSubmit}>
+          <form className="search-form mb-2 mt-3" /* onSubmit={handleSearchSubmit} */>
             <input
               className='search-input btn btn-bg w-100 border'
               type="text"
               value={tempSearch}
-              onChange={handleSearchChange}
-              onSubmit={handleSearchSubmit}
+              // onChange={handleSearchChange}
+              // onSubmit={handleSearchSubmit}
               placeholder="Search for bots and rooms..."
             />
           </form>
 
           <center className="taggy">
-            {list &&
+            {/* list &&
               <>
 
                 <button
@@ -229,7 +229,7 @@ function Welcome({ isGuest }) {
                   </button>
                 ))}
 
-              </>}
+                </> */}
           </center>
 
         </div>

@@ -181,7 +181,7 @@ const getInputValues = (comps) => {
 };
 
 // Gradio Embed React
-function GradioEmbed({ agiData, msgInfo }) {
+function GradioEmbed({ agiData, msgInfo, replyId }) {
 
     // Prepare Data
     const embedRef = useRef(null);
@@ -957,7 +957,7 @@ function GradioEmbed({ agiData, msgInfo }) {
     // Temp result. (I'm using this only to have a preview. This will be removed later.)
     return <div>
 
-        <iframe ref={iframeRef} src={`${agiData.url}${!agiData.url.endsWith('/') ? '/' : ''}?room_id=${encodeURIComponent(msgInfo.roomId)}&msg_id=${encodeURIComponent(msgInfo.eventId)}&owner_id=${encodeURIComponent(initMatrix.matrixClient.getUserId())}&theme=${getTheme()}`} style={{ height: '500px', width: '100%' }} title='Gradio' />
+        <iframe ref={iframeRef} src={`${agiData.url}${!agiData.url.endsWith('/') ? '/' : ''}?room_id=${encodeURIComponent(msgInfo.roomId)}&msg_id=${encodeURIComponent(msgInfo.eventId)}&owner_id=${encodeURIComponent(initMatrix.matrixClient.getUserId())}&reply_id=${encodeURIComponent(replyId)}&theme=${getTheme()}`} style={{ height: '500px', width: '100%' }} title='Gradio' />
 
         <div class="card">
             <div class="card-body">

@@ -14,7 +14,7 @@ export default function startMessage() {
 
                 // Gradio
                 if (agiData.source === 'gradio') {
-                    data.custom = <GradioEmbed msgInfo={msgInfo} agiData={agiData} />;
+                    data.custom = <GradioEmbed msgInfo={msgInfo} agiData={agiData} replyId={content.reply_id} />;
                 }
 
             }

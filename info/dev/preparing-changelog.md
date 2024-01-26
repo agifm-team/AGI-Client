@@ -29,3 +29,6 @@
 - Emoji list fix.
 - New embed to guest chatroom.
 - Pin messages support added.
+- Refresh page to avoid reconnect issues.
+- Reactions limited to 20.
+- Sidebar css fixed to chrome.

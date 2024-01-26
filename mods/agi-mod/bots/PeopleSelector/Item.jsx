@@ -1,17 +1,19 @@
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-import { selectRoom, selectRoomMode, selectTab } from '../../../../src/client/action/navigation';
-import cons from '../../../../src/client/state/cons';
+// import { selectRoom, selectRoomMode, selectTab } from '../../../../src/client/action/navigation';
+// import cons from '../../../../src/client/state/cons';
 
 import * as roomActions from '../../../../src/client/action/room';
 
-import {
+/* import {
     hasDMWith, hasDevices,
-} from '../../../../src/util/matrixUtil';
-import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
+} from '../../../../src/util/matrixUtil'; */
 
-function PeopleSelector({ avatarSrc, name, peopleRole, }) {
+import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
+import { getRoomInfo } from '../../../../src/app/organisms/room/Room';
+
+function PeopleSelector({ avatarSrc, name, user, peopleRole, }) {
 
     // Refs
     const buttonRef = useRef(null);
@@ -21,7 +23,23 @@ function PeopleSelector({ avatarSrc, name, peopleRole, }) {
 
         // Get Button
         const button = $(buttonRef.current);
-        const tinyButton = async () => {
+        const tinyButton = async (event) => {
+
+            const userId = $(event.currentTarget).attr('bot');
+            if (typeof userId === 'string') {
+
+                const roomId = getRoomInfo().roomTimeline.room.roomId;
+
+                setLoadingPage();
+                roomActions.invite(roomId, userId.startsWith('@') ? userId : `@${userId}`).then(() => setLoadingPage(false)).catch(err => {
+                    setLoadingPage(false);
+                    console.error(err);
+                    alert(err.message);
+                });
+
+            }
+
+            /*
 
             // Select tab and bot id
             selectTab(cons.tabs.DIRECTS);
@@ -44,6 +62,7 @@ function PeopleSelector({ avatarSrc, name, peopleRole, }) {
                 console.error(err);
                 alert(err.message);
             }
+            */
 
         };
 
@@ -55,7 +74,7 @@ function PeopleSelector({ avatarSrc, name, peopleRole, }) {
 
     });
 
-    return <div ref={buttonRef} bot={name} className="card agent-button noselect">
+    return <div ref={buttonRef} bot={user?.userId || name} className="card agent-button noselect">
         <div className='text-start my-3 mx-4'><img src={avatarSrc} className="img-fluid avatar rounded-circle" draggable={false} height={100} width={100} alt="avatar" /></div>
         <div className="text-start card-body mt-0 pt-0">
             <h5 className="card-title small text-bg">{name}</h5>

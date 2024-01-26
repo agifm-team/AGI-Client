@@ -1,11 +1,15 @@
 import { App } from '@capacitor/app';
+import clone from 'clone';
+
 import initMatrix from '../client/initMatrix';
 import { emitUpdateProfile } from '../client/action/navigation';
 import tinyAPI from './mods';
-import { countObj } from './tools';
+import { countObj, objType } from './tools';
 import moment from './libs/momentjs';
+import { matrixDevices } from '../app/hooks/useDeviceList';
 
 // Cache Data
+let mainDeviceAfkCheck = null;
 const userInteractions = {
 
     enabled: false,
@@ -21,6 +25,9 @@ const userInteractions = {
         value: null,
         interval: null
     },
+
+    devices: matrixDevices.getDevices(),
+    afkDevices: [],
 
 };
 
@@ -61,6 +68,11 @@ export function enableAfkSystem(value = true) {
     if (typeof value === 'boolean') userInteractions.enabled = value;
 };
 
+// Devices
+const devicesUpdater = (devices) => {
+    userInteractions.devices = devices;
+};
+
 // Interval
 const intervalTimestamp = () => {
     if (userInteractions.enabled) {
@@ -69,10 +81,30 @@ const intervalTimestamp = () => {
         const counter = getUserAfk();
         tinyAPI.emit('afkTimeCounter', counter);
         const content = initMatrix.matrixClient.getAccountData('pony.house.profile')?.getContent() ?? {};
-        const originalAfk = content.afk;
+        const originalAfk = clone(content.active_devices);
         if (countObj(content) > 0) {
 
+            // API progress...
             tinyAPI.emit('afkTimeCounterProgress', counter);
+
+            // Get Data
+            if (!Array.isArray(content.active_devices)) content.active_devices = [];
+            const deviceId = initMatrix.matrixClient.getDeviceId();
+            const deviceIdIndex = content.active_devices.indexOf(deviceId);
+
+            // Remove Inactive
+            if (content.active_devices.length > 0) {
+
+                const newActiveDevices = [];
+                for (const item in content.active_devices) {
+                    if (userInteractions.afkDevices.indexOf(content.active_devices[item]) < 0) {
+                        newActiveDevices.push(content.active_devices[item]);
+                    }
+                }
+
+                content.active_devices = newActiveDevices;
+
+            }
 
             // 10 Minutes later...
             if (
@@ -80,15 +112,16 @@ const intervalTimestamp = () => {
                 (content.status === '🟢' || content.status === 'online') &&
                 (counter > 600 || content.status === '🟠' || content.status === 'idle' || !userInteractions.mobile.isActive)
             ) {
-                content.afk = true;
+                if (deviceIdIndex > -1) content.active_devices.splice(deviceIdIndex, 1);
             }
 
             // Nope
-            else {
-                content.afk = false;
+            else if (deviceIdIndex < 0 && content.active_devices.length < 1) {
+                content.active_devices.push(deviceId);
             }
 
-            if (typeof originalAfk !== 'boolean' || originalAfk !== content.afk) {
+            if (!Array.isArray(originalAfk) || originalAfk.length !== content.active_devices.length || typeof mainDeviceAfkCheck !== 'string' || (typeof content.active_devices[0] === 'string' && mainDeviceAfkCheck !== content.active_devices[0])) {
+                mainDeviceAfkCheck = typeof content.active_devices[0] === 'string' ? content.active_devices[0] : null;
                 tinyAPI.emit('afkTimeCounterUpdated', counter);
                 initMatrix.matrixClient.setAccountData('pony.house.profile', content);
                 emitUpdateProfile(content);
@@ -99,12 +132,37 @@ const intervalTimestamp = () => {
     }
 };
 
+// Checker
+const devicePingChecker = (devices) => {
+
+    // Prepare
+    if (userInteractions.afkDevices) delete userInteractions.afkDevices;
+    userInteractions.afkDevices = [];
+
+    if (Array.isArray(devices)) {
+        for (const item in devices) {
+            if (objType(devices[item], 'object') && typeof devices[item].id === 'string' && typeof devices[item].unix === 'number') {
+
+
+                // 10 Minutes later...
+                const diff = moment().diff(moment(devices[item].unix * 1000), 'minutes');
+                if (diff > 10) {
+                    userInteractions.afkDevices.push(devices[item].id);
+                }
+
+            }
+        }
+    }
+
+};
+
 // Start
 export function startUserAfk() {
 
     if (userInteractions.afkTime.interval) {
         clearInterval(userInteractions.afkTime.interval);
         userInteractions.afkTime.interval = null;
+        matrixDevices.off('devicesUpdated', devicesUpdater);
     }
 
     if (!__ENV_APP__.ELECTRON_MODE) {
@@ -112,7 +170,10 @@ export function startUserAfk() {
         userInteractions.afkTime.value = moment().valueOf();
     }
 
+    userInteractions.devices = matrixDevices.getDevices();
     userInteractions.afkTime.interval = setInterval(intervalTimestamp, 1000);
+    matrixDevices.on('devicesUpdated', devicesUpdater);
+    matrixDevices.on('devicePing', devicePingChecker);
 
 };
 
@@ -123,6 +184,8 @@ export function stopUserAfk() {
     if (userInteractions.afkTime.interval) {
         clearInterval(userInteractions.afkTime.interval);
         userInteractions.afkTime.interval = null;
+        matrixDevices.off('devicesUpdated', devicesUpdater);
+        matrixDevices.off('devicePing', devicePingChecker);
     }
 
     if (!__ENV_APP__.ELECTRON_MODE) userInteractions.afkTime.value = null;

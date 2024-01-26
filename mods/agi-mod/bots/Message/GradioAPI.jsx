@@ -12,8 +12,14 @@ import { objType, tinyConfirm, toast } from '../../../../src/util/tools';
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 import openTinyURL from '../../../../src/util/message/urlProtection';
 import { getRoomInfo } from '../../../../src/app/organisms/room/Room';
-import moment from '../../../../src/util/libs/momentjs';
 
+import moment from '../../../../src/util/libs/momentjs';
+import initMatrix from '../../../../src/client/initMatrix';
+
+import settings from '../../../../src/client/state/settings';
+import cons from '../../../../src/client/state/cons';
+
+// Detect the mode to execute the input update
 const updateInputValue = (input, dropdown, value, filePath = '') => {
 
     if (input.type === 'jquery') {
@@ -48,6 +54,7 @@ const updateInputValue = (input, dropdown, value, filePath = '') => {
 
 };
 
+// Get input updates to send this to the gradio form
 const getInputValues = (comps) => {
 
     // Input Values
@@ -60,19 +67,29 @@ const getInputValues = (comps) => {
         // Result
         let result;
 
-        // jQuery
+        // jQuery pure mode
         if (comps.input[index].data.type === 'jquery') {
             try {
 
+                // Prepare the value
                 let value = null;
+
+                // This is number
                 if (comps.input[index].data.isNumber) {
                     value = Number(comps.input[index].data.value.val());
-                } else if (comps.input[index].data.isCheckbox) {
+                }
+
+                // Checkbox?
+                else if (comps.input[index].data.isCheckbox) {
                     value = comps.input[index].data.value.is(':checked');
-                } else {
+                }
+
+                // Normal mode
+                else {
                     value = comps.input[index].data.value.val();
                 }
 
+                // Validator
                 if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
                     result = value;
                     allowed = true;
@@ -86,14 +103,18 @@ const getInputValues = (comps) => {
             }
         }
 
-        // Blob
+        // Blob data
         else if (comps.input[index].data.type === 'blob') {
             try {
 
+                // The blob updater get is avaliable?
                 if (typeof comps.input[index].data.value === 'function') {
                     result = comps.input[index].data.value();
                     allowed = true;
-                } else {
+                }
+
+                // Nope
+                else {
                     result = null;
                 }
 
@@ -103,12 +124,14 @@ const getInputValues = (comps) => {
             }
         }
 
-        // Array
+        // This is checkbox group? This will read here on the array
         else if (comps.input[index].data.type === 'array') {
             if (Array.isArray(comps.input[index].data.value) && comps.input[index].data.value.length > 0) {
 
+                // Data prepare
                 const tinyArray = [];
 
+                // Read input Array
                 for (const vi in comps.input[index].data.value) {
 
                     let value;
@@ -135,17 +158,19 @@ const getInputValues = (comps) => {
 
                 }
 
+                // Complete
                 result = tinyArray;
 
             }
         }
 
-        // Others
+        // Others. Invalid!
         else {
             result = null;
             console.log('Input Component', comps.input[index].depId, comps.input[index].data);
         }
 
+        // Insert inputs result now
         inputs.push(result);
         console.log('Submit test item', comps.input[index], result);
 
@@ -155,27 +180,34 @@ const getInputValues = (comps) => {
 
 };
 
-function GradioEmbed({ agiData }) {
+// Gradio Embed React
+function GradioEmbed({ agiData, msgInfo }) {
 
     // Prepare Data
     const embedRef = useRef(null);
+    const iframeRef = useRef(null);
     const [app, setApp] = useState(null);
     const [appError, setAppError] = useState(null);
     const [id, setId] = useState(null);
 
     const [isVisible, setIsVisible] = useState(0);
 
+    // Temp
+    const body = $('body');
+    const getTheme = () => body.hasClass('theme-type-dark') || body.hasClass('theme-type-dark-solid') || body.hasClass('theme-type-dark2') || body.hasClass('theme-type-dark2-solid') ? 'dark' : 'light';
+
     useEffect(() => {
-        if (!appError) {
+        if (!appError && embedRef.current) {
             try {
 
-                // Error
+                // Error Sender
                 const tinyError = (err) => {
                     console.error(err);
                     toast(err.message);
                     setAppError(err);
                 };
 
+                // Get embed in jQuery
                 const embed = $(embedRef.current);
                 embed.removeClass('loading-gradio').removeClass('loading');
                 embed.find('> #loading-place').remove();
@@ -214,14 +246,18 @@ function GradioEmbed({ agiData }) {
                     // Load Ydoc
                     else {
                         const selectedRoom = getRoomInfo().roomTimeline;
+                        selectedRoom.initYdoc();
                         selectedRoom.ydocWait().then(() => {
 
-                            const ymap = () => selectedRoom.ydoc().getMap(id);
+                            // The embed functions will start here...
+
+                            // This is the ymap to get embed data
+                            const ymap = () => selectedRoom.getYmap(id);
 
                             // Insert Embed
                             if (embed.find('gradio-embed').length < 1) {
 
-                                // Sync Update
+                                // Sync Updates will be sent here!
                                 let loadingUpdate = true;
                                 const syncUpdate = (tinyPromps, depId, where) => {
                                     const props = clone(tinyPromps);
@@ -229,7 +265,7 @@ function GradioEmbed({ agiData }) {
                                     if (!loadingUpdate) ymap().set(String(depId), props);
                                 };
 
-                                // Id
+                                // Build Embed first cache
                                 const embedCache = {};
                                 const config = app.config;
 
@@ -237,6 +273,7 @@ function GradioEmbed({ agiData }) {
                                 const embedData = new GradioLayout(config, `gradio-embed[space='${id}']`, agiData.url, id, embedCache);
                                 embedData.insertYdoc(ymap, 'ymap');
 
+                                // Prepare gradio tag in the html
                                 const page = $('<gradio-embed>', { class: 'text-center', space: id });
                                 embedData.insertHtml(page);
                                 // chatboxScrollToBottom();
@@ -348,6 +385,7 @@ function GradioEmbed({ agiData }) {
                                         (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean')
                                     ) {
 
+                                        // Preparing a url value
                                         let tinyValue = value;
                                         if (
                                             value === null &&
@@ -358,9 +396,12 @@ function GradioEmbed({ agiData }) {
                                             tinyValue = `${dataset.props.samples[dataset.index][0].startsWith('/') ? fileUrlGenerator(config.root) : ''}${dataset.props.samples[dataset.index][0]}`;
                                         }
 
+                                        // Get component data
                                         const data = embedData.getComponentValue(output.depId);
                                         const input = embedData.getInput(output.depId);
                                         const dropdown = embedData.getDropdown(output.depId);
+
+                                        // Insert value and send update
                                         if (objType(input, 'object')) {
                                             data.props.value = tinyValue;
                                             syncUpdate(data.props, output.depId, `sendTinyUpdate_${where}`);
@@ -539,6 +580,7 @@ function GradioEmbed({ agiData }) {
 
                                         });
 
+                                        // The submit job status is sent here
                                         job.on('status', (data) => {
 
                                             // Convert to momentjs
@@ -585,10 +627,11 @@ function GradioEmbed({ agiData }) {
 
                                 embedCache.genDeps = (item) => {
 
+                                    // Prepare values
                                     const depItem = config.dependencies[item];
                                     const comps = { output: [], input: [], cancel: [] };
 
-                                    // Get Js Values
+                                    // Get Js Values in the gradio app json
                                     if (typeof depItem.js === 'string' && depItem.js.length > 0) {
                                         try {
 
@@ -681,12 +724,14 @@ function GradioEmbed({ agiData }) {
                                         }
                                     }
 
+                                    // Insert comps values
                                     comps.show_progress = depItem.show_progress;
                                     comps.trigger_only_on_success = depItem.trigger_only_on_success;
                                     comps.trigger_after = depItem.trigger_after;
                                     comps.collects_event_data = depItem.collects_event_data;
                                     comps.backend_fn = depItem.backend_fn;
 
+                                    // When clicking on something on the embed, this will be executed here.
                                     const clickAction = (target, type, depId, outputs, triggerAfter) => {
                                         console.log('Target', type, target, depId);
                                         // if (!triggerAfter) {
@@ -848,6 +893,7 @@ function GradioEmbed({ agiData }) {
 
                 }
 
+                // Error
                 else if (isVisible < 0) {
                     embed.empty().addClass('error').append($('<center>').append(
                         $('<div>').text('ERROR!'),
@@ -876,9 +922,44 @@ function GradioEmbed({ agiData }) {
         }
     });
 
+    // iFrame communication
+    useEffect(() => {
+        if (iframeRef.current) {
+
+            // Iframe messages to test here.
+            const iframeMessage = (message) => {
+                if (message.source !== iframeRef.current.contentWindow) {
+
+                    console.log(`[${agiData.url}]`, message.data);
+
+                }
+
+            };
+
+            // If the user changes the client theme, we will notify the iframe that this has happened.
+            const iframeTheme = (index, newTheme) => {
+                if (iframeRef.current) {
+                    iframeRef.current.contentWindow.postMessage({ theme: getTheme() });
+                }
+            };
+
+            // Iframe Functions. All iframe events will be detected here.
+            window.addEventListener('message', iframeMessage);
+            settings.on(cons.events.settings.THEME_APPLIED, iframeTheme);
+            return () => {
+                settings.off(cons.events.settings.THEME_APPLIED, iframeTheme);
+                window.removeEventListener('message', iframeMessage);
+            };
+
+        }
+    });
+
     // Temp result. (I'm using this only to have a preview. This will be removed later.)
-    // <iframe title='gradio' src={agiData.url} />
-    return <div ref={embedRef} className='mt-2 agi-client-embed chatbox-size-fix border border-bg p-4' />;
+    return <iframe ref={iframeRef} src={`${agiData.url}${!agiData.url.endsWith('/') ? '/' : ''}?room_id=${encodeURIComponent(msgInfo.roomId)}&msg_id=${encodeURIComponent(msgInfo.eventId)}&owner_id=${encodeURIComponent(initMatrix.matrixClient.getUserId())}&theme=${getTheme()}`} style={{ height: '500px', width: '100%' }} title='Gradio' />;
+    // return <gradio-app src={agiData.url} theme_mode={getTheme()} autoscroll />;
+
+    // The original gradio sandbox of the gradioLayout.js
+    // return <div ref={embedRef} className='mt-2 agi-client-embed chatbox-size-fix border border-bg p-4' />;
 
 };
 

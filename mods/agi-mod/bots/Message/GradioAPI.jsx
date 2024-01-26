@@ -180,6 +180,7 @@ const getInputValues = (comps) => {
 
 };
 
+// Gradio Embed React
 function GradioEmbed({ agiData, msgInfo }) {
 
     // Prepare Data
@@ -199,13 +200,14 @@ function GradioEmbed({ agiData, msgInfo }) {
         if (!appError && embedRef.current) {
             try {
 
-                // Error
+                // Error Sender
                 const tinyError = (err) => {
                     console.error(err);
                     toast(err.message);
                     setAppError(err);
                 };
 
+                // Get embed in jQuery
                 const embed = $(embedRef.current);
                 embed.removeClass('loading-gradio').removeClass('loading');
                 embed.find('> #loading-place').remove();
@@ -247,12 +249,15 @@ function GradioEmbed({ agiData, msgInfo }) {
                         selectedRoom.initYdoc();
                         selectedRoom.ydocWait().then(() => {
 
+                            // The embed functions will start here...
+
+                            // This is the ymap to get embed data
                             const ymap = () => selectedRoom.getYmap(id);
 
                             // Insert Embed
                             if (embed.find('gradio-embed').length < 1) {
 
-                                // Sync Update
+                                // Sync Updates will be sent here!
                                 let loadingUpdate = true;
                                 const syncUpdate = (tinyPromps, depId, where) => {
                                     const props = clone(tinyPromps);
@@ -260,7 +265,7 @@ function GradioEmbed({ agiData, msgInfo }) {
                                     if (!loadingUpdate) ymap().set(String(depId), props);
                                 };
 
-                                // Id
+                                // Build Embed first cache
                                 const embedCache = {};
                                 const config = app.config;
 
@@ -268,6 +273,7 @@ function GradioEmbed({ agiData, msgInfo }) {
                                 const embedData = new GradioLayout(config, `gradio-embed[space='${id}']`, agiData.url, id, embedCache);
                                 embedData.insertYdoc(ymap, 'ymap');
 
+                                // Prepare gradio tag in the html
                                 const page = $('<gradio-embed>', { class: 'text-center', space: id });
                                 embedData.insertHtml(page);
                                 // chatboxScrollToBottom();
@@ -379,6 +385,7 @@ function GradioEmbed({ agiData, msgInfo }) {
                                         (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean')
                                     ) {
 
+                                        // Preparing a url value
                                         let tinyValue = value;
                                         if (
                                             value === null &&
@@ -389,9 +396,12 @@ function GradioEmbed({ agiData, msgInfo }) {
                                             tinyValue = `${dataset.props.samples[dataset.index][0].startsWith('/') ? fileUrlGenerator(config.root) : ''}${dataset.props.samples[dataset.index][0]}`;
                                         }
 
+                                        // Get component data
                                         const data = embedData.getComponentValue(output.depId);
                                         const input = embedData.getInput(output.depId);
                                         const dropdown = embedData.getDropdown(output.depId);
+
+                                        // Insert value and send update
                                         if (objType(input, 'object')) {
                                             data.props.value = tinyValue;
                                             syncUpdate(data.props, output.depId, `sendTinyUpdate_${where}`);
@@ -570,6 +580,7 @@ function GradioEmbed({ agiData, msgInfo }) {
 
                                         });
 
+                                        // The submit job status is sent here
                                         job.on('status', (data) => {
 
                                             // Convert to momentjs
@@ -616,10 +627,11 @@ function GradioEmbed({ agiData, msgInfo }) {
 
                                 embedCache.genDeps = (item) => {
 
+                                    // Prepare values
                                     const depItem = config.dependencies[item];
                                     const comps = { output: [], input: [], cancel: [] };
 
-                                    // Get Js Values
+                                    // Get Js Values in the gradio app json
                                     if (typeof depItem.js === 'string' && depItem.js.length > 0) {
                                         try {
 
@@ -712,12 +724,14 @@ function GradioEmbed({ agiData, msgInfo }) {
                                         }
                                     }
 
+                                    // Insert comps values
                                     comps.show_progress = depItem.show_progress;
                                     comps.trigger_only_on_success = depItem.trigger_only_on_success;
                                     comps.trigger_after = depItem.trigger_after;
                                     comps.collects_event_data = depItem.collects_event_data;
                                     comps.backend_fn = depItem.backend_fn;
 
+                                    // When clicking on something on the embed, this will be executed here.
                                     const clickAction = (target, type, depId, outputs, triggerAfter) => {
                                         console.log('Target', type, target, depId);
                                         // if (!triggerAfter) {
@@ -879,6 +893,7 @@ function GradioEmbed({ agiData, msgInfo }) {
 
                 }
 
+                // Error
                 else if (isVisible < 0) {
                     embed.empty().addClass('error').append($('<center>').append(
                         $('<div>').text('ERROR!'),

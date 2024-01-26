@@ -275,6 +275,44 @@ function Welcome({ isGuest }) {
         </div>
       </div>
 
+      <form className="Formy" onSubmit={handleSearchSubmit}>
+        <input
+          className='btn btn-bg w-100 border'
+          type="text"
+          value={tempSearch}
+          onChange={handleSearchChange}
+          onSubmit={handleSearchSubmit}
+          placeholder="Search for bots and rooms..."
+        />
+      </form>
+
+      <div className="taggy taggy2">
+        {list &&
+          <>
+
+            <button
+              className={`btn taggyButton btn-bg very-small border${dataTag === null ? ' active' : ''} text-lowercase`}
+              key='CLEAR_ALL'
+              onClick={() => setSelectedTag(null)}
+            >
+              all
+            </button>
+
+            {list.map((tag) => (
+              <button
+                className={`btn taggyButton btn-bg very-small border${typeof dataTag === 'string' && dataTag === tag ? ' active' : ''} text-lowercase`}
+                key={tag}
+                onClick={() => setSelectedTag(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+
+          </>}
+      </div>
+
+      <hr />
+
       {!loadingData ? <>
         {users.length > 0 ? categoryGenerator('popular_bots', 'bots', 'Bots', users) : null}
         {rooms.length > 0 ? categoryGenerator('popular_rooms', 'rooms', 'Rooms', rooms) : null}

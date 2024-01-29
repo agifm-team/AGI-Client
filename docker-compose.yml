@@ -5,25 +5,25 @@ services:
     image: agifm/client:docker
     container_name: pony
     ports:
-      - "8088:80"
+      - '8088:80'
     networks:
       - traefik
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.middlewares.chat-add-headers.headers.customresponseheaders.Content-Security-Policy=frame-ancestors 'self' *.agispace.co"
-      - "traefik.http.middlewares.chat-add-headers.headers.customresponseheaders.Permission-Policy=interest-cohort=()"
-      - "traefik.http.middlewares.chat-add-headers.headers.customresponseheaders.Strict-Transport-Security=max-age=31536000; includeSubDomains"
-      - "traefik.http.middlewares.chat-add-headers.headers.customresponseheaders.X-Content-Type-Options=nosniff"
-      - "traefik.http.middlewares.chat-add-headers.headers.customresponseheaders.X-Frame-Options=SAMEORIGIN"
-      - "traefik.http.middlewares.bots-add-headers.headers.customresponseheaders.accesscontrolalloworiginlist=https://*.agispace.co"
-      - "traefik.http.middlewares.chat-add-headers.headers.customresponseheaders.X-XSS-Protection=1; mode=block"
-      - "traefik.http.routers.chat.entrypoints=web-secure"
-      - "traefik.http.routers.chat.middlewares=chat-add-headers"
-      - "traefik.http.routers.chat.rule=Host(`app.agispace.co`)"
-      - "traefik.http.routers.chat.service=chat"
-      - "traefik.http.routers.chat.tls=true"
-      - "traefik.http.routers.chat.tls.certresolver=default"
-      - "traefik.http.services.chat.loadbalancer.server.port=80"
+      - 'traefik.enable=true'
+      - "traefik.http.middlewares.chat-add-headers.headers.customresponseheaders.Content-Security-Policy=frame-ancestors 'self' *.pixelschat.com"
+      - 'traefik.http.middlewares.chat-add-headers.headers.customresponseheaders.Permission-Policy=interest-cohort=()'
+      - 'traefik.http.middlewares.chat-add-headers.headers.customresponseheaders.Strict-Transport-Security=max-age=31536000; includeSubDomains'
+      - 'traefik.http.middlewares.chat-add-headers.headers.customresponseheaders.X-Content-Type-Options=nosniff'
+      - 'traefik.http.middlewares.chat-add-headers.headers.customresponseheaders.X-Frame-Options=SAMEORIGIN'
+      - 'traefik.http.middlewares.bots-add-headers.headers.customresponseheaders.accesscontrolalloworiginlist=https://*.pixelschat.com'
+      - 'traefik.http.middlewares.chat-add-headers.headers.customresponseheaders.X-XSS-Protection=1; mode=block'
+      - 'traefik.http.routers.chat.entrypoints=web-secure'
+      - 'traefik.http.routers.chat.middlewares=chat-add-headers'
+      - 'traefik.http.routers.chat.rule=Host(`app.pixelschat.com`)'
+      - 'traefik.http.routers.chat.service=chat'
+      - 'traefik.http.routers.chat.tls=true'
+      - 'traefik.http.routers.chat.tls.certresolver=default'
+      - 'traefik.http.services.chat.loadbalancer.server.port=80'
 
 networks:
   traefik:

@@ -1,6 +1,6 @@
 // import socketIOClient from 'socket.io-client';
 
-const serverDomain = 'agispace.co';
+const serverDomain = 'pixelschat.com';
 const serverAddress = `https://bots.${serverDomain}/`;
 
 export { serverAddress, serverDomain };

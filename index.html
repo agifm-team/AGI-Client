@@ -1,85 +1,91 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <base href="./" />
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<head>
-  <base href="./" />
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AGI Space</title>
 
-  <title>AGI Space</title>
+    <meta content="website" property="og:type" />
 
-  <meta content="website" property="og:type" />
+    <meta name="name" content="pixelschat.com" />
 
-  <meta name="name" content="agispace.co" />
+    <meta name="author" content="pixelschat.com Team" />
 
-  <meta name="author" content="agispace.co Team" />
+    <meta name="description" content="Collaborative AI Spaces" />
 
-  <meta name="description" content="Collaborative AI Spaces" />
+    <meta
+      name="keywords"
+      content="cinny, matrix, matrix client, matrix.org, element, pixelschat.com"
+    />
 
-  <meta name="keywords" content="cinny, matrix, matrix client, matrix.org, element, agispace.co" />
+    <meta property="og:site_name" content="pixelschat.com" />
+    <meta property="og:title" content="pixelschat.com" />
+    <meta property="og:url" content="https://pixelschat.com" />
+    <meta property="og:image" content="./img/png/cinny.png" />
 
-  <meta property="og:site_name" content="agispace.co" />
-  <meta property="og:title" content="agispace.co" />
-  <meta property="og:url" content="https://agispace.co" />
-  <meta property="og:image" content="./img/png/cinny.png" />
+    <meta property="og:description" content="AI Agents for Power Users" />
 
-  <meta property="og:description" content="AI Agents for Power Users" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#212121" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f6f6" />
 
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#212121" />
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f6f6" />
+    <link href="./img/png/cinny.png" id="app-favicon" rel="icon" type="image/x-icon" />
 
-  <link href="./img/png/cinny.png" id="app-favicon" rel="icon" type="image/x-icon">
+    <link rel="manifest" href="./manifest.json" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="pixelschat.com" />
+    <meta name="apple-mobile-web-app-title" content="pixelschat.com" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-  <link rel="manifest" href="./manifest.json" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="application-name" content="agispace.co" />
-  <meta name="apple-mobile-web-app-title" content="agispace.co" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-
-  <script type="importmap">
-    {
-      "imports": {
-        "qrcode": "./js/qrcode/browser.js"
+    <script type="importmap">
+      {
+        "imports": {
+          "qrcode": "./js/qrcode/browser.js"
+        }
       }
-    }
-  </script>
+    </script>
 
-  <script type="module" src="https://gradio.s3-us-west-2.amazonaws.com/4.14.0/gradio.js"></script>
-  <script type="module">
-    import * as qrcode from 'qrcode';
-    global.qrcode = qrcode;
-  </script>
+    <script type="module" src="https://gradio.s3-us-west-2.amazonaws.com/4.14.0/gradio.js"></script>
+    <script type="module">
+      import * as qrcode from 'qrcode';
+      global.qrcode = qrcode;
+    </script>
 
-  <script src="./js/vega/vega.min.js"></script>
-  <script src="./js/vega/vega-lite.min.js"></script>
-  <script src="./js/vega/vega-embed.min.js"></script>
+    <script src="./js/vega/vega.min.js"></script>
+    <script src="./js/vega/vega-lite.min.js"></script>
+    <script src="./js/vega/vega-embed.min.js"></script>
 
-  <script src="./js/jquery.min.js"></script>
-  <script src="./js/jquery-ui.min.js"></script>
-  <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/jquery-ui.min.js"></script>
+    <script src="./js/bootstrap.bundle.min.js"></script>
 
-  <script>
-    document.addEventListener('deviceready', function () { console.log('[device] Ready') });
-  </script>
+    <script>
+      document.addEventListener('deviceready', function () {
+        console.log('[device] Ready');
+      });
+    </script>
 
-  <link rel="apple-touch-icon" sizes="57x57" href="./img/apple/apple-touch-icon-57x57.png" />
-  <link rel="apple-touch-icon" sizes="60x60" href="./img/apple/apple-touch-icon-60x60.png" />
-  <link rel="apple-touch-icon" sizes="72x72" href="./img/apple/apple-touch-icon-72x72.png" />
-  <link rel="apple-touch-icon" sizes="76x76" href="./img/apple/apple-touch-icon-76x76.png" />
-  <link rel="apple-touch-icon" sizes="114x114" href="./img/apple/apple-touch-icon-114x114.png" />
-  <link rel="apple-touch-icon" sizes="120x120" href="./img/apple/apple-touch-icon-120x120.png" />
-  <link rel="apple-touch-icon" sizes="144x144" href="./img/apple/apple-touch-icon-144x144.png" />
-  <link rel="apple-touch-icon" sizes="152x152" href="./img/apple/apple-touch-icon-152x152.png" />
-  <link rel="apple-touch-icon" sizes="167x167" href="./img/apple/apple-touch-icon-167x167.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="./img/apple/apple-touch-icon-180x180.png" />
-</head>
+    <link rel="apple-touch-icon" sizes="57x57" href="./img/apple/apple-touch-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="./img/apple/apple-touch-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="./img/apple/apple-touch-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="./img/apple/apple-touch-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="./img/apple/apple-touch-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="./img/apple/apple-touch-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="./img/apple/apple-touch-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="./img/apple/apple-touch-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="./img/apple/apple-touch-icon-167x167.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./img/apple/apple-touch-icon-180x180.png" />
+  </head>
 
-<body id="appBody">
-  <script> window.global ||= window; var OLM_OPTIONS; </script>
-  <div id="root"></div>
-  <script type="module" src="./src/index.jsx"></script>
-</body>
-
+  <body id="appBody">
+    <script>
+      window.global ||= window;
+      var OLM_OPTIONS;
+    </script>
+    <div id="root"></div>
+    <script type="module" src="./src/index.jsx"></script>
+  </body>
 </html>

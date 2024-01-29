@@ -12,16 +12,10 @@
     }
   }
   .taggy {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-
     .taggyButton {
       color: var(--button-text-color);
       background-color: var(--button-background-color);
-      border-radius: 50px;
-      margin-right: 10px;
-      margin-bottom: 10px;
+
       cursor: pointer;
 
       &:hover {
@@ -33,6 +27,18 @@
       }
     }
   }
+
+  .taggy2 {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    .taggyButton {
+      border-radius: 50px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+  }
+
   .bots {
     display: flex;
     flex-wrap: wrap;
@@ -185,5 +191,22 @@
     border-width: 1px !important;
     border-style: solid !important;
     border-color: unset !important;
+  }
+
+  #search-title {
+    .search-info {
+      max-width: 700px;
+      .search-form {
+        border: var(--bg-surface-extra-low) 6px solid;
+        border-radius: 14px;
+        .search-input {
+          border-color: var(--bg-surface-low) !important;
+        }
+      }
+    }
+
+    .taggy {
+      width: auto !important;
+    }
   }
 }

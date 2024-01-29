@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import encrypt from 'browser-encrypt-attachment';
 
 import { BlurhashCanvas } from 'react-blurhash';
 import imageViewer from '../../../util/imageViewer';
-import { chatboxScrollToBottom } from '../../../util/tools';
 import Tooltip from '../../atoms/tooltip/Tooltip';
 import Text from '../../atoms/text/Text';
 import IconButton from '../../atoms/button/IconButton';
 import Spinner from '../../atoms/spinner/Spinner';
 
 import { getBlobSafeMimeType } from '../../../util/mimetypes';
+import { mediaFix } from './mediaFix';
 
 async function getDecryptedBlob(response, type, decryptData) {
   const arrayBuffer = await response.arrayBuffer();
@@ -43,7 +43,7 @@ function getNativeHeight(width, height, maxWidth = 296) {
 }
 
 function FileHeader({
-  name, link, external, disableChatScroll,
+  name, link, external,
   file, type,
 }) {
   const [url, setUrl] = useState(null);
@@ -61,7 +61,6 @@ function FileHeader({
     }
   }
 
-  if (!disableChatScroll) chatboxScrollToBottom();
   return (
     <div className="file-header">
       <Text className="file-name" variant="b3">{name}</Text>
@@ -91,13 +90,11 @@ function FileHeader({
   );
 }
 FileHeader.defaultProps = {
-  disableChatScroll: false,
   external: false,
   file: null,
   link: null,
 };
 FileHeader.propTypes = {
-  disableChatScroll: PropTypes.bool,
   name: PropTypes.string.isRequired,
   link: PropTypes.string,
   external: PropTypes.bool,
@@ -106,9 +103,8 @@ FileHeader.propTypes = {
 };
 
 function File({
-  name, link, file, type, disableChatScroll,
+  name, link, file, type,
 }) {
-  if (!disableChatScroll) chatboxScrollToBottom();
   return (
     <div className="file-container">
       <FileHeader name={name} link={link} file={file} type={type} />
@@ -116,12 +112,10 @@ function File({
   );
 }
 File.defaultProps = {
-  disableChatScroll: false,
   file: null,
   type: '',
 };
 File.propTypes = {
-  disableChatScroll: PropTypes.bool,
   name: PropTypes.string.isRequired,
   link: PropTypes.string.isRequired,
   type: PropTypes.string,
@@ -129,11 +123,14 @@ File.propTypes = {
 };
 
 function Image({
-  name, width, height, link, file, type, blurhash, className, classImage, disableChatScroll, ignoreContainer
+  name, width, height, link, file, type, blurhash, className, classImage, ignoreContainer
 }) {
   const [url, setUrl] = useState(null);
   const [blur, setBlur] = useState(true);
   const [lightbox, setLightbox] = useState(false);
+
+  const itemEmbed = useRef(null);
+  const [embedHeight, setEmbedHeight] = useState(null);
 
   useEffect(() => {
     let unmounted = false;
@@ -153,8 +150,6 @@ function Image({
     setLightbox(!lightbox);
   };
 
-  if (!disableChatScroll) chatboxScrollToBottom();
-
   const imgData = url !== null && (
     <img
       className={`${classImage}${ignoreContainer ? ` ${className}` : ''}`}
@@ -162,6 +157,7 @@ function Image({
       style={{ display: blur ? 'none' : 'unset' }}
       onLoad={event => {
 
+        mediaFix(itemEmbed, embedHeight, setEmbedHeight);
         setBlur(false);
         let imageLoaded = false;
         if (!imageLoaded && event.target) {
@@ -180,6 +176,8 @@ function Image({
       alt={name}
     />
   );
+
+  useEffect(() => mediaFix(itemEmbed, embedHeight, setEmbedHeight));
 
   if (!ignoreContainer) {
 
@@ -206,7 +204,6 @@ function Image({
 }
 Image.defaultProps = {
   ignoreContainer: false,
-  disableChatScroll: false,
   file: null,
   width: null,
   height: null,
@@ -217,7 +214,6 @@ Image.defaultProps = {
 };
 Image.propTypes = {
   ignoreContainer: PropTypes.bool,
-  disableChatScroll: PropTypes.bool,
   name: PropTypes.string.isRequired,
   width: PropTypes.number,
   height: PropTypes.number,
@@ -230,9 +226,12 @@ Image.propTypes = {
 };
 
 function Sticker({
-  name, height, width, link, file, type, disableChatScroll,
+  name, height, width, link, file, type,
 }) {
   const [url, setUrl] = useState(null);
+
+  const itemEmbed = useRef(null);
+  const [embedHeight, setEmbedHeight] = useState(null);
 
   useEffect(() => {
     let unmounted = false;
@@ -247,7 +246,7 @@ function Sticker({
     };
   }, []);
 
-  if (!disableChatScroll) chatboxScrollToBottom();
+  useEffect(() => mediaFix(itemEmbed, embedHeight, setEmbedHeight));
 
   return (
     <Tooltip
@@ -261,14 +260,12 @@ function Sticker({
   );
 }
 Sticker.defaultProps = {
-  disableChatScroll: false,
   file: null,
   type: '',
   width: null,
   height: null,
 };
 Sticker.propTypes = {
-  disableChatScroll: PropTypes.bool,
   name: PropTypes.string.isRequired,
   width: PropTypes.number,
   height: PropTypes.number,
@@ -278,45 +275,47 @@ Sticker.propTypes = {
 };
 
 function Audio({
-  name, link, type, file, disableChatScroll,
+  name, link, type, file,
 }) {
+
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [url, setUrl] = useState(null);
+
+  const itemEmbed = useRef(null);
+  const [embedHeight, setEmbedHeight] = useState(null);
 
   async function loadAudio() {
     const myUrl = await getUrl(link, type, file);
     setUrl(myUrl);
     setIsLoading(false);
+    setIsLoaded(true);
   }
   function handlePlayAudio() {
     setIsLoading(true);
     loadAudio();
   }
 
-  if (!disableChatScroll) chatboxScrollToBottom();
-
-  return (
-    <div className="file-container">
-      <FileHeader name={name} link={file !== null ? url : url || link} type={type} external />
-      <div className="audio-container">
-        {url === null && isLoading && <Spinner size="small" />}
-        {url === null && !isLoading && <IconButton onClick={handlePlayAudio} tooltip="Play audio" fa="fa-solid fa-circle-play" />}
-        {url !== null && (
-          <audio autoPlay controls>
-            <source src={url} type={getBlobSafeMimeType(type)} />
-          </audio>
-        )}
-      </div>
+  useEffect(() => mediaFix(itemEmbed, embedHeight, setEmbedHeight, isLoaded));
+  return <div ref={itemEmbed} className="file-container">
+    <FileHeader name={name} link={file !== null ? url : url || link} type={type} external />
+    <div className="audio-container">
+      {url === null && isLoading && <Spinner size="small" />}
+      {url === null && !isLoading && <IconButton onClick={handlePlayAudio} tooltip="Play audio" fa="fa-solid fa-circle-play" />}
+      {url !== null && (
+        <audio autoPlay controls>
+          <source src={url} type={getBlobSafeMimeType(type)} />
+        </audio>
+      )}
     </div>
-  );
+  </div>;
+
 }
 Audio.defaultProps = {
-  disableChatScroll: false,
   file: null,
   type: '',
 };
 Audio.propTypes = {
-  disableChatScroll: PropTypes.bool,
   name: PropTypes.string.isRequired,
   link: PropTypes.string.isRequired,
   type: PropTypes.string,
@@ -324,31 +323,41 @@ Audio.propTypes = {
 };
 
 function Video({
-  name, link, thumbnail, thumbnailFile, thumbnailType, disableChatScroll,
+  name, link, thumbnail, thumbnailFile, thumbnailType,
   width, height, file, type, blurhash,
 }) {
+
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [url, setUrl] = useState(null);
   const [thumbUrl, setThumbUrl] = useState(null);
   const [blur, setBlur] = useState(true);
 
+  const itemEmbed = useRef(null);
+  const [embedHeight, setEmbedHeight] = useState(null);
+
   useEffect(() => {
+
     let unmounted = false;
     async function fetchUrl() {
       const myThumbUrl = await getUrl(thumbnail, thumbnailType, thumbnailFile);
       if (unmounted) return;
       setThumbUrl(myThumbUrl);
     }
+
     if (thumbnail !== null) fetchUrl();
     return () => {
       unmounted = true;
     };
+
   }, []);
 
+  useEffect(() => mediaFix(itemEmbed, embedHeight, setEmbedHeight, isLoaded));
   const loadVideo = async () => {
     const myUrl = await getUrl(link, type, file);
     setUrl(myUrl);
     setIsLoading(false);
+    setIsLoaded(true);
   };
 
   const handlePlayVideo = () => {
@@ -356,46 +365,31 @@ function Video({
     loadVideo();
   };
 
-  if (!disableChatScroll) chatboxScrollToBottom();
+  return <div ref={itemEmbed} className={`file-container${url !== null ? ' file-open' : ''}`}>
+    <FileHeader name={name} link={file !== null ? url : url || link} type={type} external />
+    {url === null ?
 
-  return (
-    url === null ? (
-      <div className="file-container">
-        <FileHeader name={name} link={file !== null ? url : url || link} type={type} external />
-        <div className="video-container">
+      <div className="video-container">
 
-          {!isLoading && <IconButton onClick={handlePlayVideo} tooltip="Play video" fa="fa-solid fa-circle-play" />}
-          {blurhash && blur && <BlurhashCanvas hash={blurhash} punch={1} />}
-          {thumbUrl !== null && (
-            <img style={{ display: blur ? 'none' : 'unset' }} src={thumbUrl} onLoad={() => setBlur(false)} alt={name} />
-          )}
-          {isLoading && <Spinner size="small" />}
+        {!isLoading && <IconButton onClick={handlePlayVideo} tooltip="Play video" fa="fa-solid fa-circle-play" />}
+        {blurhash && blur && <BlurhashCanvas hash={blurhash} punch={1} />}
+        {thumbUrl !== null && (
+          <img style={{ display: blur ? 'none' : 'unset' }} src={thumbUrl} onLoad={() => setBlur(false)} alt={name} />
+        )}
+        {isLoading && <Spinner size="small" />}
 
-        </div>
+      </div> :
+
+      <div className="ratio ratio-16x9 video-base">
+        <video srcwidth={width} srcheight={height} autoPlay controls poster={thumbUrl}>
+          <source src={url} type={getBlobSafeMimeType(type)} />
+        </video>
       </div>
-    ) : (
 
-      <Tooltip
-        placement='top'
-        content={<Text variant="b2">{name}</Text>}
-      >
-        <div className="file-container file-open">
-          <div className="video-container">
-
-            <div className="ratio ratio-16x9 video-base">
-              <video srcwidth={width} srcheight={height} autoPlay controls poster={thumbUrl}>
-                <source src={url} type={getBlobSafeMimeType(type)} />
-              </video>
-            </div>
-
-          </div>
-        </div>
-      </Tooltip>
-    )
-  );
+    }
+  </div>;
 }
 Video.defaultProps = {
-  disableChatScroll: false,
   width: null,
   height: null,
   file: null,
@@ -406,7 +400,6 @@ Video.defaultProps = {
   blurhash: null,
 };
 Video.propTypes = {
-  disableChatScroll: PropTypes.bool,
   name: PropTypes.string.isRequired,
   link: PropTypes.string.isRequired,
   thumbnail: PropTypes.string,

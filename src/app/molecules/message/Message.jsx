@@ -13,7 +13,7 @@ import hljs from 'highlight.js';
 import * as linkify from "linkifyjs";
 
 import Text from '../../atoms/text/Text';
-import { hljsFixer, resizeWindowChecker, chatboxScrollToBottom, toast } from '../../../util/tools';
+import { hljsFixer, resizeWindowChecker, toast } from '../../../util/tools';
 import { twemojify, twemojifyReact } from '../../../util/twemojify';
 import initMatrix from '../../../client/initMatrix';
 
@@ -66,6 +66,7 @@ import UserOptions from '../user-options/UserOptions';
 import { getDataList } from '../../../util/selectedRoom';
 import { tinyLinkifyFixer } from '../../../util/clear-urls/clearUrls';
 import { canPinMessage, isPinnedMessage, setPinMessage } from '../../../util/libs/pinMessage';
+import { mediaFix } from '../media/mediaFix';
 
 function PlaceholderMessage() {
   return <tr className="ph-msg">
@@ -638,6 +639,9 @@ MessageReaction.propTypes = {
 
 function MessageReactionGroup({ roomTimeline, mEvent }) {
 
+  const itemEmbed = useRef(null);
+  const [embedHeight, setEmbedHeight] = useState(null);
+
   const { roomId, room, reactionTimeline } = roomTimeline;
   const mx = initMatrix.matrixClient;
   const reactions = {};
@@ -706,6 +710,9 @@ function MessageReactionGroup({ roomTimeline, mEvent }) {
 
   // Create reaction list and limit the amount to 20
   const reacts = Object.keys(reactions).sort((a, b) => reactions[a].index - reactions[b].index).slice(0, reactionLimit);
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => mediaFix(itemEmbed, embedHeight, setEmbedHeight));
 
   return <div className="noselect">
 
@@ -1182,7 +1189,10 @@ function Message({
   const mx = initMatrix.matrixClient;
   const roomId = mEvent.getRoomId();
   const { editedTimeline, reactionTimeline } = roomTimeline ?? {};
+
   const [embeds, setEmbeds] = useState([]);
+  const [embedHeight, setEmbedHeight] = useState(null);
+  const itemEmbed = useRef(null);
 
   // Content Body
   const classList = ['message', isBodyOnly ? 'message--body-only' : 'message--full'];
@@ -1216,33 +1226,10 @@ function Message({
   let isCustomHTML = content.format === 'org.matrix.custom.html';
   let customHTML = isCustomHTML ? content.formatted_body : null;
 
-  const bodyUrls = [];
-  if (typeof body === 'string' && body.length > 0) {
-
-    try {
-
-      const newBodyUrls = linkify.find(
-        body.replace(/\> \<\@([\S\s]+?)\> ([\S\s]+?)\n\n|\> \<\@([\S\s]+?)\> ([\S\s]+?)\\n\\n/gm, '')
-          .replace(/^((?:(?:[ ]{4}|\t).*(\R|$))+)|`{3}([\w]*)\n([\S\s]+?)`{3}|`{3}([\S\s]+?)`{3}|`{2}([\S\s]+?)`{2}|`([\S\s]+?)|\[([\S\s]+?)\]|\{([\S\s]+?)\}|\<([\S\s]+?)\>|\(([\S\s]+?)\)/gm, '')
-      );
-
-      if (Array.isArray(newBodyUrls)) {
-        for (const item in newBodyUrls) {
-          if (tinyLinkifyFixer(newBodyUrls[item].type, newBodyUrls[item].value)) {
-            bodyUrls.push(newBodyUrls[item]);
-          }
-        }
-      }
-
-    } catch (err) {
-      console.error(err);
-    }
-
-  }
-
   // Edit Data
   const edit = useCallback(() => {
     if (eventId && setEdit) setEdit(eventId);
+    setEmbeds([]);
   }, [setEdit, eventId]);
 
   // Reply Data
@@ -1297,6 +1284,30 @@ function Message({
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
+
+    const bodyUrls = [];
+    if (typeof body === 'string' && body.length > 0) {
+
+      try {
+
+        const newBodyUrls = linkify.find(
+          body.replace(/\> \<\@([\S\s]+?)\> ([\S\s]+?)\n\n|\> \<\@([\S\s]+?)\> ([\S\s]+?)\\n\\n/gm, '')
+            .replace(/^((?:(?:[ ]{4}|\t).*(\R|$))+)|`{3}([\w]*)\n([\S\s]+?)`{3}|`{3}([\S\s]+?)`{3}|`{2}([\S\s]+?)`{2}|`([\S\s]+?)|\[([\S\s]+?)\]|\{([\S\s]+?)\}|\<([\S\s]+?)\>|\(([\S\s]+?)\)/gm, '')
+        );
+
+        if (Array.isArray(newBodyUrls)) {
+          for (const item in newBodyUrls) {
+            if (tinyLinkifyFixer(newBodyUrls[item].type, newBodyUrls[item].value)) {
+              bodyUrls.push(newBodyUrls[item]);
+            }
+          }
+        }
+
+      } catch (err) {
+        console.error(err);
+      }
+
+    }
 
     // Room jQuery base
     const messageFinder = `[roomid='${roomId}'][senderid='${senderId}'][eventid='${eventId}'][msgtype='${msgType}']`;
@@ -1367,12 +1378,14 @@ function Message({
     }
 
     // Complete
-    chatboxScrollToBottom(false, null);
     return () => {
       $(messageFinder).find('.message-url-embed').remove();
     };
 
   }, []);
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => mediaFix(null, embedHeight, setEmbedHeight));
 
   // Normal Message
   if (msgType !== 'm.bad.encrypted') {
@@ -1471,7 +1484,7 @@ function Message({
             messageStatus={messageStatus}
           />
 
-          {embeds.length > 0 ? <div className='message-embed message-url-embed'>
+          {embeds.length > 0 ? <div ref={itemEmbed} className='message-embed message-url-embed'>
             {embeds.map(embed => {
               if (embed.data) return <Embed embed={embed.data} />
             })}
@@ -1517,8 +1530,6 @@ function Message({
     </tr>;
 
   }
-
-  chatboxScrollToBottom();
 
   // Bad Message
   const errorMessage = `<i class="bi bi-key-fill text-warning"></i> <strong>Unable to decrypt message.</strong>`;

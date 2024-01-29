@@ -42,6 +42,7 @@ module.exports = {
     '@typescript-eslint'
   ],
   rules: {
+    'no-continue': 0,
     'default-case': 0,
     'no-nested-ternary': 0,
     'import/no-cycle': 0,

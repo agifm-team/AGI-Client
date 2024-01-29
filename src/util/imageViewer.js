@@ -2,9 +2,9 @@
 import FileSaver from 'file-saver';
 import PhotoSwipeLightbox from 'photoswipe';
 import { getFileContentType } from './fileMime';
-import { chatboxScrollToBottom, toast } from './tools';
+import { toast } from './tools';
 
-export default function imageViewer(lightbox, imgQuery, name, url, readMime = false, scrollDown = true) {
+export default function imageViewer(lightbox, imgQuery, name, url, readMime = false) {
     return new Promise(async (resolve, reject) => {
         try {
 
@@ -92,7 +92,6 @@ export default function imageViewer(lightbox, imgQuery, name, url, readMime = fa
 
                 pswp.init();
                 if (lightbox && lightbox.loadAndOpen) lightbox.loadAndOpen(0);
-                if (scrollDown) chatboxScrollToBottom();
 
             }
 

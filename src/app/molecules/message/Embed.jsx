@@ -1,5 +1,5 @@
 import React, {
-    useEffect, useRef,
+    useEffect, useRef, useState,
 } from 'react';
 import PropTypes from 'prop-types';
 
@@ -11,6 +11,7 @@ import jReact from '../../../../mods/lib/jReact';
 import openTinyURL from '../../../util/message/urlProtection';
 import defaultAvatar from '../../atoms/avatar/defaultAvatar';
 import { countObj, objType } from '../../../util/tools';
+import { mediaFix } from '../media/mediaFix';
 
 const tinyUrlAction = (event) => {
     const e = event.originalEvent;
@@ -22,12 +23,20 @@ function Embed({ embed }) {
 
     // URL Ref
     const tinyUrl = useRef(null);
+    const itemEmbed = useRef(null);
+    const [embedHeight, setEmbedHeight] = useState(null);
 
     const imgType = typeof embed['og:image:type'] === 'string' && embed['og:image:type'].length > 0 ? embed['og:image:type'].split('/') : null;
     useEffect(() => {
+
+        // console.log(itemEmbed);
+
         $(tinyUrl.current).on('click', tinyUrlAction);
         return () => { $(tinyUrl.current).off('click', tinyUrlAction); };
+
     });
+
+    useEffect(() => mediaFix(itemEmbed, embedHeight, setEmbedHeight));
 
     // Matrix
     const mx = initMatrix.matrixClient;
@@ -104,7 +113,7 @@ function Embed({ embed }) {
     }
 
     // Complete
-    return <div className='card mt-2'>
+    return <div ref={itemEmbed} className='card mt-2'>
         <div className='card-body'>
 
             {isThumb && typeof imgUrl === 'string' ? <span className='float-end'>

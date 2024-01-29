@@ -1,3 +1,4 @@
+import { setMediaHeight } from "../../molecules/media/mediaFix";
 import { getScrollInfo } from '../../../util/common';
 
 class TimelineScroll {
@@ -21,9 +22,10 @@ class TimelineScroll {
     this.diff = 0;
   }
 
-  scrollToBottom() {
+  scrollToBottom(extraValue = 0) {
     const scrollInfo = getScrollInfo(this.scroll);
-    const maxScrollTop = scrollInfo.height - scrollInfo.viewHeight;
+    const maxScrollTop = scrollInfo.height - scrollInfo.viewHeight - extraValue;
+    setMediaHeight(maxScrollTop);
 
     this._scrollTo(scrollInfo, maxScrollTop);
   }

@@ -226,16 +226,24 @@ function Welcome({ isGuest }) {
         </div>
       </div>
 
-      <form className="Formy" onSubmit={handleSearchSubmit}>
-        <input
-          className='btn btn-bg w-100 border'
-          type="text"
-          value={tempSearch}
-          onChange={handleSearchChange}
-          onSubmit={handleSearchSubmit}
-          placeholder="Search for bots and rooms..."
-        />
-      </form>
+      <div id='search-title'>
+
+        <div className='search-info mb-3'>
+
+          <form className="search-form mb-2 mt-3" onSubmit={handleSearchSubmit}>
+            <input
+              className='search-input btn btn-bg w-100 border'
+              type="text"
+              value={tempSearch}
+              onChange={handleSearchChange}
+              onSubmit={handleSearchSubmit}
+              placeholder="Search for bots and rooms..."
+            />
+          </form>
+
+        </div>
+
+      </div>
 
       <div className="taggy taggy2">
         {list &&

@@ -18,6 +18,7 @@ import initMatrix from '../../../../src/client/initMatrix';
 
 import settings from '../../../../src/client/state/settings';
 import cons from '../../../../src/client/state/cons';
+import { mediaFix } from '../../../../src/app/molecules/media/mediaFix';
 
 // Detect the mode to execute the input update
 const updateInputValue = (input, dropdown, value, filePath = '') => {
@@ -190,6 +191,7 @@ function GradioEmbed({ agiData, msgInfo, replyId }) {
     const [appError, setAppError] = useState(null);
     const [id, setId] = useState(null);
 
+    const [embedHeight, setEmbedHeight] = useState(null);
     const [isVisible, setIsVisible] = useState(0);
 
     // Temp
@@ -953,6 +955,8 @@ function GradioEmbed({ agiData, msgInfo, replyId }) {
 
         }
     });
+
+    useEffect(() => mediaFix(iframeRef, embedHeight, setEmbedHeight));
 
     // Temp result. (I'm using this only to have a preview. This will be removed later.)
     return <div>

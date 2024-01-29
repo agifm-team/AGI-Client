@@ -1,4 +1,21 @@
 /* Welcome Page */
+body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):not(
+    .theme-type-dark2-solid
+  )
+  .tiny-welcome {
+  .category {
+    .row {
+      .citem {
+        .avatar {
+          &.avatar-bg {
+            display: none !important;
+          }
+        }
+      }
+    }
+  }
+}
+
 .tiny-welcome {
   .Formy {
     input {
@@ -102,7 +119,6 @@
       .citem {
         cursor: pointer;
         border-radius: 5px !important;
-        background-color: var(--bg-surface);
         & > div {
           overflow-y: auto;
         }

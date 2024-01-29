@@ -181,7 +181,7 @@ function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
 
             {bot.tags.map((tag) => (
                 <button
-                    className='badge bg-bg2 border border-bg very-small mx-1 text-lowercase'
+                    className='badge bg-bg2 text-bg-force border border-bg very-small mx-1 text-lowercase'
                     key={`${tag}_click`}
                 >{tag}</button>
             ))}

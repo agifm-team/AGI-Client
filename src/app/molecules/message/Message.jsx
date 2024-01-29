@@ -1353,6 +1353,7 @@ function Message({
                 try {
                   // eslint-disable-next-line no-await-in-loop
                   tinyEmbed.data = await getUrlPreview(bodyUrls[item].href);
+                  mediaFix(null, embedHeight, setEmbedHeight);
                 } catch (err) {
                   tinyEmbed.data = null;
                   console.error(err);
@@ -1367,6 +1368,7 @@ function Message({
             }
           }
 
+          mediaFix(null, embedHeight, setEmbedHeight);
           setEmbeds(newEmbeds);
 
         };
@@ -1378,6 +1380,7 @@ function Message({
     }
 
     // Complete
+    mediaFix(null, embedHeight, setEmbedHeight);
     return () => {
       $(messageFinder).find('.message-url-embed').remove();
     };
@@ -1385,7 +1388,7 @@ function Message({
   }, []);
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => mediaFix(null, embedHeight, setEmbedHeight));
+  useEffect(() => mediaFix(itemEmbed, embedHeight, setEmbedHeight));
 
   // Normal Message
   if (msgType !== 'm.bad.encrypted') {

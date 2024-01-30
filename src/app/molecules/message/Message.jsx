@@ -66,7 +66,7 @@ import UserOptions from '../user-options/UserOptions';
 import { getDataList } from '../../../util/selectedRoom';
 import { tinyLinkifyFixer } from '../../../util/clear-urls/clearUrls';
 import { canPinMessage, isPinnedMessage, setPinMessage } from '../../../util/libs/pinMessage';
-import { mediaFix } from '../media/mediaFix';
+import { mediaFix, tinyFixScrollChat } from '../media/mediaFix';
 
 function PlaceholderMessage() {
   return <tr className="ph-msg">
@@ -125,6 +125,7 @@ MessageTime.propTypes = {
 
 // Message Reply
 function MessageReply({ name, color, body }) {
+  tinyFixScrollChat();
   return <div className="pb-2 emoji-size-fix small text-reply">
     <RawIcon color={color} size="normal" fa="fa-solid fa-reply" />
     {' '}
@@ -301,7 +302,7 @@ const createMessageData = (content, body, isCustomHTML = false, isSystem = false
 
 };
 
-const messageDataEffects = (messageBody) => {
+const messageDataEffects = (messageBody, embedHeight, setEmbedHeight) => {
 
   messageBody.find('pre code').each((index, value) => {
 
@@ -311,15 +312,18 @@ const messageDataEffects = (messageBody) => {
     if (!el.hasClass('hljs')) {
       hljs.highlightElement(value);
       el.addClass('chatbox-size-fix');
+      mediaFix(null, embedHeight, setEmbedHeight);
     }
 
     if (!el.hasClass('hljs-fix')) {
       el.addClass('hljs-fix');
-      hljsFixer(el, 'MessageBody');
+      hljsFixer(el, 'MessageBody', () => mediaFix(null, embedHeight, setEmbedHeight));
+      mediaFix(null, embedHeight, setEmbedHeight);
     }
 
     if (!el.hasClass('hljs')) {
       el.addClass('hljs');
+      mediaFix(null, embedHeight, setEmbedHeight);
     }
 
   });
@@ -362,9 +366,10 @@ const MessageBody = React.memo(
   }) => {
 
     const messageBody = useRef(null);
+    const [embedHeight, setEmbedHeight] = useState(null);
 
     useEffect(() => {
-      messageDataEffects($(messageBody.current))
+      messageDataEffects($(messageBody.current), embedHeight, setEmbedHeight)
     });
 
     // if body is not string it is a React element.
@@ -1229,12 +1234,14 @@ function Message({
   // Edit Data
   const edit = useCallback(() => {
     if (eventId && setEdit) setEdit(eventId);
+    mediaFix(null, embedHeight, setEmbedHeight);
     setEmbeds([]);
   }, [setEdit, eventId]);
 
   // Reply Data
   const reply = useCallback(() => {
     if (eventId && senderId) replyTo(senderId, eventId, body, customHTML);
+    mediaFix(null, embedHeight, setEmbedHeight);
   }, [body, customHTML, eventId, senderId]);
 
   if (!eventId) {

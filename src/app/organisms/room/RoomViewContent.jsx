@@ -32,6 +32,7 @@ import { getCurrentState } from '../../../util/matrixUtil';
 import tinyAPI from '../../../util/mods';
 import moment, { momentFormat } from '../../../util/libs/momentjs';
 import { rule3 } from '../../../util/tools';
+import { mediaFix } from '../../molecules/media/mediaFix';
 
 let loadingPage = false;
 const PAG_LIMIT = 50;
@@ -161,6 +162,7 @@ function renderEvent(
   if (eventType === 'm.room.member' || eventType === 'm.room.pinned_events') {
     const timelineChange = parseTimelineChange(mEvent);
     if (timelineChange === null) return <div key={mEvent.getId()} />;
+    // tinyFixScrollChat();
     return (
       <TimelineChange
         key={mEvent.getId()}
@@ -170,6 +172,8 @@ function renderEvent(
       />
     );
   }
+
+  // tinyFixScrollChat();
   return (
     <Message
       refRoomInput={refRoomInput}
@@ -486,6 +490,7 @@ function RoomViewContent({
 }) {
 
   const [throttle] = useState(new Throttle());
+  const [embedHeight, setEmbedHeight] = useState(null);
 
   const timelineSVRef = useRef(null);
   const timelineScrollRef = useRef(null);
@@ -556,6 +561,7 @@ function RoomViewContent({
 
     autoPaginate();
 
+    mediaFix(null, embedHeight, setEmbedHeight);
     roomTimeline.on(cons.events.roomTimeline.SCROLL_TO_LIVE, handleScrollToLive);
     return () => {
       if (timelineSVRef.current === null) return;

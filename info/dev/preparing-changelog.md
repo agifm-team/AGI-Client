@@ -33,3 +33,4 @@
 - Reactions limited to 20.
 - Sidebar css fixed to chrome.
 - New scroll fix script.
+- Markdown codes fix (code from variance client)

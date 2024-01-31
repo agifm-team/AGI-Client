@@ -2,8 +2,8 @@
  * @see https://www.electron.build/configuration/configuration
  */
 {
-  appId: 'Pixxels-App',
-  productName: 'Pixxels-App',
+  appId: 'Pixxels',
+  productName: 'Pixxels',
   copyright: 'Copyright © 2023 ${author}',
   asar: true,
   directories: {
@@ -15,8 +15,8 @@
     target: ['AppImage', 'deb'],
     category: 'Network;Chat;InstantMessaging;',
     desktop: {
-      Comment: 'Pony House matrix client',
-      Keywords: 'chat;pony;house;messaging;messenger;matrix;matrix-client;brony',
+      Comment: 'Pixxels matrix client',
+      Keywords: 'chat;pixxels;messaging;messenger;matrix;matrix-client;brony',
     },
   },
   mac: {

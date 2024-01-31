@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'Pixxels-App',
-  appName: 'Pixxels-App',
+  appId: 'Pixxels',
+  appName: 'Pixxels',
   webDir: 'dist',
 
   server: {

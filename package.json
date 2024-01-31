@@ -1,8 +1,8 @@
 {
   "name": "AGI-Space",
   "version": "1.3.28",
-  "short_name": "AGI-space",
-  "description": "AGI-space: Collaborative AI spaces",
+  "short_name": "Pixxels-App",
+  "description": "Pixxels-App: Collaborative AI spaces",
   "main": "dist-electron/main/index.js",
   "engines": {
     "node": ">=16.0.0"
@@ -32,7 +32,7 @@
     "matrix-client",
     "brony",
     "brony-fandom",
-    "AGI-space"
+    "Pixxels-App"
   ],
   "author": {
     "name": "seshu.bonam",

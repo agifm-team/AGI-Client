@@ -2,8 +2,8 @@
  * @see https://www.electron.build/configuration/configuration
  */
 {
-  appId: 'AGI-space',
-  productName: 'AGI-space',
+  appId: 'Pixxels-App',
+  productName: 'Pixxels-App',
   copyright: 'Copyright © 2023 ${author}',
   asar: true,
   directories: {
@@ -45,6 +45,6 @@
   publish: {
     provider: 'generic',
     channel: 'latest',
-    url: 'https://github.com/agifm-team/AGI-Client/releases/latest',
+    url: 'https://github.com/pixxels-team/Pixxels-App/releases/latest',
   },
 }

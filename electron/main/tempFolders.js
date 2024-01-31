@@ -11,7 +11,7 @@ const createDirName = (where) => {
 };
 
 // Validate Folders
-const tempFolder = path.join(app.getPath('temp'), './AGI-space');
+const tempFolder = path.join(app.getPath('temp'), './Pixxels-App');
 if (!fs.existsSync(tempFolder)) {
     fs.mkdirSync(tempFolder);
 }

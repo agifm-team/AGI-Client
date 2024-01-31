@@ -212,7 +212,7 @@ Object.freeze(cons);
 // https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repository-tags
 global.checkVersions = () => new Promise((resolve, reject) => {
 
-  fetch(`https://api.github.com/repos/agifm-team/AGI-Client/tags`, {
+  fetch(`https://api.github.com/repos/pixxels-team/Pixxels-App/tags`, {
     method: 'GET',
     cache: 'no-cache',
     credentials: 'same-origin',

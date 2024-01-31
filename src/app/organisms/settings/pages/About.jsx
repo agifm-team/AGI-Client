@@ -52,7 +52,7 @@ function AboutSection() {
                                 <div>{__ENV_APP__.INFO.description}</div>
 
                                 <div className="mt-3">
-                                    <Button className='me-1' onClick={() => window.open('https://github.com/agifm-team/AGI-Client')}>Source code</Button>
+                                    <Button className='me-1' onClick={() => window.open('https://github.com/pixxels-team/Pixxels-App')}>Source code</Button>
                                     <Button className='mx-1' onClick={() => window.open('https://puddy.club/')}>Support</Button>
                                     <Button className='ms-1' onClick={() => initMatrix.clearCacheAndReload()} variant="danger">Clear cache & reload</Button>
                                 </div>

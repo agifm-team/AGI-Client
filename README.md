@@ -69,7 +69,7 @@ Yep. To disable it via the client, you need to go to the settings tabs. To perma
 
 ### This client has web3 functionalities. Is this matrix client a crypto wallet?
 
-Nope. Agispace has access to crypto wallet APIs that are installed in your browser or on your computer. And this function can be turned off in the settings.
+Nope. Pixxels has access to crypto wallet APIs that are installed in your browser or on your computer. And this function can be turned off in the settings.
 
 ### Does the client support the purchase and sale of NFTs?
 

@@ -4,7 +4,7 @@
 
 # Pixxels
 
-A Cinny fork Matrix client focusing primarily on building AI communities with a simple, elegant and secure interface. The main goal is to build an Ai native collaboration platform that is easy to use and has a pro tools for ai assisted productivity and fun.
+Build and join AI communities with a simple, elegant and secure interface. The main goal is to build an Ai native collaboration platform that is easy to use and has a pro tools for ai assisted productivity and fun.
 
 ## Getting started
 Web app is available at https://pixx.co and gets updated on each new release.

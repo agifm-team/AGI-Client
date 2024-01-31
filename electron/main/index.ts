@@ -107,7 +107,7 @@ async function createWindow() {
 
     if (process.platform === 'win32') {
       win.setAppDetails({
-        appId: 'AGI-space',
+        appId: 'Pixxels',
         appIconPath: icon,
         relaunchDisplayName: title,
       });

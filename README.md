@@ -2,14 +2,14 @@
 <!-- <img align="center" src="https://raw.githubusercontent.com/agifm-team/AGI-Client/dev/public/favicon.ico?raw=true" height="380"> -->
 </center>
 
-# AGI Space
+# Pixxels
 
-A Cinny fork Matrix client focusing primarily on AI Agent utility with a simple, elegant and secure interface. The main goal is to build an Agent platform that is easy to use and has a pro tools for ai assisted productivity and fun.
+A Cinny fork Matrix client focusing primarily on building AI communities with a simple, elegant and secure interface. The main goal is to build an Ai native collaboration platform that is easy to use and has a pro tools for ai assisted productivity and fun.
 
 ## Getting started
 Web app is available at https://client.pony.house/ and gets updated on each new release.
 
-To host Pony House on your own, download tarball of the app from [GitHub release](https://github.com/agifm-team/AGI-Client/releases/latest).
+To host Pony House on your own, download tarball of the app from [GitHub release](https://github.com/pixxels-team/Pixxels-App/releases/latest).
 You can serve the application with a webserver of your choice by simply copying `dist/` directory to the webroot. 
 To set default Homeserver on login and register page, place a customized [`config.json`](config.json) in webroot of your choice.
 

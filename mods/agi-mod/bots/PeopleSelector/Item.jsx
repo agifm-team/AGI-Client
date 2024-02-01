@@ -12,20 +12,23 @@ import * as roomActions from '../../../../src/client/action/room';
 
 import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
 import { getRoomInfo } from '../../../../src/app/organisms/room/Room';
+import { openProfileViewer } from '../../../../src/client/action/navigation';
 
 function PeopleSelector({ avatarSrc, name, user, peopleRole, }) {
 
     // Refs
     const buttonRef = useRef(null);
+    const profileButtonRef = useRef(null);
+    const userId = user?.userId || name;
 
     // Effect
     useEffect(() => {
 
         // Get Button
         const button = $(buttonRef.current);
-        const tinyButton = async (event) => {
+        const profileButton = $(profileButtonRef.current);
+        const tinyButton = async () => {
 
-            const userId = $(event.currentTarget).parent().parent().parent().parent().attr('bot');
             if (typeof userId === 'string') {
 
                 const roomId = getRoomInfo().roomTimeline.room.roomId;
@@ -66,17 +69,23 @@ function PeopleSelector({ avatarSrc, name, user, peopleRole, }) {
 
         };
 
+        const tinyProfileAction = () => {
+            openProfileViewer(userId, getRoomInfo().roomTimeline.roomId);
+        };
+
         // Insert Event Click
         button.on('click', tinyButton);
+        profileButton.on('click', tinyProfileAction);
         return () => {
             button.off('click', tinyButton);
+            profileButton.off('click', tinyProfileAction);
         };
 
     });
 
-    return <div bot={user?.userId || name} className="card agent-button noselect">
+    return <div className="card agent-button noselect">
         <div className='text-start my-3 mx-4'><img src={avatarSrc} className="img-fluid avatar rounded-circle" draggable={false} height={100} width={100} alt="avatar" /></div>
-        <div className="text-start card-body mt-0 pt-0">
+        <div ref={profileButtonRef} className="text-start card-body mt-0 pt-0" >
             <h5 className="card-title small text-bg">{name}<div class="float-end"><button ref={buttonRef} className='btn btn-primary btn-sm my-1'>Invite</button></div></h5>
             <p className="card-text very-small text-bg-low">{peopleRole}</p>
         </div>

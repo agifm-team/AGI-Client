@@ -2,7 +2,6 @@ import { Capacitor } from '@capacitor/core';
 import { compareVersions } from 'compare-versions';
 
 const cons = {
-
   version: __ENV_APP__.VERSION,
 
   secretKey: {
@@ -29,10 +28,7 @@ const cons = {
     'm.sticker',
   ],
 
-  supportReceiptTypes: [
-    'm.read',
-    'm.read.private',
-  ],
+  supportReceiptTypes: ['m.read', 'm.read.private'],
 
   notifs: {
     DEFAULT: 'default',
@@ -49,7 +45,6 @@ const cons = {
   },
 
   actions: {
-
     navigation: {
       UPDATE_EMOJI_LIST_DATA: 'UPDATE_EMOJI_LIST_DATA',
       UPDATE_EMOJI_LIST: 'UPDATE_EMOJI_LIST',
@@ -109,11 +104,9 @@ const cons = {
       TOGGLE_NOTIFICATIONS: 'TOGGLE_NOTIFICATIONS',
       TOGGLE_NOTIFICATION_SOUNDS: 'TOGGLE_NOTIFICATION_SOUNDS',
     },
-
   },
 
   events: {
-
     navigation: {
       CONSOLE_REMOVED_DATA: 'CONSOLE_REMOVED_DATA',
       CONSOLE_NEW_DATA_CREATED: 'CONSOLE_NEW_DATA_CREATED',
@@ -202,9 +195,7 @@ const cons = {
       NOTIFICATIONS_TOGGLED: 'NOTIFICATIONS_TOGGLED',
       NOTIFICATION_SOUNDS_TOGGLED: 'NOTIFICATION_SOUNDS_TOGGLED',
     },
-
   },
-
 };
 
 Object.freeze(cons);

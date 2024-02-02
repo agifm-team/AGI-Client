@@ -7,15 +7,18 @@ import unstoppableDomains from './web3/unstoppableDomains';
 import catppuccinTheme from './themes/catppuccin';
 
 export function startCustomThemes() {
-    catppuccinTheme();
-    startThemeSettings();
+  catppuccinTheme();
+  startThemeSettings();
 };
 
 export default function startMods(firstTime) {
+  // sinkingYachts(firstTime);
+  // helloWorld(firstTime);
+  // startTest(firstTime);
 
-    startAgi(firstTime);
+  startAgi(firstTime);
 
-    customMessages(firstTime);
-    unstoppableDomains(firstTime);
+  customMessages(firstTime);
+  unstoppableDomains(firstTime);
 
-}; 
+};

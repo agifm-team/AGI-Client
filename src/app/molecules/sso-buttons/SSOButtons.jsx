@@ -26,9 +26,7 @@ function SSOButtons({ type, identityProviders, baseUrl }) {
 }
 
 SSOButtons.propTypes = {
-  identityProviders: PropTypes.arrayOf(
-    PropTypes.shape({}),
-  ).isRequired,
+  identityProviders: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   baseUrl: PropTypes.string.isRequired,
   type: PropTypes.oneOf(['sso', 'cas']).isRequired,
 };

@@ -2,15 +2,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-import {
-  MatrixEventEvent,
-  RoomEvent,
-  THREAD_RELATION_TYPE,
-} from 'matrix-js-sdk';
+import { MatrixEventEvent, RoomEvent, THREAD_RELATION_TYPE } from 'matrix-js-sdk';
 
 import clone from 'clone';
 import hljs from 'highlight.js';
-import * as linkify from "linkifyjs";
+import * as linkify from 'linkifyjs';
 
 import Text from '../../atoms/text/Text';
 import { hljsFixer, resizeWindowChecker, toast } from '../../../util/tools';
@@ -69,26 +65,51 @@ import { canPinMessage, isPinnedMessage, setPinMessage } from '../../../util/lib
 import { mediaFix, tinyFixScrollChat } from '../media/mediaFix';
 
 function PlaceholderMessage() {
-  return <tr className="ph-msg">
-    <td colSpan="2">
-      <p className="placeholder-glow"><span className="placeholder col-12" /></p>
-      <p className="placeholder-glow"><span className="placeholder col-12" /></p>
-      <p className="placeholder-glow"><span className="placeholder col-12" /></p>
-      <p className="placeholder-glow"><span className="placeholder col-12" /></p>
-      <p className="placeholder-glow"><span className="placeholder col-12" /></p>
-      <p className="placeholder-glow"><span className="placeholder col-12" /></p>
-    </td>
-  </tr>;
-};
+  return (
+    <tr className="ph-msg">
+      <td colSpan="2">
+        <p className="placeholder-glow">
+          <span className="placeholder col-12" />
+        </p>
+        <p className="placeholder-glow">
+          <span className="placeholder col-12" />
+        </p>
+        <p className="placeholder-glow">
+          <span className="placeholder col-12" />
+        </p>
+        <p className="placeholder-glow">
+          <span className="placeholder col-12" />
+        </p>
+        <p className="placeholder-glow">
+          <span className="placeholder col-12" />
+        </p>
+        <p className="placeholder-glow">
+          <span className="placeholder col-12" />
+        </p>
+      </td>
+    </tr>
+  );
+}
 
 // Avatar Generator
-const MessageAvatar = React.memo(({
-  roomId, avatarSrc, avatarAnimSrc, userId, username, contextMenu,
-}) => (
-  <button type="button" onContextMenu={contextMenu} onClick={() => openProfileViewer(userId, roomId)}>
-    <Avatar imgClass='' imageAnimSrc={avatarAnimSrc} imageSrc={avatarSrc} text={username} bgColor={colorMXID(userId)} isDefaultImage />
-  </button>
-));
+const MessageAvatar = React.memo(
+  ({ roomId, avatarSrc, avatarAnimSrc, userId, username, contextMenu }) => (
+    <button
+      type="button"
+      onContextMenu={contextMenu}
+      onClick={() => openProfileViewer(userId, roomId)}
+    >
+      <Avatar
+        imgClass=""
+        imageAnimSrc={avatarAnimSrc}
+        imageSrc={avatarSrc}
+        text={username}
+        bgColor={colorMXID(userId)}
+        isDefaultImage
+      />
+    </button>
+  ),
+);
 
 // Message Header
 const MessageHeader = React.memo(({
@@ -104,9 +125,7 @@ MessageHeader.propTypes = {
   username: PropTypes.string.isRequired,
 };
 
-const MessageTime = React.memo(({
-  timestamp, fullTime, className
-}) => (
+const MessageTime = React.memo(({ timestamp, fullTime, className }) => (
   <span className={`${className} very-small text-gray`}>
     <Time timestamp={timestamp} fullTime={fullTime} />
   </span>
@@ -126,13 +145,15 @@ MessageTime.propTypes = {
 // Message Reply
 function MessageReply({ name, color, body }) {
   tinyFixScrollChat();
-  return <div className="pb-2 emoji-size-fix small text-reply">
-    <RawIcon color={color} size="normal" fa="fa-solid fa-reply" />
-    {' '}
-    <span className="username-title emoji-size-fix" style={{ color }}>{twemojifyReact(name)}</span>
-    {' '}
-    {body.length > 200 ? twemojifyReact(`${body.substring(0, 200)}......`) : twemojifyReact(body)}
-  </div>;
+  return (
+    <div className="pb-2 emoji-size-fix small text-reply">
+      <RawIcon color={color} size="normal" fa="fa-solid fa-reply" />{' '}
+      <span className="username-title emoji-size-fix" style={{ color }}>
+        {twemojifyReact(name)}
+      </span>{' '}
+      {body.length > 200 ? twemojifyReact(`${body.substring(0, 200)}......`) : twemojifyReact(body)}
+    </div>
+  );
 }
 
 MessageReply.propTypes = {
@@ -141,83 +162,81 @@ MessageReply.propTypes = {
   body: PropTypes.string.isRequired,
 };
 
-const MessageReplyWrapper = React.memo(
-  ({ roomTimeline, eventId }) => {
-    const [reply, setReply] = useState(null);
-    const isMountedRef = useRef(true);
+const MessageReplyWrapper = React.memo(({ roomTimeline, eventId }) => {
+  const [reply, setReply] = useState(null);
+  const isMountedRef = useRef(true);
 
-    useEffect(() => {
-      const mx = initMatrix.matrixClient;
-      const timelineSet = roomTimeline.getUnfilteredTimelineSet();
-      const loadReply = async () => {
-        try {
-          const eTimeline = await mx.getEventTimeline(timelineSet, eventId);
-          if (!eTimeline) return;
-          await roomTimeline.decryptAllEventsOfTimeline(eTimeline);
+  useEffect(() => {
+    const mx = initMatrix.matrixClient;
+    const timelineSet = roomTimeline.getUnfilteredTimelineSet();
+    const loadReply = async () => {
+      try {
+        const eTimeline = await mx.getEventTimeline(timelineSet, eventId);
+        if (!eTimeline) return;
+        await roomTimeline.decryptAllEventsOfTimeline(eTimeline);
 
-          let mEvent = eTimeline.getTimelineSet().findEventById(eventId);
+        let mEvent = eTimeline.getTimelineSet().findEventById(eventId);
 
-          const editedList = roomTimeline.editedTimeline.get(mEvent.getId());
-          if (editedList) {
-            mEvent = editedList[editedList.length - 1];
-          }
-
-          const rawBody = mEvent.getContent().body;
-          const username = getUsernameOfRoomMember(mEvent.sender);
-
-          if (isMountedRef.current === false) return;
-          const fallbackBody = mEvent.isRedacted()
-            ? '*** This message has been deleted ***'
-            : '*** Unable to load reply ***';
-          let parsedBody = parseReply(rawBody)?.body ?? rawBody ?? fallbackBody;
-          if (editedList && parsedBody.startsWith(' * ')) {
-            parsedBody = parsedBody.slice(3);
-          }
-
-          setReply({
-            to: username,
-            color: colorMXID(mEvent.getSender() ?? ''),
-            body: parsedBody,
-            event: mEvent,
-          });
-        } catch {
-          setReply({
-            to: '** Unknown user **',
-            color: 'var(--tc-danger-normal)',
-            body: '*** Unable to load reply ***',
-            event: null,
-          });
+        const editedList = roomTimeline.editedTimeline.get(mEvent.getId());
+        if (editedList) {
+          mEvent = editedList[editedList.length - 1];
         }
-      };
-      loadReply();
 
-      return () => {
-        isMountedRef.current = false;
-      };
-    }, [eventId, roomTimeline]);
+        const rawBody = mEvent.getContent().body;
+        const username = getUsernameOfRoomMember(mEvent.sender);
 
-    const focusReply = (ev) => {
-      if (!ev.key || ev.key === ' ' || ev.key === 'Enter') {
-        if (ev.key) ev.preventDefault();
-        if (reply?.event === null) return;
-        if (reply?.event.isRedacted()) return;
-        roomTimeline.loadEventTimeline(eventId);
+        if (isMountedRef.current === false) return;
+        const fallbackBody = mEvent.isRedacted()
+          ? '*** This message has been deleted ***'
+          : '*** Unable to load reply ***';
+        let parsedBody = parseReply(rawBody)?.body ?? rawBody ?? fallbackBody;
+        if (editedList && parsedBody.startsWith(' * ')) {
+          parsedBody = parsedBody.slice(3);
+        }
+
+        setReply({
+          to: username,
+          color: colorMXID(mEvent.getSender() ?? ''),
+          body: parsedBody,
+          event: mEvent,
+        });
+      } catch {
+        setReply({
+          to: '** Unknown user **',
+          color: 'var(--tc-danger-normal)',
+          body: '*** Unable to load reply ***',
+          event: null,
+        });
       }
     };
+    loadReply();
 
-    return (
-      <div
-        className="message__reply-wrapper"
-        onClick={focusReply}
-        onKeyDown={focusReply}
-        role="button"
-        tabIndex={0}
-      >
-        {reply !== null && <MessageReply name={reply.to} color={reply.color} body={reply.body} />}
-      </div>
-    );
-  },
-);
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, [eventId, roomTimeline]);
+
+  const focusReply = (ev) => {
+    if (!ev.key || ev.key === ' ' || ev.key === 'Enter') {
+      if (ev.key) ev.preventDefault();
+      if (reply?.event === null) return;
+      if (reply?.event.isRedacted()) return;
+      roomTimeline.loadEventTimeline(eventId);
+    }
+  };
+
+  return (
+    <div
+      className="message__reply-wrapper"
+      onClick={focusReply}
+      onKeyDown={focusReply}
+      role="button"
+      tabIndex={0}
+    >
+      {reply !== null && <MessageReply name={reply.to} color={reply.color} body={reply.body} />}
+    </div>
+  );
+});
 
 MessageReplyWrapper.propTypes = {
   roomTimeline: PropTypes.shape({}).isRequired,
@@ -226,68 +245,80 @@ MessageReplyWrapper.propTypes = {
 
 // Is Emoji only
 const isEmojiOnly = (msgContent) => {
-
   // Determine if this message should render with large emojis
   // Criteria:
   // - Contains only emoji
   // - Contains no more than 10 emoji
   let emojiOnly = false;
   if (msgContent) {
-
     if (msgContent.type === 'img') {
       // If this messages contains only a single (inline) image
       emojiOnly = true;
     } else if (msgContent.constructor.name === 'Array') {
-
       // Otherwise, it might be an array of images / text
 
       // Count the number of emojis
       const nEmojis = msgContent.filter((e) => e.type === 'img').length;
 
       // Make sure there's no text besides whitespace and variation selector U+FE0F
-      if (nEmojis <= 10 && msgContent.every((element) => (
-        (typeof element === 'object' && element.type === 'img')
-        || (typeof element === 'string' && /^[\s\ufe0f]*$/g.test(element))
-      ))) {
+      if (
+        nEmojis <= 10 &&
+        msgContent.every(
+          (element) =>
+            (typeof element === 'object' && element.type === 'img') ||
+            (typeof element === 'string' && /^[\s\ufe0f]*$/g.test(element)),
+        )
+      ) {
         emojiOnly = true;
       }
-
     }
-
   }
 
   return emojiOnly;
-
 };
 
-const createMessageData = (content, body, isCustomHTML = false, isSystem = false, isJquery = false, roomId = null, senderId = null, eventId = null) => {
-
+const createMessageData = (
+  content,
+  body,
+  isCustomHTML = false,
+  isSystem = false,
+  isJquery = false,
+  roomId = null,
+  senderId = null,
+  eventId = null,
+) => {
   let msgData = null;
   if (isCustomHTML) {
     try {
+      const insertMsg = () =>
+        !isJquery
+          ? twemojifyReact(
+            sanitizeCustomHtml(initMatrix.matrixClient, body),
+            undefined,
+            true,
+            false,
+            true,
+          )
+          : twemojify(
+            sanitizeCustomHtml(initMatrix.matrixClient, body),
+            undefined,
+            true,
+            false,
+            true,
+          );
 
-      const insertMsg = () => !isJquery ? twemojifyReact(
-        sanitizeCustomHtml(initMatrix.matrixClient, body),
-        undefined,
-        true,
-        false,
-        true,
-      ) : twemojify(
-        sanitizeCustomHtml(initMatrix.matrixClient, body),
-        undefined,
-        true,
-        false,
-        true,
+      const msgOptions = tinyAPI.emit(
+        'messageBody',
+        content,
+        { roomId, senderId, eventId },
+        insertMsg,
       );
-
-      const msgOptions = tinyAPI.emit('messageBody', content, { roomId, senderId, eventId }, insertMsg);
 
       if (typeof msgOptions.custom === 'undefined') {
         msgData = insertMsg();
       } else {
         msgData = msgOptions.custom;
       }
-
     } catch {
       console.error(`[matrix] [msg] Malformed custom html: `, body);
       msgData = !isJquery ? twemojifyReact(body, undefined) : twemojify(body, undefined);
@@ -295,17 +326,16 @@ const createMessageData = (content, body, isCustomHTML = false, isSystem = false
   } else if (!isSystem) {
     msgData = !isJquery ? twemojifyReact(body, undefined, true) : twemojify(body, undefined, true);
   } else {
-    msgData = !isJquery ? twemojifyReact(body, undefined, true, false, true) : twemojify(body, undefined, true, false, true);
+    msgData = !isJquery
+      ? twemojifyReact(body, undefined, true, false, true)
+      : twemojify(body, undefined, true, false, true);
   }
 
   return msgData;
-
 };
 
 const messageDataEffects = (messageBody, embedHeight, setEmbedHeight) => {
-
   messageBody.find('pre code').each((index, value) => {
-
     const el = $(value);
     resizeWindowChecker();
 
@@ -325,25 +355,19 @@ const messageDataEffects = (messageBody, embedHeight, setEmbedHeight) => {
       el.addClass('hljs');
       mediaFix(null, embedHeight, setEmbedHeight);
     }
-
   });
 
   // Add tooltip on the emoji
   messageBody.find('[data-mx-emoticon], .emoji').each((index, value) => {
-
     const el = $(value);
 
     if (!el.hasClass('emoji-fix')) {
-
       if (!el.attr('title') && el.attr('alt')) el.attr('title', el.attr('alt'));
 
       new bootstrap.Tooltip(value, { customClass: 'small' });
       el.addClass('emoji-fix');
-
     }
-
   });
-
 };
 
 export { createMessageData, isEmojiOnly, messageDataEffects };
@@ -364,19 +388,27 @@ const MessageBody = React.memo(
     msgType,
     messageStatus,
   }) => {
-
     const messageBody = useRef(null);
     const [embedHeight, setEmbedHeight] = useState(null);
 
     useEffect(() => {
-      messageDataEffects($(messageBody.current), embedHeight, setEmbedHeight)
+      messageDataEffects($(messageBody.current), embedHeight, setEmbedHeight);
     });
 
     // if body is not string it is a React element.
     if (typeof body !== 'string') return <div className="message__body">{body}</div>;
 
     // Message Data
-    let msgData = createMessageData(content, body, isCustomHTML, isSystem, false, roomId, senderId, eventId);
+    let msgData = createMessageData(
+      content,
+      body,
+      isCustomHTML,
+      isSystem,
+      false,
+      roomId,
+      senderId,
+      eventId,
+    );
 
     // Emoji Only
     const emojiOnly = isEmojiOnly(msgData?.props?.children?.props?.children);
@@ -384,22 +416,33 @@ const MessageBody = React.memo(
     if (!isCustomHTML) {
       // If this is a plaintext message, wrap it in a <p> element (automatically applying
       // white-space: pre-wrap) in order to preserve newlines
-      msgData = (<p ref={messageBody} className="m-0">{msgData}</p>);
+      msgData = (
+        <p ref={messageBody} className="m-0">
+          {msgData}
+        </p>
+      );
     } else {
-      msgData = (<span ref={messageBody} className="custom-html">{msgData}</span>);
+      msgData = (
+        <span ref={messageBody} className="custom-html">
+          {msgData}
+        </span>
+      );
     }
 
-    return <div className={`text-freedom message-body small text-bg${!emojiOnly ? ' emoji-size-fix' : ''} ${className} message-body-status-${messageStatus}`}>
-      {msgType === 'm.emote' && (
-        <>
-          {'* '}
-          {twemojifyReact(senderName)}
-          {' '}
-        </>
-      )}
-      {msgData}
-      {isEdited && <div className="very-small text-gray">(edited)</div>}
-    </div>;
+    return (
+      <div
+        className={`text-freedom message-body small text-bg${!emojiOnly ? ' emoji-size-fix' : ''} ${className} message-body-status-${messageStatus}`}
+      >
+        {msgType === 'm.emote' && (
+          <>
+            {'* '}
+            {twemojifyReact(senderName)}{' '}
+          </>
+        )}
+        {msgData}
+        {isEdited && <div className="very-small text-gray">(edited)</div>}
+      </div>
+    );
   },
 );
 
@@ -426,8 +469,7 @@ MessageBody.propTypes = {
 };
 
 // Message Edit
-function MessageEdit({ body, onSave, onCancel, refRoomInput, roomId, eventId, }) {
-
+function MessageEdit({ body, onSave, onCancel, refRoomInput, roomId, eventId }) {
   const editInputRef = useRef(null);
 
   useEffect(() => {
@@ -437,7 +479,6 @@ function MessageEdit({ body, onSave, onCancel, refRoomInput, roomId, eventId, })
   }, [body]);
 
   const deleteMessage = async () => {
-
     const isConfirmed = await confirmDialog(
       'Delete message',
       'Are you sure that you want to delete this message?',
@@ -447,7 +488,6 @@ function MessageEdit({ body, onSave, onCancel, refRoomInput, roomId, eventId, })
 
     if (!isConfirmed) return;
     redactEvent(roomId, eventId);
-
   };
 
   const handleKeyDown = (e) => {
@@ -461,41 +501,44 @@ function MessageEdit({ body, onSave, onCancel, refRoomInput, roomId, eventId, })
       $(refRoomInput.current).find('#message-textarea').focus();
       if (editInputRef.current.value.trim().length > 0) {
         onSave(editInputRef.current.value, body);
-      } else { deleteMessage(); }
+      } else {
+        deleteMessage();
+      }
     }
   };
 
-  return <form
-    className="message__edit"
-    onSubmit={(e) => {
+  return (
+    <form
+      className="message__edit"
+      onSubmit={(e) => {
+        e.preventDefault();
+        $(refRoomInput.current).find('#message-textarea').focus();
 
-      e.preventDefault();
-      $(refRoomInput.current).find('#message-textarea').focus();
-
-      if (editInputRef.current.value.trim().length > 0) {
-        onSave(editInputRef.current.value, body);
-      } else { deleteMessage(); }
-
-    }}
-  >
-    <Input
-      forwardRef={editInputRef}
-      onKeyDown={handleKeyDown}
-      value={body}
-      placeholder="Edit message"
-      required
-      resizable
-      autoFocus
-    />
-    <div className="message__edit-btns">
-      <Button type="submit" variant="primary">
-        Save
-      </Button>
-      <Button onClick={onCancel}>Cancel</Button>
-    </div>
-  </form>;
-
-};
+        if (editInputRef.current.value.trim().length > 0) {
+          onSave(editInputRef.current.value, body);
+        } else {
+          deleteMessage();
+        }
+      }}
+    >
+      <Input
+        forwardRef={editInputRef}
+        onKeyDown={handleKeyDown}
+        value={body}
+        placeholder="Edit message"
+        required
+        resizable
+        autoFocus
+      />
+      <div className="message__edit-btns">
+        <Button type="submit" variant="primary">
+          Save
+        </Button>
+        <Button onClick={onCancel}>Cancel</Button>
+      </div>
+    </form>
+  );
+}
 
 MessageEdit.propTypes = {
   roomId: PropTypes.string.isRequired,
@@ -506,11 +549,7 @@ MessageEdit.propTypes = {
 };
 
 // Get Emoji
-function getMyEmojiEvent(
-  emojiKey,
-  eventId,
-  roomTimeline,
-) {
+function getMyEmojiEvent(emojiKey, eventId, roomTimeline) {
   const mx = initMatrix.matrixClient;
   const rEvents = roomTimeline.reactionTimeline.get(eventId);
   let rEvent = null;
@@ -525,13 +564,7 @@ function getMyEmojiEvent(
   return rEvent;
 }
 
-function toggleEmoji(
-  roomId,
-  eventId,
-  emojiKey,
-  shortcode,
-  roomTimeline,
-) {
+function toggleEmoji(roomId, eventId, emojiKey, shortcode, roomTimeline) {
   const myAlreadyReactEvent = getMyEmojiEvent(emojiKey, eventId, roomTimeline);
   if (myAlreadyReactEvent) {
     const rId = myAlreadyReactEvent.getId();
@@ -544,16 +577,7 @@ function toggleEmoji(
 
 // Pick Emoji Modal
 const reactionLimit = 20;
-function pickEmoji(
-  e,
-  roomId,
-  eventId,
-  roomTimeline,
-  extraX = 0,
-  extraX2 = 0,
-  reacts = null,
-) {
-
+function pickEmoji(e, roomId, eventId, roomTimeline, extraX = 0, extraX2 = 0, reacts = null) {
   // Get Cords
   let reactsLength = Array.isArray(reacts) ? reacts.length : null;
   const cords = getEventCords(e);
@@ -583,52 +607,64 @@ function pickEmoji(
     }
     shiftNuller(() => e.target.click());
   });
-
 }
 
 // Reaction Generator
 function genReactionMsg(userIds, reaction, shortcode) {
-  return <>
-    {userIds.map((userId, index) => (
-      <React.Fragment key={userId}>
-        <span className='emoji-size-fix-2'>{twemojifyReact(getUsername(userId))}</span>
-        {index < userIds.length - 1 && (
-          <span style={{ opacity: '.6' }}>
-            {index === userIds.length - 2 ? ' and ' : ', '}
-          </span>
-        )}
-      </React.Fragment>
-    ))}
-    <span style={{ opacity: '.6' }}>{' reacted with '}</span>
-    <span className='emoji-size-fix-2'>{twemojifyReact(shortcode ? `:${shortcode}:` : reaction, { className: 'react-emoji' })}</span>
-  </>;
+  return (
+    <>
+      {userIds.map((userId, index) => (
+        <React.Fragment key={userId}>
+          <span className="emoji-size-fix-2">{twemojifyReact(getUsername(userId))}</span>
+          {index < userIds.length - 1 && (
+            <span style={{ opacity: '.6' }}>{index === userIds.length - 2 ? ' and ' : ', '}</span>
+          )}
+        </React.Fragment>
+      ))}
+      <span style={{ opacity: '.6' }}>{' reacted with '}</span>
+      <span className="emoji-size-fix-2">
+        {twemojifyReact(shortcode ? `:${shortcode}:` : reaction, { className: 'react-emoji' })}
+      </span>
+    </>
+  );
 }
 
 // Reaction Manager
-function MessageReaction({
-  reaction, shortcode, count, users, isActive, onClick,
-}) {
+function MessageReaction({ reaction, shortcode, count, users, isActive, onClick }) {
   let customEmojiUrl = null;
   if (reaction.match(/^mxc:\/\/\S+$/)) {
     customEmojiUrl = initMatrix.matrixClient.mxcUrlToHttp(reaction);
   }
-  return <Tooltip
-    className="msg__reaction-tooltip"
-    content={<div className='small'>{users.length > 0 ? genReactionMsg(users, reaction, shortcode) : 'Unable to load who has reacted'}</div>}
-  >
-    <button
-      onClick={onClick}
-      type="button"
-      className={`msg__reaction${isActive ? ' msg__reaction--active' : ''}`}
-    >
-      {
-        customEmojiUrl
-          ? <img className="react-emoji" draggable="false" alt={shortcode ?? reaction} src={customEmojiUrl} />
-          : twemojifyReact(reaction, { className: 'react-emoji' })
+  return (
+    <Tooltip
+      className="msg__reaction-tooltip"
+      content={
+        <div className="small">
+          {users.length > 0
+            ? genReactionMsg(users, reaction, shortcode)
+            : 'Unable to load who has reacted'}
+        </div>
       }
-      <div className="very-small text-gray msg__reaction-count">{count}</div>
-    </button>
-  </Tooltip>;
+    >
+      <button
+        onClick={onClick}
+        type="button"
+        className={`msg__reaction${isActive ? ' msg__reaction--active' : ''}`}
+      >
+        {customEmojiUrl ? (
+          <img
+            className="react-emoji"
+            draggable="false"
+            alt={shortcode ?? reaction}
+            src={customEmojiUrl}
+          />
+        ) : (
+          twemojifyReact(reaction, { className: 'react-emoji' })
+        )}
+        <div className="very-small text-gray msg__reaction-count">{count}</div>
+      </button>
+    </Tooltip>
+  );
 }
 MessageReaction.defaultProps = {
   shortcode: undefined,
@@ -643,7 +679,6 @@ MessageReaction.propTypes = {
 };
 
 function MessageReactionGroup({ roomTimeline, mEvent }) {
-
   const itemEmbed = useRef(null);
   const [embedHeight, setEmbedHeight] = useState(null);
 
@@ -655,7 +690,6 @@ function MessageReactionGroup({ roomTimeline, mEvent }) {
   const eventReactions = reactionTimeline.get(mEvent.getId());
 
   const addReaction = (key, shortcode, count, senderId, isActive, index) => {
-
     let isNewReaction = false;
     let reaction = reactions[key];
     if (reaction === undefined) {
@@ -679,14 +713,11 @@ function MessageReactionGroup({ roomTimeline, mEvent }) {
 
     reactions[key] = reaction;
     return isNewReaction;
-
   };
 
   if (eventReactions) {
-
     let tinyIndex = 0;
     eventReactions.forEach((rEvent) => {
-
       if (rEvent.getRelation() === null) return;
 
       const reaction = rEvent.getRelation();
@@ -697,11 +728,8 @@ function MessageReactionGroup({ roomTimeline, mEvent }) {
       if (addReaction(reaction.key, shortcode, undefined, senderId, isActive, tinyIndex)) {
         tinyIndex++;
       }
-
     });
-
   } else {
-
     // Use aggregated reactions
     const aggregatedReaction = mEvent.getServerAggregatedRelation('m.annotation')?.chunk;
     if (!aggregatedReaction) return null;
@@ -710,51 +738,52 @@ function MessageReactionGroup({ roomTimeline, mEvent }) {
       if (reaction.type !== 'm.reaction') return;
       addReaction(reaction.key, undefined, reaction.count, undefined, false);
     });
-
   }
 
   // Create reaction list and limit the amount to 20
-  const reacts = Object.keys(reactions).sort((a, b) => reactions[a].index - reactions[b].index).slice(0, reactionLimit);
+  const reacts = Object.keys(reactions)
+    .sort((a, b) => reactions[a].index - reactions[b].index)
+    .slice(0, reactionLimit);
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => mediaFix(itemEmbed, embedHeight, setEmbedHeight));
 
-  return <div className="noselect">
+  return (
+    <div className="noselect">
+      {reacts.map((key) => (
+        <MessageReaction
+          key={key}
+          reaction={key}
+          shortcode={reactions[key].shortcode}
+          count={reactions[key].count}
+          users={reactions[key].users}
+          isActive={reactions[key].isActive}
+          onClick={() => {
+            toggleEmoji(roomId, mEvent.getId(), key, reactions[key].shortcode, roomTimeline);
+          }}
+        />
+      ))}
 
-    {reacts.map((key) => (
-      <MessageReaction
-        key={key}
-        reaction={key}
-        shortcode={reactions[key].shortcode}
-        count={reactions[key].count}
-        users={reactions[key].users}
-        isActive={reactions[key].isActive}
-        onClick={() => {
-          toggleEmoji(roomId, mEvent.getId(), key, reactions[key].shortcode, roomTimeline);
-        }}
-      />
-    ))}
-
-    {canSendReaction && (
-      <IconButton
-        className='ms-2 btn-sm reaction-message'
-        onClick={(e) => {
-
-          if (reacts.length < reactionLimit) {
-            pickEmoji(e, roomId, mEvent.getId(), roomTimeline, -430, 0, reacts);
-          } else {
-            toast('Your reaction was not added because there are too many reactions on this message.', 'We appreciate the enthusiasm, but...');
-          }
-
-        }}
-        fa="fa-solid fa-heart-circle-plus"
-        size="normal"
-        tooltip="Add reaction"
-      />
-    )}
-
-  </div>;
-
+      {canSendReaction && (
+        <IconButton
+          className="ms-2 btn-sm reaction-message"
+          onClick={(e) => {
+            if (reacts.length < reactionLimit) {
+              pickEmoji(e, roomId, mEvent.getId(), roomTimeline, -430, 0, reacts);
+            } else {
+              toast(
+                'Your reaction was not added because there are too many reactions on this message.',
+                'We appreciate the enthusiasm, but...',
+              );
+            }
+          }}
+          fa="fa-solid fa-heart-circle-plus"
+          size="normal"
+          tooltip="Add reaction"
+        />
+      )}
+    </div>
+  );
 }
 MessageReactionGroup.propTypes = {
   roomTimeline: PropTypes.shape({}).isRequired,
@@ -764,11 +793,11 @@ MessageReactionGroup.propTypes = {
 // Detect Media
 function isMedia(mE) {
   return (
-    mE.getContent()?.msgtype === 'm.file'
-    || mE.getContent()?.msgtype === 'm.image'
-    || mE.getContent()?.msgtype === 'm.audio'
-    || mE.getContent()?.msgtype === 'm.video'
-    || mE.getType() === 'm.sticker'
+    mE.getContent()?.msgtype === 'm.file' ||
+    mE.getContent()?.msgtype === 'm.image' ||
+    mE.getContent()?.msgtype === 'm.audio' ||
+    mE.getContent()?.msgtype === 'm.video' ||
+    mE.getType() === 'm.sticker'
   );
 }
 
@@ -848,12 +877,7 @@ const MessageOptions = React.memo(
             tooltip="Add reaction"
           />
         )}
-        <IconButton
-          onClick={() => reply()}
-          fa="fa-solid fa-reply"
-          size="normal"
-          tooltip="Reply"
-        />
+        <IconButton onClick={() => reply()} fa="fa-solid fa-reply" size="normal" tooltip="Reply" />
 
         {canCreateThread && (
           <IconButton
@@ -864,7 +888,7 @@ const MessageOptions = React.memo(
           />
         )}
 
-        {(senderId === mx.getUserId() && !isMedia(mEvent)) && (
+        {senderId === mx.getUserId() && !isMedia(mEvent) && (
           <IconButton
             onClick={() => edit(true)}
             fa="fa-solid fa-pencil"
@@ -875,7 +899,7 @@ const MessageOptions = React.memo(
 
         {(canIRedact || senderId === mx.getUserId()) && (
           <IconButton
-            className='need-shift'
+            className="need-shift"
             onClick={() => redactEvent(roomId, mEvent.getId())}
             fa="fa-solid fa-trash-can btn-text-danger"
             size="normal"
@@ -891,11 +915,15 @@ const MessageOptions = React.memo(
                 className="text-start"
                 faSrc="fa-solid fa-copy"
                 onClick={() => {
-                  const messageBody = $(`[roomid='${roomid}'][senderid='${senderid}'][eventid='${eventid}'][msgtype='${msgtype}'] .message-body`);
+                  const messageBody = $(
+                    `[roomid='${roomid}'][senderid='${senderid}'][eventid='${eventid}'][msgtype='${msgtype}'] .message-body`,
+                  );
                   if (messageBody.length > 0) {
-                    copyToClipboard((customHTML
-                      ? html(customHTML, { kind: 'edit', onlyPlain: true }).plain
-                      : plain(body, { kind: 'edit', onlyPlain: true }).plain));
+                    copyToClipboard(
+                      customHTML
+                        ? html(customHTML, { kind: 'edit', onlyPlain: true }).plain
+                        : plain(body, { kind: 'edit', onlyPlain: true }).plain,
+                    );
                     toast('Text successfully copied to the clipboard.');
                   } else {
                     toast('No text was found in this message.');
@@ -905,17 +933,19 @@ const MessageOptions = React.memo(
                 Copy text
               </MenuItem>
 
-              {!mx.isRoomEncrypted(roomId) && canPinMessage(room, myUserId) ? <MenuItem
-                className="text-start"
-                faSrc={`bi bi-pin-angle${!isPinnedMessage(room, eventid) ? '-fill' : ''}`}
-                onClick={() => {
-                  setPinMessage(room, eventid, !isPinnedMessage(room, eventid));
-                  $(refRoomInput.current).find('#message-textarea').focus();
-                  hideMenu();
-                }}
-              >
-                {!isPinnedMessage(room, eventid) ? 'Pin message' : 'Unpin message'}
-              </MenuItem> : null}
+              {!mx.isRoomEncrypted(roomId) && canPinMessage(room, myUserId) ? (
+                <MenuItem
+                  className="text-start"
+                  faSrc={`bi bi-pin-angle${!isPinnedMessage(room, eventid) ? '-fill' : ''}`}
+                  onClick={() => {
+                    setPinMessage(room, eventid, !isPinnedMessage(room, eventid));
+                    $(refRoomInput.current).find('#message-textarea').focus();
+                    hideMenu();
+                  }}
+                >
+                  {!isPinnedMessage(room, eventid) ? 'Pin message' : 'Unpin message'}
+                </MenuItem>
+              ) : null}
 
               <MenuItem
                 className="text-start"
@@ -956,7 +986,6 @@ const MessageOptions = React.memo(
               )}
             </>
           )}
-
           render={(toggleMenu) => (
             <IconButton
               onClick={toggleMenu}
@@ -965,7 +994,6 @@ const MessageOptions = React.memo(
               tooltip="Options"
             />
           )}
-
         />
       </div>
     );
@@ -1004,46 +1032,47 @@ const MessageThreadSummary = React.memo(({ thread }) => {
     setLastReply(thread.lastReply());
   });
 
-  return <button className="message__threadSummary p-2 small" onClick={selectThread} type="button">
-    <div className="message__threadSummary-count">
-      <Text>
-        {thread.length} message{thread.length > 1 ? 's' : ''} ›
-      </Text>
-    </div>
-    <div className="message__threadSummary-lastReply text-truncate text-white">
-      {lastReply ? (
-        <>
-          {lastSender ? (
-            <>
-              <Avatar
-                imageSrc={lastSenderAvatarSrc}
-                text={lastSender?.name}
-                bgColor={backgroundColorMXID(lastSender?.userId)}
-                size="small"
-              />
+  return (
+    <button className="message__threadSummary p-2 small" onClick={selectThread} type="button">
+      <div className="message__threadSummary-count">
+        <Text>
+          {thread.length} message{thread.length > 1 ? 's' : ''} ›
+        </Text>
+      </div>
+      <div className="message__threadSummary-lastReply text-truncate text-white">
+        {lastReply ? (
+          <>
+            {lastSender ? (
+              <>
+                <Avatar
+                  imageSrc={lastSenderAvatarSrc}
+                  text={lastSender?.name}
+                  bgColor={backgroundColorMXID(lastSender?.userId)}
+                  size="small"
+                />
+                <span className="message__threadSummary-lastReply-sender very-small text-truncate">
+                  {lastSender?.name}{' '}
+                </span>
+              </>
+            ) : (
               <span className="message__threadSummary-lastReply-sender very-small text-truncate">
-                {lastSender?.name}{' '}
+                Unknown user{' '}
               </span>
-            </>
-          ) : (
-            <span className="message__threadSummary-lastReply-sender very-small text-truncate">
-              Unknown user{' '}
+            )}
+            <span className="message__threadSummary-lastReply-body very-small text-truncate">
+              {lastReply.getContent().body}
             </span>
-          )}
-          <span className="message__threadSummary-lastReply-body very-small text-truncate">
-            {lastReply.getContent().body}
-          </span>
-        </>
-      ) : (
-        <Text>Couldn&apos;t load latest message</Text>
-      )}
-    </div>
-  </button>;
+          </>
+        ) : (
+          <Text>Couldn&apos;t load latest message</Text>
+        )}
+      </div>
+    </button>
+  );
 });
 
 // Media Generator
 function genMediaContent(mE) {
-
   // Client
   const mx = initMatrix.matrixClient;
   const mContent = mE.getContent();
@@ -1079,7 +1108,6 @@ function genMediaContent(mE) {
   const blurhash = mContent?.info?.['xyz.amorgan.blurhash'];
 
   switch (msgType) {
-
     // File
     case 'm.file':
       return (
@@ -1110,8 +1138,16 @@ function genMediaContent(mE) {
       return (
         <Media.Sticker
           name={mContent.body}
-          width={typeof mContent.info?.w === 'number' && !Number.isNaN(mContent.info?.w) ? mContent.info?.w : null}
-          height={typeof mContent.info?.h === 'number' && !Number.isNaN(mContent.info?.h) ? mContent.info?.h : null}
+          width={
+            typeof mContent.info?.w === 'number' && !Number.isNaN(mContent.info?.w)
+              ? mContent.info?.w
+              : null
+          }
+          height={
+            typeof mContent.info?.h === 'number' && !Number.isNaN(mContent.info?.h)
+              ? mContent.info?.h
+              : null
+          }
           link={mx.mxcUrlToHttp(mediaMXC)}
           file={isEncryptedFile ? mContent.file : null}
           type={mContent.info?.mimetype}
@@ -1152,7 +1188,6 @@ function genMediaContent(mE) {
     // Bad Event Again?
     default:
       return <span style={{ color: 'var(--bg-danger)' }}>Malformed event</span>;
-
   }
 }
 
@@ -1187,7 +1222,6 @@ function Message({
   usernameHover,
   refRoomInput,
 }) {
-
   // Get Room Data
   const appearanceSettings = getAppearance();
   $(timelineSVRef?.current).trigger('scroll');
@@ -1208,7 +1242,7 @@ function Message({
   const senderId = mEvent.getSender();
   const yourId = mx.getUserId();
 
-  if (yourId === senderId) classList.push('user-you-message')
+  if (yourId === senderId) classList.push('user-you-message');
   else classList.push('user-other-message');
 
   let { body } = content;
@@ -1223,9 +1257,16 @@ function Message({
     setMessageStatus(e.status);
   });
 
-  const username = !isDM || typeof fNickname !== 'string' || fNickname.length === 0 ? mEvent.sender ? getUsernameOfRoomMember(mEvent.sender) : getUsername(senderId) : fNickname;
+  const username =
+    !isDM || typeof fNickname !== 'string' || fNickname.length === 0
+      ? mEvent.sender
+        ? getUsernameOfRoomMember(mEvent.sender)
+        : getUsername(senderId)
+      : fNickname;
   const avatarSrc = mEvent.sender?.getAvatarUrl(mx.baseUrl, 36, 36, 'crop') ?? null;
-  const avatarAnimSrc = !appearanceSettings.enableAnimParams ? mEvent.sender?.getAvatarUrl(mx.baseUrl) : getAnimatedImageUrl(mEvent.sender?.getAvatarUrl(mx.baseUrl, 36, 36, 'crop')) ?? null;
+  const avatarAnimSrc = !appearanceSettings.enableAnimParams
+    ? mEvent.sender?.getAvatarUrl(mx.baseUrl)
+    : getAnimatedImageUrl(mEvent.sender?.getAvatarUrl(mx.baseUrl, 36, 36, 'crop')) ?? null;
 
   // Content Data
   let isCustomHTML = content.format === 'org.matrix.custom.html';
@@ -1263,7 +1304,7 @@ function Message({
   const isReply =
     !!mEvent.replyEventId &&
     // don't render thread fallback replies
-    !(eventRelation?.rel_type === THREAD_RELATION_TYPE.name && eventRelation?.is_falling_back)
+    !(eventRelation?.rel_type === THREAD_RELATION_TYPE.name && eventRelation?.is_falling_back);
 
   // Is Edit
   if (isEdited) {
@@ -1291,15 +1332,19 @@ function Message({
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
-
     const bodyUrls = [];
     if (typeof body === 'string' && body.length > 0) {
-
       try {
-
         const newBodyUrls = linkify.find(
-          body.replace(/\> \<\@([\S\s]+?)\> ([\S\s]+?)\n\n|\> \<\@([\S\s]+?)\> ([\S\s]+?)\\n\\n/gm, '')
-            .replace(/^((?:(?:[ ]{4}|\t).*(\R|$))+)|`{3}([\w]*)\n([\S\s]+?)`{3}|`{3}([\S\s]+?)`{3}|`{2}([\S\s]+?)`{2}|`([\S\s]+?)|\[([\S\s]+?)\]|\{([\S\s]+?)\}|\<([\S\s]+?)\>|\(([\S\s]+?)\)/gm, '')
+          body
+            .replace(
+              /\> \<\@([\S\s]+?)\> ([\S\s]+?)\n\n|\> \<\@([\S\s]+?)\> ([\S\s]+?)\\n\\n/gm,
+              '',
+            )
+            .replace(
+              /^((?:(?:[ ]{4}|\t).*(\R|$))+)|`{3}([\w]*)\n([\S\s]+?)`{3}|`{3}([\S\s]+?)`{3}|`{2}([\S\s]+?)`{2}|`([\S\s]+?)|\[([\S\s]+?)\]|\{([\S\s]+?)\}|\<([\S\s]+?)\>|\(([\S\s]+?)\)/gm,
+              '',
+            ),
         );
 
         if (Array.isArray(newBodyUrls)) {
@@ -1309,11 +1354,9 @@ function Message({
             }
           }
         }
-
       } catch (err) {
         console.error(err);
       }
-
     }
 
     // Room jQuery base
@@ -1321,34 +1364,27 @@ function Message({
 
     // Read Message
     if (msgType === 'm.text') {
-
       // Check Urls on the message
       const appAppearance = getAppearance();
       if (appAppearance.isEmbedEnabled === true && bodyUrls.length > 0) {
-
         // Create embed base
         const newEmbeds = clone(embeds);
         const searchEmbeds = async () => {
-
           let limit = 5;
           for (const item in bodyUrls) {
             if (
-
               bodyUrls[item].href &&
-
-              limit > 0 && newEmbeds.findIndex(
-                tb =>
+              limit > 0 &&
+              newEmbeds.findIndex(
+                (tb) =>
                   tb.url &&
                   tb.url.href === bodyUrls[item].href &&
                   tb.roomId === roomId &&
                   tb.senderId === senderId &&
-                  tb.eventId === eventId
+                  tb.eventId === eventId,
               ) < 0 &&
-
               !bodyUrls[item].href.startsWith('@')
-
             ) {
-
               const tinyEmbed = {
                 url: bodyUrls[item],
                 roomId,
@@ -1356,7 +1392,10 @@ function Message({
                 eventId,
               };
 
-              if (bodyUrls[item].href.startsWith('http') || bodyUrls[item].href.startsWith('https')) {
+              if (
+                bodyUrls[item].href.startsWith('http') ||
+                bodyUrls[item].href.startsWith('https')
+              ) {
                 try {
                   // eslint-disable-next-line no-await-in-loop
                   tinyEmbed.data = await getUrlPreview(bodyUrls[item].href);
@@ -1371,19 +1410,15 @@ function Message({
 
               newEmbeds.push(tinyEmbed);
               limit--;
-
             }
           }
 
           mediaFix(null, embedHeight, setEmbedHeight);
           setEmbeds(newEmbeds);
-
         };
 
         searchEmbeds();
-
       }
-
     }
 
     // Complete
@@ -1391,7 +1426,6 @@ function Message({
     return () => {
       $(messageFinder).find('.message-url-embed').remove();
     };
-
   }, []);
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -1399,49 +1433,157 @@ function Message({
 
   // Normal Message
   if (msgType !== 'm.bad.encrypted') {
-
     // Return Data
-    return <tr roomid={roomId} senderid={senderId} eventid={eventId} msgtype={msgType} className={classList.join(' ')}>
+    return (
+      <tr
+        roomid={roomId}
+        senderid={senderId}
+        eventid={eventId}
+        msgtype={msgType}
+        className={classList.join(' ')}
+      >
+        <td className="p-0 ps-2 ps-md-4 py-1 pe-md-2 align-top text-center chat-base">
+          {
+            // User Avatar
+            !isBodyOnly ? (
+              <MessageAvatar
+                roomId={roomId}
+                avatarSrc={avatarSrc}
+                avatarAnimSrc={avatarAnimSrc}
+                userId={senderId}
+                username={username}
+                contextMenu={(e) => {
+                  openReusableContextMenu('bottom', getEventCords(e, '.ic-btn'), (closeMenu) => (
+                    <UserOptions userId={senderId} afterOptionSelect={closeMenu} />
+                  ));
 
-      <td className='p-0 ps-2 ps-md-4 py-1 pe-md-2 align-top text-center chat-base'>
+                  e.preventDefault();
+                }}
+              />
+            ) : (
+              <MessageTime className="hc-time" timestamp={mEvent.getTs()} fullTime={fullTime} />
+            )
+          }
+        </td>
 
+        <td className="p-0 pe-3 py-1" colSpan={!children ? '2' : ''}>
+          {!isGuest && !disableActions && roomTimeline && !isEdit && (
+            <MessageOptions
+              refRoomInput={refRoomInput}
+              customHTML={customHTML}
+              body={body}
+              roomid={roomId}
+              senderid={senderId}
+              eventid={eventId}
+              msgtype={msgType}
+              roomTimeline={roomTimeline}
+              mEvent={mEvent}
+              edit={edit}
+              reply={reply}
+            />
+          )}
+
+          {!isBodyOnly && (
+            <div className="mb-1">
+              <MessageHeader usernameHover={usernameHover} userId={senderId} username={username} />
+
+              <MessageTime className="ms-2" timestamp={mEvent.getTs()} fullTime={fullTime} />
+            </div>
+          )}
+
+          {roomTimeline && isReply && (
+            <MessageReplyWrapper roomTimeline={roomTimeline} eventId={mEvent.replyEventId} />
+          )}
+
+          {!isEdit && (
+            <>
+              <MessageBody
+                roomId={roomId}
+                senderId={senderId}
+                eventId={eventId}
+                className={classNameMessage}
+                senderName={username}
+                isCustomHTML={isCustomHTML}
+                body={isMedia(mEvent) ? genMediaContent(mEvent) : customHTML ?? body}
+                content={content}
+                msgType={msgType}
+                isEdited={isEdited}
+                messageStatus={messageStatus}
+              />
+
+              {embeds.length > 0 ? (
+                <div ref={itemEmbed} className="message-embed message-url-embed">
+                  {embeds.map((embed) => {
+                    if (embed.data) return <Embed embed={embed.data} />;
+                  })}
+                </div>
+              ) : null}
+            </>
+          )}
+
+          {isEdit && (
+            <MessageEdit
+              roomId={roomId}
+              eventId={mEvent.getId()}
+              refRoomInput={refRoomInput}
+              body={
+                customHTML
+                  ? html(customHTML, { kind: 'edit', onlyPlain: true }).plain
+                  : plain(body, { kind: 'edit', onlyPlain: true }).plain
+              }
+              onSave={(newBody, oldBody) => {
+                if (newBody !== oldBody) {
+                  initMatrix.roomsInput.sendEditedMessage(roomId, mEvent, newBody);
+                }
+                cancelEdit();
+              }}
+              onCancel={cancelEdit}
+            />
+          )}
+
+          {haveReactions && <MessageReactionGroup roomTimeline={roomTimeline} mEvent={mEvent} />}
+
+          {roomTimeline && shouldShowThreadSummary(mEvent, roomTimeline) && (
+            <MessageThreadSummary thread={mEvent.thread} />
+          )}
+        </td>
+
+        {children && <td className="p-0 pe-3 py-1">{children}</td>}
+      </tr>
+    );
+  }
+
+  // Bad Message
+  const errorMessage = `<i class="bi bi-key-fill text-warning"></i> <strong>Unable to decrypt message.</strong>`;
+  isCustomHTML = true;
+  return (
+    <tr
+      roomid={roomId}
+      senderid={senderId}
+      eventid={eventId}
+      msgtype={msgType}
+      className={classList.join(' ')}
+    >
+      <td className="p-0 ps-2 ps-md-4 py-1 pe-md-2 align-top text-center chat-base">
         {
           // User Avatar
-          !isBodyOnly
-            ? <MessageAvatar
+          !isBodyOnly ? (
+            <MessageAvatar
               roomId={roomId}
               avatarSrc={avatarSrc}
-              avatarAnimSrc={avatarAnimSrc}
               userId={senderId}
               username={username}
-              contextMenu={(e) => {
-
-                openReusableContextMenu(
-                  'bottom',
-                  getEventCords(e, '.ic-btn'),
-                  (closeMenu) => <UserOptions userId={senderId} afterOptionSelect={closeMenu} />,
-                );
-
-                e.preventDefault();
-
-              }}
             />
-            : <MessageTime
-              className='hc-time'
-              timestamp={mEvent.getTs()}
-              fullTime={fullTime}
-            />
+          ) : (
+            <MessageTime className="hc-time" timestamp={mEvent.getTs()} fullTime={fullTime} />
+          )
         }
-
       </td>
 
-      <td className='p-0 pe-3 py-1' colSpan={!children ? '2' : ''}>
-
+      <td className="p-0 pe-3 py-1">
         {!isGuest && !disableActions && roomTimeline && !isEdit && (
           <MessageOptions
             refRoomInput={refRoomInput}
-            customHTML={customHTML}
-            body={body}
             roomid={roomId}
             senderid={senderId}
             eventid={eventId}
@@ -1454,53 +1596,30 @@ function Message({
         )}
 
         {!isBodyOnly && (
-          <div className='mb-1'>
+          <div className="mb-1">
+            <MessageHeader usernameHover={usernameHover} userId={senderId} username={username} />
 
-            <MessageHeader
-              usernameHover={usernameHover}
-              userId={senderId}
-              username={username}
-            />
-
-            <MessageTime
-              className='ms-2'
-              timestamp={mEvent.getTs()}
-              fullTime={fullTime}
-            />
-
+            <MessageTime className="ms-2" timestamp={mEvent.getTs()} fullTime={fullTime} />
           </div>
         )}
 
         {roomTimeline && isReply && (
-          <MessageReplyWrapper
-            roomTimeline={roomTimeline}
-            eventId={mEvent.replyEventId}
-          />
+          <MessageReplyWrapper roomTimeline={roomTimeline} eventId={mEvent.replyEventId} />
         )}
 
-        {!isEdit && (<>
-
+        {!isEdit && (
           <MessageBody
             roomId={roomId}
             senderId={senderId}
             eventId={eventId}
-            className={classNameMessage}
             senderName={username}
-            isCustomHTML={isCustomHTML}
-            body={isMedia(mEvent) ? genMediaContent(mEvent) : customHTML ?? body}
+            isSystem={isCustomHTML}
+            body={errorMessage}
             content={content}
             msgType={msgType}
             isEdited={isEdited}
             messageStatus={messageStatus}
           />
-
-          {embeds.length > 0 ? <div ref={itemEmbed} className='message-embed message-url-embed'>
-            {embeds.map(embed => {
-              if (embed.data) return <Embed embed={embed.data} />
-            })}
-          </div> : null}
-
-        </>
         )}
 
         {isEdit && (
@@ -1508,9 +1627,11 @@ function Message({
             roomId={roomId}
             eventId={mEvent.getId()}
             refRoomInput={refRoomInput}
-            body={(customHTML
-              ? html(customHTML, { kind: 'edit', onlyPlain: true }).plain
-              : plain(body, { kind: 'edit', onlyPlain: true }).plain)}
+            body={
+              customHTML
+                ? html(customHTML, { kind: 'edit', onlyPlain: true }).plain
+                : plain(body, { kind: 'edit', onlyPlain: true }).plain
+            }
             onSave={(newBody, oldBody) => {
               if (newBody !== oldBody) {
                 initMatrix.roomsInput.sendEditedMessage(roomId, mEvent, newBody);
@@ -1521,139 +1642,14 @@ function Message({
           />
         )}
 
-        {haveReactions && (
-          <MessageReactionGroup roomTimeline={roomTimeline} mEvent={mEvent} />
-        )}
+        {haveReactions && <MessageReactionGroup roomTimeline={roomTimeline} mEvent={mEvent} />}
 
         {roomTimeline && shouldShowThreadSummary(mEvent, roomTimeline) && (
           <MessageThreadSummary thread={mEvent.thread} />
         )}
-
       </td>
-
-      {children && (
-        <td className='p-0 pe-3 py-1'>
-          {children}
-        </td>
-      )}
-
-    </tr>;
-
-  }
-
-  // Bad Message
-  const errorMessage = `<i class="bi bi-key-fill text-warning"></i> <strong>Unable to decrypt message.</strong>`;
-  isCustomHTML = true;
-  return <tr roomid={roomId} senderid={senderId} eventid={eventId} msgtype={msgType} className={classList.join(' ')}>
-
-    <td className='p-0 ps-2 ps-md-4 py-1 pe-md-2 align-top text-center chat-base'>
-
-      {
-        // User Avatar
-        !isBodyOnly
-          ? (
-            <MessageAvatar
-              roomId={roomId}
-              avatarSrc={avatarSrc}
-              userId={senderId}
-              username={username}
-            />
-          )
-          : <MessageTime
-            className='hc-time'
-            timestamp={mEvent.getTs()}
-            fullTime={fullTime}
-          />
-      }
-
-    </td>
-
-    <td className='p-0 pe-3 py-1'>
-
-      {!isGuest && !disableActions && roomTimeline && !isEdit && (
-        <MessageOptions
-          refRoomInput={refRoomInput}
-          roomid={roomId}
-          senderid={senderId}
-          eventid={eventId}
-          msgtype={msgType}
-          roomTimeline={roomTimeline}
-          mEvent={mEvent}
-          edit={edit}
-          reply={reply}
-        />
-      )}
-
-      {!isBodyOnly && (
-        <div className='mb-1'>
-
-          <MessageHeader
-            usernameHover={usernameHover}
-            userId={senderId}
-            username={username}
-          />
-
-          <MessageTime
-            className='ms-2'
-            timestamp={mEvent.getTs()}
-            fullTime={fullTime}
-          />
-
-        </div>
-      )}
-
-      {roomTimeline && isReply && (
-        <MessageReplyWrapper
-          roomTimeline={roomTimeline}
-          eventId={mEvent.replyEventId}
-        />
-      )}
-
-      {!isEdit && (
-        <MessageBody
-          roomId={roomId}
-          senderId={senderId}
-          eventId={eventId}
-          senderName={username}
-          isSystem={isCustomHTML}
-          body={errorMessage}
-          content={content}
-          msgType={msgType}
-          isEdited={isEdited}
-          messageStatus={messageStatus}
-        />
-      )}
-
-      {isEdit && (
-        <MessageEdit
-          roomId={roomId}
-          eventId={mEvent.getId()}
-          refRoomInput={refRoomInput}
-          body={(customHTML
-            ? html(customHTML, { kind: 'edit', onlyPlain: true }).plain
-            : plain(body, { kind: 'edit', onlyPlain: true }).plain)}
-          onSave={(newBody, oldBody) => {
-            if (newBody !== oldBody) {
-              initMatrix.roomsInput.sendEditedMessage(roomId, mEvent, newBody);
-            }
-            cancelEdit();
-          }}
-          onCancel={cancelEdit}
-        />
-      )}
-
-      {haveReactions && (
-        <MessageReactionGroup roomTimeline={roomTimeline} mEvent={mEvent} />
-      )}
-
-      {roomTimeline && shouldShowThreadSummary(mEvent, roomTimeline) && (
-        <MessageThreadSummary thread={mEvent.thread} />
-      )}
-
-    </td>
-
-  </tr>;
-
+    </tr>
+  );
 }
 
 // Message Default Data

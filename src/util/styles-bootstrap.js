@@ -53,4 +53,4 @@ const arrayItems = [
     'outline-dark',
 ];
 
-export { arrayItems };
+export { arrayItems, bootstrapItems };

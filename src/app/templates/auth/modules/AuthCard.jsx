@@ -15,9 +15,6 @@ function AuthCard() {
 
   return (
     <>
-      <div className="mb-4">
-        <Homeserver onChange={handleHsChange} />
-      </div>
 
       <Homeserver onChange={handleHsChange} />
 

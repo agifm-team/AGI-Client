@@ -177,7 +177,14 @@ tabItems.push({
   className: 'btn-text-danger logout',
   disabled: false,
   onClick: async () => {
-    if (await confirmDialog('Logout', 'Are you sure that you want to logout your session?', 'Logout', 'danger')) {
+    if (
+      await confirmDialog(
+        'Logout',
+        'Are you sure that you want to logout your session?',
+        'Logout',
+        'danger',
+      )
+    ) {
       logout();
     }
   },

@@ -112,11 +112,9 @@ const MessageAvatar = React.memo(
 );
 
 // Message Header
-const MessageHeader = React.memo(({
-  userId, username,
-}) => (
-  <span className='username-base emoji-size-fix' style={{ color: colorMXID(userId) }}>
-    <span className='username disable-username'>{twemojifyReact(username)}</span>
+const MessageHeader = React.memo(({ userId, username }) => (
+  <span className="username-base emoji-size-fix" style={{ color: colorMXID(userId) }}>
+    <span className="username disable-username">{twemojifyReact(username)}</span>
   </span>
 ));
 
@@ -293,19 +291,19 @@ const createMessageData = (
       const insertMsg = () =>
         !isJquery
           ? twemojifyReact(
-            sanitizeCustomHtml(initMatrix.matrixClient, body),
-            undefined,
-            true,
-            false,
-            true,
-          )
+              sanitizeCustomHtml(initMatrix.matrixClient, body),
+              undefined,
+              true,
+              false,
+              true,
+            )
           : twemojify(
-            sanitizeCustomHtml(initMatrix.matrixClient, body),
-            undefined,
-            true,
-            false,
-            true,
-          );
+              sanitizeCustomHtml(initMatrix.matrixClient, body),
+              undefined,
+              true,
+              false,
+              true,
+            );
 
       const msgOptions = tinyAPI.emit(
         'messageBody',

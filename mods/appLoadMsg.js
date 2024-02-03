@@ -75,6 +75,6 @@ export default {
       'Pixxel Communities humor is like multithreading – not everyone gets it, but its worth the effort to connect and laugh together.',
       'Pixxel Communities: Because laughter is the best debug tool in the collaborative world of creative minds.',
       'In the Pixxel Communities, we dont fear bugs; we just consider them unique features, adding character to our shared creative space.',
-    ]
-  }
+    ],
+  },
 };

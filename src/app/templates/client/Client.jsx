@@ -155,29 +155,30 @@ function Client() {
 
   if (__ENV_APP__.ELECTRON_MODE && !versionChecked && global.checkVersions) {
     versionChecked = true;
-    global.checkVersions().then(versionData => {
-      if (versionData && typeof versionData.value.name === 'string' && versionData.result === 1) {
-        const tinyUrl = `https://github.com/pixxels-team/Pixxels-App/releases/tag/${versionData.value.name}`;
-        const tinyModal = btModal({
-
-          dialog: 'modal-dialog-centered modal-lg',
-          body: [
-            $('<p>', { class: 'small' }).text(
-              `Version ${versionData.value.name} of the app is now available for download! Click the button below to be sent to the update page.`,
-            ),
-            $('<center>').append(
-              $('<a>', { href: tinyUrl, class: 'btn btn-primary text-bg-force' })
-                .on('click', () => {
-                  global.open(tinyUrl, '_target');
-                  tinyModal.hide();
-                  return false;
-                })
-                .text('Open download page'),
-            ),
-          ],
-        });
-      }
-    })
+    global
+      .checkVersions()
+      .then((versionData) => {
+        if (versionData && typeof versionData.value.name === 'string' && versionData.result === 1) {
+          const tinyUrl = `https://github.com/pixxels-team/Pixxels-App/releases/tag/${versionData.value.name}`;
+          const tinyModal = btModal({
+            dialog: 'modal-dialog-centered modal-lg',
+            body: [
+              $('<p>', { class: 'small' }).text(
+                `Version ${versionData.value.name} of the app is now available for download! Click the button below to be sent to the update page.`,
+              ),
+              $('<center>').append(
+                $('<a>', { href: tinyUrl, class: 'btn btn-primary text-bg-force' })
+                  .on('click', () => {
+                    global.open(tinyUrl, '_target');
+                    tinyModal.hide();
+                    return false;
+                  })
+                  .text('Open download page'),
+              ),
+            ],
+          });
+        }
+      })
       .catch((err) => {
         console.error(err);
         alert(err.message);

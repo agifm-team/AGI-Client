@@ -10,7 +10,10 @@ import Spinner from '../../../atoms/spinner/Spinner';
 let searchingHs = null;
 function Homeserver({ onChange }) {
   const [hs, setHs] = useState(null);
-  const [process, setProcess] = useState({ isLoading: true, message: 'Loading homeserver list...' });
+  const [process, setProcess] = useState({
+    isLoading: true,
+    message: 'Loading homeserver list...',
+  });
 
   const setupHsConfig = async (servername) => {
     if (servername !== '') {
@@ -80,15 +83,21 @@ function Homeserver({ onChange }) {
     }
   }, []);
 
-  return <>
-    {process.error !== undefined && <Text className="homeserver-form__error" variant="b3">{process.error}</Text>}
-    {process.isLoading && (
-      <div className="homeserver-form__status flex--center">
-        <Spinner size="small" />
-        <Text variant="b2">{process.message}</Text>
-      </div>
-    )}
-  </>;
+  return (
+    <>
+      {process.error !== undefined && (
+        <Text className="homeserver-form__error" variant="b3">
+          {process.error}
+        </Text>
+      )}
+      {process.isLoading && (
+        <div className="homeserver-form__status flex--center">
+          <Spinner size="small" />
+          <Text variant="b2">{process.message}</Text>
+        </div>
+      )}
+    </>
+  );
 }
 Homeserver.propTypes = {
   onChange: PropTypes.func.isRequired,

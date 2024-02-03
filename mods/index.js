@@ -9,7 +9,7 @@ import catppuccinTheme from './themes/catppuccin';
 export function startCustomThemes() {
   catppuccinTheme();
   startThemeSettings();
-};
+}
 
 export default function startMods(firstTime) {
   // sinkingYachts(firstTime);
@@ -20,5 +20,4 @@ export default function startMods(firstTime) {
 
   customMessages(firstTime);
   unstoppableDomains(firstTime);
-
-};
+}

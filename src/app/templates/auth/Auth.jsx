@@ -33,15 +33,17 @@ function Auth() {
     authSync();
   }, []);
 
-  return <>
-
-    {loginToken && <LoadingScreen message="Redirecting..." />}
-    {!loginToken && (<>
-      <AuthCard />
-      <Welcome isGuest />
-    </>)}
-
-  </>;
+  return (
+    <>
+      {loginToken && <LoadingScreen message="Redirecting..." />}
+      {!loginToken && (
+        <>
+          <AuthCard />
+          <Welcome isGuest />
+        </>
+      )}
+    </>
+  );
 
   /*
   return (

@@ -19,12 +19,10 @@ function AgentCard({ agent, Img }) {
       </p>
       <div className="agent-tags">
         {agent.meta.tags.map((tag) => {
-
           keyId++;
           <span key={`${tag}${String(keyId)}`} className="agent-tag">
             {tag}
-          </span>
-
+          </span>;
         })}
       </div>
     </div>

@@ -2,16 +2,25 @@ import { tinyCrypto } from '../../util/web3';
 import { setSelectRoom, setSelectSpace } from '../../util/selectedRoom';
 import appDispatcher from '../dispatcher';
 import cons from '../state/cons';
+import urlParams from '../../util/libs/urlParams';
 
-export function selectTab(tabId) {
+export function selectTab(tabId, isSpace) {
+  if (isSpace) {
+    setSelectSpace(tabId);
+  } else {
+    setSelectSpace(null);
+  }
   $('.space-drawer-menu-item').removeClass('active');
   appDispatcher.dispatch({
     type: cons.actions.navigation.SELECT_TAB,
     tabId,
+    isSpace,
   });
 }
 
 export function selectRoomMode(roomType) {
+  if (typeof roomType === 'string' && roomType.length > 0) urlParams.set('room_mode', roomType);
+  else urlParams.delete('room_mode');
   appDispatcher.dispatch({
     type: cons.actions.navigation.SELECT_ROOM_MODE,
     roomType,

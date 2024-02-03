@@ -187,6 +187,16 @@ export default defineConfig(({ command, mode }) => {
     },
 
     server: {
+      watch: {
+        ignored: [
+          "**/vendor/**",
+          '**/release/**',
+          '**/.flatpak/**',
+          '**/.github/**',
+          '**/.git/**',
+          '**/.vscode/**',
+        ],
+      },
       port: 8469,
       host: true,
     },
@@ -219,6 +229,9 @@ export default defineConfig(({ command, mode }) => {
 
   };
 
+  result.resolve.alias['@src'] = path.join(__dirname, 'src');
+  result.resolve.alias['@mods'] = path.join(__dirname, 'mods');
+
   // Electron Mode
   if (electronMode) {
 
@@ -234,7 +247,6 @@ export default defineConfig(({ command, mode }) => {
       fse.copySync(extensions[item].dist, path.join(__dirname, `./dist-electron/extensions/${extensions[item].path}`), { overwrite: true });
     }
 
-    result.resolve.alias['@'] = path.join(__dirname, 'src');
     result.clearScreen = false;
 
     const rollupOptions = {

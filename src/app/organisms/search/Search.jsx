@@ -152,7 +152,7 @@ function Search() {
   };
 
   const openItem = (roomId, type) => {
-    if (type === 'space') selectTab(roomId);
+    if (type === 'space') selectTab(roomId, true);
     else {
       selectRoomMode('room');
       selectRoom(roomId);

@@ -110,7 +110,7 @@ function SpaceManageItem({
   const isDM = directs.has(roomId);
 
   const handleOpen = () => {
-    if (isSpace) selectTab(roomId);
+    if (isSpace) selectTab(roomId, true);
     else {
       selectRoomMode('room');
       selectRoom(roomId);

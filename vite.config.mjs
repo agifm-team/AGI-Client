@@ -269,6 +269,7 @@ export default defineConfig(({ command, mode }) => {
         },
 
         vite: {
+          resolve: result.resolve,
           build: {
             sourcemap,
             minify: isBuild,
@@ -290,6 +291,7 @@ export default defineConfig(({ command, mode }) => {
         },
 
         vite: {
+          resolve: result.resolve,
           build: {
             sourcemap: sourcemap ? 'inline' : undefined, // #332
             minify: isBuild,

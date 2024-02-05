@@ -27,11 +27,10 @@ import RoomOptions from '../../molecules/room-options/RoomOptions';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 import copyText from '../profile-viewer/copyText';
 
-// import RoomViewPin from './RoomViewPin';
 import { openPinMessageModal } from '../../../util/libs/pinMessage';
 import { openThreadsMessageModal } from '../../../util/libs/thread';
 
-function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions }) {
+function RoomViewHeader({ roomId, roomAlias, roomItem, disableActions /* threadId */ }) {
   const [, forceUpdate] = useForceUpdate();
   const mx = initMatrix.matrixClient;
   const isDM = initMatrix.roomList && initMatrix.roomList.directs.has(roomId);
@@ -112,8 +111,6 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
       $('body').addClass('disable-navigation-wrapper');
     }
   };
-
-  // <li className="nav-item"><IconButton className="nav-link border-0 d-none d-sm-block" onClick={() => openThreadsMessageModal(room)} tooltipPlacement="bottom" tooltip="Threads" fa="bi bi-layers" /></li>
 
   return (
     <Header>
@@ -196,6 +193,16 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                   tooltipPlacement="bottom"
                   tooltip="Search"
                   fa="fa-solid fa-magnifying-glass"
+                />
+              </li>
+
+              <li className="nav-item">
+                <IconButton
+                  className="nav-link border-0 d-none d-sm-block"
+                  onClick={() => openThreadsMessageModal(room)}
+                  tooltipPlacement="bottom"
+                  tooltip="Threads"
+                  fa="bi bi-layers"
                 />
               </li>
 

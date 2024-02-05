@@ -11,6 +11,8 @@ import {
   RoomEvent,
   RoomMemberEvent,
 } from 'matrix-js-sdk';
+
+import { setLoadingPage } from '@src/app/templates/client/Loading';
 // import initMatrix, { fetchFn as fetch } from '../initMatrix';
 import initMatrix from '../initMatrix';
 import cons from './cons';

@@ -13,6 +13,7 @@ import RoomView from './RoomView';
 import RoomSettings from './RoomSettings';
 import PeopleDrawer from './PeopleDrawer';
 import tinyAPI from '../../../util/mods';
+import { objType } from '../../../util/tools';
 
 let resetRoomInfo;
 global.resetRoomInfo = () => (typeof resetRoomInfo === 'function' ? resetRoomInfo() : null);
@@ -34,6 +35,7 @@ function Room() {
 
   const [isDrawer, setIsDrawer] = useState(settings.isPeopleDrawer);
   const [isUserList, setIsUserList] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const sendRoomInfo = (newData) => {
     setRoomInfo(newData);
@@ -56,18 +58,54 @@ function Room() {
   };
 
   useEffect(() => {
-    const handleRoomSelected = (roomId, prevRoomId, eventId, threadId, forceScroll) => {
+    const setRoomSelected = (roomId, threadId, eventId, forceScroll) => {
+      const threadTimeline = threadId ? RoomTimeline.newFromThread(threadId, roomId) : null;
+      const roomTimeline = threadTimeline ?? new RoomTimeline(roomId);
+
+      sendRoomInfo({
+        roomTimeline,
+        eventId: eventId ?? null,
+        forceScroll,
+      });
+    };
+    const handleRoomSelected = (roomId, prevRoomId, eventId, threadData, forceScroll) => {
       roomInfo.roomTimeline?.removeInternalListeners();
       $('.space-drawer-menu-item').removeClass('active');
 
       if (mx.getRoom(roomId)) {
-        const threadTimeline = threadId ? RoomTimeline.newFromThread(threadId, roomId) : null;
-        const roomTimeline = threadTimeline ?? new RoomTimeline(roomId);
-        sendRoomInfo({
-          roomTimeline,
-          eventId: eventId ?? null,
-          forceScroll,
-        });
+        const threadId =
+          typeof threadData === 'string'
+            ? threadData
+            : objType(threadData, 'object')
+              ? threadData.threadId
+              : null;
+        if (
+          threadId &&
+          objType(threadData, 'object') &&
+          threadData.force &&
+          roomInfo.roomTimeline
+        ) {
+          const thread = threadId ? roomInfo.roomTimeline.room.getThread(threadId) : null;
+          if (thread) {
+            setIsLoading(true);
+            roomInfo.roomTimeline.matrixClient
+              .getThreadTimeline(thread.timelineSet, threadId)
+              .then(() => {
+                setIsLoading(false);
+                setRoomSelected(roomId, threadId, eventId, forceScroll);
+              })
+              .catch((err) => {
+                console.error(err);
+                alert(err.message);
+                setIsLoading(false);
+                setRoomSelected(roomId, threadId, eventId, forceScroll);
+              });
+          } else {
+            setRoomSelected(roomId, threadId, eventId, forceScroll);
+          }
+        } else {
+          setRoomSelected(roomId, threadId, eventId, forceScroll);
+        }
       } else {
         // TODO: add ability to join room if roomId is invalid
         sendRoomInfo({
@@ -116,7 +154,12 @@ function Room() {
       <div className="room">
         <div className="room__content">
           <RoomSettings roomId={roomTimeline.roomId} />
-          <RoomView isUserList={isUserList} roomTimeline={roomTimeline} eventId={eventId} />
+          <RoomView
+            isUserList={isUserList}
+            roomTimeline={roomTimeline}
+            eventId={eventId}
+            isLoading={isLoading}
+          />
         </div>
         {peopleDrawer}
       </div>

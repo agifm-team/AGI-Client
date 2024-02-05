@@ -3,6 +3,9 @@ import appDispatcher from '../dispatcher';
 import cons from './cons';
 import tinyAPI from '../../util/mods';
 import urlParams from '../../util/libs/urlParams';
+import { setSelectRoom, setSelectSpace } from '../../util/selectedRoom';
+import { tinyCrypto } from '../../util/web3';
+import { objType } from '../../util/tools';
 
 class Navigation extends EventEmitter {
   constructor() {
@@ -96,9 +99,15 @@ class Navigation extends EventEmitter {
   }
 
   _selectRoom(roomId, eventId, threadId, forceScroll) {
+    const tinyThread =
+      typeof threadId === 'string'
+        ? threadId
+        : objType(threadId, 'object')
+          ? threadId.threadId
+          : null;
     const prevSelectedRoomId = this.selectedRoomId;
     this.selectedRoomId = roomId;
-    this.selectedThreadId = threadId ?? null;
+    this.selectedThreadId = tinyThread ?? null;
     if (prevSelectedRoomId !== roomId) this._mapRoomToSpace(roomId);
     this.removeRecentRoom(prevSelectedRoomId);
     this.addRecentRoom(prevSelectedRoomId);
@@ -121,7 +130,7 @@ class Navigation extends EventEmitter {
       this.selectedRoomId,
       prevSelectedRoomId,
       eventId,
-      threadId,
+      tinyThread,
       forceScroll,
     );
 
@@ -286,11 +295,14 @@ class Navigation extends EventEmitter {
         });
       });
     } else {
-      roomList.getSpaceChildren(spaceId).forEach((id) => {
-        if (matrixClient.getRoom(id)?.isSpaceRoom() === false) {
-          children.push(id);
-        }
-      });
+      const spaceChildren = roomList.getSpaceChildren(spaceId);
+      if (spaceChildren) {
+        spaceChildren.forEach((id) => {
+          if (matrixClient.getRoom(id)?.isSpaceRoom() === false) {
+            children.push(id);
+          }
+        });
+      }
     }
 
     if (!children) {
@@ -348,6 +360,16 @@ class Navigation extends EventEmitter {
   navigate(action) {
     const actions = {
       [cons.actions.navigation.SELECT_TAB]: () => {
+        $('.space-drawer-menu-item').removeClass('active');
+
+        if (action.isSpace) {
+          urlParams.set('is_space', 'true');
+          setSelectSpace(action.tabId);
+        } else {
+          urlParams.delete('is_space');
+          setSelectSpace(null);
+        }
+
         const roomId =
           action.tabId !== cons.tabs.HOME && action.tabId !== cons.tabs.DIRECTS
             ? action.tabId
@@ -384,31 +406,46 @@ class Navigation extends EventEmitter {
       },
 
       [cons.actions.navigation.SELECT_ROOM_MODE]: () => {
+        if (typeof roomType === 'string' && action.roomType.length > 0)
+          urlParams.set('room_mode', action.roomType);
+        else urlParams.delete('room_mode');
+
         tinyAPI.emit('selectedRoomMode', action.roomType);
         this.emit(cons.events.navigation.SELECTED_ROOM_MODE, action.roomType);
         setTimeout(() => tinyAPI.emit('selectedRoomModeAfter', action.roomType), 100);
       },
 
       [cons.actions.navigation.SELECT_SPACE]: () => {
+        $('.space-drawer-menu-item').removeClass('active');
+        setSelectSpace(action.roomId);
         tinyAPI.emit('selectedSpace', action.roomId);
         this._selectSpace(action.roomId, false);
         setTimeout(() => tinyAPI.emit('selectedSpaceAfter', action.roomId), 100);
       },
 
       [cons.actions.navigation.SELECT_ROOM]: () => {
+        $('.space-drawer-menu-item').removeClass('active');
+        setSelectRoom(action.roomId);
+
         tinyAPI.emit('selectedRoom', action.roomId, action.forceScroll);
         if (action.roomId) this._selectTabWithRoom(action.roomId, action.forceScroll);
+        const tinyThread =
+          typeof action.threadId === 'string'
+            ? action.threadId
+            : objType(action.threadId, 'object')
+              ? action.threadId.threadId
+              : null;
+
         this._selectRoom(action.roomId, action.eventId, action.threadId, action.forceScroll);
         setTimeout(
-          () =>
-            tinyAPI.emit('selectedRoomAfter', action.roomId, action.threadId, action.forceScroll),
+          () => tinyAPI.emit('selectedRoomAfter', action.roomId, tinyThread, action.forceScroll),
           100,
         );
         this.emit(
           cons.events.navigation.SELECTED_ROOM,
           action.roomId,
           action.eventId,
-          action.threadId,
+          tinyThread,
           action.forceScroll,
         );
       },
@@ -489,6 +526,14 @@ class Navigation extends EventEmitter {
       },
 
       [cons.actions.navigation.OPEN_SETTINGS]: () => {
+        if (
+          tinyCrypto &&
+          tinyCrypto.call &&
+          typeof tinyCrypto.call.requestAccounts === 'function' &&
+          tinyCrypto.isUnlocked()
+        )
+          tinyCrypto.call.requestAccounts();
+
         tinyAPI.emit('settingsOpened', action.tabText);
         this.emit(cons.events.navigation.SETTINGS_OPENED, action.tabText);
       },

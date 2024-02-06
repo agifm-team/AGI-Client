@@ -5,6 +5,8 @@ import { colorMXID } from '@src/util/colorMXID';
 import { twemojify } from '@src/util/twemojify';
 import { getRoomInfo } from '@src/app/organisms/room/Room';
 
+import { getDataList, addToDataFolder, getDataFolderRaw } from '@src/util/selectedRoom';
+
 import { openProfileViewer, selectRoom } from '@src/client/action/navigation';
 import { createMessageData } from '@src/app/molecules/message/Message';
 import { jqueryTime } from '@src/app/atoms/time/Time';
@@ -15,6 +17,9 @@ import { btModal, objType } from '../../tools';
 import initMatrix, { fetchFn } from '../../../client/initMatrix';
 
 const ImageBrokenSVG = './img/svg/image-broken.svg';
+// addToDataFolder('thread', 'actives', '');
+// getDataList('thread', 'actives', '');
+// getDataFolderRaw('thread', 'actives');
 
 // The class
 class ThreadsList {

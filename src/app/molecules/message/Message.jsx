@@ -57,7 +57,10 @@ import getUrlPreview from '../../../util/libs/getUrlPreview';
 
 import Embed from './Embed';
 import tinyAPI from '../../../util/mods';
-import { getAnimatedImageUrl, getAppearance } from '../../../util/libs/appearance';
+import matrixAppearance, {
+  getAnimatedImageUrl,
+  getAppearance,
+} from '../../../util/libs/appearance';
 import UserOptions from '../user-options/UserOptions';
 import { getDataList } from '../../../util/selectedRoom';
 import { tinyLinkifyFixer } from '../../../util/clear-urls/clearUrls';
@@ -144,9 +147,9 @@ MessageTime.propTypes = {
 function MessageReply({ name, color, body }) {
   tinyFixScrollChat();
   return (
-    <div className="pb-2 emoji-size-fix small text-reply">
+    <div className="emoji-size-fix small text-reply">
       <RawIcon color={color} size="normal" fa="fa-solid fa-reply" />{' '}
-      <span className="username-title emoji-size-fix" style={{ color }}>
+      <span className="ms-2 username-title emoji-size-fix" style={{ color }}>
         {twemojifyReact(name)}
       </span>{' '}
       {body.length > 200 ? twemojifyReact(`${body.substring(0, 200)}......`) : twemojifyReact(body)}
@@ -291,19 +294,19 @@ const createMessageData = (
       const insertMsg = () =>
         !isJquery
           ? twemojifyReact(
-              sanitizeCustomHtml(initMatrix.matrixClient, body),
-              undefined,
-              true,
-              false,
-              true,
-            )
+            sanitizeCustomHtml(initMatrix.matrixClient, body),
+            undefined,
+            true,
+            false,
+            true,
+          )
           : twemojify(
-              sanitizeCustomHtml(initMatrix.matrixClient, body),
-              undefined,
-              true,
-              false,
-              true,
-            );
+            sanitizeCustomHtml(initMatrix.matrixClient, body),
+            undefined,
+            true,
+            false,
+            true,
+          );
 
       const msgOptions = tinyAPI.emit(
         'messageBody',
@@ -835,6 +838,9 @@ const MessageOptions = React.memo(
     body,
     customHTML,
   }) => {
+    const [isForceThreadVisible, setIsForceThreadVisible] = useState(
+      matrixAppearance.get('forceThreadButton'),
+    );
     const { roomId, room } = roomTimeline;
     const mx = initMatrix.matrixClient;
     const senderId = mEvent.getSender();
@@ -865,6 +871,15 @@ const MessageOptions = React.memo(
       selectRoom(roomId, eventId, eventId);
     };
 
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useEffect(() => {
+      const newForceThread = (value) => setIsForceThreadVisible(value);
+      matrixAppearance.on('forceThreadButton', newForceThread);
+      return () => {
+        matrixAppearance.off('forceThreadButton', newForceThread);
+      };
+    });
+
     return (
       <div className="message__options">
         {canSendReaction && (
@@ -877,7 +892,7 @@ const MessageOptions = React.memo(
         )}
         <IconButton onClick={() => reply()} fa="fa-solid fa-reply" size="normal" tooltip="Reply" />
 
-        {canCreateThread && (
+        {canCreateThread && (isForceThreadVisible || !roomTimeline.isEncrypted()) && (
           <IconButton
             onClick={() => createThread()}
             fa="bi bi-layers"

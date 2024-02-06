@@ -34,6 +34,11 @@ class MatrixAppearance extends EventEmitter {
           ? this.content.isAnimateAvatarsEnabled
           : true;
 
+      this.content.forceThreadButton =
+        typeof this.content.forceThreadButton === 'boolean'
+          ? this.content.forceThreadButton
+          : false;
+
       this.content.showUserDMstatus =
         typeof this.content.showUserDMstatus === 'boolean' ? this.content.showUserDMstatus : true;
       this.content.pinDMmessages =
@@ -105,7 +110,9 @@ matrixAppearance.setMaxListeners(Infinity);
 export { toggleAppearanceAction };
 export default matrixAppearance;
 
-global.appearanceApi = {
-  getCfg: getAppearance,
-  setCfg: setAppearance,
-};
+if (__ENV_APP__.MODE === 'development') {
+  global.appearanceApi = {
+    getCfg: getAppearance,
+    setCfg: setAppearance,
+  };
+}

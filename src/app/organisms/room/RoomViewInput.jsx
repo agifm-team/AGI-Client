@@ -25,7 +25,7 @@ import RawIcon from '../../atoms/system-icons/RawIcon';
 import IconButton from '../../atoms/button/IconButton';
 import ScrollView from '../../atoms/scroll/ScrollView';
 import { MessageReply } from '../../molecules/message/Message';
-import { flattenNodes } from '../../molecules/markdown-input/MarkdownInput';
+// import { flattenNodes } from '../../molecules/markdown-input/MarkdownInput';
 
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 
@@ -72,19 +72,26 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
   }
 
   useEffect(() => {
-    if (roomsInput) roomsInput.on(cons.events.roomsInput.ATTACHMENT_SET, setAttachment);
+    const tinyScrollTime = () => mediaFix(null, embedHeight, setEmbedHeight);
+    if (roomsInput) {
+      roomsInput.on(cons.events.roomsInput.ATTACHMENT_SET, setAttachment);
+      roomsInput.on(cons.events.roomsInput.ATTACHMENT_SET, tinyScrollTime);
+    }
     viewEvent.on('focus_msg_input', requestFocusInput);
     return () => {
-      if (roomsInput)
+      if (roomsInput) {
         roomsInput.removeListener(cons.events.roomsInput.ATTACHMENT_SET, setAttachment);
+        roomsInput.removeListener(cons.events.roomsInput.ATTACHMENT_SET, tinyScrollTime);
+      }
+
       viewEvent.removeListener('focus_msg_input', requestFocusInput);
     };
   }, [roomsInput, viewEvent]);
 
-  function getEditorContent() {
+  /* function getEditorContent() {
     const content = editor.current.children;
     return flattenNodes(content);
-  }
+  } */
 
   function clearEditor() {
     if (editor.current)
@@ -188,6 +195,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
 
                 // Insert attachment and complete
                 initMatrix.roomsInput.setAttachment(selectedRoomId, blob);
+                mediaFix(null, embedHeight, setEmbedHeight);
                 initMatrix.roomsInput.emit(cons.events.roomsInput.ATTACHMENT_SET, blob);
                 tinyRec.enabled = false;
               }
@@ -396,6 +404,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
   function clearAttachment(myRoomId) {
     if (roomId !== myRoomId) return;
     setAttachment(null);
+    mediaFix(null, embedHeight, setEmbedHeight);
     $(inputBaseRef.current).css('background-image', 'unset');
     $(uploadInputRef.current).val('');
   }
@@ -536,6 +545,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
         textArea.val(roomsInput.getMessage(roomId));
         setAttachment(roomsInput.getAttachment(roomId));
         setReplyTo(roomsInput.getReplyTo(roomId));
+        mediaFix(null, embedHeight, setEmbedHeight);
       }
     }
 
@@ -625,7 +635,10 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
 
     // Prepare Files
     if (attachment !== null) {
-      if (roomsInput) roomsInput.setAttachment(roomId, attachment);
+      if (roomsInput) {
+        roomsInput.setAttachment(roomId, attachment);
+        mediaFix(null, embedHeight, setEmbedHeight);
+      }
     }
 
     // Prepare Message
@@ -785,6 +798,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
       e.preventDefault();
       if (roomsInput) roomsInput.cancelReplyTo(roomId);
       setReplyTo(null);
+      mediaFix(null, embedHeight, setEmbedHeight);
     }
 
     if (
@@ -816,8 +830,10 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
           setAttachment(image);
           if (image !== null) {
             if (roomsInput) roomsInput.setAttachment(roomId, image);
+            mediaFix(null, embedHeight, setEmbedHeight);
             return;
           }
+          mediaFix(null, embedHeight, setEmbedHeight);
         } else {
           return;
         }
@@ -927,12 +943,15 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
             ref={uploadInputRef}
             type="file"
           />
-          <IconButton
-            id="room-file-upload"
-            onClick={handleUploadClick}
-            tooltip={attachment === null ? 'Upload' : 'Cancel'}
-            fa="fa-solid fa-circle-plus"
-          />
+
+          {attachment ? (
+            <IconButton
+              id="room-file-upload"
+              onClick={handleUploadClick}
+              tooltip="Cancel"
+              fa="fa-solid fa-circle-plus"
+            />
+          ) : null}
 
           <IconButton
             className="d-none"
@@ -946,7 +965,18 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
         </div>
 
         <div ref={inputBaseRef} className="room-input__input-container">
+          {attachment === null ? (
+            <IconButton
+              id="room-file-upload"
+              className="me-2"
+              onClick={handleUploadClick}
+              tooltip="Upload"
+              fa="fa-solid fa-circle-plus"
+            />
+          ) : null}
+
           {roomTimeline.isEncrypted() && <RawIcon size="extra-small" fa="bi bi-shield-lock-fill" />}
+
           <ScrollView autoHide>
             <Text className="room-input__textarea-wrapper">
               <TextareaAutosize
@@ -960,78 +990,78 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
               />
             </Text>
           </ScrollView>
-        </div>
 
-        <div
-          ref={rightOptionsRef}
-          id="chat-textarea-actions"
-          className="room-input__option-container"
-        >
-          <IconButton
-            id="sticker-opener"
-            onClick={(e) => {
-              const cords = getEventCords(e);
-              cords.x -= document.dir === 'rtl' ? -80 : 280;
-              cords.y -= 460;
-
-              cords.y += 220;
-
-              openEmojiBoard(roomId, cords, 'sticker', (data) => {
-                handleSendSticker({
-                  body: data.unicode.substring(1, data.unicode.length - 1),
-                  httpUrl: mx.mxcUrlToHttp(data.mxc),
-                  mxc: data.mxc,
-                });
-
-                shiftNuller(() => e.target.click());
-              });
-            }}
-            tooltip="Sticker"
-            fa="fa-solid fa-note-sticky"
-          />
-
-          <IconButton
-            id="emoji-opener"
-            onClick={(e) => {
-              const cords = getEventCords(e);
-              cords.x -= document.dir === 'rtl' ? -80 : 280;
-              cords.y -= 460;
-
-              if (window.matchMedia('screen and (max-width: 479px)').matches) {
-                cords.x -= 50;
-              }
-
-              const tabNewSpace = $('.room-view__sticky').height(true) - 84;
-              cords.y += 220;
-
-              if (tabNewSpace > 0) {
-                cords.y -= tabNewSpace - 60;
-              }
-
-              openEmojiBoard(roomId, cords, 'emoji', (emoji) => {
-                addEmoji(emoji);
-                shiftNuller(() => e.target.click());
-              });
-            }}
-            tooltip="Emoji"
-            fa="fa-solid fa-face-smile"
-          />
-
-          <IconButton
-            id="audio-sender"
-            ref={recAudioRef}
-            tooltip="Send Audio"
-            fa="fa-solid fa-microphone"
+          <div
+            ref={rightOptionsRef}
+            id="chat-textarea-actions"
+            className="ms-1 room-input__option-container"
           >
-            <time className="very-small ps-2 d-none" />
-          </IconButton>
+            <IconButton
+              id="sticker-opener"
+              onClick={(e) => {
+                const cords = getEventCords(e);
+                cords.x -= document.dir === 'rtl' ? -80 : 280;
+                cords.y -= 460;
 
-          <IconButton
-            id="send-room-message"
-            onClick={sendMessage}
-            tooltip="Send"
-            fa="fa-solid fa-paper-plane"
-          />
+                cords.y += 220;
+
+                openEmojiBoard(roomId, cords, 'sticker', (data) => {
+                  handleSendSticker({
+                    body: data.unicode.substring(1, data.unicode.length - 1),
+                    httpUrl: mx.mxcUrlToHttp(data.mxc),
+                    mxc: data.mxc,
+                  });
+
+                  shiftNuller(() => e.target.click());
+                });
+              }}
+              tooltip="Sticker"
+              fa="fa-solid fa-note-sticky"
+            />
+
+            <IconButton
+              id="emoji-opener"
+              onClick={(e) => {
+                const cords = getEventCords(e);
+                cords.x -= document.dir === 'rtl' ? -80 : 280;
+                cords.y -= 460;
+
+                if (window.matchMedia('screen and (max-width: 479px)').matches) {
+                  cords.x -= 50;
+                }
+
+                const tabNewSpace = $('.room-view__sticky').height(true) - 84;
+                cords.y += 220;
+
+                if (tabNewSpace > 0) {
+                  cords.y -= tabNewSpace - 60;
+                }
+
+                openEmojiBoard(roomId, cords, 'emoji', (emoji) => {
+                  addEmoji(emoji);
+                  shiftNuller(() => e.target.click());
+                });
+              }}
+              tooltip="Emoji"
+              fa="fa-solid fa-face-smile"
+            />
+
+            <IconButton
+              id="audio-sender"
+              ref={recAudioRef}
+              tooltip="Send Audio"
+              fa="fa-solid fa-microphone"
+            >
+              <time className="very-small ps-2 d-none" />
+            </IconButton>
+
+            <IconButton
+              id="send-room-message"
+              onClick={sendMessage}
+              tooltip="Send"
+              fa="fa-solid fa-paper-plane"
+            />
+          </div>
         </div>
       </>
     );
@@ -1076,7 +1106,9 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
           onClick={() => {
             roomsInput.cancelReplyTo(roomId);
             setReplyTo(null);
+            mediaFix(null, embedHeight, setEmbedHeight);
           }}
+          className="me-2"
           fa="fa-solid fa-xmark"
           tooltip="Cancel reply"
           size="extra-small"

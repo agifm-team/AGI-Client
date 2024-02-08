@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { NotificationCountType } from 'matrix-js-sdk';
+import cons from '@src/client/state/cons';
 
 import { twemojifyReact } from '../../../util/twemojify';
 import { colorMXID } from '../../../util/colorMXID';
@@ -283,15 +284,16 @@ RoomSelector.propTypes = {
 export default RoomSelector;
 export function ThreadSelector({ thread, isSelected, isMuted }) {
   const { rootEvent } = thread;
+  const { notifications } = initMatrix;
 
-  const notificationCount = thread.room.getThreadUnreadNotificationCount(
-    thread.id,
-    NotificationCountType.Total,
+  const [notificationCount, setNotiCount] = useState(
+    thread.room.getThreadUnreadNotificationCount(thread.id, NotificationCountType.Total),
   );
-  const highlightNotificationCount = thread.room.getThreadUnreadNotificationCount(
-    thread.id,
-    NotificationCountType.Highlight,
+
+  const [highlightNotificationCount, setHighNotiCount] = useState(
+    thread.room.getThreadUnreadNotificationCount(thread.id, NotificationCountType.Highlight),
   );
+
   const isUnread = !isMuted && notificationCount > 0;
   const isAlert = highlightNotificationCount > 0;
 
@@ -301,25 +303,47 @@ export function ThreadSelector({ thread, isSelected, isMuted }) {
     selectRoom(thread.roomId, undefined, thread.id);
   };
 
+  useEffect(() => {
+    const threadUpdate = (tth) => {
+      if (tth.id === thread.id) {
+        setNotiCount(
+          thread.room.getThreadUnreadNotificationCount(thread.id, NotificationCountType.Total),
+        );
+
+        setHighNotiCount(
+          thread.room.getThreadUnreadNotificationCount(thread.id, NotificationCountType.Highlight),
+        );
+      }
+    };
+
+    notifications.on(cons.events.notifications.THREAD_NOTIFICATION, threadUpdate);
+    return () => {
+      notifications.off(cons.events.notifications.THREAD_NOTIFICATION, threadUpdate);
+    };
+  });
+
   return (
     <RoomSelectorWrapper
       isSelected={isSelected}
       isMuted={isMuted}
       isUnread={!isMuted && notificationCount > 0}
+      className="text-truncate"
       content={
-        <>
-          <div className="thread-selector__lines" />
-          <Text variant="b1" weight={isUnread ? 'medium' : 'normal'}>
+        <div className="text-truncate content">
+          <p
+            className={`my-0 ms-1 me-5 small text-bg-force text-truncate username-base${isUnread ? ' username-unread' : ''}`}
+          >
             <i className="bi bi-arrow-return-right me-2 thread-selector__icon" />{' '}
             {twemojifyReact(name)}
-          </Text>
+          </p>
           {isUnread && (
             <NotificationBadge
+              className="float-end"
               alert={isAlert}
               content={notificationCount > 0 ? notificationCount : null}
             />
           )}
-        </>
+        </div>
       }
       options={<div />}
       onClick={onClick}

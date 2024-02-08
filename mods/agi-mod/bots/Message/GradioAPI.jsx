@@ -7,18 +7,19 @@ import clone from 'clone';
 import { client } from '@gradio/client';
 import objectHash from 'object-hash';
 
+import { objType, tinyConfirm, toast } from '@src/util/tools';
+import { setLoadingPage } from '@src/app/templates/client/Loading';
+import openTinyURL from '@src/util/message/urlProtection';
+import { getRoomInfo } from '@src/app/organisms/room/Room';
+
+import moment from '@src/util/libs/momentjs';
+import initMatrix from '@src/client/initMatrix';
+
+import settings from '@src/client/state/settings';
+import cons from '@src/client/state/cons';
+import { mediaFix } from '@src/app/molecules/media/mediaFix';
+
 import GradioLayout, { fileUrlGenerator } from './gradioLayout';
-import { objType, tinyConfirm, toast } from '../../../../src/util/tools';
-import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
-import openTinyURL from '../../../../src/util/message/urlProtection';
-import { getRoomInfo } from '../../../../src/app/organisms/room/Room';
-
-import moment from '../../../../src/util/libs/momentjs';
-import initMatrix from '../../../../src/client/initMatrix';
-
-import settings from '../../../../src/client/state/settings';
-import cons from '../../../../src/client/state/cons';
-import { mediaFix } from '../../../../src/app/molecules/media/mediaFix';
 
 // Detect the mode to execute the input update
 const updateInputValue = (input, dropdown, value, filePath = '') => {

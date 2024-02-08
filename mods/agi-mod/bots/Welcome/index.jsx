@@ -3,11 +3,11 @@ import React, { useEffect, useState } from 'react';
 import clone from 'clone';
 
 import { objType } from '@src/util/tools';
+import { selectRoomMode } from '@src/client/action/navigation';
+import { ChatRoomFrame } from '@src/app/embed/ChatRoom';
 
-import { selectRoomMode } from '../../../../src/client/action/navigation';
 import { serverDomain } from '../../socket';
 import ItemWelcome from './item';
-import { ChatRoomFrame } from '../../../../src/app/embed/ChatRoom';
 // import AgentCard from './AgentCard/AgentCard.jsx';
 import './custom.scss';
 
@@ -106,23 +106,23 @@ function Welcome({ isGuest }) {
         .then((newData) => {
           console.log(newData);
           if (Array.isArray(newData)) {
-
             const rooms = [];
             const listTags = [];
 
             for (const item in newData) {
               if (objType(newData[item], 'object')) {
-
                 if (Array.isArray(newData[item].tags)) {
                   for (const item2 in newData[item].tags) {
-                    if (typeof newData[item].tags[item2] === 'string' && listTags.indexOf(newData[item].tags[item2]) < 0) {
+                    if (
+                      typeof newData[item].tags[item2] === 'string' &&
+                      listTags.indexOf(newData[item].tags[item2]) < 0
+                    ) {
                       listTags.push(newData[item].tags[item2]);
                     }
                   }
                 }
 
                 rooms.push(newData[item]);
-
               }
             }
 

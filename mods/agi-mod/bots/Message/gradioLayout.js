@@ -15,15 +15,15 @@ import { marked } from 'marked';
 import clone from 'clone';
 import isBase64 from 'is-base64';
 
-import { blobCreator, hljsFixer, objType, toast } from '../../../../src/util/tools';
-import { copyToClipboard } from '../../../../src/util/common';
-import initMatrix from '../../../../src/client/initMatrix';
-import openTinyURL from '../../../../src/util/message/urlProtection';
-import { bootstrapItems } from '../../../../src/util/styles-bootstrap';
-import { twemojify } from '../../../../src/util/twemojify';
-import { selectButton as selectTheme } from '../../../../src/util/checkTheme';
-import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
-import imageViewer from '../../../../src/util/imageViewer';
+import { blobCreator, hljsFixer, objType, toast } from '@src/util/tools';
+import { copyToClipboard } from '@src/util/common';
+import initMatrix from '@src/client/initMatrix';
+import openTinyURL from '@src/util/message/urlProtection';
+import { bootstrapItems } from '@src/util/styles-bootstrap';
+import { twemojify } from '@src/util/twemojify';
+import { selectButton as selectTheme } from '@src/util/checkTheme';
+import { setLoadingPage } from '@src/app/templates/client/Loading';
+import imageViewer from '@src/util/imageViewer';
 
 // Label and display to components.
 const labelCreator = (icon, props, id) =>

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import TextareaAutosize from 'react-autosize-textarea';
 import { Capacitor } from '@capacitor/core';
+import moment from '@src/util/libs/momentjs';
 
 import { ReactEditor } from 'slate-react';
 import { Editor, Transforms } from 'slate';
@@ -10,7 +11,7 @@ import { Editor, Transforms } from 'slate';
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import settings from '../../../client/state/settings';
-import { openEmojiBoard } from '../../../client/action/navigation';
+import { openEmojiBoard, openReusableContextMenu } from '../../../client/action/navigation';
 import navigation from '../../../client/state/navigation';
 import { bytesToSize, getEventCords } from '../../../util/common';
 import { getUsername, getCurrentState } from '../../../util/matrixUtil';
@@ -18,19 +19,20 @@ import { colorMXID } from '../../../util/colorMXID';
 import { shiftNuller } from '../../../util/shortcut';
 import audioRecorder from '../../../util/audioRec';
 import { momentCountdown, resizeWindowChecker, toast } from '../../../util/tools';
-import moment from '../../../util/libs/momentjs';
 
 import Text from '../../atoms/text/Text';
 import RawIcon from '../../atoms/system-icons/RawIcon';
 import IconButton from '../../atoms/button/IconButton';
 import ScrollView from '../../atoms/scroll/ScrollView';
 import { MessageReply } from '../../molecules/message/Message';
-import { flattenNodes } from '../../molecules/markdown-input/MarkdownInput';
+// import { flattenNodes } from '../../molecules/markdown-input/MarkdownInput';
 
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 
 import commands from '../../../commands';
 import { getAppearance } from '../../../util/libs/appearance';
+import { mediaFix } from '../../molecules/media/mediaFix';
+import RoomUpload from '../../molecules/room-upload-button/RoomUpload';
 
 // Variables
 const CMD_REGEX = /(^\/|:|@)(\S*)$/;
@@ -38,16 +40,11 @@ let isTyping = false;
 let isCmdActivated = false;
 let cmdCursorPos = null;
 
-function RoomViewInput({
-  roomId,
-  threadId,
-  roomTimeline,
-  viewEvent,
-  refRoomInput,
-}) {
-
+function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput }) {
   // Rec Ref
   const recAudioRef = useRef(null);
+  const [embedHeight, setEmbedHeight] = useState(null);
+  const [closeUpButton, setCloseUpButton] = useState(null);
 
   // File
   const [attachment, setAttachment] = useState(null);
@@ -77,26 +74,35 @@ function RoomViewInput({
   }
 
   useEffect(() => {
-    if (roomsInput) roomsInput.on(cons.events.roomsInput.ATTACHMENT_SET, setAttachment);
+    const tinyScrollTime = () => mediaFix(null, embedHeight, setEmbedHeight);
+    if (roomsInput) {
+      roomsInput.on(cons.events.roomsInput.ATTACHMENT_SET, setAttachment);
+      roomsInput.on(cons.events.roomsInput.ATTACHMENT_SET, tinyScrollTime);
+    }
     viewEvent.on('focus_msg_input', requestFocusInput);
     return () => {
-      if (roomsInput) roomsInput.removeListener(cons.events.roomsInput.ATTACHMENT_SET, setAttachment);
+      if (roomsInput) {
+        roomsInput.removeListener(cons.events.roomsInput.ATTACHMENT_SET, setAttachment);
+        roomsInput.removeListener(cons.events.roomsInput.ATTACHMENT_SET, tinyScrollTime);
+      }
+
       viewEvent.removeListener('focus_msg_input', requestFocusInput);
     };
   }, [roomsInput, viewEvent]);
 
-  function getEditorContent() {
+  /* function getEditorContent() {
     const content = editor.current.children;
     return flattenNodes(content);
-  }
+  } */
 
   function clearEditor() {
-    if (editor.current) Transforms.delete(editor.current, {
-      at: {
-        anchor: editor.current.start([]),
-        focus: editor.current.end([]),
-      },
-    });
+    if (editor.current)
+      Transforms.delete(editor.current, {
+        at: {
+          anchor: editor.current.start([]),
+          focus: editor.current.end([]),
+        },
+      });
   }
 
   // Send is Typing
@@ -113,29 +119,34 @@ function RoomViewInput({
 
   function checkTypingPerm() {
     const content = mx.getAccountData('pony.house.privacy')?.getContent() ?? {};
-    return (content.hideTypingWarn === true);
-  };
+    return content.hideTypingWarn === true;
+  }
 
   // Effects
   useEffect(() => {
-
     // Audio Record
     const prefixConsole = (text, type = 'log') => console[type](`[chatbox record] ${text}`);
-    const tinyRec = { enabled: false, loading: false, timeout: 0, timeout2: 0, clock: moment().subtract(1, 'second'), pointRec: '' };
+    const tinyRec = {
+      enabled: false,
+      loading: false,
+      timeout: 0,
+      timeout2: 0,
+      clock: moment().subtract(1, 'second'),
+      pointRec: '',
+    };
     tinyRec.input = $(recAudioRef.current);
     tinyRec.time = tinyRec.input.find('> time');
     tinyRec.roomInput = $('.room-input');
     const holdTinyAudio = [
-
       // User Click
       () => {
-
         tinyRec.clock = moment().subtract(1, 'second');
         tinyRec.roomInput.removeClass('textarea-focus-rec');
         tinyRec.time.addClass('d-none').text('');
         tinyRec.input.addClass('audio-click');
 
-        clearInterval(tinyRec.timeout2); tinyRec.timeout2 = 0;
+        clearInterval(tinyRec.timeout2);
+        tinyRec.timeout2 = 0;
         clearTimeout(tinyRec.timeout);
 
         if (tinyRec.enabled || tinyRec.loading) {
@@ -146,14 +157,13 @@ function RoomViewInput({
 
         tinyRec.loading = true;
         tinyRec.timeout = setTimeout(holdTinyAudio[2], 300);
-
       },
 
       // Remove Click
       () => {
-
         // Stop Interval
-        clearInterval(tinyRec.timeout2); tinyRec.timeout2 = 0;
+        clearInterval(tinyRec.timeout2);
+        tinyRec.timeout2 = 0;
         clearTimeout(tinyRec.timeout);
 
         // Audio Click
@@ -165,39 +175,43 @@ function RoomViewInput({
         // Stop Record
         if (!tinyRec.loading) {
           if (!checkTypingPerm()) sendIsTyping(false);
-          audioRecorder.stop().then(blob => {
-            if (blob) {
+          audioRecorder
+            .stop()
+            .then((blob) => {
+              if (blob) {
+                // Get Room ID
+                const selectedRoomId = navigation.selectedRoomId;
+                if (!selectedRoomId) return;
 
-              // Get Room ID
-              const selectedRoomId = navigation.selectedRoomId;
-              if (!selectedRoomId) return;
+                // Get Type
+                let fileExt = blob.type;
 
-              // Get Type
-              let fileExt = blob.type;
+                // Filter File Type
+                if (typeof fileExt === 'string') {
+                  fileExt = fileExt.split('/');
+                  fileExt = fileExt[1].split(';')[0];
+                }
 
-              // Filter File Type
-              if (typeof fileExt === 'string') {
-                fileExt = fileExt.split('/');
-                fileExt = fileExt[1].split(';')[0];
+                // Insert File Name
+                blob.name = `voice_message_${moment().format('MM/DD/YYYY_HH:mm:ss')}.${fileExt}`;
+
+                // Insert attachment and complete
+                initMatrix.roomsInput.setAttachment(selectedRoomId, blob);
+                mediaFix(null, embedHeight, setEmbedHeight);
+                initMatrix.roomsInput.emit(cons.events.roomsInput.ATTACHMENT_SET, blob);
+                tinyRec.enabled = false;
               }
-
-              // Insert File Name
-              blob.name = `voice_message_${moment().format('MM/DD/YYYY_HH:mm:ss')}.${fileExt}`;
-
-              // Insert attachment and complete
-              initMatrix.roomsInput.setAttachment(selectedRoomId, blob);
-              initMatrix.roomsInput.emit(cons.events.roomsInput.ATTACHMENT_SET, blob);
-              tinyRec.enabled = false;
-
-            }
-          })
+            })
 
             // Fail Record
-            .catch(err => {
-
+            .catch((err) => {
               // on error
               // No Browser Support Error
-              if (err.message.includes('mediaDevices API or getUserMedia method is not supported in this browser.')) {
+              if (
+                err.message.includes(
+                  'mediaDevices API or getUserMedia method is not supported in this browser.',
+                )
+              ) {
                 prefixConsole('To record audio, use browsers like Chrome and Firefox.', 'warn');
               }
 
@@ -208,7 +222,10 @@ function RoomViewInput({
                   console.error(err);
                   break;
                 case 'NotAllowedError': // err from navigator.mediaDevices.getUserMedia
-                  prefixConsole('A NotAllowedError has occured. User might have denied permission.', 'error');
+                  prefixConsole(
+                    'A NotAllowedError has occured. User might have denied permission.',
+                    'error',
+                  );
                   console.error(err);
                   break;
                 case 'NotFoundError': // err from navigator.mediaDevices.getUserMedia
@@ -238,37 +255,31 @@ function RoomViewInput({
                 default:
                   prefixConsole(`An err occured with the err name ${err.name}`, 'error');
                   console.error(err);
-              };
+              }
 
               tinyRec.enabled = false;
               tinyRec.loading = false;
               toast(err.message);
-
             });
         }
 
         // Cancel
         else {
-
           // Complete
           if (!checkTypingPerm()) sendIsTyping(false);
           audioRecorder.cancel();
 
           tinyRec.enabled = false;
           tinyRec.loading = false;
-
         }
-
       },
 
       // User Hold
       () => {
         if (tinyRec.loading && !tinyRec.enabled && !tinyRec.timeout2) {
-
           tinyRec.enabled = true;
 
           tinyRec.timeout2 = momentCountdown((time) => {
-
             if (tinyRec.pointRec === '...') {
               tinyRec.pointRec = '';
             } else if (tinyRec.pointRec === '..') {
@@ -282,23 +293,30 @@ function RoomViewInput({
             tinyRec.input.addClass('audio-hold');
 
             tinyRec.time.text(time);
-            $(textAreaRef.current).attr('placeholder', `${time} - Recording voice${tinyRec.pointRec}`);
-
+            $(textAreaRef.current).attr(
+              'placeholder',
+              `${time} - Recording voice${tinyRec.pointRec}`,
+            );
           }, tinyRec.clock);
 
           // Start Record
           if (!checkTypingPerm()) sendIsTyping(true);
-          audioRecorder.start().then(() => {
-            tinyRec.loading = false;
-            tinyRec.roomInput.addClass('textarea-focus-rec');
-            tinyRec.time.removeClass('d-none');
-          })
+          audioRecorder
+            .start()
+            .then(() => {
+              tinyRec.loading = false;
+              tinyRec.roomInput.addClass('textarea-focus-rec');
+              tinyRec.time.removeClass('d-none');
+            })
 
             // Fail Record
-            .catch(err => {
-
+            .catch((err) => {
               // No Browser Support Error
-              if (err.message.includes('mediaDevices API or getUserMedia method is not supported in this browser.')) {
+              if (
+                err.message.includes(
+                  'mediaDevices API or getUserMedia method is not supported in this browser.',
+                )
+              ) {
                 prefixConsole('To record audio, use browsers like Chrome and Firefox.', 'warn');
               }
 
@@ -309,7 +327,10 @@ function RoomViewInput({
                   console.error(err);
                   break;
                 case 'NotAllowedError': // error from navigator.mediaDevices.getUserMedia
-                  prefixConsole('A NotAllowedError has occured. User might have denied permission.', 'error');
+                  prefixConsole(
+                    'A NotAllowedError has occured. User might have denied permission.',
+                    'error',
+                  );
                   console.error(err);
                   break;
                 case 'NotFoundError': // error from navigator.mediaDevices.getUserMedia
@@ -339,48 +360,53 @@ function RoomViewInput({
                 default:
                   prefixConsole(`An error occured with the error name ${err.name}`, 'error');
                   console.error(err);
-              };
+              }
 
               tinyRec.enabled = false;
               tinyRec.loading = false;
               toast(err.message);
-
             });
-
         }
       },
       () => {
-
         // Warn Hold
         if (!tinyRec.enabled) {
           toast(`You need to hold the button down to record your audio.`, 'Send Voice - Warning');
         }
-
-      }
+      },
     ];
 
     // Events
-    tinyRec.input.on('mousedown touchstart', holdTinyAudio[0]).on('mouseup mouseleave touchend', holdTinyAudio[1]).on('click', holdTinyAudio[3]);
+    tinyRec.input
+      .on('mousedown touchstart', holdTinyAudio[0])
+      .on('mouseup mouseleave touchend', holdTinyAudio[1])
+      .on('click', holdTinyAudio[3]);
 
     return () => {
-      tinyRec.input.off('mousedown', holdTinyAudio[0]).off('mouseup mouseleave', holdTinyAudio[1]).off('click', holdTinyAudio[3]);
+      tinyRec.input
+        .off('mousedown', holdTinyAudio[0])
+        .off('mouseup mouseleave', holdTinyAudio[1])
+        .off('click', holdTinyAudio[3]);
     };
-
   }, []);
 
   function uploadingProgress(myRoomId, { loaded, total }) {
-
     if (myRoomId !== roomId) return;
     const progressPer = Math.round((loaded * 100) / total);
 
-    $(uploadProgressRef.current).text(`Uploading: ${bytesToSize(loaded)}/${bytesToSize(total)} (${progressPer}%)`);
-    $(inputBaseRef.current).css('background-image', `linear-gradient(90deg, var(--bg-surface-hover) ${progressPer}%, var(--bg-surface-low) ${progressPer}%)`);
-
+    $(uploadProgressRef.current).text(
+      `Uploading: ${bytesToSize(loaded)}/${bytesToSize(total)} (${progressPer}%)`,
+    );
+    $(inputBaseRef.current).css(
+      'background-image',
+      `linear-gradient(90deg, var(--bg-surface-hover) ${progressPer}%, var(--bg-surface-low) ${progressPer}%)`,
+    );
   }
 
   function clearAttachment(myRoomId) {
     if (roomId !== myRoomId) return;
     setAttachment(null);
+    mediaFix(null, embedHeight, setEmbedHeight);
     $(inputBaseRef.current).css('background-image', 'unset');
     $(uploadInputRef.current).val('');
   }
@@ -413,15 +439,13 @@ function RoomViewInput({
   }
 
   function setCursorPosition(pos1, pos2) {
-
     setTimeout(() => {
       if (editor.current) ReactEditor.focus(editor.current);
       if (editor.current) Transforms.select(editor.current, { path: [0, 0], offset: pos1 });
     }, 0);
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(() => {
-
         const textArea = $(textAreaRef.current);
 
         let selectionStart = pos1;
@@ -433,23 +457,18 @@ function RoomViewInput({
         }
 
         if (typeof selectionStart !== 'number') {
-
           if (textArea.length > 0) {
-
             textArea.focus();
 
-            if (typeof selectionEnd !== 'number' || selectionStart === selectionEnd) textArea.get(0).setSelectionRange(selectionStart, selectionStart);
+            if (typeof selectionEnd !== 'number' || selectionStart === selectionEnd)
+              textArea.get(0).setSelectionRange(selectionStart, selectionStart);
             else textArea.get(0).setSelectionRange(selectionStart, selectionEnd);
-
-          };
+          }
 
           resolve(true);
-
         } else resolve(false);
-
       }, 0);
     });
-
   }
 
   function replaceCmdWith(msg, cursor, replacement) {
@@ -462,7 +481,6 @@ function RoomViewInput({
   }
 
   function firedCmd(cmdData) {
-
     const textArea = $(textAreaRef.current);
     const msg = textArea.val();
     textArea.val(
@@ -470,18 +488,17 @@ function RoomViewInput({
         msg,
         cmdCursorPos,
         typeof cmdData?.replace !== 'undefined' ? cmdData.replace : '',
-      )}${typeof cmdData?.type === 'string' && cmdData.type === 'msg' ? ' ' : ''}`
+      )}${typeof cmdData?.type === 'string' && cmdData.type === 'msg' ? ' ' : ''}`,
     );
 
     textArea.focus();
 
     deactivateCmd();
-
+    mediaFix(null, embedHeight, setEmbedHeight);
   }
 
   // Input
   function focusInput() {
-
     if (settings.isTouchScreenDevice) return;
     $(textAreaRef.current).focus();
 
@@ -490,28 +507,27 @@ function RoomViewInput({
 
     if (editor.current) ReactEditor.focus(editor.current);
     if (editor.current) Transforms.select(editor.current, Editor.end(editor.current, []));
-
+    mediaFix(null, embedHeight, setEmbedHeight);
   }
 
   // Set Reply
   function setUpReply(userId, eventId, body, formattedBody) {
-
     setReplyTo({ userId, eventId, body });
+    mediaFix(null, embedHeight, setEmbedHeight);
 
-    if (roomsInput) roomsInput.setReplyTo(roomId, {
-      userId,
-      eventId,
-      body,
-      formattedBody,
-    });
+    if (roomsInput)
+      roomsInput.setReplyTo(roomId, {
+        userId,
+        eventId,
+        body,
+        formattedBody,
+      });
 
     focusInput();
-
   }
 
   // Effects
   useEffect(() => {
-
     // Events On
     if (roomsInput) {
       roomsInput.on(cons.events.roomsInput.UPLOAD_PROGRESS_CHANGES, uploadingProgress);
@@ -531,11 +547,11 @@ function RoomViewInput({
         textArea.val(roomsInput.getMessage(roomId));
         setAttachment(roomsInput.getAttachment(roomId));
         setReplyTo(roomsInput.getReplyTo(roomId));
+        mediaFix(null, embedHeight, setEmbedHeight);
       }
     }
 
     const textResize = () => {
-
       const roomInput = $('.room-input');
       if (textArea.val()?.length > 0) {
         roomInput.addClass('textarea-typing');
@@ -544,19 +560,30 @@ function RoomViewInput({
       }
 
       resizeWindowChecker();
-
     };
     const focusUpdate = [
-      () => { $('.room-input').addClass('textarea-focus'); },
-      () => { $('.room-input').removeClass('textarea-focus'); }
+      () => {
+        $('.room-input').addClass('textarea-focus');
+      },
+      () => {
+        $('.room-input').removeClass('textarea-focus');
+      },
     ];
 
     // Complete
-    textArea.on('focus', focusUpdate[0]).on('blur', focusUpdate[1]).on('keydown', textResize).on('keypress', textResize).on('keyup', textResize);
+    mediaFix(null, embedHeight, setEmbedHeight);
+    textArea
+      .on('focus', focusUpdate[0])
+      .on('blur', focusUpdate[1])
+      .on('keydown', textResize)
+      .on('keypress', textResize)
+      .on('keyup', textResize);
     return () => {
-
       if (roomsInput) {
-        roomsInput.removeListener(cons.events.roomsInput.UPLOAD_PROGRESS_CHANGES, uploadingProgress);
+        roomsInput.removeListener(
+          cons.events.roomsInput.UPLOAD_PROGRESS_CHANGES,
+          uploadingProgress,
+        );
         roomsInput.removeListener(cons.events.roomsInput.ATTACHMENT_CANCELED, clearAttachment);
         roomsInput.removeListener(cons.events.roomsInput.FILE_UPLOADED, clearAttachment);
       }
@@ -565,7 +592,12 @@ function RoomViewInput({
       navigation.removeListener(cons.events.navigation.REPLY_TO_CLICKED, setUpReply);
 
       const textArea2 = $(textAreaRef.current);
-      textArea2.off('focus', focusUpdate[0]).off('blur', focusUpdate[1]).off('keydown', textResize).off('keypress', textResize).off('keyup', textResize);
+      textArea2
+        .off('focus', focusUpdate[0])
+        .off('blur', focusUpdate[1])
+        .off('keydown', textResize)
+        .off('keypress', textResize)
+        .off('keyup', textResize);
 
       if (isCmdActivated) deactivateCmd();
       if (textArea2.length < 1) return;
@@ -580,14 +612,11 @@ function RoomViewInput({
         return;
       }
       if (roomsInput) roomsInput.setMessage(roomId, msg);
-
     };
-
   }, [roomId]);
 
   // Send Body
   const sendBody = async (body, options) => {
-
     // Options
     const opt = options ?? {};
 
@@ -608,7 +637,10 @@ function RoomViewInput({
 
     // Prepare Files
     if (attachment !== null) {
-      if (roomsInput) roomsInput.setAttachment(roomId, attachment);
+      if (roomsInput) {
+        roomsInput.setAttachment(roomId, attachment);
+        mediaFix(null, embedHeight, setEmbedHeight);
+      }
     }
 
     // Prepare Message
@@ -616,9 +648,10 @@ function RoomViewInput({
     textArea.prop('disabled', true).css('cursor', 'not-allowed');
 
     // Send Input
-    if (roomsInput) await roomsInput.sendInput(roomId, threadId, opt).catch(err => {
-      toast(err.message);
-    });
+    if (roomsInput)
+      await roomsInput.sendInput(roomId, threadId, opt).catch((err) => {
+        toast(err.message);
+      });
 
     // CSS
     textArea.prop('disabled', false).css('cursor', 'unset');
@@ -630,12 +663,11 @@ function RoomViewInput({
 
     // Reply Fix
     if (replyTo !== null) setReplyTo(null);
-
+    mediaFix(null, embedHeight, setEmbedHeight);
   };
 
   // Command
   const processCommand = (cmdBody) => {
-
     const spaceIndex = cmdBody.indexOf(' ');
     const cmdName = cmdBody.slice(1, spaceIndex > -1 ? spaceIndex : undefined);
     const cmdData = spaceIndex > -1 ? cmdBody.slice(spaceIndex + 1) : '';
@@ -653,12 +685,11 @@ function RoomViewInput({
     }
 
     commands[cmdName].exe(roomId, cmdData);
-
+    mediaFix(null, embedHeight, setEmbedHeight);
   };
 
   // Send Message
   const sendMessage = async () => {
-
     // Animation
     requestAnimationFrame(() => deactivateCmdAndEmit());
 
@@ -679,18 +710,17 @@ function RoomViewInput({
     if (msgBody === '' && attachment === null) return;
     $('.room-input').removeClass('textarea-typing');
     sendBody(msgBody);
-
   };
 
   // Sticker
   const handleSendSticker = async (data) => {
-    if (roomsInput) roomsInput.sendSticker(roomId, data);
+    if (roomsInput) await roomsInput.sendSticker(roomId, data);
+    mediaFix(null, embedHeight, setEmbedHeight);
   };
 
   // Typing Progress
   function processTyping(msg) {
     if (!checkTypingPerm()) {
-
       const isEmptyMsg = msg === '';
 
       if (isEmptyMsg && isTyping) {
@@ -701,24 +731,20 @@ function RoomViewInput({
       if (!isEmptyMsg && !isTyping) {
         sendIsTyping(true);
       }
-
     }
   }
 
   // Get Cursor
   function getCursorPosition() {
-
     if (editor.current) {
       return editor.current.selection.anchor.offset;
     }
 
     return textAreaRef.current.selectionStart;
-
   }
 
   // Cmd
   function recognizeCmd(rawInput) {
-
     const cursor = getCursorPosition();
     const targetInput = rawInput.slice(0, cursor);
 
@@ -734,7 +760,11 @@ function RoomViewInput({
     if (cmdPrefix === ':') {
       // skip emoji autofill command if link is suspected.
       const checkForLink = targetInput.slice(0, cmdParts.index);
-      if (checkForLink.match(/(http|https|mailto|matrix|ircs|irc|ftp|ipfs|bitcoin|twitter|dogecoin|ethereum|monero|web3|ar|lbry|steam)$/)) {
+      if (
+        checkForLink.match(
+          /(http|https|mailto|matrix|ircs|irc|ftp|ipfs|bitcoin|twitter|dogecoin|ethereum|monero|web3|ar|lbry|steam)$/,
+        )
+      ) {
         deactivateCmdAndEmit();
         return;
       }
@@ -748,7 +778,6 @@ function RoomViewInput({
 
     if (!isCmdActivated) activateCmd(cmdPrefix);
     viewEvent.emit('cmd_process', cmdPrefix, cmdSlug);
-
   }
 
   // Msg Typing
@@ -766,19 +795,23 @@ function RoomViewInput({
 
   // Keydown
   const handleKeyDown = (e) => {
-
     const appearanceSettings = getAppearance();
     if (e.key === 'Escape') {
       e.preventDefault();
       if (roomsInput) roomsInput.cancelReplyTo(roomId);
       setReplyTo(null);
+      mediaFix(null, embedHeight, setEmbedHeight);
     }
 
-    if ((!Capacitor.isNativePlatform() || appearanceSettings.sendMessageEnter) && e.key === 'Enter' && e.shiftKey === false && !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+    if (
+      (!Capacitor.isNativePlatform() || appearanceSettings.sendMessageEnter) &&
+      e.key === 'Enter' &&
+      e.shiftKey === false &&
+      !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    ) {
       e.preventDefault();
       sendMessage();
     }
-
   };
 
   // Handle Paste
@@ -799,8 +832,10 @@ function RoomViewInput({
           setAttachment(image);
           if (image !== null) {
             if (roomsInput) roomsInput.setAttachment(roomId, image);
+            mediaFix(null, embedHeight, setEmbedHeight);
             return;
           }
+          mediaFix(null, embedHeight, setEmbedHeight);
         } else {
           return;
         }
@@ -810,13 +845,11 @@ function RoomViewInput({
 
   // Add Emoji Function
   function addEmoji(emoji) {
-
     let textArea = $(textAreaRef.current);
     const tinyEditText = $('.message__edit textarea');
     if (tinyEditText.length > 0) textArea = tinyEditText;
 
     if (textArea.length > 0) {
-
       let selectionStart = 0;
       let selectionEnd = 0;
 
@@ -828,7 +861,6 @@ function RoomViewInput({
       textArea.focus();
 
       if (typeof selectionStart === 'number' && typeof selectionEnd === 'number') {
-
         let part1 = textArea.val().substring(0, selectionStart);
         let part2 = textArea.val().substring(selectionEnd, textArea.val().length);
 
@@ -846,13 +878,11 @@ function RoomViewInput({
 
         textAreaRef.current.selectionStart = selectionStart + emoji.unicode.length;
         textAreaRef.current.selectionEnd = selectionStart + emoji.unicode.length;
-
       } else {
         textArea.val(`${textArea.val()}${emoji.unicode}`);
       }
 
       textArea.focus();
-
     }
   }
 
@@ -867,6 +897,7 @@ function RoomViewInput({
     const file = e.target.files.item(0);
     setAttachment(file);
     if (roomsInput && file !== null) roomsInput.setAttachment(roomId, file);
+    mediaFix(null, embedHeight, setEmbedHeight);
   }
 
   useEffect(() => {
@@ -882,7 +913,6 @@ function RoomViewInput({
 
   // Render Inputs
   function renderInputs() {
-
     // Check Perm
     const canISend = getCurrentState(roomTimeline.room).maySendMessage(mx.getUserId());
     const tombstoneEvent = getCurrentState(roomTimeline.room).getStateEvents('m.room.tombstone')[0];
@@ -893,7 +923,7 @@ function RoomViewInput({
         <Text className="room-input__alert">
           {tombstoneEvent
             ? tombstoneEvent.getContent()?.body ??
-            'This room has been replaced and is no longer active.'
+              'This room has been replaced and is no longer active.'
             : 'You do not have permission to post to this room'}
         </Text>
       );
@@ -905,8 +935,9 @@ function RoomViewInput({
     return (
       <>
         <div
-          className={`room-input__option-container${attachment === null ? '' : ' room-attachment__option'
-            }`}
+          className={`room-input__option-container${
+            attachment === null ? '' : ' room-attachment__option'
+          }`}
         >
           <input
             onChange={uploadFileChange}
@@ -914,18 +945,55 @@ function RoomViewInput({
             ref={uploadInputRef}
             type="file"
           />
-          <IconButton
-            id="room-file-upload"
-            onClick={handleUploadClick}
-            tooltip={attachment === null ? 'Upload' : 'Cancel'}
-            fa="fa-solid fa-circle-plus"
-          />
 
-          <IconButton className='d-none' id="room-more-textarea" onClick={() => { $('.room-input').removeClass('textarea-typing'); }} tooltip='More' fa="fa-solid fa-angle-right" />
+          {attachment ? (
+            <IconButton
+              id="room-file-upload"
+              onClick={handleUploadClick}
+              tooltip="Cancel"
+              fa="fa-solid fa-circle-plus"
+            />
+          ) : null}
+
+          <IconButton
+            className="d-none"
+            id="room-more-textarea"
+            onClick={() => {
+              $('.room-input').removeClass('textarea-typing');
+            }}
+            tooltip="More"
+            fa="fa-solid fa-angle-right"
+          />
         </div>
 
         <div ref={inputBaseRef} className="room-input__input-container">
+          {attachment === null ? (
+            <IconButton
+              id="room-file-upload"
+              className="me-2"
+              onDblClick={() => {
+                if (closeUpButton) closeUpButton();
+                setCloseUpButton(null);
+                handleUploadClick();
+              }}
+              onClick={(evt) =>
+                openReusableContextMenu('top', getEventCords(evt, '.btn-link'), (closeMenu) => {
+                  setCloseUpButton(closeMenu);
+                  return (
+                    <RoomUpload
+                      roomId={roomId}
+                      handleUploadClick={handleUploadClick}
+                      afterOptionSelect={closeMenu}
+                    />
+                  );
+                })
+              }
+              fa="fa-solid fa-circle-plus"
+            />
+          ) : null}
+
           {roomTimeline.isEncrypted() && <RawIcon size="extra-small" fa="bi bi-shield-lock-fill" />}
+
           <ScrollView autoHide>
             <Text className="room-input__textarea-wrapper">
               <TextareaAutosize
@@ -939,103 +1007,109 @@ function RoomViewInput({
               />
             </Text>
           </ScrollView>
-        </div>
 
-        <div ref={rightOptionsRef} id="chat-textarea-actions" className="room-input__option-container">
-
-          <IconButton
-            id='sticker-opener'
-            onClick={(e) => {
-
-              const cords = getEventCords(e);
-              cords.x -= (document.dir === 'rtl' ? -80 : 280);
-              cords.y -= 460;
-
-              cords.y += 220;
-
-              openEmojiBoard(roomId, cords, 'sticker', data => {
-
-                handleSendSticker({
-                  body: data.unicode.substring(1, data.unicode.length - 1),
-                  httpUrl: mx.mxcUrlToHttp(data.mxc),
-                  mxc: data.mxc
-                });
-
-                shiftNuller(() => e.target.click());
-
-              });
-
-            }}
-            tooltip="Sticker"
-            fa="fa-solid fa-note-sticky"
-          />
-
-          <IconButton
-            id='emoji-opener'
-            onClick={(e) => {
-
-              const cords = getEventCords(e);
-              cords.x -= (document.dir === 'rtl' ? -80 : 280);
-              cords.y -= 460;
-
-              if (window.matchMedia('screen and (max-width: 479px)').matches) {
-                cords.x -= 50;
-              }
-
-              const tabNewSpace = $('.room-view__sticky').height(true) - 84;
-              cords.y += 220;
-
-              if (tabNewSpace > 0) { cords.y -= tabNewSpace - 60; }
-
-              openEmojiBoard(roomId, cords, 'emoji', emoji => {
-                addEmoji(emoji);
-                shiftNuller(() => e.target.click());
-              });
-
-            }}
-            tooltip="Emoji"
-            fa="fa-solid fa-face-smile"
-          />
-
-          <IconButton
-            id='audio-sender'
-            ref={recAudioRef}
-            tooltip="Send Audio"
-            fa="fa-solid fa-microphone"
+          <div
+            ref={rightOptionsRef}
+            id="chat-textarea-actions"
+            className="ms-1 room-input__option-container"
           >
-            <time className='very-small ps-2 d-none' />
-          </IconButton>
+            <IconButton
+              id="sticker-opener"
+              onClick={(e) => {
+                const cords = getEventCords(e);
+                cords.x -= document.dir === 'rtl' ? -80 : 280;
+                cords.y -= 460;
 
-          <IconButton id='send-room-message' onClick={sendMessage} tooltip="Send" fa="fa-solid fa-paper-plane" />
+                cords.y += 220;
 
+                openEmojiBoard(roomId, cords, 'sticker', (data) => {
+                  handleSendSticker({
+                    body: data.unicode.substring(1, data.unicode.length - 1),
+                    httpUrl: mx.mxcUrlToHttp(data.mxc),
+                    mxc: data.mxc,
+                  });
+
+                  shiftNuller(() => e.target.click());
+                });
+              }}
+              tooltip="Sticker"
+              fa="fa-solid fa-note-sticky"
+            />
+
+            <IconButton
+              id="emoji-opener"
+              onClick={(e) => {
+                const cords = getEventCords(e);
+                cords.x -= document.dir === 'rtl' ? -80 : 280;
+                cords.y -= 460;
+
+                if (window.matchMedia('screen and (max-width: 479px)').matches) {
+                  cords.x -= 50;
+                }
+
+                const tabNewSpace = $('.room-view__sticky').height(true) - 84;
+                cords.y += 220;
+
+                if (tabNewSpace > 0) {
+                  cords.y -= tabNewSpace - 60;
+                }
+
+                openEmojiBoard(roomId, cords, 'emoji', (emoji) => {
+                  addEmoji(emoji);
+                  shiftNuller(() => e.target.click());
+                });
+              }}
+              tooltip="Emoji"
+              fa="fa-solid fa-face-smile"
+            />
+
+            <IconButton
+              id="audio-sender"
+              ref={recAudioRef}
+              tooltip="Send Audio"
+              fa="fa-solid fa-microphone"
+            >
+              <time className="very-small ps-2 d-none" />
+            </IconButton>
+
+            <IconButton
+              id="send-room-message"
+              onClick={sendMessage}
+              tooltip="Send"
+              fa="fa-solid fa-paper-plane"
+            />
+          </div>
         </div>
-
       </>
     );
   }
 
   // Insert File
   function attachFile() {
-
     const fileType = attachment.type.slice(0, attachment.type.indexOf('/'));
     $('#message-textarea').focus();
 
     return (
       <div className="room-attachment">
         <div
-          className={`room-attachment__preview${fileType !== 'image' ? ' room-attachment__icon' : ''
-            }`}
+          className={`room-attachment__preview${
+            fileType !== 'image' ? ' room-attachment__icon' : ''
+          }`}
         >
           {fileType === 'image' && (
             <img alt={attachment.name} src={URL.createObjectURL(attachment)} />
           )}
           {fileType === 'video' && <RawIcon fa="fa-solid fa-film" />}
           {fileType === 'audio' && <RawIcon fa="fa-solid fa-volume-high" />}
-          {fileType !== 'image' && fileType !== 'video' && fileType !== 'audio' && <RawIcon fa="fa-solid fa-file" />}
+          {fileType !== 'image' && fileType !== 'video' && fileType !== 'audio' && (
+            <RawIcon fa="fa-solid fa-file" />
+          )}
         </div>
         <div className="room-attachment__info">
           <Text variant="b1">{attachment.name}</Text>
-          <div className="very-small text-gray"><span ref={uploadProgressRef}>{`size: ${bytesToSize(attachment.size)}`}</span></div>
+          <div className="very-small text-gray">
+            <span ref={uploadProgressRef}>{`size: ${bytesToSize(attachment.size)}`}</span>
+          </div>
         </div>
       </div>
     );
@@ -1049,7 +1123,9 @@ function RoomViewInput({
           onClick={() => {
             roomsInput.cancelReplyTo(roomId);
             setReplyTo(null);
+            mediaFix(null, embedHeight, setEmbedHeight);
           }}
+          className="me-2"
           fa="fa-solid fa-xmark"
           tooltip="Cancel reply"
           size="extra-small"
@@ -1070,14 +1146,17 @@ function RoomViewInput({
     <>
       {roomsInput && replyTo !== null && attachReply()}
       {attachment !== null && attachFile()}
-      <form ref={refRoomInput} className="room-input" onSubmit={(e) => { e.preventDefault(); }}>
-        {
-          renderInputs()
-        }
+      <form
+        ref={refRoomInput}
+        className="room-input"
+        onSubmit={(e) => {
+          e.preventDefault();
+        }}
+      >
+        {renderInputs()}
       </form>
     </>
   );
-
 }
 // ================================ End Script
 

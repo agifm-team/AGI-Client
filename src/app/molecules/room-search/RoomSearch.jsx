@@ -12,7 +12,7 @@ import Spinner from '../../atoms/spinner/Spinner';
 import { Message } from '../message/Message';
 
 import { useStore } from '../../hooks/useStore';
-import { resizeWindowChecker } from '../../../util/tools';
+import { objType, resizeWindowChecker } from '../../../util/tools';
 
 const roomIdToBackup = new Map();
 
@@ -62,13 +62,15 @@ function useRoomSearch(roomId) {
       },
     };
     try {
-
       const res = await mx.search({ body });
-      const data = mx.processRoomEventsSearch({
-        _query: body,
-        results: [],
-        highlights: [],
-      }, res);
+      const data = mx.processRoomEventsSearch(
+        {
+          _query: body,
+          results: [],
+          highlights: [],
+        },
+        res,
+      );
 
       if (!mountStore.getItem()) return;
       setStatus({ type: cons.status.SUCCESS, term });
@@ -76,7 +78,6 @@ function useRoomSearch(roomId) {
 
       // eslint-disable-next-line no-useless-return
       if (!mountStore.getItem()) return;
-
     } catch (error) {
       setSearchData(null);
       setStatus({ type: cons.status.ERROR, term });
@@ -122,18 +123,34 @@ function RoomSearch({ roomId }) {
     <div className="room-search__result-item" key={timeline[0].getId()}>
       {timeline.map((mEvent) => {
         const id = mEvent.getId();
+        const content = mEvent.getContent();
         resizeWindowChecker();
         return (
           <React.Fragment key={id}>
             <Message
-              className='p-0'
-              classNameMessage='chatbox-size-fix'
+              className="p-0"
+              classNameMessage="chatbox-size-fix"
               mEvent={mEvent}
               isBodyOnly={false}
               fullTime
             >
-              <div className='h-100 w-100 d-inline'>
-                <Button className='float-end' onClick={() => selectRoom(roomId, id)}><i className="bi bi-skip-forward-fill" /></Button>
+              <div className="h-100 w-100 d-inline">
+                <Button
+                  className="float-end"
+                  onClick={() =>
+                    selectRoom(
+                      roomId,
+                      id,
+                      objType(content['m.relates_to'], 'object') &&
+                        content['m.relates_to'].rel_type === 'm.thread' &&
+                        typeof content['m.relates_to'].event_id === 'string'
+                        ? content['m.relates_to'].event_id
+                        : undefined,
+                    )
+                  }
+                >
+                  <i className="bi bi-skip-forward-fill" />
+                </Button>
               </div>
             </Message>
           </React.Fragment>
@@ -144,15 +161,12 @@ function RoomSearch({ roomId }) {
 
   return (
     <>
-
       <div className="card noselect m-3">
         <ul className="list-group list-group-flush">
-
           <form className="room-search__form noselect" onSubmit={handleSearch}>
-
             <li className="list-group-item very-small text-gray">Room search</li>
 
-            <center className='p-3'>
+            <center className="p-3">
               <div>
                 <Input
                   placeholder="Search for keywords"
@@ -161,42 +175,48 @@ function RoomSearch({ roomId }) {
                   autoFocus
                 />
               </div>
-              <Button className='my-3' faSrc="fa-solid fa-magnifying-glass" variant="primary" type="submit">Search</Button>
+              <Button
+                className="my-3"
+                faSrc="fa-solid fa-magnifying-glass"
+                variant="primary"
+                type="submit"
+              >
+                Search
+              </Button>
             </center>
 
             {!isRoomEncrypted && searchData === null && (
               <div className="room-search__help">
                 {status.type === cons.status.IN_FLIGHT && <Spinner />}
                 {status.type === cons.status.IN_FLIGHT && <small>Searching room messages...</small>}
-                {status.type === cons.status.PRE_FLIGHT && <RawIcon fa="fa-solid fa-magnifying-glass" size="large" />}
+                {status.type === cons.status.PRE_FLIGHT && (
+                  <RawIcon fa="fa-solid fa-magnifying-glass" size="large" />
+                )}
                 {status.type === cons.status.PRE_FLIGHT && <small>Search room messages</small>}
                 {status.type === cons.status.ERROR && <small>Failed to search messages</small>}
               </div>
             )}
 
             {!isRoomEncrypted && searchData?.results.length === 0 && (
-              <div className="room-search__help small">
-                No results found
-              </div>
+              <div className="room-search__help small">No results found</div>
             )}
             {isRoomEncrypted && (
-              <div className="room-search__help small">
-                Search does not work in encrypted room
-              </div>
+              <div className="room-search__help small">Search does not work in encrypted room</div>
             )}
           </form>
-
         </ul>
       </div>
 
       {searchData?.results.length > 0 && (
-        <center className='border-bottom border-bg pb-1 mb-4'>{`${searchData.count} results for "${searchTerm}"`}</center>
+        <center className="border-bottom border-bg pb-1 mb-4">{`${searchData.count} results for "${searchTerm}"`}</center>
       )}
 
       {searchData?.results.length > 0 && (
         <>
-
-          <table className="table table-borderless table-hover align-middle m-0" id="search-chatbox">
+          <table
+            className="table table-borderless table-hover align-middle m-0"
+            id="search-chatbox"
+          >
             <tbody className="room-search__content">
               {searchData.results.map((searchResult) => {
                 const { timeline } = searchResult.context;
@@ -213,10 +233,8 @@ function RoomSearch({ roomId }) {
               {status.type === cons.status.IN_FLIGHT && <Spinner />}
             </div>
           )}
-
         </>
       )}
-
     </>
   );
 }

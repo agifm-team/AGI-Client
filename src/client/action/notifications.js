@@ -1,13 +1,19 @@
-import { ReceiptType } from 'matrix-js-sdk';
+import { NotificationCountType, ReceiptType } from 'matrix-js-sdk';
 import initMatrix from '../initMatrix';
+import cons from '../state/cons';
 
 export async function markAsRead(roomId, threadId) {
-
   const mx = initMatrix.matrixClient;
+  const { notifications } = initMatrix;
   const room = mx.getRoom(roomId);
   if (!room) return;
 
   const thread = threadId ? room.getThread(threadId) : null;
+  if (thread) {
+    thread.setUnread(NotificationCountType.Total, 0);
+    thread.setUnread(NotificationCountType.Highlight, 0);
+    notifications.emit(cons.events.notifications.THREAD_NOTIFICATION, thread);
+  }
 
   initMatrix.notifications.deleteNoti(roomId);
 
@@ -35,7 +41,9 @@ export async function markAsRead(roomId, threadId) {
   if (latestEvent === null) return;
 
   const content = mx.getAccountData('pony.house.privacy')?.getContent() ?? {};
-  const receiptType = typeof content.sendReadReceipts !== 'boolean' || content.sendReadReceipts === true ? ReceiptType.Read : ReceiptType.ReadPrivate;
+  const receiptType =
+    typeof content.sendReadReceipts !== 'boolean' || content.sendReadReceipts === true
+      ? ReceiptType.Read
+      : ReceiptType.ReadPrivate;
   await mx.sendReadReceipt(latestEvent, receiptType);
-
 }

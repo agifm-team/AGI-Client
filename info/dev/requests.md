@@ -1,6 +1,17 @@
+    addToDataFolder('thread', 'actives', '', data);
+    removeFromDataFolder('thread', 'actives', '');
+    getDataList('thread', 'actives', '');
+
+    markAsRead(roomId);
+
+    =============================================
+
     --> Menu mobile de ícones precisa parar de ser table usar flex.
 
-    --> Concertar o que está fazendo code markdown não ler quando está colado com o texto acima.
+    --> Colocar o leitor de lista de threads.
+    --> Fazer o fixador de threads abaixo da room.
+
+    --> Fazer opção para uma room de informações ser realmente de informação.
 
     =======================================================
 
@@ -33,7 +44,6 @@ Made by Me
         O atualizar de emojis de rooms só funciona quando muda de room.
         Lista de usuários online na room ainda não atualiza em tempo real.
         Banner do space.
-        Clock Mode das mensagens.
         Esconder Pin messages event
         Revelar Pin messages event
 

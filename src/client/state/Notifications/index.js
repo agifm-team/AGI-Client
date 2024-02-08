@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { NotificationCountType } from 'matrix-js-sdk';
 
 import EventEmitter from 'events';
 import renderAvatar from '../../../app/atoms/avatar/render';
@@ -39,15 +40,11 @@ function isMutedRule(rule) {
 }
 
 function findMutedRule(overrideRules, roomId) {
-  return overrideRules.find((rule) => (
-    rule.rule_id === roomId
-    && isMutedRule(rule)
-  ));
+  return overrideRules.find((rule) => rule.rule_id === roomId && isMutedRule(rule));
 }
 
 class Notifications extends EventEmitter {
   constructor(roomList) {
-
     super();
 
     this.initialized = false;
@@ -63,8 +60,7 @@ class Notifications extends EventEmitter {
 
     // Ask for permission by default after loading
     if (Capacitor.isNativePlatform()) {
-      LocalNotifications.checkPermissions().then(async permStatus => {
-
+      LocalNotifications.checkPermissions().then(async (permStatus) => {
         if (permStatus.display === 'prompt') {
           permStatus = await LocalNotifications.requestPermissions();
         }
@@ -75,16 +71,13 @@ class Notifications extends EventEmitter {
 
         // return LocalNotifications.registerActionTypes({types: {}});
         return true;
-
       });
     } else {
       window.Notification?.requestPermission();
     }
-
   }
 
   async _initNoti() {
-
     this.initialized = false;
     this.roomIdToNoti = new Map();
 
@@ -93,20 +86,18 @@ class Notifications extends EventEmitter {
       if (this.getNotiType(room.roomId) === cons.notifs.MUTE) return;
       if (this.doesRoomHaveUnread(room) === false) return;
 
-      const total = room.getUnreadNotificationCount('total');
-      const highlight = room.getUnreadNotificationCount('highlight');
-      this._setNoti(room.roomId, total ?? 0, highlight ?? 0);
+      const total = room.getRoomUnreadNotificationCount(NotificationCountType.Total);
+      const highlight = room.getRoomUnreadNotificationCount(NotificationCountType.Highlight);
+      this._setNoti(room.roomId, null, total ?? 0, highlight ?? 0);
     };
     [...this.roomList.rooms].forEach(addNoti);
     [...this.roomList.directs].forEach(addNoti);
 
     this.initialized = true;
     // this._updateFavicon();
-
   }
 
   doesRoomHaveUnread(room) {
-
     const userId = this.matrixClient.getUserId();
     const readUpToId = room.getEventReadUpTo(userId);
     const liveEvents = room.getLiveTimeline().getEvents();
@@ -122,11 +113,9 @@ class Notifications extends EventEmitter {
     }
 
     return true;
-
   }
 
-  getNotiType(roomId) {
-
+  getNotiType(roomId, threadId) {
     const mx = this.matrixClient;
     let pushRule;
 
@@ -140,48 +129,52 @@ class Notifications extends EventEmitter {
       const overrideRules = mx.getAccountData('m.push_rules')?.getContent()?.global?.override;
       if (overrideRules === undefined) return cons.notifs.DEFAULT;
 
-      const isMuted = findMutedRule(overrideRules, roomId);
+      const isMuted = findMutedRule(overrideRules, roomId, threadId);
 
       return isMuted ? cons.notifs.MUTE : cons.notifs.DEFAULT;
     }
 
     if (pushRule.actions[0] === 'notify') return cons.notifs.ALL_MESSAGES;
     return cons.notifs.MENTIONS_AND_KEYWORDS;
-
   }
 
-  getNoti(roomId) {
-    return this.roomIdToNoti.get(roomId) || { total: 0, highlight: 0, from: null };
+  getNoti(roomId, threadId) {
+    return (
+      this.roomIdToNoti.get(!threadId ? roomId : `${roomId}:${threadId}`) || {
+        total: 0,
+        highlight: 0,
+        from: null,
+      }
+    );
   }
 
-  getTotalNoti(roomId) {
-    const { total } = this.getNoti(roomId);
+  getTotalNoti(roomId, threadId) {
+    const { total } = this.getNoti(roomId, threadId);
     return total;
   }
 
-  getHighlightNoti(roomId) {
-    const { highlight } = this.getNoti(roomId);
+  getHighlightNoti(roomId, threadId) {
+    const { highlight } = this.getNoti(roomId, threadId);
     return highlight;
   }
 
-  getFromNoti(roomId) {
-    const { from } = this.getNoti(roomId);
+  getFromNoti(roomId, threadId) {
+    const { from } = this.getNoti(roomId, threadId);
     return from;
   }
 
-  hasNoti(roomId) {
-    return this.roomIdToNoti.has(roomId);
+  hasNoti(roomId, threadId) {
+    return this.roomIdToNoti.has(!threadId ? roomId : `${roomId}:${threadId}`);
   }
 
-  deleteNoti(roomId) {
+  deleteNoti(roomId, threadId) {
     if (this.hasNoti(roomId)) {
-      const noti = this.getNoti(roomId);
-      this._deleteNoti(roomId, noti.total, noti.highlight);
+      const noti = this.getNoti(roomId, threadId);
+      this._deleteNoti(roomId, threadId, noti.total, noti.highlight);
     }
   }
 
-  _setNoti(roomId, total, highlight) {
-
+  _setNoti(roomId, threadId, total, highlight) {
     const addNoti = (id, t, h, fromId) => {
       const prevTotal = this.roomIdToNoti.get(id)?.total ?? null;
       const noti = this.getNoti(id);
@@ -202,20 +195,17 @@ class Notifications extends EventEmitter {
     const addH = highlight - noti.highlight;
     if (addT < 0 || addH < 0) return;
 
-    addNoti(roomId, addT, addH);
+    addNoti(!threadId ? roomId : `${roomId}:${threadId}`, addT, addH);
     const allParentSpaces = this.roomList.getAllParentSpaces(roomId);
     allParentSpaces.forEach((spaceId) => {
       addNoti(spaceId, addT, addH, roomId);
     });
 
     // this._updateFavicon();
-
   }
 
-  _deleteNoti(roomId, total, highlight) {
-
+  _deleteNoti(roomId, threadId, total, highlight) {
     const removeNoti = (id, t, h, fromId) => {
-
       if (this.roomIdToNoti.has(id) === false) return;
 
       const noti = this.getNoti(id);
@@ -240,21 +230,18 @@ class Notifications extends EventEmitter {
         this.roomIdToNoti.set(id, noti);
         this.emit(cons.events.notifications.NOTI_CHANGED, id, noti.total, prevTotal);
       }
-
     };
 
-    removeNoti(roomId, total, highlight);
+    removeNoti(!threadId ? roomId : `${roomId}:${threadId}`, total, highlight);
     const allParentSpaces = this.roomList.getAllParentSpaces(roomId);
     allParentSpaces.forEach((spaceId) => {
       removeNoti(spaceId, total, highlight, roomId);
     });
 
     // this._updateFavicon();
-
   }
 
   async _displayPopupNoti(mEvent, room) {
-
     // Favicon
     checkerFavIcon();
 
@@ -268,12 +255,16 @@ class Notifications extends EventEmitter {
 
     // Check Window
     if (
-      (!__ENV_APP__.ELECTRON_MODE || typeof window.getElectronShowStatus !== 'function' || window.getElectronShowStatus()) &&
+      (!__ENV_APP__.ELECTRON_MODE ||
+        typeof window.getElectronShowStatus !== 'function' ||
+        window.getElectronShowStatus()) &&
       !$('body').hasClass('modal-open') &&
-      navigation.selectedRoomId === room.roomId &&
+      ((!mEvent.thread && navigation.selectedRoomId === room.roomId) ||
+        navigation.selectedThreadId === mEvent.thread.id) &&
       document.visibilityState === 'visible' &&
       !$('body').hasClass('windowHidden')
-    ) return;
+    )
+      return;
 
     if (userStatus === 'dnd' || userStatus === '🔴') return;
 
@@ -285,26 +276,32 @@ class Notifications extends EventEmitter {
     // Show Notification
     if (settings.showNotifications) {
       let title;
+      const threadTitle = !mEvent.thread
+        ? ''
+        : mEvent.thread.rootEvent?.getContent()?.body ?? 'Unknown thread';
       if (!mEvent.sender || room.name === mEvent.sender.name) {
-        title = room.name;
+        title = `${room.name}${threadTitle.length > 0 ? ` - ${threadTitle}` : ''}`;
       } else if (mEvent.sender) {
-        title = `${mEvent.sender.name} (${room.name})`;
+        title = `${mEvent.sender.name} (${room.name})${threadTitle.length > 0 ? ` - (${threadTitle})` : ''} `;
       }
 
       updateName(room);
       if (room.nameCinny) {
-
         if (typeof room.nameCinny.category === 'string') {
           title = `(${room.nameCinny.category}) - ${title}`;
         }
-
       }
 
       const iconSize = 36;
       const icon = await renderAvatar({
         text: mEvent.sender.name,
         bgColor: cssColorMXID(mEvent.getSender()),
-        imageSrc: mEvent.sender?.getAvatarUrl(this.matrixClient.baseUrl, iconSize, iconSize, 'crop'),
+        imageSrc: mEvent.sender?.getAvatarUrl(
+          this.matrixClient.baseUrl,
+          iconSize,
+          iconSize,
+          'crop',
+        ),
         size: iconSize,
         borderRadius: 8,
         scale: 8,
@@ -322,7 +319,6 @@ class Notifications extends EventEmitter {
 
       // Android Mode
       if (Capacitor.isNativePlatform()) {
-
         /* 
         const noti = await LocalNotifications.schedule({notifications: [
           {
@@ -333,12 +329,10 @@ class Notifications extends EventEmitter {
           }
         ]});
         */
-
       }
 
       // Browser and Desktop
       else {
-
         // Prepare Data
         const notiData = {
           title,
@@ -359,24 +353,21 @@ class Notifications extends EventEmitter {
 
         // Play Notification
         if (__ENV_APP__.ELECTRON_MODE) {
-
           if (settings.isNotificationSounds) {
             noti.on('show', () => this._playNotiSound());
           }
 
           noti.on('click', () => {
-            selectRoom(room.roomId, mEvent.getId(), null, true);
+            selectRoom(room.roomId, mEvent.getId(), !mEvent.thread ? null : mEvent.thread.id, true);
             window.focusAppWindow();
           });
-
         } else {
-
           if (settings.isNotificationSounds) {
             noti.onshow = () => this._playNotiSound();
           }
 
-          noti.onclick = () => selectRoom(room.roomId, mEvent.getId(), null, true);
-
+          noti.onclick = () =>
+            selectRoom(room.roomId, mEvent.getId(), !mEvent.thread ? null : mEvent.thread.id, true);
         }
 
         // Set Event
@@ -391,16 +382,13 @@ class Notifications extends EventEmitter {
         if (__ENV_APP__.ELECTRON_MODE) {
           noti.show();
         }
-
       }
-
     }
 
     // Notification Sound Play
     else {
       this._playNotiSound();
     }
-
   }
 
   _deletePopupNoti(eventId) {
@@ -409,71 +397,76 @@ class Notifications extends EventEmitter {
   }
 
   _deletePopupRoomNotis(roomId) {
-
     this.roomIdToPopupNotis.get(roomId)?.forEach((n) => {
       this.eventIdToPopupNoti.delete(n.tag);
       n.close();
     });
 
     this.roomIdToPopupNotis.delete(roomId);
-
   }
 
   _playNotiSound() {
-
     if (!this._notiAudio) {
       this._notiAudio = soundFiles.notification;
     }
 
     this._notiAudio.play();
-
   }
 
   _playInviteSound() {
-
     if (!this._inviteAudio) {
       this._inviteAudio = soundFiles.invite;
     }
 
     this._inviteAudio.play();
-
   }
 
   _listenEvents() {
-
     this.matrixClient.on('Room.timeline', (mEvent, room) => {
-
       if (mEvent.isRedaction()) this._deletePopupNoti(mEvent.event.redacts);
 
       if (messageIsClassicCrdt(mEvent)) return;
       if (room.isSpaceRoom()) return;
       if (!isNotifEvent(mEvent)) return;
 
-      const liveEvents = room.getLiveTimeline().getEvents();
+      const liveEvents = !mEvent.thread
+        ? room.getLiveTimeline().getEvents()
+        : mEvent.thread.timeline;
 
       const lastTimelineEvent = liveEvents[liveEvents.length - 1];
       if (lastTimelineEvent.getId() !== mEvent.getId()) return;
       if (mEvent.getSender() === this.matrixClient.getUserId()) return;
 
-      const total = room.getUnreadNotificationCount('total');
-      const highlight = room.getUnreadNotificationCount('highlight');
+      const total = !mEvent.thread
+        ? room.getRoomUnreadNotificationCount(NotificationCountType.Total)
+        : room.getThreadUnreadNotificationCount(mEvent.thread.id, NotificationCountType.Total);
 
-      if (this.getNotiType(room.roomId) === cons.notifs.MUTE) {
+      const highlight = !mEvent.thread
+        ? room.getRoomUnreadNotificationCount(NotificationCountType.Highlight)
+        : room.getThreadUnreadNotificationCount(mEvent.thread.id, NotificationCountType.Highlight);
+
+      if (
+        this.getNotiType(room.roomId, mEvent.thread ? mEvent.thread.id : null) === cons.notifs.MUTE
+      ) {
         this.deleteNoti(room.roomId, total ?? 0, highlight ?? 0);
         return;
       }
 
-      this._setNoti(room.roomId, total ?? 0, highlight ?? 0);
+      this._setNoti(
+        room.roomId,
+        mEvent.thread ? mEvent.thread.id : null,
+        total ?? 0,
+        highlight ?? 0,
+      );
+      this.emit(cons.events.notifications.THREAD_NOTIFICATION, mEvent.thread);
 
       if (this.matrixClient.getSyncState() === 'SYNCING') {
         this._displayPopupNoti(mEvent, room);
       }
-
     });
 
     this.matrixClient.on('accountData', (mEvent, oldMEvent) => {
       if (mEvent.getType() === 'm.push_rules') {
-
         const override = mEvent?.getContent()?.global?.override;
         const oldOverride = oldMEvent?.getContent()?.global?.override;
         if (!override || !oldOverride) return;
@@ -503,16 +496,14 @@ class Notifications extends EventEmitter {
           this.emit(cons.events.notifications.MUTE_TOGGLED, rule.rule_id, false);
           const room = this.matrixClient.getRoom(rule.rule_id);
           if (!this.doesRoomHaveUnread(room)) return;
-          const total = room.getUnreadNotificationCount('total');
-          const highlight = room.getUnreadNotificationCount('highlight');
-          this._setNoti(room.roomId, total ?? 0, highlight ?? 0);
+          const total = room.getRoomUnreadNotificationCount(NotificationCountType.Total);
+          const highlight = room.getRoomUnreadNotificationCount(NotificationCountType.Highlight);
+          this._setNoti(room.roomId, null, total ?? 0, highlight ?? 0);
         });
-
       }
     });
 
     this.matrixClient.on('Room.receipt', (mEvent, room) => {
-
       if (mEvent.getType() !== 'm.receipt' || room.isSpaceRoom()) return;
       const content = mEvent.getContent();
       const userId = this.matrixClient.getUserId();
@@ -526,11 +517,9 @@ class Notifications extends EventEmitter {
           }
         });
       });
-
     });
 
     this.matrixClient.on('Room.myMembership', (room, membership) => {
-
       if (membership === 'leave' && this.hasNoti(room.roomId)) {
         this.deleteNoti(room.roomId);
       }
@@ -538,7 +527,6 @@ class Notifications extends EventEmitter {
       if (membership === 'invite' && !getPrivacyRefuseRoom(null, room)) {
         this._playInviteSound();
       }
-
     });
   }
 }
@@ -547,6 +535,6 @@ export function getSound(file) {
   if (soundFiles && soundFiles[file]) {
     return soundFiles[file];
   }
-};
+}
 
 export default Notifications;

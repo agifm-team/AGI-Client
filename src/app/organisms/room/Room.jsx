@@ -13,17 +13,17 @@ import RoomView from './RoomView';
 import RoomSettings from './RoomSettings';
 import PeopleDrawer from './PeopleDrawer';
 import tinyAPI from '../../../util/mods';
+import { objType } from '../../../util/tools';
 
 let resetRoomInfo;
-global.resetRoomInfo = () => typeof resetRoomInfo === 'function' ? resetRoomInfo() : null;
+global.resetRoomInfo = () => (typeof resetRoomInfo === 'function' ? resetRoomInfo() : null);
 let tinyRoomInfo;
 
 export function getRoomInfo() {
   return tinyRoomInfo;
-};
+}
 
 function Room() {
-
   const defaultRoomInfo = {
     roomTimeline: null,
     eventId: null,
@@ -35,6 +35,7 @@ function Room() {
 
   const [isDrawer, setIsDrawer] = useState(settings.isPeopleDrawer);
   const [isUserList, setIsUserList] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const sendRoomInfo = (newData) => {
     setRoomInfo(newData);
@@ -44,8 +45,9 @@ function Room() {
 
   const mx = initMatrix.matrixClient;
   resetRoomInfo = () => {
-
-    $('#space-header .space-drawer-body .room-selector--selected').removeClass('room-selector--selected');
+    $('#space-header .space-drawer-body .room-selector--selected').removeClass(
+      'room-selector--selected',
+    );
     selectRoomMode('navigation');
 
     sendRoomInfo({
@@ -53,30 +55,58 @@ function Room() {
       eventId: null,
       forceScroll: null,
     });
-
   };
 
   useEffect(() => {
-    const handleRoomSelected = (
-      roomId,
-      prevRoomId,
-      eventId,
-      threadId,
-      forceScroll,
-    ) => {
+    const setRoomSelected = (roomId, threadId, eventId, forceScroll) => {
+      const threadTimeline = threadId ? RoomTimeline.newFromThread(threadId, roomId) : null;
+      const roomTimeline = threadTimeline ?? new RoomTimeline(roomId);
+
+      sendRoomInfo({
+        roomTimeline,
+        eventId: eventId ?? null,
+        forceScroll,
+      });
+    };
+    const handleRoomSelected = (roomId, prevRoomId, eventId, threadData, forceScroll) => {
       roomInfo.roomTimeline?.removeInternalListeners();
       $('.space-drawer-menu-item').removeClass('active');
 
       if (mx.getRoom(roomId)) {
-        const threadTimeline = threadId ? RoomTimeline.newFromThread(threadId, roomId) : null;
-        const roomTimeline = threadTimeline ?? new RoomTimeline(roomId);
-        sendRoomInfo({
-          roomTimeline,
-          eventId: eventId ?? null,
-          forceScroll,
-        });
+        const threadId =
+          typeof threadData === 'string'
+            ? threadData
+            : objType(threadData, 'object')
+              ? threadData.threadId
+              : null;
+        if (
+          threadId &&
+          objType(threadData, 'object') &&
+          threadData.force &&
+          roomInfo.roomTimeline
+        ) {
+          const thread = threadId ? roomInfo.roomTimeline.room.getThread(threadId) : null;
+          if (thread) {
+            setIsLoading(true);
+            roomInfo.roomTimeline.matrixClient
+              .getThreadTimeline(thread.timelineSet, threadId)
+              .then(() => {
+                setIsLoading(false);
+                setRoomSelected(roomId, threadId, eventId, forceScroll);
+              })
+              .catch((err) => {
+                console.error(err);
+                alert(err.message);
+                setIsLoading(false);
+                setRoomSelected(roomId, threadId, eventId, forceScroll);
+              });
+          } else {
+            setRoomSelected(roomId, threadId, eventId, forceScroll);
+          }
+        } else {
+          setRoomSelected(roomId, threadId, eventId, forceScroll);
+        }
       } else {
-
         // TODO: add ability to join room if roomId is invalid
         sendRoomInfo({
           roomTimeline: null,
@@ -85,9 +115,7 @@ function Room() {
         });
 
         $('#space-drawer-home-button').addClass('active');
-
       }
-
     };
 
     navigation.on(cons.events.navigation.ROOM_SELECTED, handleRoomSelected);
@@ -113,23 +141,33 @@ function Room() {
 
   // Checker is User List
   const cloneIsUserList = clone(isUserList);
-  const peopleDrawer = isDrawer && <PeopleDrawer isUserList={isUserList} setIsUserList={setIsUserList} roomId={roomTimeline.roomId} />;
+  const peopleDrawer = isDrawer && (
+    <PeopleDrawer
+      isUserList={isUserList}
+      setIsUserList={setIsUserList}
+      roomId={roomTimeline.roomId}
+    />
+  );
   if (cloneIsUserList === isUserList) {
-
     // Complete
-    return <div className="room">
-      <div className="room__content">
-        <RoomSettings roomId={roomTimeline.roomId} />
-        <RoomView isUserList={isUserList} roomTimeline={roomTimeline} eventId={eventId} />
+    return (
+      <div className="room">
+        <div className="room__content">
+          <RoomSettings roomId={roomTimeline.roomId} />
+          <RoomView
+            isUserList={isUserList}
+            roomTimeline={roomTimeline}
+            eventId={eventId}
+            isLoading={isLoading}
+          />
+        </div>
+        {peopleDrawer}
       </div>
-      {peopleDrawer}
-    </div>;
-
+    );
   }
 
   // Nope
   return null;
-
 }
 
 export default Room;

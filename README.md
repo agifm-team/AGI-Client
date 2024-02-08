@@ -1,23 +1,18 @@
 <center>
-<!-- <img align="center" src="https://raw.githubusercontent.com/agifm-team/AGI-Client/dev/public/favicon.ico?raw=true" height="380"> -->
+<!-- <img align="center" src="https://raw.githubusercontent.com/pixxels-team/Pixxels-App/dev/public/favicon.ico?raw=true" height="380"> -->
 </center>
 
-# AGI Space
+# Pixxels
 
-A Cinny fork Matrix client focusing primarily on AI Agent utility with a simple, elegant and secure interface. The main goal is to build an Agent platform that is easy to use and has a pro tools for ai assisted productivity and fun.
+Build and join AI communities with a simple, elegant and secure interface. The main goal is to build an Ai native collaboration platform that is easy to use and has a pro tools for ai assisted productivity and fun.
 
 ## Getting started
-Web app is available at https://client.pony.house/ and gets updated on each new release.
+Web app is available at https://pixx.co and gets updated on each new release.
 
-To host Pony House on your own, download tarball of the app from [GitHub release](https://github.com/agifm-team/AGI-Client/releases/latest).
+To host Pixxels-App on your own, download tarball of the app from [GitHub release](https://github.com/pixxels-team/Pixxels-App/releases/latest).
 You can serve the application with a webserver of your choice by simply copying `dist/` directory to the webroot. 
-To set default Homeserver on login and register page, place a customized [`config.json`](config.json) in webroot of your choice.
+To set default Homeserver on login and register page, place a customized [`.env`](.env) in webroot of your choice.
 
-## Auto select custom domain
-
-Example: https://client.pony.house/#matrix.org
-
-When the page loads, the application will automatically try to load the selected custom homeserver. This is useful if you want to refer a friend directly using your homeserver url.
 
 ## Local development
 > We recommend using a version manager as versions change very quickly. You will likely need to switch 
@@ -53,7 +48,7 @@ yarn electron:build # Compiles the app into the release/ directory
 
 ### Is my data shared with third parties?
 
-Nope. This repository creator is not sharing data with third parties. This makes the project solely dependent on the community if any new glitch is discovered. The only peoples capable of collecting data are the homeserver owners and third-party stuff.
+Nope. This repository creator is not sharing data with third parties. This makes the project solely dependent on the community if any new glitch is discovered. The only people capable of collecting data are the homeserver owners and third-party stuff.
 
 ### Why is the list of homeservers empty by default instead of having default homeservers like matrix.org?
 
@@ -69,7 +64,7 @@ Yep. To disable it via the client, you need to go to the settings tabs. To perma
 
 ### This client has web3 functionalities. Is this matrix client a crypto wallet?
 
-Nope. Agispace has access to crypto wallet APIs that are installed in your browser or on your computer. And this function can be turned off in the settings.
+Nope. Pixxels has access to crypto wallet APIs that are installed in your browser or on your computer. And this function can be turned off in the settings.
 
 ### Does the client support the purchase and sale of NFTs?
 

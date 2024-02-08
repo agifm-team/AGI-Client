@@ -159,6 +159,8 @@ export default defineConfig(({ command, mode }) => {
 
     WEB3: !!(env.WEB3 === true || env.WEB3 === 'true'),
     IPFS: !!(env.IPFS === true || env.IPFS === 'true'),
+
+    DISCORD_STYLE: !!(env.DISCORD_STYLE === true || env.DISCORD_STYLE === 'true'),
     USE_ANIM_PARAMS: !!(env.USE_ANIM_PARAMS === true || env.USE_ANIM_PARAMS === 'true'),
 
     LOGIN: {
@@ -185,6 +187,16 @@ export default defineConfig(({ command, mode }) => {
     },
 
     server: {
+      watch: {
+        ignored: [
+          "**/vendor/**",
+          '**/release/**',
+          '**/.flatpak/**',
+          '**/.github/**',
+          '**/.git/**',
+          '**/.vscode/**',
+        ],
+      },
       port: 8469,
       host: true,
     },
@@ -217,6 +229,9 @@ export default defineConfig(({ command, mode }) => {
 
   };
 
+  result.resolve.alias['@src'] = path.join(__dirname, 'src');
+  result.resolve.alias['@mods'] = path.join(__dirname, 'mods');
+
   // Electron Mode
   if (electronMode) {
 
@@ -232,7 +247,6 @@ export default defineConfig(({ command, mode }) => {
       fse.copySync(extensions[item].dist, path.join(__dirname, `./dist-electron/extensions/${extensions[item].path}`), { overwrite: true });
     }
 
-    result.resolve.alias['@'] = path.join(__dirname, 'src');
     result.clearScreen = false;
 
     const rollupOptions = {
@@ -255,6 +269,8 @@ export default defineConfig(({ command, mode }) => {
         },
 
         vite: {
+          define: result.define,
+          resolve: result.resolve,
           build: {
             sourcemap,
             minify: isBuild,
@@ -276,6 +292,8 @@ export default defineConfig(({ command, mode }) => {
         },
 
         vite: {
+          define: result.define,
+          resolve: result.resolve,
           build: {
             sourcemap: sourcemap ? 'inline' : undefined, // #332
             minify: isBuild,

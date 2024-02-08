@@ -8,30 +8,28 @@ import startMessage from './bots/Message';
 import tinyAPI from '../../src/util/mods';
 
 export default function startAgiMod(firstTime) {
+  // Normal Loading
+  if (!firstTime) {
+    // Start Mod
+    console.log('[Pixxels App] Loading mod...');
 
-    // Normal Loading
-    if (!firstTime) {
+    // Start Buttons
+    startPeopleSelector();
+    buttons();
+    startMessage();
 
-        // Start Mod
-        console.log('[AGI Space] Loading mod...');
+    // Start Page Detector
+    addRoomOptions({}, 'room');
+    tinyAPI.on('selectedRoomModeAfter', addRoomOptions);
+    tinyAPI.on('selectTabAfter', () => addRoomOptions({}, 'room'));
+    tinyAPI.on('emptyTimeline', (data, forceUpdateLimit) => forceUpdateLimit());
 
-        // Start Buttons
-        startPeopleSelector();
-        buttons();
-        startMessage();
+    // Mod Loaded
+    console.log('[Pixxels App] Loading complete!');
+  }
 
-        // Start Page Detector
-        addRoomOptions({}, 'room');
-        tinyAPI.on('selectedRoomModeAfter', addRoomOptions);
-        tinyAPI.on('selectTabAfter', () => addRoomOptions({}, 'room'));
-        tinyAPI.on('emptyTimeline', (data, forceUpdateLimit) => forceUpdateLimit());
-
-        // Mod Loaded
-        console.log('[AGI Space] Loading complete!');
-
-    }
-
-    // Welcome Page
-    tinyAPI.on('startWelcomePage', (data, tinyWelcome) => { tinyWelcome.html = <Welcome />; });
-
-};
+  // Welcome Page
+  tinyAPI.on('startWelcomePage', (data, tinyWelcome) => {
+    tinyWelcome.html = <Welcome />;
+  });
+}

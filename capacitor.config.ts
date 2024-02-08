@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'AGI-space',
-  appName: 'AGI-space',
+  appId: 'Pixxels',
+  appName: 'Pixxels',
   webDir: 'dist',
 
   server: {

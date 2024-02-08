@@ -19,7 +19,9 @@ let connectionTestTimeout = false;
 // Rainbow Border Apply
 const rainbowBorder = (chatroom, dreg = 124) => {
   chatroom.each((index, value) => {
-    $(value).attr('style', `border-image: linear-gradient(
+    $(value).attr(
+      'style',
+      `border-image: linear-gradient(
       ${String(dreg)}deg,
       #ff2400,
       #e81d1d,
@@ -31,12 +33,12 @@ const rainbowBorder = (chatroom, dreg = 124) => {
       #dd00f3,
       #dd00f3
     )
-    1 !important`);
+    1 !important`,
+    );
   });
 };
 
 function Welcome({ isGuest }) {
-
   // Data
   const [list, setList] = useState(null); // [data, setData
   const [tempSearch, setTempSearch] = useState('');
@@ -46,29 +48,30 @@ function Welcome({ isGuest }) {
   const [dataTag, setSelectedTag] = useState(null);
 
   // Generator
-  const categoryGenerator = (where, type, title, citem) => <div className="category" id={`agi-home-${type}-${where}`}>
-    <hr />
+  const categoryGenerator = (where, type, title, citem) => (
+    <div className="category" id={`agi-home-${type}-${where}`}>
+      <hr />
 
-    <h5 className="title mt-2 mb-3 float-start">
-      {title}
-    </h5>
-    <br className="clearfix" />
-    <br />
+      <h5 className="title mt-2 mb-3 float-start">{title}</h5>
+      <br className="clearfix" />
+      <br />
 
-    <div className="cover" />
+      <div className="cover" />
 
-    <div className="row">
-      {citem.map((bot) => <ItemWelcome
-        setSelectedTag={setSelectedTag}
-        isGuest={isGuest}
-        bot={bot}
-        type={type}
-        index={0}
-        itemsLength={bot.length}
-      />)}
+      <div className="row">
+        {citem.map((bot) => (
+          <ItemWelcome
+            setSelectedTag={setSelectedTag}
+            isGuest={isGuest}
+            bot={bot}
+            type={type}
+            index={0}
+            itemsLength={bot.length}
+          />
+        ))}
+      </div>
     </div>
-
-  </div>;
+  );
 
   // handleSearch
   const handleSearchChange = (event) => {
@@ -82,10 +85,8 @@ function Welcome({ isGuest }) {
 
   // Effect
   useEffect(() => {
-
     // Set Data
     if (data === null && !loadingData) {
-
       // Load Data
       setLoadingData(true);
 
@@ -101,25 +102,19 @@ function Welcome({ isGuest }) {
           return res.json();
         })
         .then((newData) => {
-
           if (Array.isArray(newData)) {
-
             setList(newData[0]);
             setRoomData(newData[1]);
             // console.log('Fetched JSON:', newData);
             // console.log('List:', list)
             // console.log('Room Data:', data)
-
           } else {
-
             console.error(newData);
             setList(null);
             setRoomData(null);
-
           }
 
           setLoadingData(false);
-
         })
         .catch((err) => {
           console.error(err);
@@ -132,7 +127,6 @@ function Welcome({ isGuest }) {
             }, 3000);
           }
         });
-
     }
 
     const chatroom = $('.tiny-welcome #chatrooms .chatroom');
@@ -147,7 +141,6 @@ function Welcome({ isGuest }) {
     return () => {
       clearInterval(intervalChatRoom);
     };
-
   });
 
   const users = [];
@@ -155,13 +148,15 @@ function Welcome({ isGuest }) {
 
   if (!loadingData && Array.isArray(data)) {
     for (const item in data) {
-
-      if (data[item].meta && Array.isArray(data[item].meta.tags) && data[item].meta.tags.length > 0 &&
-        (
-          (typeof dataTag === 'string' && dataTag.length > 0 && data[item].meta.tags.indexOf(dataTag) > -1) ||
-          dataTag === null
-        )) {
-
+      if (
+        data[item].meta &&
+        Array.isArray(data[item].meta.tags) &&
+        data[item].meta.tags.length > 0 &&
+        ((typeof dataTag === 'string' &&
+          dataTag.length > 0 &&
+          data[item].meta.tags.indexOf(dataTag) > -1) ||
+          dataTag === null)
+      ) {
         const roomData = {
           description: data[item].meta.description,
           title: data[item].meta.title,
@@ -179,164 +174,116 @@ function Welcome({ isGuest }) {
           newRoomData.id = data[item].username;
           users.push(newRoomData);
         }
-
       }
-
     }
   }
 
   // Result
-  return <div className="tiny-welcome border-0 h-100 noselect">
-    <center className="py-4 px-4 w-100">
-
-      <div id='search-title'>
-
-        <h3 className='mb-1'>{__ENV_APP__.INFO.name}</h3>
-        <div className='small'>{__ENV_APP__.INFO.description}</div>
-
-        <div className='search-info'>
-
-          <form className="search-form mb-2 mt-3" /* onSubmit={handleSearchSubmit} */>
-            <input
-              className='search-input btn btn-bg w-100 border'
-              type="text"
-              value={tempSearch}
-              // onChange={handleSearchChange}
-              // onSubmit={handleSearchSubmit}
-              placeholder="Search for bots and rooms..."
-            />
-          </form>
-
-          <center className="taggy">
-            {/* list &&
-              <>
-
-                <button
-                  className={`m-1 btn taggyButton btn-bg very-small border${dataTag === null ? ' active' : ''} text-lowercase`}
-                  key='CLEAR_ALL'
-                  onClick={() => setSelectedTag(null)}
-                >
-                  all
-                </button>
-
-                {list.map((tag) => (
-                  <button
-                    className={`m-1 btn taggyButton btn-bg very-small border${typeof dataTag === 'string' && dataTag === tag ? ' active' : ''} text-lowercase`}
-                    key={tag}
-                    onClick={() => setSelectedTag(tag)}
-                  >
-                    {tag}
-                  </button>
-                ))}
-
-                </> */}
-          </center>
-
-        </div>
-
-      </div>
-
-      <hr />
-
-      <div id="menu" className={`text-start${isGuest ? ' is-guest' : ''}`}>
-
-        {!isGuest ? <button
-          type="button"
-          className="me-3 btn btn-primary d-none"
-          id="leave-welcome"
-          onClick={() => selectRoomMode('navigation')}
-        >
-          <i className="fa-solid fa-left-long" />
-        </button> : null}
-
-        <center className='w-100 h3 title-place'>
-          Popular Spaces
-        </center>
-
-      </div>
-
-      <div className="row mt-2" id="chatrooms">
-        <div className="col-md-6">
-          <ChatRoomFrame
-            hsUrl={isGuest && `https://matrix.${serverDomain}`}
-            roomId={`#imagegen:${serverDomain}`}
-            className='border border-bg w-100 chatroom'
-            refreshTime={1}
-          />
-        </div>
-
-        <div className="col-md-6">
-          <ChatRoomFrame
-            hsUrl={isGuest && `https://matrix.${serverDomain}`}
-            roomId={`#previews:${serverDomain}`}
-            className='border border-bg w-100 chatroom'
-            refreshTime={1}
-          />
-        </div>
-      </div>
-
-      <form className="Formy" onSubmit={handleSearchSubmit}>
-        <input
-          className='btn btn-bg w-100 border'
-          type="text"
-          value={tempSearch}
-          onChange={handleSearchChange}
-          onSubmit={handleSearchSubmit}
-          placeholder="Search for bots and rooms..."
-        />
-      </form>
-
-      <div className="taggy taggy2">
-        {list &&
-          <>
-
+  return (
+    <div className="tiny-welcome border-0 h-100 noselect">
+      <center className="py-4 px-4 w-100">
+        <div id="menu" className={`text-start${isGuest ? ' is-guest' : ''}`}>
+          {!isGuest ? (
             <button
-              className={`btn taggyButton btn-bg very-small border${dataTag === null ? ' active' : ''} text-lowercase`}
-              key='CLEAR_ALL'
-              onClick={() => setSelectedTag(null)}
+              type="button"
+              className="me-3 btn btn-primary d-none"
+              id="leave-welcome"
+              onClick={() => selectRoomMode('navigation')}
             >
-              all
+              <i className="fa-solid fa-left-long" />
             </button>
+          ) : null}
 
-            {list.map((tag) => (
+          <center className="w-100 h3 title-place">Popular Spaces</center>
+        </div>
+
+        <div className="row mt-2" id="chatrooms">
+          <div className="col-md-6">
+            <ChatRoomFrame
+              hsUrl={isGuest && `https://matrix.${serverDomain}`}
+              roomId={`#imagegen:${serverDomain}`}
+              className="border border-bg w-100 chatroom"
+              refreshTime={1}
+            />
+          </div>
+
+          <div className="col-md-6">
+            <ChatRoomFrame
+              hsUrl={isGuest && `https://matrix.${serverDomain}`}
+              roomId={`#previews:${serverDomain}`}
+              className="border border-bg w-100 chatroom"
+              refreshTime={1}
+            />
+          </div>
+        </div>
+
+        <div id="search-title">
+          <div className="search-info mb-3">
+            <form className="search-form mb-2 mt-3" onSubmit={handleSearchSubmit}>
+              <input
+                className="search-input btn btn-bg w-100 border"
+                type="text"
+                value={tempSearch}
+                onChange={handleSearchChange}
+                onSubmit={handleSearchSubmit}
+                placeholder="Search for bots and rooms..."
+              />
+            </form>
+          </div>
+        </div>
+
+        <div className="taggy taggy2">
+          {list && (
+            <>
               <button
-                className={`btn taggyButton btn-bg very-small border${typeof dataTag === 'string' && dataTag === tag ? ' active' : ''} text-lowercase`}
-                key={tag}
-                onClick={() => setSelectedTag(tag)}
+                className={`btn taggyButton btn-bg very-small border${dataTag === null ? ' active' : ''} text-lowercase`}
+                key="CLEAR_ALL"
+                onClick={() => setSelectedTag(null)}
               >
-                {tag}
+                all
               </button>
-            ))}
 
-          </>}
-      </div>
+              {list.map((tag) => (
+                <button
+                  className={`btn taggyButton btn-bg very-small border${typeof dataTag === 'string' && dataTag === tag ? ' active' : ''} text-lowercase`}
+                  key={tag}
+                  onClick={() => setSelectedTag(tag)}
+                >
+                  {tag}
+                </button>
+              ))}
+            </>
+          )}
+        </div>
 
-      <hr />
+        <hr />
 
-      {!loadingData ? <>
-        {users.length > 0 ? categoryGenerator('popular_bots', 'bots', 'Bots', users) : null}
-        {rooms.length > 0 ? categoryGenerator('popular_rooms', 'rooms', 'Rooms', rooms) : null}
-      </> : (
-        <p className="placeholder-glow mt-5">
-          <span className="placeholder col-12" />
-          <span className="placeholder col-12" />
-          <span className="placeholder col-12" />
-          <span className="placeholder col-12" />
-          <span className="placeholder col-12" />
-          <span className="placeholder col-12" />
-          <span className="placeholder col-12" />
-          <span className="placeholder col-12" />
-          <span className="placeholder col-12" />
-          <span className="placeholder col-12" />
-          <span className="placeholder col-12" />
-          <span className="placeholder col-12" />
-          <span className="placeholder col-12" />
-          <span className="placeholder col-12" />
-        </p>
-      )}
-
-    </center>
-  </div>;
+        {!loadingData ? (
+          <>
+            {users.length > 0 ? categoryGenerator('popular_bots', 'bots', 'Bots', users) : null}
+            {rooms.length > 0 ? categoryGenerator('popular_rooms', 'rooms', 'Rooms', rooms) : null}
+          </>
+        ) : (
+          <p className="placeholder-glow mt-5">
+            <span className="placeholder col-12" />
+            <span className="placeholder col-12" />
+            <span className="placeholder col-12" />
+            <span className="placeholder col-12" />
+            <span className="placeholder col-12" />
+            <span className="placeholder col-12" />
+            <span className="placeholder col-12" />
+            <span className="placeholder col-12" />
+            <span className="placeholder col-12" />
+            <span className="placeholder col-12" />
+            <span className="placeholder col-12" />
+            <span className="placeholder col-12" />
+            <span className="placeholder col-12" />
+            <span className="placeholder col-12" />
+          </p>
+        )}
+      </center>
+    </div>
+  );
 }
 
 export default Welcome;

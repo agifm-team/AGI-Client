@@ -42,20 +42,23 @@ module.exports = {
     '@typescript-eslint'
   ],
   rules: {
-    'no-continue': 0,
+
+    'camelcase': 0,
     'default-case': 0,
-    'no-nested-ternary': 0,
-    'import/no-cycle': 0,
     'array-callback-return': 0,
     'prefer-regex-literals': 0,
-    'no-useless-escape': 0,
-    'no-restricted-exports': 0,
     'func-names': 0,
     'prefer-rest-params': 0,
     'max-classes-per-file': 0,
     'guard-for-in': 0,
-    'no-restricted-syntax': 0,
     'linebreak-style': 0,
+
+    'prefer-destructuring': 0,
+    'consistent-return': 0,
+
+    'no-loop-func': 0,
+    'no-continue': 0,
+    'no-restricted-syntax': 0,
     'no-unsafe-optional-chaining': 0,
     'no-underscore-dangle': 0,
     'no-new': 0,
@@ -64,9 +67,12 @@ module.exports = {
     'no-plusplus': 0,
     'no-minusminus': 0,
     'no-param-reassign': 0,
-    'prefer-destructuring': 0,
-    'consistent-return': 0,
     "no-shadow": "off",
+    'no-useless-escape': 0,
+    'no-restricted-exports': 0,
+    'no-nested-ternary': 0,
+    'no-bitwise': 0,
+    'no-unused-vars': 0,
 
     'jsx-a11y/control-has-associated-label': 0,
     'jsx-a11y/no-noninteractive-element-interactions': 0,
@@ -76,6 +82,7 @@ module.exports = {
     'jsx-a11y/no-static-element-interactions': 0,
     'jsx-a11y/label-has-associated-control': 0,
 
+    'import/no-cycle': 0,
     "import/prefer-default-export": "off",
     "import/extensions": "off",
     "import/no-unresolved": "off",
@@ -97,6 +104,8 @@ module.exports = {
       },
     ],
 
+    'react/jsx-curly-brace-presence': 0,
+    'react/function-component-definition': 0,
     'react/button-has-type': 0,
     'react/forbid-prop-types': 0,
     'react/jsx-no-bind': 0,
@@ -105,8 +114,8 @@ module.exports = {
     "react/require-default-props": "off",
     "react/jsx-props-no-spreading": "off",
     "react-hooks/rules-of-hooks": "error",
-
     "react/no-unknown-property": 0,
+
     '@typescript-eslint/no-this-alias': 0,
     "@typescript-eslint/no-shadow": "error",
     "@typescript-eslint/no-unused-vars": "error",

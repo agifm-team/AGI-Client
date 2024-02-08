@@ -33,3 +33,8 @@
 - Reactions limited to 20.
 - Sidebar css fixed to chrome.
 - New scroll fix script.
+- Markdown codes fix. (code from variance client)
+- Tiny discord style font.
+- Clock real time setting update.
+- New threads button.
+- Textbox to type messages. (layout update)

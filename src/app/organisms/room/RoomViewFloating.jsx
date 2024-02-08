@@ -8,6 +8,7 @@ import { markAsRead } from '../../../client/action/notifications';
 import Button from '../../atoms/button/Button';
 
 import { getUsersActionJsx } from './common';
+import urlParams from '../../../util/libs/urlParams';
 
 function useJumpToEvent(roomTimeline) {
   const [eventId, setEventId] = useState(null);
@@ -17,7 +18,7 @@ function useJumpToEvent(roomTimeline) {
   };
 
   const cancelJumpToEvent = () => {
-    markAsRead(roomTimeline.roomId);
+    markAsRead(roomTimeline.roomId, roomTimeline.threadId);
     setEventId(null);
   };
 
@@ -35,7 +36,8 @@ function useJumpToEvent(roomTimeline) {
     if (notifications) notifications.on(cons.events.notifications.FULL_READ, handleMarkAsRead);
 
     return () => {
-      if (notifications) notifications.removeListener(cons.events.notifications.FULL_READ, handleMarkAsRead);
+      if (notifications)
+        notifications.removeListener(cons.events.notifications.FULL_READ, handleMarkAsRead);
       setEventId(null);
     };
   }, [roomTimeline]);
@@ -76,15 +78,14 @@ function useScrollToBottom(roomTimeline) {
   return [isAtBottom, setIsAtBottom];
 }
 
-function RoomViewFloating({
-  roomId, roomTimeline, refRoomInput, refcmdInput,
-}) {
+function RoomViewFloating({ roomId, roomTimeline, refRoomInput, refcmdInput }) {
   const [isJumpToEvent, jumpToEvent, cancelJumpToEvent] = useJumpToEvent(roomTimeline);
   const [typingMembers] = useTypingMembers(roomTimeline);
   const [isAtBottom, setIsAtBottom] = useScrollToBottom(roomTimeline);
 
   const handleScrollToBottom = () => {
     roomTimeline.emit(cons.events.roomTimeline.SCROLL_TO_LIVE);
+    urlParams.delete('event_id');
     setIsAtBottom(true);
   };
 
@@ -101,17 +102,27 @@ function RoomViewFloating({
 
   return (
     <>
-      <div className={`room-view__unread ${isJumpToEvent ? 'room-view__unread--open' : ''}${typeof roomTimeline.threadId === 'string' && roomTimeline.threadId.length > 0 && roomTimeline.timeline.length <= 1 ? ' d-none' : ''}`}>
+      <div
+        className={`room-view__unread ${isJumpToEvent ? 'room-view__unread--open' : ''}${typeof roomTimeline.threadId === 'string' && roomTimeline.threadId.length > 0 && roomTimeline.timeline.length <= 1 ? ' d-none' : ''}`}
+      >
         <Button faSrc="bi bi-chat-left-text-fill" onClick={jumpToEvent} variant="primary">
           <div className="very-small text-gray text-medium">Jump to unread messages</div>
         </Button>
         <Button faSrc="fa-solid fa-check-double" onClick={cancelJumpToEvent} variant="primary">
-          <div className="very-small text-gray"><strong>Mark as read</strong></div>
+          <div className="very-small text-gray">
+            <strong>Mark as read</strong>
+          </div>
         </Button>
-      </div >
-      <div className={`room-view__typing${typingMembers.size > 0 ? ' room-view__typing--open' : ''}`}>
-        <div className="ms-3 bouncing-loader"><div /></div>
-        <div className='ms-2 mt-1 mb-2 small emoji-size-fix'>{getUsersActionJsx(roomId, [...typingMembers], 'typing...')}</div>
+      </div>
+      <div
+        className={`room-view__typing${typingMembers.size > 0 ? ' room-view__typing--open' : ''}`}
+      >
+        <div className="ms-3 bouncing-loader">
+          <div />
+        </div>
+        <div className="ms-2 mt-1 mb-2 small emoji-size-fix">
+          {getUsersActionJsx(roomId, [...typingMembers], 'typing...')}
+        </div>
       </div>
       <div className={`room-view__STB${isAtBottom ? '' : ' room-view__STB--open'}`}>
         <Button faSrc="bi bi-chat-left-fill" onClick={handleScrollToBottom}>

@@ -1,13 +1,11 @@
-import { tinyCrypto } from '../../util/web3';
-import { setSelectRoom, setSelectSpace } from '../../util/selectedRoom';
 import appDispatcher from '../dispatcher';
 import cons from '../state/cons';
 
-export function selectTab(tabId) {
-  $('.space-drawer-menu-item').removeClass('active');
+export function selectTab(tabId, isSpace) {
   appDispatcher.dispatch({
     type: cons.actions.navigation.SELECT_TAB,
     tabId,
+    isSpace,
   });
 }
 
@@ -19,8 +17,6 @@ export function selectRoomMode(roomType) {
 }
 
 export function selectSpace(roomId) {
-  $('.space-drawer-menu-item').removeClass('active');
-  setSelectSpace(roomId);
   appDispatcher.dispatch({
     type: cons.actions.navigation.SELECT_SPACE,
     roomId,
@@ -28,8 +24,6 @@ export function selectSpace(roomId) {
 }
 
 export function selectRoom(roomId, eventId, threadId, forceScroll = false) {
-  $('.space-drawer-menu-item').removeClass('active');
-  setSelectRoom(roomId);
   appDispatcher.dispatch({
     type: cons.actions.navigation.SELECT_ROOM,
     roomId,
@@ -51,7 +45,7 @@ export function openSpaceSettings(roomId, tabText, isProfile = false) {
     type: cons.actions.navigation.OPEN_SPACE_SETTINGS,
     roomId,
     tabText,
-    isProfile
+    isProfile,
   });
 }
 
@@ -134,7 +128,6 @@ export function openProfileViewer(userId, roomId) {
 }
 
 export function openSettings(tabText) {
-  if (tinyCrypto && tinyCrypto.call && typeof tinyCrypto.call.requestAccounts === 'function' && tinyCrypto.isUnlocked()) tinyCrypto.call.requestAccounts();
   appDispatcher.dispatch({
     type: cons.actions.navigation.OPEN_SETTINGS,
     tabText,

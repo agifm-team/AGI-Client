@@ -1240,6 +1240,7 @@ function Message({
   $(timelineSVRef?.current).trigger('scroll');
   const mx = initMatrix.matrixClient;
   const roomId = mEvent.getRoomId();
+  const threadId = mEvent.getThread()?.id;
   const { editedTimeline, reactionTimeline } = roomTimeline ?? {};
 
   const [embeds, setEmbeds] = useState([]);
@@ -1547,7 +1548,7 @@ function Message({
               }
               onSave={(newBody, oldBody) => {
                 if (newBody !== oldBody) {
-                  initMatrix.roomsInput.sendEditedMessage(roomId, mEvent, newBody);
+                  initMatrix.roomsInput.sendEditedMessage(roomId, threadId, mEvent, newBody);
                 }
                 cancelEdit();
               }}
@@ -1648,7 +1649,7 @@ function Message({
             }
             onSave={(newBody, oldBody) => {
               if (newBody !== oldBody) {
-                initMatrix.roomsInput.sendEditedMessage(roomId, mEvent, newBody);
+                initMatrix.roomsInput.sendEditedMessage(roomId, threadId, mEvent, newBody);
               }
               cancelEdit();
             }}

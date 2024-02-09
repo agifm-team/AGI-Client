@@ -108,69 +108,69 @@ class RoomsInput extends EventEmitter {
     this.roomIdToInput = new Map();
   }
 
-  cleanEmptyEntry(roomId) {
-    const input = this.getInput(roomId);
+  cleanEmptyEntry(roomId, threadId) {
+    const input = this.getInput(roomId, threadId);
     const isEmpty =
       typeof input.attachment === 'undefined' &&
       typeof input.replyTo === 'undefined' &&
       (typeof input.message === 'undefined' || input.message === '');
     if (isEmpty) {
-      this.roomIdToInput.delete(roomId);
+      this.roomIdToInput.delete(!threadId ? roomId : `${roomId}:${threadId}`);
     }
   }
 
-  getInput(roomId) {
-    return this.roomIdToInput.get(roomId) || {};
+  getInput(roomId, threadId) {
+    return this.roomIdToInput.get(!threadId ? roomId : `${roomId}:${threadId}`) || {};
   }
 
-  setMessage(roomId, message) {
-    const input = this.getInput(roomId);
+  setMessage(roomId, threadId, message) {
+    const input = this.getInput(roomId, threadId);
     input.message = message;
-    this.roomIdToInput.set(roomId, input);
-    if (message === '') this.cleanEmptyEntry(roomId);
+    this.roomIdToInput.set(!threadId ? roomId : `${roomId}:${threadId}`, input);
+    if (message === '') this.cleanEmptyEntry(roomId, threadId);
   }
 
-  getMessage(roomId) {
-    const input = this.getInput(roomId);
+  getMessage(roomId, threadId) {
+    const input = this.getInput(roomId, threadId);
     if (typeof input.message === 'undefined') return '';
     return input.message;
   }
 
-  setReplyTo(roomId, replyTo) {
-    const input = this.getInput(roomId);
+  setReplyTo(roomId, threadId, replyTo) {
+    const input = this.getInput(roomId, threadId);
     input.replyTo = replyTo;
-    this.roomIdToInput.set(roomId, input);
+    this.roomIdToInput.set(!threadId ? roomId : `${roomId}:${threadId}`, input);
   }
 
-  getReplyTo(roomId) {
-    const input = this.getInput(roomId);
+  getReplyTo(roomId, threadId) {
+    const input = this.getInput(roomId, threadId);
     if (typeof input.replyTo === 'undefined') return null;
     return input.replyTo;
   }
 
-  cancelReplyTo(roomId) {
-    const input = this.getInput(roomId);
+  cancelReplyTo(roomId, threadId) {
+    const input = this.getInput(roomId, threadId);
     if (typeof input.replyTo === 'undefined') return;
     delete input.replyTo;
-    this.roomIdToInput.set(roomId, input);
+    this.roomIdToInput.set(!threadId ? roomId : `${roomId}:${threadId}`, input);
   }
 
-  setAttachment(roomId, file) {
-    const input = this.getInput(roomId);
+  setAttachment(roomId, threadId, file) {
+    const input = this.getInput(roomId, threadId);
     input.attachment = {
       file,
     };
-    this.roomIdToInput.set(roomId, input);
+    this.roomIdToInput.set(!threadId ? roomId : `${roomId}:${threadId}`, input);
   }
 
-  getAttachment(roomId) {
-    const input = this.getInput(roomId);
+  getAttachment(roomId, threadId) {
+    const input = this.getInput(roomId, threadId);
     if (typeof input.attachment === 'undefined') return null;
     return input.attachment.file;
   }
 
-  cancelAttachment(roomId) {
-    const input = this.getInput(roomId);
+  cancelAttachment(roomId, threadId) {
+    const input = this.getInput(roomId, threadId);
     if (typeof input.attachment === 'undefined') return;
 
     const { uploadingPromise } = input.attachment;
@@ -181,15 +181,15 @@ class RoomsInput extends EventEmitter {
     }
     delete input.attachment;
     delete input.isSending;
-    this.roomIdToInput.set(roomId, input);
-    this.emit(cons.events.roomsInput.ATTACHMENT_CANCELED, roomId);
+    this.roomIdToInput.set(!threadId ? roomId : `${roomId}:${threadId}`, input);
+    this.emit(cons.events.roomsInput.ATTACHMENT_CANCELED, roomId, threadId);
   }
 
-  isSending(roomId) {
-    return this.roomIdToInput.get(roomId)?.isSending || false;
+  isSending(roomId, threadId) {
+    return this.roomIdToInput.get(!threadId ? roomId : `${roomId}:${threadId}`)?.isSending || false;
   }
 
-  getContent(roomId, options, message, reply, edit) {
+  getContent(roomId, threadId, options, message, reply, edit) {
     const msgType = options?.msgType || 'm.text';
     const autoMarkdown = options?.autoMarkdown ?? true;
     const isHtml = options?.isHtml ?? false;
@@ -290,21 +290,22 @@ class RoomsInput extends EventEmitter {
   }
 
   async sendInput(roomId, threadId, options) {
-    const input = this.getInput(roomId);
+    const input = this.getInput(roomId, threadId);
     input.isSending = true;
-    this.roomIdToInput.set(roomId, input);
+    this.roomIdToInput.set(!threadId ? roomId : `${roomId}:${threadId}`, input);
     if (input.attachment) {
-      await this.sendFile(roomId, input.attachment.file);
-      if (!this.isSending(roomId)) return;
+      await this.sendFile(roomId, threadId, input.attachment.file);
+      if (!this.isSending(roomId, threadId)) return;
     }
 
     if (input.message) {
-      const content = this.getContent(roomId, options, input.message, input.replyTo);
+      const content = this.getContent(roomId, threadId, options, input.message, input.replyTo);
       if (threadId) this.matrixClient.sendMessage(roomId, threadId, content, undefined);
       else this.matrixClient.sendMessage(roomId, content);
     }
 
-    if (this.isSending(roomId)) this.roomIdToInput.delete(roomId);
+    if (this.isSending(roomId, threadId))
+      this.roomIdToInput.delete(!threadId ? roomId : `${roomId}:${threadId}`);
     this.emit(cons.events.roomsInput.MESSAGE_SENT, roomId, threadId);
   }
 
@@ -337,7 +338,7 @@ class RoomsInput extends EventEmitter {
     this.emit(cons.events.roomsInput.MESSAGE_SENT, roomId, threadId);
   }
 
-  async sendFile(roomId, file) {
+  async sendFile(roomId, threadId, file) {
     const fileType = getBlobSafeMimeType(file.type).slice(0, file.type.indexOf('/'));
     const info = {
       mimetype: file.type,
@@ -372,7 +373,11 @@ class RoomsInput extends EventEmitter {
           video.videoHeight,
           'image/jpeg',
         );
-        const thumbnailUploadData = await this.uploadFile(roomId, thumbnailData.thumbnail);
+        const thumbnailUploadData = await this.uploadFile(
+          roomId,
+          threadId,
+          thumbnailData.thumbnail,
+        );
         info.thumbnail_info = thumbnailData.info;
         if (this.matrixClient.isRoomEncrypted(roomId)) {
           info.thumbnail_file = thumbnailUploadData.file;
@@ -380,7 +385,7 @@ class RoomsInput extends EventEmitter {
           info.thumbnail_url = thumbnailUploadData.url;
         }
       } catch (e) {
-        this.emit(cons.events.roomsInput.FILE_UPLOAD_CANCELED, roomId);
+        this.emit(cons.events.roomsInput.FILE_UPLOAD_CANCELED, roomId, threadId);
         return;
       }
     } else if (fileType === 'audio') {
@@ -392,25 +397,27 @@ class RoomsInput extends EventEmitter {
     }
 
     try {
-      uploadData = await this.uploadFile(roomId, file, (data) => {
+      uploadData = await this.uploadFile(roomId, threadId, file, (data) => {
         // data have two properties: data.loaded, data.total
-        this.emit(cons.events.roomsInput.UPLOAD_PROGRESS_CHANGES, roomId, data);
+        this.emit(cons.events.roomsInput.UPLOAD_PROGRESS_CHANGES, roomId, threadId, data);
       });
-      this.emit(cons.events.roomsInput.FILE_UPLOADED, roomId);
+      this.emit(cons.events.roomsInput.FILE_UPLOADED, roomId, threadId);
     } catch (e) {
-      this.emit(cons.events.roomsInput.FILE_UPLOAD_CANCELED, roomId);
+      this.emit(cons.events.roomsInput.FILE_UPLOAD_CANCELED, roomId, threadId);
       return;
     }
     if (this.matrixClient.isRoomEncrypted(roomId)) {
       content.file = uploadData.file;
-      await this.matrixClient.sendMessage(roomId, content);
+      if (!threadId) await this.matrixClient.sendMessage(roomId, content);
+      else await this.matrixClient.sendMessage(roomId, threadId, content);
     } else {
       content.url = uploadData.url;
-      await this.matrixClient.sendMessage(roomId, content);
+      if (!threadId) await this.matrixClient.sendMessage(roomId, content);
+      else await this.matrixClient.sendMessage(roomId, threadId, content);
     }
   }
 
-  async uploadFile(roomId, file, progressHandler) {
+  async uploadFile(roomId, threadId, file, progressHandler) {
     const isEncryptedRoom = this.matrixClient.isRoomEncrypted(roomId);
 
     let encryptInfo = null;
@@ -418,10 +425,10 @@ class RoomsInput extends EventEmitter {
 
     if (isEncryptedRoom) {
       const dataBuffer = await file.arrayBuffer();
-      if (typeof this.getInput(roomId).attachment === 'undefined')
+      if (typeof this.getInput(roomId, threadId).attachment === 'undefined')
         throw new Error('Attachment canceled');
       const encryptedResult = await encrypt.encryptAttachment(dataBuffer);
-      if (typeof this.getInput(roomId).attachment === 'undefined')
+      if (typeof this.getInput(roomId, threadId).attachment === 'undefined')
         throw new Error('Attachment canceled');
       encryptInfo = encryptedResult.info;
       encryptBlob = new Blob([encryptedResult.data]);
@@ -433,14 +440,14 @@ class RoomsInput extends EventEmitter {
       progressHandler,
     });
 
-    const input = this.getInput(roomId);
+    const input = this.getInput(roomId, threadId);
     input.attachment.uploadingPromise = uploadingPromise;
-    this.roomIdToInput.set(roomId, input);
+    this.roomIdToInput.set(!threadId ? roomId : `${roomId}:${threadId}`, input);
 
     const { content_uri: url } = await uploadingPromise;
 
     delete input.attachment.uploadingPromise;
-    this.roomIdToInput.set(roomId, input);
+    this.roomIdToInput.set(!threadId ? roomId : `${roomId}:${threadId}`, input);
 
     if (isEncryptedRoom) {
       encryptInfo.url = url;
@@ -450,9 +457,10 @@ class RoomsInput extends EventEmitter {
     return { url };
   }
 
-  async sendEditedMessage(roomId, mEvent, editedBody) {
+  async sendEditedMessage(roomId, threadId, mEvent, editedBody) {
     const content = this.getContent(
       roomId,
+      threadId,
       { msgType: mEvent.getWireContent().msgtype },
       editedBody,
       null,

@@ -23,7 +23,8 @@ function SSOButtons({ type, identityProviders, baseUrl }) {
             alt={idp.name}
           />
         ) : (
-          `Login with ${idp.name}`
+          // `Login with ${idp.name}`
+          `Login`
         )}
       </a>
     ));

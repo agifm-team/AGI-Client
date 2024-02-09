@@ -2,7 +2,11 @@
     removeFromDataFolder('thread', 'actives', '');
     getDataList('thread', 'actives', '');
 
-    markAsRead(roomId);
+    Load de threads diretamente ainda está bugado.
+
+    =============================================
+
+    Trocar o titulo da página de bolinha de notificação para números
 
     =============================================
 

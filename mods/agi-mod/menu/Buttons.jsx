@@ -1,20 +1,20 @@
 import React from 'react';
-import { btModal, objType } from '../../../src/util/tools';
+import { btModal, objType } from '@src/util/tools';
 
-import initMatrix from '../../../src/client/initMatrix';
+import initMatrix from '@src/client/initMatrix';
+import RawIcon from '@src/app/atoms/system-icons/RawIcon';
+
+import defaultAvatar from '@src/app/atoms/avatar/defaultAvatar';
+
+import * as roomActions from '@src/client/action/room';
+import { setLoadingPage } from '@src/app/templates/client/Loading';
+// import { selectRoom, selectRoomMode, selectTab } from '@src/client/action/navigation';
+import { getRoomInfo } from '@src/app/organisms/room/Room';
+
+// import { join } from '@src/client/action/room';
 
 import jReact from '../../lib/jReact';
-import RawIcon from '../../../src/app/atoms/system-icons/RawIcon';
-
-import defaultAvatar from '../../../src/app/atoms/avatar/defaultAvatar';
-
-import * as roomActions from '../../../src/client/action/room';
 import { serverAddress, serverDomain } from '../socket';
-import { setLoadingPage } from '../../../src/app/templates/client/Loading';
-// import { selectRoom, selectRoomMode, selectTab } from '../../../src/client/action/navigation';
-import { getRoomInfo } from '../../../src/app/organisms/room/Room';
-
-// import { join } from '../../../src/client/action/room';
 
 /* const openRoom = (roomId) => {
 

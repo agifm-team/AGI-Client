@@ -1,6 +1,7 @@
 import React from 'react';
+import tinyAPI from '@src/util/mods';
+
 import GradioEmbed from './GradioAPI';
-import tinyAPI from '../../../../src/util/mods';
 
 export default function startMessage() {
   tinyAPI.on('messageBody', (data, content, msgInfo) => {

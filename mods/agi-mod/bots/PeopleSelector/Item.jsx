@@ -1,18 +1,18 @@
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-// import { selectRoom, selectRoomMode, selectTab } from '../../../../src/client/action/navigation';
-// import cons from '../../../../src/client/state/cons';
+// import { selectRoom, selectRoomMode, selectTab } from '@src/client/action/navigation';
+// import cons from '@src/client/state/cons';
 
-import * as roomActions from '../../../../src/client/action/room';
+import * as roomActions from '@src/client/action/room';
 
 /* import {
     hasDMWith, hasDevices,
-} from '../../../../src/util/matrixUtil'; */
+} from '@src/util/matrixUtil'; */
 
-import { setLoadingPage } from '../../../../src/app/templates/client/Loading';
-import { getRoomInfo } from '../../../../src/app/organisms/room/Room';
-import { openProfileViewer } from '../../../../src/client/action/navigation';
+import { setLoadingPage } from '@src/app/templates/client/Loading';
+import { getRoomInfo } from '@src/app/organisms/room/Room';
+import { openProfileViewer } from '@src/client/action/navigation';
 
 function PeopleSelector({ avatarSrc, name, user, peopleRole }) {
   // Refs

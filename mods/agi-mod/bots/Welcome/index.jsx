@@ -2,10 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import clone from 'clone';
 
-import { selectRoomMode } from '../../../../src/client/action/navigation';
+import { objType } from '@src/util/tools';
+import { selectRoomMode } from '@src/client/action/navigation';
+import { ChatRoomFrame } from '@src/app/embed/ChatRoom';
+
 import { serverDomain } from '../../socket';
 import ItemWelcome from './item';
-import { ChatRoomFrame } from '../../../../src/app/embed/ChatRoom';
 // import AgentCard from './AgentCard/AgentCard.jsx';
 import './custom.scss';
 
@@ -90,7 +92,7 @@ function Welcome({ isGuest }) {
       // Load Data
       setLoadingData(true);
 
-      fetch(`https://bots.${serverDomain}/list`, {
+      fetch(`https://bots.${serverDomain}/botlist`, {
         headers: {
           Accept: 'application/json',
         },
@@ -102,12 +104,30 @@ function Welcome({ isGuest }) {
           return res.json();
         })
         .then((newData) => {
+          console.log(newData);
           if (Array.isArray(newData)) {
-            setList(newData[0]);
-            setRoomData(newData[1]);
-            // console.log('Fetched JSON:', newData);
-            // console.log('List:', list)
-            // console.log('Room Data:', data)
+            const rooms = [];
+            const listTags = [];
+
+            for (const item in newData) {
+              if (objType(newData[item], 'object')) {
+                if (Array.isArray(newData[item].tags)) {
+                  for (const item2 in newData[item].tags) {
+                    if (
+                      typeof newData[item].tags[item2] === 'string' &&
+                      listTags.indexOf(newData[item].tags[item2]) < 0
+                    ) {
+                      listTags.push(newData[item].tags[item2]);
+                    }
+                  }
+                }
+
+                rooms.push(newData[item]);
+              }
+            }
+
+            setList(listTags);
+            setRoomData(rooms);
           } else {
             console.error(newData);
             setList(null);
@@ -149,18 +169,17 @@ function Welcome({ isGuest }) {
   if (!loadingData && Array.isArray(data)) {
     for (const item in data) {
       if (
-        data[item].meta &&
-        Array.isArray(data[item].meta.tags) &&
-        data[item].meta.tags.length > 0 &&
+        Array.isArray(data[item].tags) &&
+        data[item].tags.length > 0 &&
         ((typeof dataTag === 'string' &&
           dataTag.length > 0 &&
-          data[item].meta.tags.indexOf(dataTag) > -1) ||
+          data[item].tags.indexOf(dataTag) > -1) ||
           dataTag === null)
       ) {
         const roomData = {
-          description: data[item].meta.description,
-          title: data[item].meta.title,
-          tags: data[item].meta.tags,
+          description: data[item].desc,
+          title: data[item].name,
+          tags: data[item].tags,
         };
 
         if (typeof data[item].room_id === 'string') {
@@ -181,7 +200,7 @@ function Welcome({ isGuest }) {
   // Result
   return (
     <div className="tiny-welcome border-0 h-100 noselect">
-      <center className="py-4 px-4 w-100">
+      <center className={`py-4 px-4 w-100${isGuest ? ' mb-5' : ''}`}>
         <div id="menu" className={`text-start${isGuest ? ' is-guest' : ''}`}>
           {!isGuest ? (
             <button

@@ -1,9 +1,11 @@
-import defaultAvatar from '../../../../src/app/atoms/avatar/defaultAvatar';
+import defaultAvatar from '@src/app/atoms/avatar/defaultAvatar';
+
+import tinyAPI from '@src/util/mods';
+import initMatrix from '@src/client/initMatrix';
+import { objType } from '@src/util/tools';
+
 import { serverAddress } from '../../socket';
 import PeopleSelector from './Item';
-import tinyAPI from '../../../../src/util/mods';
-import initMatrix from '../../../../src/client/initMatrix';
-import { objType } from '../../../../src/util/tools';
 
 let tinyData = null;
 function updateAgentsList() {

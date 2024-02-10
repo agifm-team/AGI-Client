@@ -23,7 +23,11 @@ function AuthCard() {
             <a className="navbar-brand text-bg-force">{__ENV_APP__.INFO.name}</a>
 
             <div className="navbar-nav small">
-              <Login loginFlow={hsConfig.login.flows} baseUrl={hsConfig.baseUrl} />
+              <Login
+                hsConfig={hsConfig}
+                loginFlow={hsConfig.login.flows}
+                baseUrl={hsConfig.baseUrl}
+              />
             </div>
           </div>
         </nav>

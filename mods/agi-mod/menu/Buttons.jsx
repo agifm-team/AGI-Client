@@ -116,7 +116,6 @@ export function addRoomOptions(dt, roomType) {
                   alert(err.message);
                   setLoadingPage(false);
                 });
-
             }),
 
           $('<button>', { class: 'btn btn-primary btn-sm noselect ms-2', type: 'button' })
@@ -128,12 +127,14 @@ export function addRoomOptions(dt, roomType) {
               const botId = $(event.target).data('pony-house-botid');
 
               setLoadingPage();
-              duplicatorAgent(userId, botId).then(() => {
-                setLoadingPage(false);
-              }).catch(err => {
-                console.error(err);
-                alert(err.message);
-              });
+              duplicatorAgent(userId, botId)
+                .then(() => {
+                  setLoadingPage(false);
+                })
+                .catch((err) => {
+                  console.error(err);
+                  alert(err.message);
+                });
             }),
         ),
       );
@@ -196,7 +197,6 @@ export function addRoomOptions(dt, roomType) {
                         ),
                       );
                     }
-
                   } catch (err) {
                     // Error
                     console.error(err);

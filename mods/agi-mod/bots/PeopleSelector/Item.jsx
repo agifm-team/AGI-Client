@@ -46,15 +46,15 @@ function PeopleSelector({ avatarSrc, name, user, peopleRole, customData }) {
 
     const tinyButton2 = async () => {
       if (typeof customData === 'string') {
-
         setLoadingPage();
-        duplicatorAgent(userId, customData).then(() => {
-          setLoadingPage(false);
-        }).catch(err => {
-          console.error(err);
-          alert(err.message);
-        });
-
+        duplicatorAgent(userId, customData)
+          .then(() => {
+            setLoadingPage(false);
+          })
+          .catch((err) => {
+            console.error(err);
+            alert(err.message);
+          });
       }
     };
 

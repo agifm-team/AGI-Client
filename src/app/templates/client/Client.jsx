@@ -29,7 +29,6 @@ import {
 import { startUserAfk, stopUserAfk } from '../../../util/userStatusEffects';
 import Mods from './Mods';
 import LoadingPage from './Loading';
-import { logout } from '../../../../mods/agi-mod/lib';
 import urlParams from '../../../util/libs/urlParams';
 import {
   selectRoom,
@@ -165,7 +164,7 @@ function Client() {
                 <MenuItem onClick={() => initMatrix.clearCacheAndReload()}>
                   Clear cache & reload
                 </MenuItem>
-                <MenuItem onClick={() => logout()}>Logout</MenuItem>
+                <MenuItem onClick={() => initMatrix.logout()}>Logout</MenuItem>
               </>
             }
             render={(toggle) => (

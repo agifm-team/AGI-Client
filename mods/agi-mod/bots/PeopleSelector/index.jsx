@@ -45,6 +45,7 @@ export default function startPeopleSelector() {
 
             peopleRole: 'Bot',
             powerLevel: undefined,
+            customData: tinyData[item].customData,
             userId: tinyData[item].bot_username,
             username: tinyData[item].bot_username,
 

@@ -149,6 +149,7 @@ function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
       ref={buttonRef}
       className={`citem col-md-2 col-sm-4 col-6${isGuest ? ' guest-mode' : ''}`}
       bot={typeof bot.id === 'string' && bot.id !== 'Coming soon!' ? bot.id : null}
+      botid={bot.agiId}
     >
       <div
         className={`border border-bg p-3 py-3 p${index > 0 ? (index < itemsLength - 1 ? 'x-3' : 's-3') : 'e-3'}`}

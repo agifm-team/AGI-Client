@@ -104,7 +104,6 @@ function Welcome({ isGuest }) {
           return res.json();
         })
         .then((newData) => {
-          console.log(newData);
           if (Array.isArray(newData)) {
             const rooms = [];
             const listTags = [];
@@ -177,6 +176,7 @@ function Welcome({ isGuest }) {
           dataTag === null)
       ) {
         const roomData = {
+          agiId: data[item].id,
           description: data[item].desc,
           title: data[item].name,
           tags: data[item].tags,

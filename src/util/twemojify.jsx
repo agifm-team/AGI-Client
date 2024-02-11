@@ -222,14 +222,16 @@ const twemojifyAction = (text, opts, linkifyEnabled, sanitize, maths, isReact) =
       return (
         <span className="linkify-base">
           <Linkify options={linkifyOptions}>
-            {parse(msgContent, maths ? mathOptions : null)}
+            {parse(msgContent, maths ? mathOptions : undefined)}
           </Linkify>
         </span>
       );
     }
 
     // Complete
-    return <span className="linkify-base">{parse(msgContent, maths ? mathOptions : null)}</span>;
+    return (
+      <span className="linkify-base">{parse(msgContent, maths ? mathOptions : undefined)}</span>
+    );
   }
 
   // jQuery Mode

@@ -97,15 +97,15 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
                   <ContextMenu
                     placement="right"
                     content={(hideMenu) =>
-                      loginTypes.map((type, index) => (
+                      loginTypes.map((type2, index) => (
                         <MenuItem
-                          key={type}
+                          key={type2}
                           onClick={() => {
                             hideMenu();
                             setTypeIndex(index);
                           }}
                         >
-                          {type}
+                          {type2}
                         </MenuItem>
                       ))
                     }

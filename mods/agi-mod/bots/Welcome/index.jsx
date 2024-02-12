@@ -200,7 +200,7 @@ function Welcome({ isGuest }) {
   // Result
   return (
     <div className="tiny-welcome border-0 h-100 noselect">
-      <div id="welcome-carousel" class={`py-4 mx-4 ${isGuest ? ' mb-5' : ''} carousel slide`} data-bs-ride="true">
+      <div id="welcome-carousel" class='py-4 mx-4 carousel slide' data-bs-ride="true">
 
         <div class="carousel-indicators">
           <button type="button" data-bs-target="#welcome-carousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1" />

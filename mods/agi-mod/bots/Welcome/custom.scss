@@ -135,62 +135,52 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
     .row {
       .citem {
         cursor: pointer;
-        border-radius: 5px !important;
+        margin: 7px;
         & > div {
-          overflow-y: auto;
+          border-radius: 15px !important;
+          padding: 1rem !important;
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: 100%;
+          height: 320px;
+          &:hover {
+            .background {
+              opacity: 0.5;
+            }
+            .card-data {
+              opacity: 1;
+            }
+          }
         }
 
-        .avatar {
-          border-radius: 15% !important;
-          max-height: 100px;
-          margin-bottom: 25px !important;
-          &.avatar-bg {
-            filter: blur(35px);
-            margin-top: -110px;
-            position: relative;
-            top: 40px;
+        .background {
+          border-radius: 15px !important;
+          height: 320px;
+          position: relative;
+          top: -15px;
+          left: -15px;
+          width: 337px;
+        }
+
+        .card-data {
+          opacity: 0;
+          border-radius: 15px !important;
+          display: inline-flex;
+          z-index: 1;
+          position: relative;
+          margin: auto;
+          top: -320px;
+          height: 100%;
+          width: 100%;
+          align-items: center;
+          & > div {
+            width: 100%;
+            overflow-y: auto;
           }
         }
 
         .card-text {
           font-size: 10pt;
-          height: 130px;
-
-          .card-normal-text-hover {
-            display: none;
-          }
-        }
-
-        &:hover {
-          .card-normal-text {
-            display: none;
-          }
-
-          .card-normal-text-hover {
-            display: block;
-            overflow-y: auto;
-            height: 130px;
-          }
-        }
-
-        .list-group-item * {
-          pointer-events: none;
-        }
-
-        &:hover {
-          background-color: var(--bg-surface-low);
-
-          .card-title {
-            color: var(--tc-link) !important;
-          }
-
-          .card-text {
-            color: var(--tc-surface-normal) !important;
-          }
-        }
-
-        &:active {
-          background-color: var(--bg-surface-low);
         }
       }
     }

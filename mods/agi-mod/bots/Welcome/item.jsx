@@ -151,6 +151,54 @@ function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
       bot={typeof bot.id === 'string' && bot.id !== 'Coming soon!' ? bot.id : null}
       botid={bot.agiId}
     >
+
+      <div
+        className={`border border-bg`}
+      >
+
+        <img className='background' src={avatar} alt='background' />
+        <div className='card-data'>
+          <div>
+
+            {typeof bot.title === 'string' ? <h5 className="card-title text-bg">{bot.title}</h5> : null}
+
+            <p className="m-0 card-text text-bg-low">
+              {bot.description.length < 100 ? (
+                bot.description
+              ) : (
+                <>
+                  <div className="card-normal-text">{`${bot.description.substring(0, 100)}...`}</div>
+                  <div className="card-normal-text-hover">{bot.description}</div>
+                </>
+              )}
+            </p>
+
+            {bot.tags.map((tag) => (
+              <button
+                className="badge bg-bg2 text-bg-force border border-bg very-small mx-1 text-lowercase"
+                key={`${tag}_click`}
+              >
+                {tag}
+              </button>
+            ))}
+
+          </div>
+        </div>
+
+      </div>
+
+    </div >
+  );
+
+  /*
+
+  return (
+    <div
+      ref={buttonRef}
+      className={`citem col-md-2 col-sm-4 col-6${isGuest ? ' guest-mode' : ''}`}
+      bot={typeof bot.id === 'string' && bot.id !== 'Coming soon!' ? bot.id : null}
+      botid={bot.agiId}
+    >
       <div
         className={`border border-bg p-3 py-3 p${index > 0 ? (index < itemsLength - 1 ? 'x-3' : 's-3') : 'e-3'}`}
       >
@@ -185,6 +233,8 @@ function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
       </div>
     </div>
   );
+
+  */
 }
 
 export default ItemWelcome;

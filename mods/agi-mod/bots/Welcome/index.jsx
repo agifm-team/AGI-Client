@@ -212,7 +212,7 @@ function Welcome({ isGuest }) {
           <div class="carousel-inner">
 
             <div class="carousel-item active">
-              <img src="./img/page/discover.jpg" class="d-block w-100" draggable="false" alt="..." />
+              <img src="..." class="d-block w-100" draggable="false" alt="..." />
               <div class="carousel-caption">
                 <h5>First slide label</h5>
                 <p>Some representative placeholder content for the first slide.</p>
@@ -221,7 +221,7 @@ function Welcome({ isGuest }) {
             </div>
 
             <div class="carousel-item">
-              <img src="./img/page/discover.jpg" class="d-block w-100" draggable="false" alt="..." />
+              <img src="..." class="d-block w-100" draggable="false" alt="..." />
               <div class="carousel-caption">
                 <h5>Second slide label</h5>
                 <p>Some representative placeholder content for the second slide.</p>
@@ -229,7 +229,7 @@ function Welcome({ isGuest }) {
             </div>
 
             <div class="carousel-item">
-              <img src="./img/page/discover.jpg" class="d-block w-100" draggable="false" alt="..." />
+              <img src="..." class="d-block w-100" draggable="false" alt="..." />
               <div class="carousel-caption">
                 <h5>Third slide label</h5>
                 <p>Some representative placeholder content for the third slide.</p>

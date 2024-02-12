@@ -60,6 +60,10 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
       color: var(--button-text-color);
       background-color: var(--button-background-color);
 
+      border-radius: 50px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+
       cursor: pointer;
 
       &:hover {
@@ -69,17 +73,6 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
       &.active {
         background-color: var(--bg-surface-border) !important;
       }
-    }
-  }
-
-  .taggy2 {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    .taggyButton {
-      border-radius: 50px;
-      margin-right: 10px;
-      margin-bottom: 10px;
     }
   }
 
@@ -130,9 +123,6 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
         background-color: var(--bg-surface);
       }
     }
-  }
-  center {
-    width: 40%;
   }
 
   .category {
@@ -238,18 +228,18 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
 
   #search-title {
     .search-info {
-      max-width: 700px;
+      max-width: 1920px;
       .search-form {
-        border: var(--bg-surface-extra-low) 6px solid;
-        border-radius: 14px;
         .search-input {
-          border-color: var(--bg-surface-low) !important;
+          border-color: var(--bg-surface-border) !important;
+          background-color: var(--bg-surface);
         }
       }
     }
 
     .taggy {
       width: auto !important;
+      max-width: 1700px !important;
     }
   }
 }

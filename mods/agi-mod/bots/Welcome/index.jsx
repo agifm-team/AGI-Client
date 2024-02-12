@@ -301,7 +301,7 @@ function Welcome({ isGuest }) {
           </div>
         </div>
 
-        <div className="taggy taggy2">
+        <center className="taggy taggy2">
           {list && (
             <>
               <button
@@ -323,7 +323,7 @@ function Welcome({ isGuest }) {
               ))}
             </>
           )}
-        </div>
+        </center>
 
         <hr />
 

@@ -28,6 +28,7 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
     }
 
     .carousel-item {
+      background-color: var(--bg-surface-extra-low);
       .carousel-caption {
         width: 100%;
         left: 0;
@@ -38,7 +39,7 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
 
       & > img {
         height: 250px;
-        opacity: 0.7;
+        opacity: 1;
       }
     }
   }

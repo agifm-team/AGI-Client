@@ -200,7 +200,55 @@ function Welcome({ isGuest }) {
   // Result
   return (
     <div className="tiny-welcome border-0 h-100 noselect">
+      <div id="welcome-carousel" class={`py-4 w-100${isGuest ? ' mb-5' : ''} carousel slide`} data-bs-ride="true">
+
+        <div class="carousel-indicators">
+          <button type="button" data-bs-target="#welcome-carousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1" />
+          <button type="button" data-bs-target="#welcome-carousel" data-bs-slide-to="1" aria-label="Slide 2" />
+          <button type="button" data-bs-target="#welcome-carousel" data-bs-slide-to="2" aria-label="Slide 3" />
+        </div>
+
+        <div class="carousel-inner">
+
+          <div class="carousel-item active">
+            <img src="./img/page/discover.jpg" class="d-block w-100" draggable="false" alt="..." />
+            <div class="carousel-caption">
+              <h5>First slide label</h5>
+              <p>Some representative placeholder content for the first slide.</p>
+            </div>
+
+          </div>
+
+          <div class="carousel-item">
+            <img src="./img/page/discover.jpg" class="d-block w-100" draggable="false" alt="..." />
+            <div class="carousel-caption">
+              <h5>Second slide label</h5>
+              <p>Some representative placeholder content for the second slide.</p>
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <img src="./img/page/discover.jpg" class="d-block w-100" draggable="false" alt="..." />
+            <div class="carousel-caption">
+              <h5>Third slide label</h5>
+              <p>Some representative placeholder content for the third slide.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <button class="carousel-control-prev d-none" type="button" data-bs-target="#welcome-carousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true" />
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next d-none" type="button" data-bs-target="#welcome-carousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true" />
+          <span class="visually-hidden">Next</span>
+        </button>
+
+      </div>
       <center className={`py-4 px-4 w-100${isGuest ? ' mb-5' : ''}`}>
+
         <div id="menu" className={`text-start${isGuest ? ' is-guest' : ''}`}>
           {!isGuest ? (
             <button

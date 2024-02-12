@@ -17,6 +17,31 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
 }
 
 .tiny-welcome {
+  #welcome-carousel {
+    .carousel-indicators {
+      margin: 0px;
+      bottom: 50px;
+      left: 49px;
+      text-align: left;
+      display: block;
+    }
+
+    .carousel-item {
+      .carousel-caption {
+        width: 100%;
+        left: 0;
+        padding-bottom: 35px;
+        text-align: left;
+        padding-left: 50px;
+      }
+
+      & > img {
+        height: 250px;
+        opacity: 0.7;
+      }
+    }
+  }
+
   .Formy {
     input {
       color: var(--button-text-color);

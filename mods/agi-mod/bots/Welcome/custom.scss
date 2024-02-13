@@ -142,7 +142,8 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
           background-position: center;
           background-repeat: no-repeat;
           background-size: 100%;
-          height: 320px;
+          background-color: var(--bg-surface-extra-low);
+          height: 364px;
           &:hover {
             .background {
               opacity: 0.5;
@@ -159,7 +160,7 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
           position: relative;
           top: -15px;
           left: -15px;
-          width: 337px;
+          width: 338px;
         }
 
         .card-data {
@@ -177,6 +178,11 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
             width: 100%;
             overflow-y: auto;
           }
+        }
+
+        .card-title {
+          top: -336px;
+          position: relative;
         }
 
         .card-text {

@@ -152,15 +152,11 @@ function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
       botid={bot.agiId}
     >
 
-      <div
-        className={`border border-bg`}
-      >
+      <div>
 
         <img className='background' src={avatar} alt='background' />
         <div className='card-data'>
           <div>
-
-            {typeof bot.title === 'string' ? <h5 className="card-title text-bg">{bot.title}</h5> : null}
 
             <p className="m-0 card-text text-bg-low">
               {bot.description.length < 100 ? (
@@ -184,6 +180,8 @@ function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
 
           </div>
         </div>
+
+        {typeof bot.title === 'string' ? <h5 className="card-title text-bg">{bot.title}</h5> : null}
 
       </div>
 

@@ -22,7 +22,6 @@ import ExperimentalSection from './pages/Experimental';
 import VoiceVideoSection from './pages/VoiceVideo';
 import IpfsSection from './pages/Ipfs';
 import Web3Section from './pages/Web3';
-import { logout } from '../../../../mods/agi-mod/lib';
 
 function EmojiSection() {
   return (
@@ -185,7 +184,7 @@ tabItems.push({
         'danger',
       )
     ) {
-      logout();
+      initMatrix.logout();
     }
   },
 });

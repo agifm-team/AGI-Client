@@ -13,9 +13,11 @@ import * as roomActions from '@src/client/action/room';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
 import { getRoomInfo } from '@src/app/organisms/room/Room';
 import { openProfileViewer } from '@src/client/action/navigation';
+import { duplicatorAgent } from './lib';
 
-function PeopleSelector({ avatarSrc, name, user, peopleRole }) {
+function PeopleSelector({ avatarSrc, name, user, peopleRole, customData }) {
   // Refs
+  const button2Ref = useRef(null);
   const buttonRef = useRef(null);
   const profileButtonRef = useRef(null);
   const userId = user?.userId || name;
@@ -24,6 +26,7 @@ function PeopleSelector({ avatarSrc, name, user, peopleRole }) {
   useEffect(() => {
     // Get Button
     const button = $(buttonRef.current);
+    const button2 = $(button2Ref.current);
     const profileButton = $(profileButtonRef.current);
     const tinyButton = async () => {
       if (typeof userId === 'string') {
@@ -39,31 +42,20 @@ function PeopleSelector({ avatarSrc, name, user, peopleRole }) {
             alert(err.message);
           });
       }
+    };
 
-      /*
-
-            // Select tab and bot id
-            selectTab(cons.tabs.DIRECTS);
-            const userId = button.attr('bot');
-
-            // Check and open if user already have a DM with userId.
-            const dmRoomId = hasDMWith(userId);
-            if (dmRoomId) {
-                selectRoomMode('room');
-                selectRoom(dmRoomId);
-                return;
-            }
-
-            // Create new DM
-            try {
-                setLoadingPage();
-                await roomActions.createDM(userId, await hasDevices(userId));
-                setLoadingPage(false);
-            } catch (err) {
-                console.error(err);
-                alert(err.message);
-            }
-            */
+    const tinyButton2 = async () => {
+      if (typeof customData === 'string') {
+        setLoadingPage();
+        duplicatorAgent(userId, customData)
+          .then(() => {
+            setLoadingPage(false);
+          })
+          .catch((err) => {
+            console.error(err);
+            alert(err.message);
+          });
+      }
     };
 
     const tinyProfileAction = () => {
@@ -72,9 +64,11 @@ function PeopleSelector({ avatarSrc, name, user, peopleRole }) {
 
     // Insert Event Click
     button.on('click', tinyButton);
+    button2.on('click', tinyButton2);
     profileButton.on('click', tinyProfileAction);
     return () => {
       button.off('click', tinyButton);
+      button2.off('click', tinyButton2);
       profileButton.off('click', tinyProfileAction);
     };
   });
@@ -97,6 +91,9 @@ function PeopleSelector({ avatarSrc, name, user, peopleRole }) {
           <div class="float-end">
             <button ref={buttonRef} className="btn btn-primary btn-sm my-1">
               Invite
+            </button>
+            <button ref={button2Ref} className="btn btn-primary btn-sm my-1 ms-2">
+              Duplicate
             </button>
           </div>
         </h5>

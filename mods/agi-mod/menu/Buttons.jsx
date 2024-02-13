@@ -15,6 +15,7 @@ import { getRoomInfo } from '@src/app/organisms/room/Room';
 
 import jReact from '../../lib/jReact';
 import { serverAddress, serverDomain } from '../socket';
+import { duplicatorAgent } from '../bots/PeopleSelector/lib';
 
 /* const openRoom = (roomId) => {
 
@@ -80,7 +81,7 @@ export function addRoomOptions(dt, roomType) {
     );
 
     // User Test (TESTING MODE)
-    const userGenerator = (username, nickname, avatar) =>
+    const userGenerator = (username, botid, nickname, avatar) =>
       $('<div>', { class: 'room-tile' }).append(
         $('<div>', { class: 'room-tile__avatar' }).append(
           $('<div>', { class: 'avatar-container avatar-container__normal  noselect' }).append(
@@ -115,31 +116,25 @@ export function addRoomOptions(dt, roomType) {
                   alert(err.message);
                   setLoadingPage(false);
                 });
+            }),
 
-              /* setLoadingPage('Looking for address...');
-                    const alias = $(event.target).data('pony-house-username');
-                    const mx = initMatrix.matrixClient;
-                    setLoadingPage('Looking for address...');
-                    let via;
-                    if (alias.startsWith('#')) {
-                        try {
-                            const aliasData = await mx.getRoomIdForAlias(alias);
-                            via = aliasData?.servers.slice(0, 3) || [];
-                            setLoadingPage(`Joining ${alias}...`);
-                        } catch (err) {
-                            setLoadingPage(false);
-                            console.error(err);
-                            alert(`Unable to find room/space with ${alias}. Either room/space is private or doesn't exist.`);
-                        }
-                    }
-                    try {
-                        const roomId = await join(alias, false, via);
-                        openRoom(roomId);
-                        setLoadingPage(false);
-                    } catch {
-                        setLoadingPage(false);
-                        alert(`Unable to join ${alias}. Either room/space is private or doesn't exist.`);
-                    } */
+          $('<button>', { class: 'btn btn-primary btn-sm noselect ms-2', type: 'button' })
+            .data('pony-house-username', username)
+            .data('pony-house-botid', botid)
+            .text('Duplicate')
+            .on('click', async (event) => {
+              const userId = $(event.target).data('pony-house-username');
+              const botId = $(event.target).data('pony-house-botid');
+
+              setLoadingPage();
+              duplicatorAgent(userId, botId)
+                .then(() => {
+                  setLoadingPage(false);
+                })
+                .catch((err) => {
+                  console.error(err);
+                  alert(err.message);
+                });
             }),
         ),
       );
@@ -179,6 +174,7 @@ export function addRoomOptions(dt, roomType) {
                       users.push(
                         userGenerator(
                           user.userId ?? userId,
+                          data[item].id,
                           user.displayName
                             ? user.displayName
                             : user.userId ?? data[item].agent_name
@@ -195,24 +191,16 @@ export function addRoomOptions(dt, roomType) {
                       users.push(
                         userGenerator(
                           userId,
+                          data[item].id,
                           data[item].agent_name ? data[item].agent_name : userId,
                           data[item].profile_photo ? data[item].profile_photo : defaultAvatar(1),
                         ),
                       );
                     }
-
-                    /* 
-                                const userId = !data[item].bot_username.startsWith('#') ? `#${data[item].bot_username}` : data[item].bot_username;
-                                users.push(userGenerator(
-                                    userId,
-                                    data[item].agent_name ? data[item].agent_name : userId,
-                                    data[item].profile_photo ? data[item].profile_photo : defaultAvatar(1)
-                                ));
-                                */
                   } catch (err) {
                     // Error
                     console.error(err);
-                    users.push(userGenerator(data[item], data[item], defaultAvatar(1)));
+                    users.push(userGenerator(data[item], null, data[item], defaultAvatar(1)));
                   }
                 }
               }

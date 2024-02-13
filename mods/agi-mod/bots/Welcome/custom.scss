@@ -156,6 +156,8 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
 
         .background {
           border-radius: 15px !important;
+          border-bottom-left-radius: 0px !important;
+          border-bottom-right-radius: 0px !important;
           height: 320px;
           position: relative;
           top: -15px;

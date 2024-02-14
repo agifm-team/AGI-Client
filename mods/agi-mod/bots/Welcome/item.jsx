@@ -182,7 +182,7 @@ function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
   return (
     <div
       ref={buttonRef}
-      className={`citem col-6 col-sm-4 col-md-6 col-lg-3${isGuest ? ' guest-mode' : ''}`}
+      className={`citem col-6 col-sm-4 col-md-6 col-lg-2${isGuest ? ' guest-mode' : ''}`}
       bot={typeof bot.id === 'string' && bot.id !== 'Coming soon!' ? bot.id : null}
       botid={bot.agiId}
     >

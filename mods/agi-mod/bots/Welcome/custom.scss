@@ -150,7 +150,27 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
         }
       }
 
-      @media (min-width: 1920px) {
+      .card-img-overlay {
+        height: 180px;
+        margin-top: -180px;
+      }
+
+      .card-img {
+        height: 180px;
+      }
+
+      @media (min-width: 576px) {
+        .card-img-overlay {
+          height: 170px;
+          margin-top: -170px;
+        }
+
+        .card-img {
+          height: 170px;
+        }
+      }
+
+      @media (min-width: 690px) {
         .card-img-overlay {
           height: 200px;
           margin-top: -200px;
@@ -158,6 +178,83 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
 
         .card-img {
           height: 200px;
+        }
+      }
+
+      @media (min-width: 790px) {
+        .card-img-overlay {
+          height: 230px;
+          margin-top: -230px;
+        }
+
+        .card-img {
+          height: 230px;
+        }
+      }
+
+      @media (min-width: 984px) {
+        .card-img-overlay {
+          height: 80px;
+          margin-top: -80px;
+        }
+
+        .card-img {
+          height: 80px;
+        }
+      }
+
+      @media (min-width: 1200px) {
+        .card-img-overlay {
+          height: 110px;
+          margin-top: -110px;
+        }
+
+        .card-img {
+          height: 110px;
+        }
+      }
+
+      @media (min-width: 1440px) {
+        .card-img-overlay {
+          height: 140px;
+          margin-top: -140px;
+        }
+
+        .card-img {
+          height: 140px;
+        }
+      }
+
+      @media (min-width: 1600px) {
+        .card-img-overlay {
+          height: 190px;
+          margin-top: -190px;
+        }
+
+        .card-img {
+          height: 190px;
+        }
+      }
+
+      @media (min-width: 1790px) {
+        .card-img-overlay {
+          height: 210px;
+          margin-top: -210px;
+        }
+
+        .card-img {
+          height: 210px;
+        }
+      }
+
+      @media (min-width: 1920px) {
+        .card-img-overlay {
+          height: 220px;
+          margin-top: -220px;
+        }
+
+        .card-img {
+          height: 220px;
         }
       }
 

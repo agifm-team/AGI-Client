@@ -186,62 +186,32 @@ function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
       bot={typeof bot.id === 'string' && bot.id !== 'Coming soon!' ? bot.id : null}
       botid={bot.agiId}
     >
-      <div className="card">
-        <div className="card-body">
-          <h5 className="card-title">Special title treatment</h5>
-          <p className="card-text">With supporting text below as a natural lead-in to additional content.</p>
-          <a className="#" class="btn btn-primary">Go somewhere</a>
-        </div>
-      </div>
-
-    </div>
-  );
-
-  /*
-
-  return (
-    <div
-      ref={buttonRef}
-      className={`citem col-md-2 col-sm-4 col-6${isGuest ? ' guest-mode' : ''}`}
-      bot={typeof bot.id === 'string' && bot.id !== 'Coming soon!' ? bot.id : null}
-      botid={bot.agiId}
-    >
-      <div
-        className={`border border-bg p-3 py-3 p${index > 0 ? (index < itemsLength - 1 ? 'x-3' : 's-3') : 'e-3'}`}
-      >
-        <img
-          className="img-fluid d-block avatar avatar-bg"
-          draggable={false}
-          alt="avatar"
-          src={avatar}
-        />
-        <img className="img-fluid d-block avatar" draggable={false} alt="avatar" src={avatar} />
-        {typeof bot.title === 'string' ? <h6 className="card-title text-bg">{bot.title}</h6> : null}
-
-        <p className="card-text text-bg-low">
-          {bot.description.length < 100 ? (
+      <div className="card text-center">
+        <img src={avatar} class="card-img" alt="..." />
+        <div className="card-img-overlay">
+          <h5 className="card-title">{bot.title}</h5>
+          <p className="card-text">{bot.description.length < 100 ? (
             bot.description
           ) : (
             <>
               <div className="card-normal-text">{`${bot.description.substring(0, 100)}...`}</div>
               <div className="card-normal-text-hover">{bot.description}</div>
             </>
-          )}
-        </p>
-
-        {bot.tags.map((tag) => (
-          <button
-            className="badge bg-bg2 text-bg-force border border-bg very-small mx-1 text-lowercase"
-            key={`${tag}_click`}
-          >
-            {tag}
-          </button>
-        ))}
+          )}</p>
+          <p className="card-text">
+            {bot.tags.map((tag) => (
+              <a
+                className="btn btn-primary btn-sm very-small mx-1 text-lowercase"
+                key={`${tag}_click`}
+              >
+                {tag}
+              </a>
+            ))}
+          </p>
+        </div>
       </div>
     </div>
   );
-
-  */
 }
 
 export default ItemWelcome;

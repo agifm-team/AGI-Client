@@ -57,7 +57,7 @@ function Welcome({ isGuest }) {
       <h5 className="title mt-2 mb-3">{title}</h5>
       <br />
 
-      <div className="row">
+      <div className="row welcome-card">
         {citem.map((bot) => (
           <ItemWelcome
             setSelectedTag={setSelectedTag}

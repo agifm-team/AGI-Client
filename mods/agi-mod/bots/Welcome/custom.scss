@@ -125,6 +125,21 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
     }
   }
 
+  .welcome-card {
+    .citem {
+      .card .card-img-overlay {
+        position: relative;
+        height: 320px;
+        align-items: center;
+        display: inline-flex;
+        justify-content: center;
+        flex-direction: column;
+        margin-top: -320px;
+        top: -10px;
+      }
+    }
+  }
+
   @media (max-width: 768px) {
     #leave-welcome {
       display: inline-block !important;

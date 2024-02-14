@@ -227,24 +227,24 @@ function Welcome({ isGuest }) {
             <div class="carousel-item active">
               <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c2.jpg?raw=true" class="d-block w-100" draggable="false" alt="..." />
               <div class="carousel-caption">
-                <h5>First slide label</h5>
-                <p>Some representative placeholder content for the first slide.</p>
+                <h5></h5>
+                <p></p>
               </div>
             </div>
 
             <div class="carousel-item">
               <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c1.jpg?raw=true" class="d-block w-100" draggable="false" alt="..." />
               <div class="carousel-caption">
-                <h5>Second slide label</h5>
-                <p>Some representative placeholder content for the second slide.</p>
+                <h5></h5>
+                <p></p>
               </div>
             </div>
 
             <div class="carousel-item">
               <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c3.jpg?raw=true" class="d-block w-100" draggable="false" alt="..." />
               <div class="carousel-caption">
-                <h5>Third slide label</h5>
-                <p>Some representative placeholder content for the third slide.</p>
+                <h5></h5>
+                <p></p>
               </div>
             </div>
           </div>

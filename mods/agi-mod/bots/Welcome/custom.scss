@@ -148,6 +148,9 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
         border-top-right-radius: 10px;
         border-bottom-left-radius: 0px;
         border-bottom-right-radius: 0px;
+        height: auto; /* Adjust height automatically based on width to maintain aspect ratio */
+        width: 100%; /* Make image width responsive to container size */
+        object-fit: cover; /* Cover the container without stretching the image, may crop if necessary */
       }
 
       .card-text {

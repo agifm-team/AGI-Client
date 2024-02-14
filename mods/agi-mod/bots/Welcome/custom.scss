@@ -127,14 +127,27 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
 
   .welcome-card {
     .citem {
-      .card-img-overlay {
+      .card-title {
         cursor: pointer;
+        background-color: var(--bg-surface-extra-low);
+        padding: 7px;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+      }
+      .card-img-overlay {
         opacity: 0;
         position: relative;
         align-items: center;
         display: inline-flex;
         justify-content: center;
         flex-direction: column;
+      }
+
+      .card-img {
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        border-bottom-left-radius: 0px;
+        border-bottom-right-radius: 0px;
       }
 
       .card-text {
@@ -147,6 +160,9 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
         }
         .card-img-overlay {
           opacity: 1;
+        }
+        .card-title {
+          background-color: var(--bg-surface-low);
         }
       }
 

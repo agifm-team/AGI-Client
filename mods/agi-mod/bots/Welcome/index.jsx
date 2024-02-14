@@ -186,9 +186,9 @@ function Welcome({ isGuest }) {
           rooms.push(newRoomData);
         }
 
-        if (typeof data[item].username === 'string') {
+        if (typeof data[item].bot_username === 'string') {
           const newRoomData = clone(roomData);
-          newRoomData.id = data[item].username;
+          newRoomData.id = data[item].bot_username;
           users.push(newRoomData);
         }
       }

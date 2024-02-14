@@ -90,9 +90,10 @@ const valuesLoad = {
   },
 };
 
-function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
+function ItemWelcome({ bot, type, isGuest, setSelectedTag }) {
   // Refs
-  const buttonRef = useRef(null);
+  const buttonRef1 = useRef(null);
+  const buttonRef2 = useRef(null);
 
   // Effect
   useEffect(() => {
@@ -102,12 +103,12 @@ function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
       typeof valuesLoad[type].getRoom === 'function'
     ) {
       // Get Button
-      const button = $(buttonRef.current);
+      const button = $(buttonRef1.current);
       const tinyButton = () => {
         if (!isGuest) {
           // Select tab and bot id
           selectTab(valuesLoad[type].tab);
-          return valuesLoad[type].getRoom(button.attr('bot'));
+          return valuesLoad[type].getRoom(button.parent().parent().attr('bot'));
         }
 
         if (type === 'rooms') {
@@ -142,54 +143,18 @@ function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
   });
 
   const avatar = defaultAvatar(1);
-  /*
-
-        <div>
-
-        <img className='background' src={avatar} alt='background' />
-        <div className='card-data'>
-          <div>
-
-            <p className="m-0 card-text text-bg-low">
-              {bot.description.length < 100 ? (
-                bot.description
-              ) : (
-                <>
-                  <div className="card-normal-text">{`${bot.description.substring(0, 100)}...`}</div>
-                  <div className="card-normal-text-hover">{bot.description}</div>
-                </>
-              )}
-            </p>
-
-            {bot.tags.map((tag) => (
-              <button
-                className="badge bg-bg2 text-bg-force border border-bg very-small mx-1 text-lowercase"
-                key={`${tag}_click`}
-              >
-                {tag}
-              </button>
-            ))}
-
-          </div>
-        </div>
-
-        {typeof bot.title === 'string' ? <h5 className="card-title text-bg">{bot.title}</h5> : null}
-
-      </div>
-*/
 
   // Complete
   return (
     <div
-      ref={buttonRef}
+
       className={`citem col-6 col-sm-4 col-md-6 col-lg-2${isGuest ? ' guest-mode' : ''}`}
       bot={typeof bot.id === 'string' && bot.id !== 'Coming soon!' ? bot.id : null}
       botid={bot.agiId}
     >
       <div className="card text-center">
         <img src={avatar} class="card-img" alt="..." />
-        <div className="card-img-overlay">
-          <h5 className="card-title">{bot.title}</h5>
+        <div ref={buttonRef2} className="card-img-overlay">
           <p className="card-text">{bot.description.length < 100 ? (
             bot.description
           ) : (
@@ -203,12 +168,14 @@ function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
               <a
                 className="btn btn-primary btn-sm very-small mx-1 text-lowercase"
                 key={`${tag}_click`}
+                onClick={() => setSelectedTag(tag)}
               >
                 {tag}
               </a>
             ))}
           </p>
         </div>
+        <h5 ref={buttonRef1} className="card-title">{bot.title}</h5>
       </div>
     </div>
   );

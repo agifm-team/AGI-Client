@@ -197,7 +197,7 @@ function Welcome({ isGuest }) {
 
   // Result
   return (
-    <div className="tiny-welcome border-0 h-100 noselect">
+    <div className={`tiny-welcome border-0 h-100 noselect${isGuest ? ' is-guest' : ''}`}>
       <center className="w-100">
         <div id="welcome-carousel" class="py-4 mx-4 carousel slide" data-bs-ride="true">
           <div class="carousel-indicators">

@@ -51,16 +51,13 @@ function Welcome({ isGuest }) {
 
   // Generator
   const categoryGenerator = (where, type, title, citem) => (
-    <div className="category" id={`agi-home-${type}-${where}`}>
-      <hr />
+    <>
 
-      <h5 className="title mt-2 mb-3 float-start">{title}</h5>
-      <br className="clearfix" />
+      <hr />
+      <h5 className="title mt-2 mb-3">{title}</h5>
       <br />
 
-      <div className="cover" />
-
-      <div className="row">
+      <div className="row welcome-card">
         {citem.map((bot) => (
           <ItemWelcome
             setSelectedTag={setSelectedTag}
@@ -72,7 +69,8 @@ function Welcome({ isGuest }) {
           />
         ))}
       </div>
-    </div>
+
+    </>
   );
 
   // handleSearch
@@ -188,9 +186,9 @@ function Welcome({ isGuest }) {
           rooms.push(newRoomData);
         }
 
-        if (typeof data[item].username === 'string') {
+        if (typeof data[item].bot_username === 'string') {
           const newRoomData = clone(roomData);
-          newRoomData.id = data[item].username;
+          newRoomData.id = data[item].bot_username;
           users.push(newRoomData);
         }
       }
@@ -227,26 +225,26 @@ function Welcome({ isGuest }) {
 
           <div class="carousel-inner">
             <div class="carousel-item active">
-              <img src="..." class="d-block w-100" draggable="false" alt="..." />
+              <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c2.jpg?raw=true" class="d-block w-100" draggable="false" alt="..." />
               <div class="carousel-caption">
-                <h5>First slide label</h5>
-                <p>Some representative placeholder content for the first slide.</p>
+                <h5>Infinite models at for infinite creativity</h5>
+                <p>Fun and Productivity like never before</p>
               </div>
             </div>
 
             <div class="carousel-item">
-              <img src="..." class="d-block w-100" draggable="false" alt="..." />
+              <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c1.jpg?raw=true" class="d-block w-100" draggable="false" alt="..." />
               <div class="carousel-caption">
-                <h5>Second slide label</h5>
-                <p>Some representative placeholder content for the second slide.</p>
+                <h5>Generative AI at your fingertips</h5>
+                <p>Create Seamless Variations tailored to your vision</p>
               </div>
             </div>
 
             <div class="carousel-item">
-              <img src="..." class="d-block w-100" draggable="false" alt="..." />
+              <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c3.jpg?raw=true" class="d-block w-100" draggable="false" alt="..." />
               <div class="carousel-caption">
-                <h5>Third slide label</h5>
-                <p>Some representative placeholder content for the third slide.</p>
+                <h5>Collaborate and create custom Characters</h5>
+                <p>Instantly with no-code tools</p>
               </div>
             </div>
           </div>
@@ -346,30 +344,31 @@ function Welcome({ isGuest }) {
           )}
         </center>
 
-        <hr />
-
         {!loadingData ? (
           <>
             {users.length > 0 ? categoryGenerator('popular_bots', 'bots', 'Bots', users) : null}
             {rooms.length > 0 ? categoryGenerator('popular_rooms', 'rooms', 'Rooms', rooms) : null}
           </>
         ) : (
-          <p className="placeholder-glow mt-5">
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-          </p>
+          <>
+            <hr />
+            <p className="placeholder-glow mt-5">
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+            </p>
+          </>
         )}
       </center>
     </div>

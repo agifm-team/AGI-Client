@@ -142,17 +142,9 @@ function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
   });
 
   const avatar = defaultAvatar(1);
+  /*
 
-  // Complete
-  return (
-    <div
-      ref={buttonRef}
-      className={`citem col-md-2 col-sm-4 col-6${isGuest ? ' guest-mode' : ''}`}
-      bot={typeof bot.id === 'string' && bot.id !== 'Coming soon!' ? bot.id : null}
-      botid={bot.agiId}
-    >
-
-      <div>
+        <div>
 
         <img className='background' src={avatar} alt='background' />
         <div className='card-data'>
@@ -184,8 +176,25 @@ function ItemWelcome({ bot, type, index, itemsLength, isGuest }) {
         {typeof bot.title === 'string' ? <h5 className="card-title text-bg">{bot.title}</h5> : null}
 
       </div>
+*/
 
-    </div >
+  // Complete
+  return (
+    <div
+      ref={buttonRef}
+      className={`citem col-6 col-sm-4 col-md-6 col-lg-3${isGuest ? ' guest-mode' : ''}`}
+      bot={typeof bot.id === 'string' && bot.id !== 'Coming soon!' ? bot.id : null}
+      botid={bot.agiId}
+    >
+      <div className="card">
+        <div className="card-body">
+          <h5 className="card-title">Special title treatment</h5>
+          <p className="card-text">With supporting text below as a natural lead-in to additional content.</p>
+          <a className="#" class="btn btn-primary">Go somewhere</a>
+        </div>
+      </div>
+
+    </div>
   );
 
   /*

@@ -51,14 +51,11 @@ function Welcome({ isGuest }) {
 
   // Generator
   const categoryGenerator = (where, type, title, citem) => (
-    <div className="category" id={`agi-home-${type}-${where}`}>
+    <>
+
       <hr />
-
-      <h5 className="title mt-2 mb-3 float-start">{title}</h5>
-      <br className="clearfix" />
+      <h5 className="title mt-2 mb-3">{title}</h5>
       <br />
-
-      <div className="cover" />
 
       <div className="row">
         {citem.map((bot) => (
@@ -72,7 +69,8 @@ function Welcome({ isGuest }) {
           />
         ))}
       </div>
-    </div>
+
+    </>
   );
 
   // handleSearch
@@ -346,30 +344,31 @@ function Welcome({ isGuest }) {
           )}
         </center>
 
-        <hr />
-
         {!loadingData ? (
           <>
             {users.length > 0 ? categoryGenerator('popular_bots', 'bots', 'Bots', users) : null}
             {rooms.length > 0 ? categoryGenerator('popular_rooms', 'rooms', 'Rooms', rooms) : null}
           </>
         ) : (
-          <p className="placeholder-glow mt-5">
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-            <span className="placeholder col-12" />
-          </p>
+          <>
+            <hr />
+            <p className="placeholder-glow mt-5">
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+              <span className="placeholder col-12" />
+            </p>
+          </>
         )}
       </center>
     </div>

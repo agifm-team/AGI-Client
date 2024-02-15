@@ -92,8 +92,7 @@ const valuesLoad = {
 
 function ItemWelcome({ bot, type, isGuest, setSelectedTag }) {
   // Refs
-  const buttonRef1 = useRef(null);
-  const buttonRef2 = useRef(null);
+  const buttonRef = useRef(null);
 
   // Effect
   useEffect(() => {
@@ -103,12 +102,12 @@ function ItemWelcome({ bot, type, isGuest, setSelectedTag }) {
       typeof valuesLoad[type].getRoom === 'function'
     ) {
       // Get Button
-      const button = $(buttonRef1.current);
+      const button = $(buttonRef.current);
       const tinyButton = () => {
         if (!isGuest) {
           // Select tab and bot id
           selectTab(valuesLoad[type].tab);
-          return valuesLoad[type].getRoom(button.parent().parent().attr('bot'));
+          return valuesLoad[type].getRoom(button.attr('bot'));
         }
 
         if (type === 'rooms') {
@@ -147,14 +146,14 @@ function ItemWelcome({ bot, type, isGuest, setSelectedTag }) {
   // Complete
   return (
     <div
-
+      ref={buttonRef}
       className={`citem col-6 col-sm-4 col-md-6 col-lg-3${isGuest ? ' guest-mode' : ''}`}
       bot={typeof bot.id === 'string' && bot.id !== 'Coming soon!' ? bot.id : null}
       botid={bot.agiId}
     >
       <div className="card text-center">
         <img src={avatar} class="card-img" alt="..." />
-        <div ref={buttonRef2} className="card-img-overlay">
+        <div className="card-img-overlay">
           <p className="card-text">{bot.description.length < 100 ? (
             bot.description
           ) : (
@@ -163,19 +162,8 @@ function ItemWelcome({ bot, type, isGuest, setSelectedTag }) {
               <div className="card-normal-text-hover">{bot.description}</div>
             </>
           )}</p>
-          <p className="card-text">
-            {bot.tags.map((tag) => (
-              <a
-                className="btn btn-primary btn-sm very-small mx-1 text-lowercase"
-                key={`${tag}_click`}
-                onClick={() => setSelectedTag(tag)}
-              >
-                {tag}
-              </a>
-            ))}
-          </p>
         </div>
-        <h5 ref={buttonRef1} className="card-title">{bot.title}</h5>
+        <h5 className="card-title">{bot.title}</h5>
       </div>
     </div>
   );

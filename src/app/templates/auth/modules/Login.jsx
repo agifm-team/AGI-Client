@@ -18,10 +18,10 @@ import { EMAIL_REGEX, BAD_EMAIL_ERROR } from './regex';
 import { normalizeUsername, isValidInput } from './validator';
 import Register from './Register';
 
-// import SSOButtons from '../../../molecules/sso-buttons/SSOButtons';
+import SSOButtons from '../../../molecules/sso-buttons/SSOButtons';
 
 function Login({ hsConfig, loginFlow, baseUrl }) {
-  // const ssoProviders = loginFlow?.filter((flow) => flow.type === 'm.login.sso')[0];
+  const ssoProviders = loginFlow?.filter((flow) => flow.type === 'm.login.sso')[0];
   const [typeIndex, setTypeIndex] = useState(0);
   const [passVisible, setPassVisible] = useState(false);
   const loginTypes = ['Username', 'Email'];
@@ -91,8 +91,8 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
         <Modal.Body>
           {type === 'login' ? (
             <>
-              <div className="auth-form__heading">
-                <h5>Welcome back</h5>
+              <div className="auth-form__heading m-0 mt-1">
+                <h5 className='m-0'>Welcome back</h5>
                 {isPassword && (
                   <ContextMenu
                     placement="right"
@@ -211,12 +211,22 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
               {/* (type === 'login' && <a className="very-small" href="#!">Forgot password?</a>) */}
 
               <center>
-                <p className="mb-4 pb-lg-2 small">
+
+                <p className="small">
                   {`${type === 'login' ? "Don't have" : 'Already have'} an account?`}{' '}
                   <a href="#!" onClick={() => setType(type === 'login' ? 'register' : 'login')}>
                     {type === 'login' ? 'Register here' : 'Login here'}
                   </a>
                 </p>
+
+                {type === 'login' ? <div>
+                  <SSOButtons
+                    type="sso"
+                    identityProviders={ssoProviders.identity_providers}
+                    baseUrl={baseUrl}
+                  />
+                </div> : null}
+
               </center>
             </>
           )}
@@ -233,14 +243,6 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
         Login
       </a>
     </>
-
-    /* ssoProviders && (
-      <SSOButtons
-        type="sso"
-        identityProviders={ssoProviders.identity_providers}
-        baseUrl={baseUrl}
-      />
-    ) */
   );
 }
 

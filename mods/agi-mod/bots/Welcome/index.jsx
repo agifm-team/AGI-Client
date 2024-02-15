@@ -225,7 +225,7 @@ function Welcome({ isGuest }) {
 
           <div class="carousel-inner">
             <div class="carousel-item active">
-              <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c2.jpg?raw=true" class="d-block w-100" draggable="false" alt="..." />
+              <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c1.jpg?raw=true" class="d-block w-100" draggable="false" alt="..." />
               <div class="carousel-caption">
                 <h5>Pixxel Forge</h5>
                 <p>Create Pixxels, customizing their personality, appearance, and knowledge domains. (Example: A writer Pixxel for brainstorming, a design Pixxel for layouts, a historian Pixxel for research)</p>
@@ -233,7 +233,7 @@ function Welcome({ isGuest }) {
             </div>
 
             <div class="carousel-item">
-              <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c1.jpg?raw=true" class="d-block w-100" draggable="false" alt="..." />
+              <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c2.jpg?raw=true" class="d-block w-100" draggable="false" alt="..." />
               <div class="carousel-caption">
                 <h5>Fantastical Tools</h5>
                 <p>Embed specialized AI tools for visuals, sound, coding, writing – the limit is the imagination of the Pixxels community</p>

@@ -1,125 +1,37 @@
 .is-guest .welcome-card.guest {
   .citem {
     .card-img-overlay {
-      height: 180px;
-      margin-top: -180px;
+      height: 200px;
+      margin-top: -200px;
     }
 
     .card-img {
-      height: 180px;
+      height: 200px;
     }
 
     @media (min-width: 576px) {
       .card-img-overlay {
-        height: 150px;
-        margin-top: -150px;
+        height: 170px;
+        margin-top: -170px;
       }
 
       .card-img {
-        height: 150px;
+        height: 170px;
       }
     }
 
     @media (min-width: 690px) {
       .card-img-overlay {
-        height: 180px;
-        margin-top: -180px;
+        height: 190px;
+        margin-top: -190px;
       }
 
       .card-img {
-        height: 180px;
+        height: 190px;
       }
     }
 
-    @media (min-width: 790px) {
-      .card-img-overlay {
-        height: 200px;
-        margin-top: -200px;
-      }
-
-      .card-img {
-        height: 200px;
-      }
-    }
-
-    @media (min-width: 900px) {
-      .card-img-overlay {
-        height: 220px;
-        margin-top: -220px;
-      }
-
-      .card-img {
-        height: 220px;
-      }
-    }
-
-    @media (min-width: 984px) {
-      .card-img-overlay {
-        height: 130px;
-        margin-top: -130px;
-      }
-
-      .card-img {
-        height: 130px;
-      }
-    }
-
-    @media (min-width: 1200px) {
-      .card-img-overlay {
-        height: 150px;
-        margin-top: -150px;
-      }
-
-      .card-img {
-        height: 150px;
-      }
-    }
-
-    @media (min-width: 1440px) {
-      .card-img-overlay {
-        height: 160px;
-        margin-top: -160px;
-      }
-
-      .card-img {
-        height: 160px;
-      }
-    }
-
-    @media (min-width: 1500px) {
-      .card-img-overlay {
-        height: 200px;
-        margin-top: -200px;
-      }
-
-      .card-img {
-        height: 200px;
-      }
-    }
-
-    @media (min-width: 1600px) {
-      .card-img-overlay {
-        height: 230px;
-        margin-top: -230px;
-      }
-
-      .card-img {
-        height: 230px;
-      }
-    }
-
-    @media (min-width: 1730px) {
-      .card-img-overlay {
-        height: 250px;
-        margin-top: -250px;
-      }
-
-      .card-img {
-        height: 250px;
-      }
-    }
-
-    @media (min-width: 1800px) {
+    @media (min-width: 768px) {
       .card-img-overlay {
         height: 270px;
         margin-top: -270px;
@@ -130,36 +42,135 @@
       }
     }
 
-    @media (min-width: 1920px) {
+    @media (min-width: 830px) {
       .card-img-overlay {
-        height: 300px;
-        margin-top: -300px;
+        height: 290px;
+        margin-top: -290px;
       }
 
       .card-img {
-        height: 300px;
+        height: 290px;
+      }
+    }
+
+    @media (min-width: 900px) {
+      .card-img-overlay {
+        height: 330px;
+        margin-top: -330px;
+      }
+
+      .card-img {
+        height: 330px;
+      }
+    }
+
+    @media (min-width: 992px) {
+      .card-img-overlay {
+        height: 230px;
+        margin-top: -230px;
+      }
+
+      .card-img {
+        height: 230px;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .card-img-overlay {
+        height: 250px;
+        margin-top: -250px;
+      }
+
+      .card-img {
+        height: 250px;
+      }
+    }
+
+    @media (min-width: 1440px) {
+      .card-img-overlay {
+        height: 250px;
+        margin-top: -250px;
+      }
+
+      .card-img {
+        height: 250px;
+      }
+    }
+
+    @media (min-width: 1500px) {
+      .card-img-overlay {
+        height: 290px;
+        margin-top: -290px;
+      }
+
+      .card-img {
+        height: 290px;
+      }
+    }
+
+    @media (min-width: 1600px) {
+      .card-img-overlay {
+        height: 320px;
+        margin-top: -320px;
+      }
+
+      .card-img {
+        height: 320px;
+      }
+    }
+
+    @media (min-width: 1730px) {
+      .card-img-overlay {
+        height: 350px;
+        margin-top: -350px;
+      }
+
+      .card-img {
+        height: 350px;
+      }
+    }
+
+    @media (min-width: 1800px) {
+      .card-img-overlay {
+        height: 360px;
+        margin-top: -360px;
+      }
+
+      .card-img {
+        height: 360px;
+      }
+    }
+
+    @media (min-width: 1920px) {
+      .card-img-overlay {
+        height: 380px;
+        margin-top: -380px;
+      }
+
+      .card-img {
+        height: 380px;
       }
     }
 
     @media (min-width: 2100px) {
       .card-img-overlay {
-        height: 340px;
-        margin-top: -340px;
+        height: 400px;
+        margin-top: -400px;
       }
 
       .card-img {
-        height: 340px;
+        height: 400px;
       }
     }
 
     @media (min-width: 2560px) {
       .card-img-overlay {
-        height: 440px;
-        margin-top: -440px;
+        height: 500px;
+        margin-top: -500px;
       }
 
       .card-img {
-        height: 440px;
+        height: 500px;
       }
     }
   }

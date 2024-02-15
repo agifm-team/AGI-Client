@@ -31,7 +31,7 @@
       }
     }
 
-    @media (min-width: 790px) {
+    @media (min-width: 768px) {
       .card-img-overlay {
         height: 200px;
         margin-top: -200px;
@@ -42,7 +42,29 @@
       }
     }
 
+    @media (min-width: 830px) {
+      .card-img-overlay {
+        height: 290px;
+        margin-top: -290px;
+      }
+
+      .card-img {
+        height: 290px;
+      }
+    }
+
     @media (min-width: 900px) {
+      .card-img-overlay {
+        height: 330px;
+        margin-top: -330px;
+      }
+
+      .card-img {
+        height: 330px;
+      }
+    }
+
+    @media (min-width: 992px) {
       .card-img-overlay {
         height: 220px;
         margin-top: -220px;
@@ -50,17 +72,6 @@
 
       .card-img {
         height: 220px;
-      }
-    }
-
-    @media (min-width: 984px) {
-      .card-img-overlay {
-        height: 130px;
-        margin-top: -130px;
-      }
-
-      .card-img {
-        height: 130px;
       }
     }
 

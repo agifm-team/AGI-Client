@@ -52,7 +52,6 @@ function Welcome({ isGuest }) {
   // Generator
   const categoryGenerator = (where, type, title, citem) => (
     <>
-
       <hr />
       <h5 className="title mt-2 mb-3">{title}</h5>
       <br />
@@ -69,7 +68,6 @@ function Welcome({ isGuest }) {
           />
         ))}
       </div>
-
     </>
   );
 
@@ -199,13 +197,13 @@ function Welcome({ isGuest }) {
   return (
     <div className={`tiny-welcome border-0 h-100 noselect${isGuest ? ' is-guest' : ''}`}>
       <center className="w-100">
-        <div id="welcome-carousel" class="py-4 mx-4 carousel slide" data-bs-ride="true">
-          <div class="carousel-indicators">
+        <div id="welcome-carousel" className="py-4 mx-4 carousel slide" data-bs-ride="true">
+          <div className="carousel-indicators">
             <button
               type="button"
               data-bs-target="#welcome-carousel"
               data-bs-slide-to="0"
-              class="active"
+              className="active"
               aria-current="true"
               aria-label="Slide 1"
             />
@@ -223,26 +221,41 @@ function Welcome({ isGuest }) {
             />
           </div>
 
-          <div class="carousel-inner">
-            <div class="carousel-item active">
-              <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c2.jpg?raw=true" class="d-block w-100" draggable="false" alt="..." />
-              <div class="carousel-caption">
+          <div className="carousel-inner">
+            <div className="carousel-item active">
+              <img
+                src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c2.jpg?raw=true"
+                className="d-block w-100"
+                draggable="false"
+                alt="..."
+              />
+              <div className="carousel-caption">
                 <h5>Infinite models at for infinite creativity</h5>
                 <p>Fun and Productivity like never before</p>
               </div>
             </div>
 
-            <div class="carousel-item">
-              <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c1.jpg?raw=true" class="d-block w-100" draggable="false" alt="..." />
-              <div class="carousel-caption">
+            <div className="carousel-item">
+              <img
+                src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c1.jpg?raw=true"
+                className="d-block w-100"
+                draggable="false"
+                alt="..."
+              />
+              <div className="carousel-caption">
                 <h5>Generative AI at your fingertips</h5>
                 <p>Create Seamless Variations tailored to your vision</p>
               </div>
             </div>
 
-            <div class="carousel-item">
-              <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c3.jpg?raw=true" class="d-block w-100" draggable="false" alt="..." />
-              <div class="carousel-caption">
+            <div className="carousel-item">
+              <img
+                src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c3.jpg?raw=true"
+                className="d-block w-100"
+                draggable="false"
+                alt="..."
+              />
+              <div className="carousel-caption">
                 <h5>Collaborate and create custom Characters</h5>
                 <p>Instantly with no-code tools</p>
               </div>
@@ -250,22 +263,22 @@ function Welcome({ isGuest }) {
           </div>
 
           <button
-            class="carousel-control-prev d-none"
+            className="carousel-control-prev d-none"
             type="button"
             data-bs-target="#welcome-carousel"
             data-bs-slide="prev"
           >
-            <span class="carousel-control-prev-icon" aria-hidden="true" />
-            <span class="visually-hidden">Previous</span>
+            <span className="carousel-control-prev-icon" aria-hidden="true" />
+            <span className="visually-hidden">Previous</span>
           </button>
           <button
-            class="carousel-control-next d-none"
+            className="carousel-control-next d-none"
             type="button"
             data-bs-target="#welcome-carousel"
             data-bs-slide="next"
           >
-            <span class="carousel-control-next-icon" aria-hidden="true" />
-            <span class="visually-hidden">Next</span>
+            <span className="carousel-control-next-icon" aria-hidden="true" />
+            <span className="visually-hidden">Next</span>
           </button>
         </div>
       </center>

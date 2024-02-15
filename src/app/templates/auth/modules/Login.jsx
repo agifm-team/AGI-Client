@@ -92,7 +92,7 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
           {type === 'login' ? (
             <>
               <div className="auth-form__heading m-0 mt-1">
-                <h5 className='m-0'>Welcome back</h5>
+                <h5 className="m-0">Welcome back</h5>
                 {isPassword && (
                   <ContextMenu
                     placement="right"
@@ -211,7 +211,6 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
               {/* (type === 'login' && <a className="very-small" href="#!">Forgot password?</a>) */}
 
               <center>
-
                 <p className="small">
                   {`${type === 'login' ? "Don't have" : 'Already have'} an account?`}{' '}
                   <a href="#!" onClick={() => setType(type === 'login' ? 'register' : 'login')}>
@@ -219,14 +218,15 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
                   </a>
                 </p>
 
-                {type === 'login' ? <div>
-                  <SSOButtons
-                    type="sso"
-                    identityProviders={ssoProviders.identity_providers}
-                    baseUrl={baseUrl}
-                  />
-                </div> : null}
-
+                {type === 'login' ? (
+                  <div>
+                    <SSOButtons
+                      type="sso"
+                      identityProviders={ssoProviders.identity_providers}
+                      baseUrl={baseUrl}
+                    />
+                  </div>
+                ) : null}
               </center>
             </>
           )}

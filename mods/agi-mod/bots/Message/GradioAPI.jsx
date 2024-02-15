@@ -1022,11 +1022,11 @@ function GradioEmbed({ agiData, msgInfo, replyId }) {
         title="Gradio"
       />
 
-      <div class="card">
-        <div class="card-body">
+      <div className="card">
+        <div className="card-body">
           <a
             href="#"
-            class="btn btn-primary"
+            className="btn btn-primary"
             onClick={(event) => {
               initMatrix.matrixClient.sendMessage(msgInfo.roomId, {
                 body: `.demo ${agiData.url} ${msgInfo.eventId}`,

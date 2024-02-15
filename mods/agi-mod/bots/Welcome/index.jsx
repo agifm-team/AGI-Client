@@ -221,43 +221,28 @@ function Welcome({ isGuest }) {
             />
           </div>
 
-          <div className="carousel-inner">
-            <div className="carousel-item active">
-              <img
-                src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c2.jpg?raw=true"
-                className="d-block w-100"
-                draggable="false"
-                alt="..."
-              />
-              <div className="carousel-caption">
-                <h5>Infinite models at for infinite creativity</h5>
-                <p>Fun and Productivity like never before</p>
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c1.jpg?raw=true" class="d-block w-100" draggable="false" alt="..." />
+              <div class="carousel-caption">
+                <h5>Pixxel Forge</h5>
+                <p>Create Pixxels, customizing their personality, appearance, and knowledge domains <br /> Example: A writer Pixxel for brainstorming, a design Pixxel for layouts, a historian Pixxel for research</p>
               </div>
             </div>
 
-            <div className="carousel-item">
-              <img
-                src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c1.jpg?raw=true"
-                className="d-block w-100"
-                draggable="false"
-                alt="..."
-              />
-              <div className="carousel-caption">
-                <h5>Generative AI at your fingertips</h5>
-                <p>Create Seamless Variations tailored to your vision</p>
+            <div class="carousel-item">
+              <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c2.jpg?raw=true" class="d-block w-100" draggable="false" alt="..." />
+              <div class="carousel-caption">
+                <h5>Fantastical Tools</h5>
+                <p>Embed specialized AI tools for visuals, sound, coding, writing – the limit is the imagination of the Pixxels community</p>
               </div>
             </div>
 
-            <div className="carousel-item">
-              <img
-                src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c3.jpg?raw=true"
-                className="d-block w-100"
-                draggable="false"
-                alt="..."
-              />
-              <div className="carousel-caption">
-                <h5>Collaborate and create custom Characters</h5>
-                <p>Instantly with no-code tools</p>
+            <div class="carousel-item">
+              <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c3.jpg?raw=true" class="d-block w-100" draggable="false" alt="..." />
+              <div class="carousel-caption">
+                <h5>Pixxel Spaces</h5>
+                <p>Whimsical virtual spaces where users collaborate with both human teams and their individual Pixxels</p>
               </div>
             </div>
           </div>

@@ -88,7 +88,7 @@ function PeopleSelector({ avatarSrc, name, user, peopleRole, customData }) {
       <div ref={profileButtonRef} className="text-start card-body mt-0 pt-0">
         <h5 className="card-title small text-bg">
           {name}
-          <div class="float-end">
+          <div className="float-end">
             <button ref={buttonRef} className="btn btn-primary btn-sm my-1">
               Invite
             </button>

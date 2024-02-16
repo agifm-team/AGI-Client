@@ -152,16 +152,18 @@ function ItemWelcome({ bot, type, isGuest, setSelectedTag }) {
       botid={bot.agiId}
     >
       <div className="card text-center">
-        <img src={avatar} class="card-img" alt="..." />
+        <img src={avatar} className="card-img" alt="..." />
         <div className="card-img-overlay">
-          <p className="card-text">{bot.description.length < 100 ? (
-            bot.description
-          ) : (
-            <>
-              <div className="card-normal-text">{`${bot.description.substring(0, 100)}...`}</div>
-              <div className="card-normal-text-hover">{bot.description}</div>
-            </>
-          )}</p>
+          <p className="card-text">
+            {bot.description.length < 100 ? (
+              bot.description
+            ) : (
+              <>
+                <div className="card-normal-text">{`${bot.description.substring(0, 100)}...`}</div>
+                <div className="card-normal-text-hover">{bot.description}</div>
+              </>
+            )}
+          </p>
         </div>
         <h5 className="card-title">{bot.title}</h5>
       </div>

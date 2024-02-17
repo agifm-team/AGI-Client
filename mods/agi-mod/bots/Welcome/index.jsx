@@ -312,7 +312,7 @@ function Welcome({ isGuest }) {
           <div className="col-md-6">
             <ChatRoomFrame
               hsUrl={isGuest && `https://matrix.${serverDomain}`}
-              roomId={`#Gemini:${serverDomain}`}
+              roomId={`#gemini-chat:${serverDomain}`}
               className="border border-bg w-100 chatroom"
               refreshTime={1}
             />
@@ -321,7 +321,7 @@ function Welcome({ isGuest }) {
           <div className="col-md-6">
             <ChatRoomFrame
               hsUrl={isGuest && `https://matrix.${serverDomain}`}
-              roomId={`#GPT-4:${serverDomain}`}
+              roomId={`#gpt-4:${serverDomain}`}
               className="border border-bg w-100 chatroom"
               refreshTime={1}
             />

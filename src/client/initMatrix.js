@@ -10,7 +10,6 @@ import Notifications from './state/Notifications';
 import { cryptoCallbacks } from './state/secretStorageKeys';
 import navigation from './state/navigation';
 import logger from './logger';
-import { logout } from '../../mods/agi-mod/lib';
 
 global.Olm = Olm;
 
@@ -171,7 +170,7 @@ class InitMatrix extends EventEmitter {
     startCustomDNS();
     this.matrixClient.stopClient();
     try {
-      await logout();
+      await this.matrixClient.logout();
     } catch {
       // ignore if failed to logout
     }

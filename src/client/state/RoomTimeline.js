@@ -236,8 +236,9 @@ class RoomTimeline extends EventEmitter {
       };
 
       // First load
-      this._reset().then(() => {
-        this.loadGuestTimeline();
+      const tinyThis = this;
+      tinyThis._reset().then(() => {
+        tinyThis.loadGuestTimeline();
       });
     }
 
@@ -311,6 +312,7 @@ class RoomTimeline extends EventEmitter {
 
   static newFromThread(threadId, roomId) {
     const roomTimeline = new RoomTimeline(roomId);
+    roomTimeline.setMaxListeners(Infinity);
     const thread = roomTimeline.room.getThread(threadId);
     if (!thread) return null;
 

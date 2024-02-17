@@ -33,7 +33,7 @@ function Homeserver({ onChange }) {
           if (loginFlow === undefined || registerFlow === undefined) throw new Error();
 
           if (searchingHs !== servername) return;
-          onChange({ baseUrl, login: loginFlow, register: registerFlow });
+          onChange({ serverName: servername, baseUrl, login: loginFlow, register: registerFlow });
           setProcess({ isLoading: false });
         })
         .catch(() => {
@@ -101,6 +101,7 @@ function Homeserver({ onChange }) {
 }
 Homeserver.propTypes = {
   onChange: PropTypes.func.isRequired,
+  className: PropTypes.string,
 };
 
 export default Homeserver;

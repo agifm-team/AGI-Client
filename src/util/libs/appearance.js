@@ -28,7 +28,7 @@ class MatrixAppearance extends EventEmitter {
       this.content.isEmbedEnabled =
         typeof this.content.isEmbedEnabled === 'boolean' ? this.content.isEmbedEnabled : true;
       this.content.isUNhoverEnabled =
-        typeof this.content.isUNhoverEnabled === 'boolean' ? this.content.isUNhoverEnabled : true;
+        typeof this.content.isUNhoverEnabled === 'boolean' ? this.content.isUNhoverEnabled : false;
       this.content.isAnimateAvatarsEnabled =
         typeof this.content.isAnimateAvatarsEnabled === 'boolean'
           ? this.content.isAnimateAvatarsEnabled
@@ -66,6 +66,11 @@ class MatrixAppearance extends EventEmitter {
       this.content.hideUnpinMessageEvents =
         typeof this.content.hideUnpinMessageEvents === 'boolean'
           ? this.content.hideUnpinMessageEvents
+          : false;
+
+      this.content.showRoomIdInSpacesManager =
+        typeof this.content.showRoomIdInSpacesManager === 'boolean'
+          ? this.content.showRoomIdInSpacesManager
           : false;
     }
   }

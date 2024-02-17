@@ -19,6 +19,7 @@ import { normalizeUsername, isValidInput } from './validator';
 import Register from './Register';
 
 import SSOButtons from '../../../molecules/sso-buttons/SSOButtons';
+import ResetPassword from './ResetPassword';
 
 function Login({ hsConfig, loginFlow, baseUrl }) {
   const ssoProviders = loginFlow?.filter((flow) => flow.type === 'm.login.sso')[0];
@@ -85,7 +86,7 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
       >
         <Modal.Header className="noselect" closeButton>
           <Modal.Title className="h5 emoji-size-fix">
-            {type === 'login' ? 'Login' : 'Register'}
+            {type === 'login' ? 'Login' : type === 'register' ? 'Register' : 'Recover Password'}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -198,17 +199,25 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
                 </Formik>
               )}
             </>
-          ) : (
+          ) : type === 'register' ? (
             <Register
               registerInfo={hsConfig.register}
               loginFlow={hsConfig.login.flows}
               baseUrl={hsConfig.baseUrl}
             />
-          )}
+          ) : <ResetPassword serverName={hsConfig.serverName} baseUrl={hsConfig.baseUrl} />}
 
           {hsConfig !== null && (
             <>
-              {/* (type === 'login' && <a className="very-small" href="#!">Forgot password?</a>) */}
+              {type === 'login' && (<center>
+                <a
+                  className="very-small"
+                  onClick={() => setType(type === 'reset-password' ? 'login' : 'reset-password')}
+                  href="#!"
+                >
+                  Forgot password?
+                </a></center>
+              )}
 
               <center>
                 <p className="small">

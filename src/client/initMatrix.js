@@ -10,7 +10,6 @@ import Notifications from './state/Notifications';
 import { cryptoCallbacks } from './state/secretStorageKeys';
 import navigation from './state/navigation';
 import logger from './logger';
-import { logout } from '../../mods/agi-mod/lib';
 
 global.Olm = Olm;
 
@@ -135,6 +134,12 @@ class InitMatrix extends EventEmitter {
           this.accountData = new AccountData(this.roomList);
           this.roomsInput = new RoomsInput(this.matrixClient, this.roomList);
           this.notifications = new Notifications(this.roomList);
+
+          this.accountData.setMaxListeners(Infinity);
+          this.roomList.setMaxListeners(Infinity);
+          this.roomsInput.setMaxListeners(Infinity);
+          this.notifications.setMaxListeners(Infinity);
+
           this.emit('init_loading_finished');
           this.notifications._initNoti();
         } else {
@@ -171,7 +176,7 @@ class InitMatrix extends EventEmitter {
     startCustomDNS();
     this.matrixClient.stopClient();
     try {
-      await logout();
+      await this.matrixClient.logout();
     } catch {
       // ignore if failed to logout
     }
@@ -190,5 +195,6 @@ class InitMatrix extends EventEmitter {
 }
 
 const initMatrix = new InitMatrix();
+initMatrix.setMaxListeners(Infinity);
 
 export default initMatrix;

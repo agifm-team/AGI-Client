@@ -1,3 +1,1 @@
-- Recover password form added.
-- New appearance setting (show room id in the space manager)
-- Thread follow system.
+- web3js replaced by ethers

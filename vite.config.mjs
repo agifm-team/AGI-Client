@@ -232,6 +232,12 @@ export default defineConfig(({ command, mode }) => {
   result.resolve.alias['@src'] = path.join(__dirname, 'src');
   result.resolve.alias['@mods'] = path.join(__dirname, 'mods');
 
+  const rollupOptions = {
+    plugins: [
+      inject({ Buffer: ['buffer', 'Buffer'] })
+    ],
+  };
+
   // Electron Mode
   if (electronMode) {
 
@@ -248,10 +254,7 @@ export default defineConfig(({ command, mode }) => {
     }
 
     result.clearScreen = false;
-
-    const rollupOptions = {
-      external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
-    };
+    rollupOptions.external = Object.keys('dependencies' in pkg ? pkg.dependencies : {});
 
     result.plugins.push(electron([
 
@@ -318,11 +321,7 @@ export default defineConfig(({ command, mode }) => {
       outDir: 'dist',
       sourcemap: true,
       copyPublicDir: true,
-      rollupOptions: {
-        plugins: [
-          inject({ Buffer: ['buffer', 'Buffer'] })
-        ]
-      }
+      rollupOptions
     };
 
   }

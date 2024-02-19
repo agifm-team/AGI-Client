@@ -49,7 +49,9 @@
   <script type="module" src="https://gradio.s3-us-west-2.amazonaws.com/4.14.0/gradio.js"></script>
   <script type="module">
     import * as qrcode from 'qrcode';
+    import { Buffer } from 'buffer';
     global.qrcode = qrcode;
+    global.Buffer = Buffer;
   </script>
 
   <script src="./js/vega/vega.min.js"></script>

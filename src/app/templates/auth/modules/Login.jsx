@@ -205,18 +205,22 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
               loginFlow={hsConfig.login.flows}
               baseUrl={hsConfig.baseUrl}
             />
-          ) : <ResetPassword serverName={hsConfig.serverName} baseUrl={hsConfig.baseUrl} />}
+          ) : (
+            <ResetPassword serverName={hsConfig.serverName} baseUrl={hsConfig.baseUrl} />
+          )}
 
           {hsConfig !== null && (
             <>
-              {type === 'login' && (<center>
-                <a
-                  className="very-small"
-                  onClick={() => setType(type === 'reset-password' ? 'login' : 'reset-password')}
-                  href="#!"
-                >
-                  Forgot password?
-                </a></center>
+              {type === 'login' && (
+                <center>
+                  <a
+                    className="very-small"
+                    onClick={() => setType(type === 'reset-password' ? 'login' : 'reset-password')}
+                    href="#!"
+                  >
+                    Forgot password?
+                  </a>
+                </center>
               )}
 
               <center>

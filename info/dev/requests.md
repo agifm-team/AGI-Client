@@ -1,4 +1,7 @@
+    Cadê o @everyone, @here, @room?
     Load de threads diretamente ainda está bugado.
+
+    Fazer um sistema para facilitar rooms que são descrições de informação.
 
     =============================================
 

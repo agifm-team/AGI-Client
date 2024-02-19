@@ -14,10 +14,12 @@ import App from './app/pages/App';
 import { getOsSettings } from './util/libs/osSettings';
 import ChatRoom from './app/embed/ChatRoom';
 import urlParams from './util/libs/urlParams';
+import web3Talk from './util/web3/xmtp';
 
+global.Buffer = Buffer;
+// global.Buffer = global.Buffer || Buffer;
 function startApp(appProtocol) {
   global.getEnvApp = () => clone(__ENV_APP__);
-  global.Buffer = Buffer;
 
   const pageType = urlParams.get('type');
   const pageId = urlParams.get('id');
@@ -54,7 +56,7 @@ function startApp(appProtocol) {
     return root.render('');
   }
 
-  startWeb3();
+  startWeb3(() => web3Talk.start());
 
   console.log(`[app] Starting app using the protocol "${appProtocol}" mode.`);
   if (osSettings.startMinimized && typeof global.electronWindowIsVisible === 'function') {

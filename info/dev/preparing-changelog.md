@@ -1,3 +1,2 @@
-- Recover password form added.
-- New appearance setting (show room id in the space manager)
-- Thread follow system.
+- Web3.js replaced by ethers. Web3.js is no longer compatible with Pony House. If you have mods using web3.js, please migrate to the ethers v6.
+- Options to enable and disable web3 and ipfs on the login page.

@@ -141,7 +141,7 @@ function ItemWelcome({ bot, type, isGuest, setSelectedTag }) {
     }
   });
 
-  const avatar = defaultAvatar(1);
+  const avatar = !bot.avatar ? defaultAvatar(1) : bot.avatar;
 
   // Complete
   return (

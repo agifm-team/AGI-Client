@@ -1,6 +1,6 @@
 {
   "name": "pixxels-matrix",
-  "version": "1.3.31",
+  "version": "1.3.32",
   "short_name": "Pixxels",
   "description": "Pixxels: Collaborative AI",
   "main": "dist-electron/main/index.js",

@@ -38,8 +38,8 @@ export default function startPeopleSelector() {
     if (Array.isArray(tinyData)) {
       for (const item in tinyData) {
         if (objType(tinyData[item], 'object')) {
-          customItems.push({
-            avatarSrc: defaultAvatar(1),
+
+          const newData = {
             // name: tinyData[item].agent_name,
             name: tinyData[item].bot_username,
 
@@ -53,7 +53,17 @@ export default function startPeopleSelector() {
               event.preventDefault();
             },
             customSelector: PeopleSelector,
-          });
+          };
+
+          try {
+            newData.avatarSrc = tinyData[item].avatar_mxc === 'string' && tinyData[item].avatar_mxc.length ? initMatrix.matrixClient.mxcUrlToHttp(tinyData[item].avatar_mxc) : defaultAvatar(1);
+          } catch (err) {
+            console.error(err);
+            newData.avatarSrc = defaultAvatar(1);
+          }
+
+          customItems.push(newData);
+
         }
       }
     }

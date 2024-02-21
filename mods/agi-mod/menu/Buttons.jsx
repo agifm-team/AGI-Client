@@ -160,6 +160,16 @@ export function addRoomOptions(dt, roomType) {
               const users = [];
               for (const item in data) {
                 if (objType(data[item], 'object')) {
+
+                  let newPhoto = null;
+                  try {
+                    newPhoto = data[item].avatar_mxc === 'string' && data[item].avatar_mxc.length ? initMatrix.matrixClient.mxcUrlToHttp(data[item].avatar_mxc) : null
+                    if (!newPhoto) newPhoto = data[item].profile_photo;
+                    if (!newPhoto) newPhoto = defaultAvatar(1);
+                  } catch {
+                    newPhoto = defaultAvatar(1);
+                  }
+
                   // Get Users
                   try {
                     const userId = !data[item].bot_username.startsWith('@')
@@ -168,7 +178,7 @@ export function addRoomOptions(dt, roomType) {
                     const user = mx.getUser(userId) ?? {
                       userId,
                       displayName: data[item].agent_name,
-                      avatarUrl: data[item].profile_photo,
+                      avatarUrl: newPhoto,
                     };
                     if (objType(user, 'object')) {
                       users.push(
@@ -182,9 +192,7 @@ export function addRoomOptions(dt, roomType) {
                               : user.userId,
                           user.avatarUrl
                             ? mx.mxcUrlToHttp(user.avatarUrl, 42, 42, 'crop')
-                            : data[item].profile_photo
-                              ? data[item].profile_photo
-                              : defaultAvatar(1),
+                            : newPhoto,
                         ),
                       );
                     } else {
@@ -193,7 +201,7 @@ export function addRoomOptions(dt, roomType) {
                           userId,
                           data[item].id,
                           data[item].agent_name ? data[item].agent_name : userId,
-                          data[item].profile_photo ? data[item].profile_photo : defaultAvatar(1),
+                          newPhoto,
                         ),
                       );
                     }

@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import clone from 'clone';
 
+import initMatrix from '@src/client/initMatrix';
 import { objType } from '@src/util/tools';
 import { selectRoomMode } from '@src/client/action/navigation';
 import { ChatRoomFrame } from '@src/app/embed/ChatRoom';
@@ -177,6 +178,13 @@ function Welcome({ isGuest }) {
           title: data[item].name,
           tags: data[item].tags,
         };
+
+        try {
+          roomData.avatar = data[item].avatar_mxc === 'string' && data[item].avatar_mxc.length ? initMatrix.matrixClient.mxcUrlToHttp(data[item].avatar_mxc) : null;
+        } catch (err) {
+          console.error(err);
+          roomData.avatar = null;
+        }
 
         if (typeof data[item].room_id === 'string') {
           const newRoomData = clone(roomData);

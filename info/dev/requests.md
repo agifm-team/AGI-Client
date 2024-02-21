@@ -1,5 +1,7 @@
+    GLITCH:
+    // clientOps.fetchFn = fetchBase;
+
     Cadê o @everyone, @here, @room?
-    Load de threads diretamente ainda está bugado.
 
     Fazer um sistema para facilitar rooms que são descrições de informação.
 
@@ -10,9 +12,6 @@
     =============================================
 
     --> Menu mobile de ícones precisa parar de ser table usar flex.
-
-    --> Colocar o leitor de lista de threads.
-    --> Fazer o fixador de threads abaixo da room.
 
     --> Fazer opção para uma room de informações ser realmente de informação.
 

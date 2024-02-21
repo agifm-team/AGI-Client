@@ -1416,7 +1416,6 @@ function Message({
                 bodyUrls[item].href.startsWith('https')
               ) {
                 try {
-                  // eslint-disable-next-line no-await-in-loop
                   tinyEmbed.data = await getUrlPreview(bodyUrls[item].href);
                   mediaFix(null, embedHeight, setEmbedHeight);
                 } catch (err) {

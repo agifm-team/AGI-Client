@@ -47,4 +47,5 @@
     channel: 'latest',
     url: 'https://github.com/pixxels-team/Pixxels-App/releases/latest',
   },
+  asarUnpack: ['./node_modules/sqlite3/**'],
 }

@@ -1,1 +1,2 @@
-- Thread creator update fixed
+- Custom dns - disabled (temp)
+- Electron db added.

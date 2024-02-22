@@ -25,7 +25,7 @@ const fetchFn = __ENV_APP__.ELECTRON_MODE
 export { fetchFn };
 
 const startCustomDNS = () => {
-  if (__ENV_APP__.ELECTRON_MODE) {
+  /* if (__ENV_APP__.ELECTRON_MODE) {
     if (typeof global.startCustomDNS === 'function') {
       global.startCustomDNS({
         port:
@@ -42,7 +42,7 @@ const startCustomDNS = () => {
         ens: __ENV_APP__.CUSTOM_DNS.BLOCKCHAIN.ens,
       });
     }
-  }
+  } */
 };
 
 class InitMatrix extends EventEmitter {
@@ -96,11 +96,14 @@ class InitMatrix extends EventEmitter {
       verificationMethods: ['m.sas.v1'],
     };
 
-    if (__ENV_APP__.ELECTRON_MODE) {
-      // clientOps.fetchFn = fetchBase;
-    }
+    // if (__ENV_APP__.ELECTRON_MODE) {
+    // clientOps.fetchFn = fetchBase;
+    // }
 
     this.matrixClient = sdk.createClient(clientOps);
+
+    if (global.tinyDB && typeof global.tinyDB.startClient === 'function')
+      await global.tinyDB.startClient();
 
     await indexedDBStore.startup();
 
@@ -181,6 +184,8 @@ class InitMatrix extends EventEmitter {
       // ignore if failed to logout
     }
     await this.matrixClient.clearStores();
+    if (global.tinyDB && typeof global.tinyDB.clearData === 'function')
+      await global.tinyDB.clearData();
     window.localStorage.clear();
     window.location.reload();
   }
@@ -189,7 +194,13 @@ class InitMatrix extends EventEmitter {
     startCustomDNS();
     this.matrixClient.stopClient();
     this.matrixClient.store.deleteAllData().then(() => {
-      window.location.reload();
+      if (global.tinyDB && typeof global.tinyDB.clearCacheData === 'function') {
+        global.tinyDB.clearCacheData().then(() => {
+          window.location.reload();
+        });
+      } else {
+        window.location.reload();
+      }
     });
   }
 }

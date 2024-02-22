@@ -65,17 +65,24 @@ function PeopleSelector({ avatarSrc, name, user, peopleRole, customData }) {
     // Insert Event Click
     button.on('click', tinyButton);
     button2.on('click', tinyButton2);
-    profileButton.on('click', tinyProfileAction);
+    const profileAvatar = profileButton.find('.avatar-place');
+    const botNameButton = profileButton.find('.bot-name');
+    const botRoleButton = profileButton.find('.bot-role');
+    profileAvatar.on('click', tinyProfileAction);
+    botNameButton.on('click', tinyProfileAction);
+    botRoleButton.on('click', tinyProfileAction);
     return () => {
       button.off('click', tinyButton);
       button2.off('click', tinyButton2);
-      profileButton.off('click', tinyProfileAction);
+      profileAvatar.off('click', tinyProfileAction);
+      botNameButton.off('click', tinyProfileAction);
+      botRoleButton.off('click', tinyProfileAction);
     };
   });
 
   return (
-    <div className="card agent-button noselect">
-      <div className="text-start my-3 mx-4">
+    <div ref={profileButtonRef} className="card agent-button noselect">
+      <div className="avatar-place text-start my-3 mx-4">
         <img
           src={avatarSrc}
           className="img-fluid avatar rounded-circle"
@@ -85,9 +92,9 @@ function PeopleSelector({ avatarSrc, name, user, peopleRole, customData }) {
           alt="avatar"
         />
       </div>
-      <div ref={profileButtonRef} className="text-start card-body mt-0 pt-0">
+      <div className="button-place text-start card-body mt-0 pt-0">
         <h5 className="card-title small text-bg">
-          {name}
+          <span className='bot-name'>{name}</span>
           <div className="float-end">
             <button ref={buttonRef} className="btn btn-primary btn-sm my-1">
               Invite
@@ -97,7 +104,7 @@ function PeopleSelector({ avatarSrc, name, user, peopleRole, customData }) {
             </button>
           </div>
         </h5>
-        <p className="card-text very-small text-bg-low">{peopleRole}</p>
+        <p className="bot-role card-text very-small text-bg-low">{peopleRole}</p>
       </div>
     </div>
   );

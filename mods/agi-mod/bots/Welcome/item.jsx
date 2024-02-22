@@ -9,10 +9,10 @@ import { hasDMWith, hasDevices } from '@src/util/matrixUtil';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
 import initMatrix from '@src/client/initMatrix';
 import { join } from '@src/client/action/room';
-import { btModal } from '@src/util/tools';
-import { ChatRoomjFrame } from '@src/app/embed/ChatRoom';
+// import { btModal } from '@src/util/tools';
+// import { ChatRoomjFrame } from '@src/app/embed/ChatRoom';
 
-import { serverDomain } from '../../socket';
+// import { serverDomain } from '../../socket';
 
 const openRoom = (roomId) => {
   const mx = initMatrix.matrixClient;
@@ -110,7 +110,9 @@ function ItemWelcome({ bot, type, isGuest, setSelectedTag }) {
           return valuesLoad[type].getRoom(button.attr('bot'));
         }
 
-        if (type === 'rooms') {
+        alert('To make this action, you need to log in.');
+
+        /* if (type === 'rooms') {
           btModal({
             id: 'agi-chatroom-modal',
             bodyClass: 'p-0',
@@ -129,8 +131,8 @@ function ItemWelcome({ bot, type, isGuest, setSelectedTag }) {
             ],
           });
         } else {
-          alert('To make this action, you need to log in.');
-        }
+          
+        } */
       };
 
       // Insert Event Click

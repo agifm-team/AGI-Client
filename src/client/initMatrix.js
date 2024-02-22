@@ -102,6 +102,9 @@ class InitMatrix extends EventEmitter {
 
     this.matrixClient = sdk.createClient(clientOps);
 
+    if (global.tinyDB && typeof global.tinyDB.startClient === 'function')
+      await global.tinyDB.startClient();
+
     await indexedDBStore.startup();
 
     await this.matrixClient.initCrypto();
@@ -181,6 +184,8 @@ class InitMatrix extends EventEmitter {
       // ignore if failed to logout
     }
     await this.matrixClient.clearStores();
+    if (global.tinyDB && typeof global.tinyDB.clearData === 'function')
+      await global.tinyDB.clearData();
     window.localStorage.clear();
     window.location.reload();
   }
@@ -189,7 +194,13 @@ class InitMatrix extends EventEmitter {
     startCustomDNS();
     this.matrixClient.stopClient();
     this.matrixClient.store.deleteAllData().then(() => {
-      window.location.reload();
+      if (global.tinyDB && typeof global.tinyDB.clearCacheData === 'function') {
+        global.tinyDB.clearCacheData().then(() => {
+          window.location.reload();
+        });
+      } else {
+        window.location.reload();
+      }
     });
   }
 }

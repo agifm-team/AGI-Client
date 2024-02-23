@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
+import mobileEvents from '@src/util/libs/modal';
+
 import { blurOnBubbling } from '../../atoms/button/script';
 
 import initMatrix from '../../../client/initMatrix';
@@ -169,8 +171,6 @@ function RoomSettings({ roomId }) {
     setSelectedTab(tabItem);
   };
 
-  const isProfile = false;
-
   useEffect(() => {
     let mounted = true;
     const settingsToggle = (isVisible, tab) => {
@@ -188,6 +188,15 @@ function RoomSettings({ roomId }) {
       navigation.removeListener(cons.events.navigation.ROOM_SETTINGS_TOGGLED, settingsToggle);
     };
   }, []);
+
+  useEffect(() => {
+    const closeByMobile = () => navigation.isRoomSettings && toggleRoomSettings();
+
+    mobileEvents.on('backButton', closeByMobile);
+    return () => {
+      mobileEvents.off('backButton', closeByMobile);
+    };
+  });
 
   if (!navigation.isRoomSettings) return null;
 
@@ -210,7 +219,7 @@ function RoomSettings({ roomId }) {
         </ul>
       </Header>
 
-      <RoomProfile profileMode={isProfile} roomId={roomId} />
+      <RoomProfile roomId={roomId} />
       <Tabs
         className="px-3"
         items={tabItems}

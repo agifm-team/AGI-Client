@@ -201,6 +201,28 @@ function Welcome({ isGuest }) {
     }
   }
 
+  /*
+  <div className="row mt-2" id="chatrooms">
+          <div className="col-md-6">
+            <ChatRoomFrame
+              hsUrl={isGuest && `https://matrix.${serverDomain}`}
+              roomId={`#gemini-chat:${serverDomain}`}
+              className="border border-bg w-100 chatroom"
+              refreshTime={1}
+            />
+          </div>
+
+          <div className="col-md-6">
+            <ChatRoomFrame
+              hsUrl={isGuest && `https://matrix.${serverDomain}`}
+              roomId={`#gpt-4:${serverDomain}`}
+              className="border border-bg w-100 chatroom"
+              refreshTime={1}
+            />
+          </div>
+        </div>
+  */
+
   // Result
   return (
     <div className={`tiny-welcome border-0 h-100 noselect${isGuest ? ' is-guest' : ''}`}>
@@ -314,26 +336,6 @@ function Welcome({ isGuest }) {
           ) : null}
 
           <center className="w-100 h3 title-place">Popular Spaces</center>
-        </div>
-
-        <div className="row mt-2" id="chatrooms">
-          <div className="col-md-6">
-            <ChatRoomFrame
-              hsUrl={isGuest && `https://matrix.${serverDomain}`}
-              roomId={`#gemini-chat:${serverDomain}`}
-              className="border border-bg w-100 chatroom"
-              refreshTime={1}
-            />
-          </div>
-
-          <div className="col-md-6">
-            <ChatRoomFrame
-              hsUrl={isGuest && `https://matrix.${serverDomain}`}
-              roomId={`#gpt-4:${serverDomain}`}
-              className="border border-bg w-100 chatroom"
-              refreshTime={1}
-            />
-          </div>
         </div>
 
         <div id="search-title">

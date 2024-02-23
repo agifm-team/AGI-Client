@@ -180,7 +180,7 @@ function Welcome({ isGuest }) {
         };
 
         try {
-          roomData.avatar = data[item].avatar_mxc === 'string' && data[item].avatar_mxc.length ? initMatrix.matrixClient.mxcUrlToHttp(data[item].avatar_mxc) : null;
+          roomData.avatar = typeof data[item].avatar_mxc === 'string' && data[item].avatar_mxc.length ? initMatrix.matrixClient.mxcUrlToHttp(data[item].avatar_mxc) : null;
         } catch (err) {
           console.error(err);
           roomData.avatar = null;

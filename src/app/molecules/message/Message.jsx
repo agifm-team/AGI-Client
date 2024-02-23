@@ -11,7 +11,7 @@ import * as linkify from 'linkifyjs';
 import cons from '@src/client/state/cons';
 
 import Text from '../../atoms/text/Text';
-import { hljsFixer, resizeWindowChecker, toast } from '../../../util/tools';
+import { hljsFixer, isMobile, resizeWindowChecker, toast } from '../../../util/tools';
 import { twemojify, twemojifyReact } from '../../../util/twemojify';
 import initMatrix from '../../../client/initMatrix';
 
@@ -952,7 +952,7 @@ const MessageOptions = React.memo(
                   faSrc={`bi bi-pin-angle${!isPinnedMessage(room, eventid) ? '-fill' : ''}`}
                   onClick={() => {
                     setPinMessage(room, eventid, !isPinnedMessage(room, eventid));
-                    $(refRoomInput.current).find('#message-textarea').focus();
+                    if (!isMobile()) $(refRoomInput.current).find('#message-textarea').focus();
                     hideMenu();
                   }}
                 >

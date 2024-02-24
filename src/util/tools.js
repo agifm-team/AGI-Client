@@ -4,7 +4,7 @@ import moment from '@src/util/libs/momentjs';
 
 import tinyAPI from './mods';
 import { twemojify } from './twemojify';
-import mobileEvents from './libs/modal';
+import mobileEvents from './libs/mobile';
 
 let resizePlace = null;
 let resizeTimeout = null;
@@ -520,6 +520,32 @@ export function isMobile() {
     Capacitor.isNativePlatform() ||
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
   );
+}
+
+export function notificationStatus() {
+  if (!Capacitor.isNativePlatform() && window.Notification?.permission) {
+    return window.Notification?.permission;
+  }
+  if (Capacitor.isNativePlatform() && mobileEvents.allowNotifications.display) {
+    return mobileEvents.allowNotifications.display;
+  }
+
+  return null;
+}
+
+export function noNotification() {
+  return !Capacitor.isNativePlatform() && window.Notification === undefined;
+}
+
+export function requestNotification() {
+  if (!Capacitor.isNativePlatform()) {
+    return window.Notification.requestPermission();
+  }
+  if (Capacitor.isNativePlatform()) {
+    return mobileEvents.checkNotificationPerm();
+  }
+
+  return null;
 }
 
 // eslint-disable-next-line no-extend-native

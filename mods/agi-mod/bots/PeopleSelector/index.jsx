@@ -56,7 +56,7 @@ export default function startPeopleSelector() {
           };
 
           try {
-            newData.avatarSrc = tinyData[item].avatar_mxc === 'string' && tinyData[item].avatar_mxc.length ? initMatrix.matrixClient.mxcUrlToHttp(tinyData[item].avatar_mxc) : defaultAvatar(1);
+            newData.avatarSrc = typeof tinyData[item].avatar_mxc === 'string' && tinyData[item].avatar_mxc.length ? initMatrix.matrixClient.mxcUrlToHttp(tinyData[item].avatar_mxc) : defaultAvatar(1);
           } catch (err) {
             console.error(err);
             newData.avatarSrc = defaultAvatar(1);

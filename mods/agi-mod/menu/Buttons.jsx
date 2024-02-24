@@ -163,7 +163,7 @@ export function addRoomOptions(dt, roomType) {
 
                   let newPhoto = null;
                   try {
-                    newPhoto = data[item].avatar_mxc === 'string' && data[item].avatar_mxc.length ? initMatrix.matrixClient.mxcUrlToHttp(data[item].avatar_mxc) : null
+                    newPhoto = typeof data[item].avatar_mxc === 'string' && data[item].avatar_mxc.length ? initMatrix.matrixClient.mxcUrlToHttp(data[item].avatar_mxc) : null
                     if (!newPhoto) newPhoto = data[item].profile_photo;
                     if (!newPhoto) newPhoto = defaultAvatar(1);
                   } catch {

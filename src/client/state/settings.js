@@ -7,7 +7,7 @@ import appDispatcher from '../dispatcher';
 import cons from './cons';
 import tinyAPI from '../../util/mods';
 import matrixAppearance from '../../util/libs/appearance';
-import { objType } from '../../util/tools';
+import { notificationStatus, objType } from '../../util/tools';
 
 import blackTheme from '../../scss/theme/black';
 import butterTheme from '../../scss/theme/butter';
@@ -326,7 +326,7 @@ class Settings extends EventEmitter {
   }
 
   get showNotifications() {
-    if (window.Notification?.permission !== 'granted') return false;
+    if (notificationStatus() !== 'granted') return false;
     return this._showNotifications;
   }
 
@@ -374,7 +374,7 @@ class Settings extends EventEmitter {
         this.emit(cons.events.settings.NICKAVATAR_EVENTS_TOGGLED, this.hideNickAvatarEvents);
       },
       [cons.actions.settings.TOGGLE_NOTIFICATIONS]: async () => {
-        if (window.Notification?.permission !== 'granted') {
+        if (notificationStatus() !== 'granted') {
           this._showNotifications = false;
         } else {
           this._showNotifications = !this._showNotifications;

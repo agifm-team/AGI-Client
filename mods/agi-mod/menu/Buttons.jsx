@@ -16,6 +16,7 @@ import { getRoomInfo } from '@src/app/organisms/room/Room';
 import jReact from '../../lib/jReact';
 import { serverAddress, serverDomain } from '../socket';
 import { duplicatorAgent } from '../bots/PeopleSelector/lib';
+import { insertAgiAvatar } from '../lib';
 
 /* const openRoom = (roomId) => {
 
@@ -163,7 +164,7 @@ export function addRoomOptions(dt, roomType) {
 
                   let newPhoto = null;
                   try {
-                    newPhoto = typeof data[item].avatar_mxc === 'string' && data[item].avatar_mxc.length ? initMatrix.matrixClient.mxcUrlToHttp(data[item].avatar_mxc) : null
+                    newPhoto = insertAgiAvatar(data[item], null);
                     if (!newPhoto) newPhoto = data[item].profile_photo;
                     if (!newPhoto) newPhoto = defaultAvatar(1);
                   } catch {

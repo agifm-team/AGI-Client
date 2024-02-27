@@ -29,13 +29,14 @@ function updateAgentsList() {
   });
 }
 
+let customItems = [];
 export default function startPeopleSelector() {
   // Members List
   updateAgentsList();
   tinyAPI.on('roomMembersOptions', (data, items) => {
     updateAgentsList();
 
-    const customItems = [];
+    customItems = [];
     if (Array.isArray(tinyData)) {
       for (const item in tinyData) {
         if (objType(tinyData[item], 'object')) {

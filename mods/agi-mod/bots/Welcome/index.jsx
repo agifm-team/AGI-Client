@@ -2,10 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import clone from 'clone';
 
-import initMatrix from '@src/client/initMatrix';
+import { insertAgiAvatar } from '@mods/agi-mod/lib';
+// import initMatrix from '@src/client/initMatrix';
 import { objType } from '@src/util/tools';
 import { selectRoomMode } from '@src/client/action/navigation';
-import { ChatRoomFrame } from '@src/app/embed/ChatRoom';
+// import { ChatRoomFrame } from '@src/app/embed/ChatRoom';
 
 import { serverDomain } from '../../socket';
 import ItemWelcome from './item';
@@ -180,7 +181,7 @@ function Welcome({ isGuest }) {
         };
 
         try {
-          roomData.avatar = typeof data[item].avatar_mxc === 'string' && data[item].avatar_mxc.length ? initMatrix.matrixClient.mxcUrlToHttp(data[item].avatar_mxc) : null;
+          roomData.avatar = insertAgiAvatar(data[item], null);
         } catch (err) {
           console.error(err);
           roomData.avatar = null;

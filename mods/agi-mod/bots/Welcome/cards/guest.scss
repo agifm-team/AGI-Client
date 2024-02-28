@@ -33,27 +33,16 @@
 
     @media (min-width: 768px) {
       .card-img-overlay {
-        height: 270px;
-        margin-top: -270px;
+        height: 330px;
+        margin-top: -330px;
       }
 
       .card-img {
-        height: 270px;
+        height: 330px;
       }
     }
 
     @media (min-width: 830px) {
-      .card-img-overlay {
-        height: 290px;
-        margin-top: -290px;
-      }
-
-      .card-img {
-        height: 290px;
-      }
-    }
-
-    @media (min-width: 900px) {
       .card-img-overlay {
         height: 330px;
         margin-top: -330px;
@@ -64,14 +53,36 @@
       }
     }
 
-    @media (min-width: 992px) {
+    @media (min-width: 900px) {
       .card-img-overlay {
-        height: 230px;
-        margin-top: -230px;
+        height: 380px;
+        margin-top: -380px;
       }
 
       .card-img {
-        height: 230px;
+        height: 380px;
+      }
+    }
+
+    @media (min-width: 992px) {
+      .card-img-overlay {
+        height: 220px;
+        margin-top: -220px;
+      }
+
+      .card-img {
+        height: 220px;
+      }
+    }
+
+    @media (min-width: 1100px) {
+      .card-img-overlay {
+        height: 250px;
+        margin-top: -250px;
+      }
+
+      .card-img {
+        height: 250px;
       }
     }
 
@@ -88,23 +99,23 @@
 
     @media (min-width: 1440px) {
       .card-img-overlay {
-        height: 250px;
-        margin-top: -250px;
+        height: 300px;
+        margin-top: -300px;
       }
 
       .card-img {
-        height: 250px;
+        height: 300px;
       }
     }
 
     @media (min-width: 1500px) {
       .card-img-overlay {
-        height: 290px;
-        margin-top: -290px;
+        height: 350px;
+        margin-top: -350px;
       }
 
       .card-img {
-        height: 290px;
+        height: 350px;
       }
     }
 
@@ -154,23 +165,23 @@
 
     @media (min-width: 2100px) {
       .card-img-overlay {
-        height: 400px;
-        margin-top: -400px;
+        height: 440px;
+        margin-top: -440px;
       }
 
       .card-img {
-        height: 400px;
+        height: 440px;
       }
     }
 
     @media (min-width: 2560px) {
       .card-img-overlay {
-        height: 500px;
-        margin-top: -500px;
+        height: 470px;
+        margin-top: -470px;
       }
 
       .card-img {
-        height: 500px;
+        height: 470px;
       }
     }
   }

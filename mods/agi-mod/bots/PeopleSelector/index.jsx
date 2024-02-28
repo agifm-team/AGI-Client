@@ -1,5 +1,6 @@
 import defaultAvatar from '@src/app/atoms/avatar/defaultAvatar';
 
+import { insertAgiAvatar } from '@mods/agi-mod/lib';
 import tinyAPI from '@src/util/mods';
 import initMatrix from '@src/client/initMatrix';
 import { objType } from '@src/util/tools';
@@ -28,13 +29,14 @@ function updateAgentsList() {
   });
 }
 
+let customItems = [];
 export default function startPeopleSelector() {
   // Members List
   updateAgentsList();
   tinyAPI.on('roomMembersOptions', (data, items) => {
     updateAgentsList();
 
-    const customItems = [];
+    customItems = [];
     if (Array.isArray(tinyData)) {
       for (const item in tinyData) {
         if (objType(tinyData[item], 'object')) {
@@ -56,7 +58,7 @@ export default function startPeopleSelector() {
           };
 
           try {
-            newData.avatarSrc = typeof tinyData[item].avatar_mxc === 'string' && tinyData[item].avatar_mxc.length ? initMatrix.matrixClient.mxcUrlToHttp(tinyData[item].avatar_mxc) : defaultAvatar(1);
+            newData.avatarSrc = insertAgiAvatar(tinyData[item]);
           } catch (err) {
             console.error(err);
             newData.avatarSrc = defaultAvatar(1);

@@ -6,16 +6,17 @@ import initMatrix from '../../../client/initMatrix';
 import Avatar from '../../atoms/avatar/Avatar';
 import Spinner from '../../atoms/spinner/Spinner';
 import RawIcon from '../../atoms/system-icons/RawIcon';
+import FileInput, { fileInputClick, fileInputValue, uploadContent } from '../file-input/FileInput';
 
 function ImageUpload({ text, bgColor, imageSrc, onUpload, onRequestRemove, className, size }) {
   const [uploadPromise, setUploadPromise] = useState(null);
   const uploadImageRef = useRef(null);
 
-  async function uploadImage(e) {
-    const file = e.target.files.item(0);
+  async function uploadImage(target, getFile) {
+    const file = getFile(0);
     if (file === null) return;
     try {
-      const uPromise = initMatrix.matrixClient.uploadContent(file);
+      const uPromise = uploadContent(file);
       setUploadPromise(uPromise);
 
       const res = await uPromise;
@@ -24,13 +25,13 @@ function ImageUpload({ text, bgColor, imageSrc, onUpload, onRequestRemove, class
     } catch {
       setUploadPromise(null);
     }
-    uploadImageRef.current.value = null;
+    fileInputValue(uploadImageRef, null);
   }
 
   function cancelUpload() {
     initMatrix.matrixClient.cancelUpload(uploadPromise);
     setUploadPromise(null);
-    uploadImageRef.current.value = null;
+    fileInputValue(uploadImageRef, null);
   }
 
   return (
@@ -40,7 +41,7 @@ function ImageUpload({ text, bgColor, imageSrc, onUpload, onRequestRemove, class
         className={`img-upload${imageSrc === null ? ' default-image' : ''}`}
         onClick={() => {
           if (uploadPromise !== null) return;
-          uploadImageRef.current.click();
+          fileInputClick(uploadImageRef, uploadImage);
         }}
       >
         <Avatar imageSrc={imageSrc} text={text} bgColor={bgColor} size={size} isDefaultImage />
@@ -67,13 +68,7 @@ function ImageUpload({ text, bgColor, imageSrc, onUpload, onRequestRemove, class
           <div className="very-small text-danger">{uploadPromise ? 'Cancel' : 'Remove'}</div>
         </button>
       )}
-      <input
-        onChange={uploadImage}
-        style={{ display: 'none' }}
-        ref={uploadImageRef}
-        type="file"
-        accept="image/*"
-      />
+      <FileInput onChange={uploadImage} ref={uploadImageRef} accept="image/*" />
     </div>
   );
 }

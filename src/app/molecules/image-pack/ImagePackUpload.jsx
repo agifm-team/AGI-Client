@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-import initMatrix from '../../../client/initMatrix';
 import { scaleDownImage } from '../../../util/common';
 
 import Text from '../../atoms/text/Text';
@@ -10,9 +9,9 @@ import Input from '../../atoms/input/Input';
 import IconButton from '../../atoms/button/IconButton';
 import { updateEmojiList } from '../../../client/action/navigation';
 import { getSelectRoom } from '../../../util/selectedRoom';
+import FileInput, { fileInputClick, fileInputValue, uploadContent } from '../file-input/FileInput';
 
 function ImagePackUpload({ onUpload, roomId }) {
-  const mx = initMatrix.matrixClient;
   const inputRef = useRef(null);
   const shortcodeRef = useRef(null);
   const [imgFile, setImgFile] = useState(null);
@@ -28,7 +27,7 @@ function ImagePackUpload({ onUpload, roomId }) {
 
     setProgress(true);
     const image = await scaleDownImage(imgFile, 512, 512);
-    const { content_uri: url } = await mx.uploadContent(image);
+    const { content_uri: url } = await uploadContent(image, true);
 
     onUpload(shortcode, url);
     setProgress(false);
@@ -42,8 +41,8 @@ function ImagePackUpload({ onUpload, roomId }) {
     }
   };
 
-  const handleFileChange = (evt) => {
-    const img = evt.target.files[0];
+  const handleFileChange = (target, getFile) => {
+    const img = getFile(0);
     if (!img) return;
     setImgFile(img);
     shortcodeRef.current.value = img.name.slice(0, img.name.indexOf('.'));
@@ -51,18 +50,16 @@ function ImagePackUpload({ onUpload, roomId }) {
   };
   const handleRemove = () => {
     setImgFile(null);
-    inputRef.current.value = null;
+    fileInputValue(inputRef, null);
     shortcodeRef.current.value = '';
   };
 
   return (
     <form onSubmit={handleSubmit} className="image-pack-upload">
-      <input
+      <FileInput
         ref={inputRef}
         onChange={handleFileChange}
-        style={{ display: 'none' }}
-        type="file"
-        accept=".png, .gif, .webp"
+        accept={['image/png', 'image/gif', 'image/jpg', 'image/jpeg', 'image/webp']}
         required
       />
       {imgFile ? (
@@ -71,7 +68,7 @@ function ImagePackUpload({ onUpload, roomId }) {
           <Text>{imgFile.name}</Text>
         </div>
       ) : (
-        <Button onClick={() => inputRef.current.click()}>Import image</Button>
+        <Button onClick={() => fileInputClick(inputRef, handleFileChange)}>Import image</Button>
       )}
       <div>
         <Input forwardRef={shortcodeRef} name="shortcodeInput" placeholder="shortcode" required />

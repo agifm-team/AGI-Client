@@ -19,6 +19,15 @@ If you want to use devtools in production mode in the destkop version before the
 > We recommend using a version manager as versions change very quickly. You will likely need to switch 
 between multiple Node.js versions based on the needs of different projects you're working on. [NVM on windows](https://github.com/coreybutler/nvm-windows#installation--upgrades) on Windows and [nvm](https://github.com/nvm-sh/nvm) on Linux/macOS are pretty good choices. Also recommended nodejs version Hydrogen LTS (v18).
 
+If you don't have nodejs, please install this:
+
+https://nodejs.org/
+
+If you don't have yarn installed on your computer, it is recommended that you install it:
+```sh
+npm install yarn -g
+```
+
 Execute the following commands to start a development server (or a Ionic environment):
 ```sh
 yarn setup # Installs all dependencies
@@ -57,7 +66,7 @@ This helps new matrix users not get lost when they are being guided to use a spe
 
 ### My website that is hosting this client was blocked from access by browser extensions.
 
-This client sends notification permission requests at the exact moment the page is loaded. Some security extensions may consider this a privacy violation. Sometimes this type of thing doesn't happen on the Pony House domain because I (JasminDreasond) always try to contact the staff of these extensions so the domain can be added to the whitelist.
+This client sends notification permission requests at the exact moment the page is loaded. Some security extensions may consider this a privacy violation. Sometimes this type of thing doesn't happen on the client domain because I (JasminDreasond) always try to contact the staff of these extensions so the domain can be added to the whitelist.
 
 ### Can I completely disable IPFS and Web3?
 
@@ -70,3 +79,7 @@ Nope. Pixxels has access to crypto wallet APIs that are installed in your browse
 ### Does the client support the purchase and sale of NFTs?
 
 Nope. But you can install mods from third-party creators that code this type of feature.
+
+### What is my guarantee about using crypto resources on client?
+
+Client's crypto resources are developed to be as secure as possible from trusted sources. Normally limited to personal uses between users only. (This is a CHAT SOFTWARE, not a crypto marketplace)

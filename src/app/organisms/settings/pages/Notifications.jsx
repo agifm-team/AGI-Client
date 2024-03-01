@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { Capacitor } from '@capacitor/core';
-import mobileEvents from '@src/util/libs/mobile';
-import { noNotification, notificationStatus } from '@src/util/tools';
+import mobileEvents, {
+  isMobile,
+  noNotification,
+  notificationStatus,
+  requestNotification,
+} from '@src/util/libs/mobile';
 
 import settings from '../../../../client/state/settings';
 import { usePermission } from '../../../hooks/usePermission';
@@ -34,11 +37,7 @@ function NotificationsSection() {
           onToggle={() => {
             toggleNotifications();
             setTimeout(() => {
-              if (!Capacitor.isNativePlatform()) {
-                setPermission(window.Notification?.permission);
-              } else {
-                setPermission(mobileEvents.allowNotifications.display);
-              }
+              setPermission(mobileEvents.getNotificationPerm());
               updateState({});
             }, 200);
           }}
@@ -47,10 +46,7 @@ function NotificationsSection() {
     }
 
     return (
-      <Button
-        variant="primary"
-        onClick={() => window.Notification.requestPermission().then(setPermission)}
-      >
+      <Button variant="primary" onClick={() => requestNotification().then(setPermission)}>
         Request permission
       </Button>
     );
@@ -62,11 +58,11 @@ function NotificationsSection() {
         <ul className="list-group list-group-flush">
           <li className="list-group-item very-small text-gray">Notification & Sound</li>
           <SettingTile
-            title="Desktop notification"
+            title={`${isMobile() ? 'Mobile' : __ENV_APP__.ELECTRON_MODE ? 'Desktop' : 'Web'} notification`}
             options={renderOptions()}
             content={
               <div className="very-small text-gray">
-                Show desktop notification when new messages arrive.
+                Show notification when new messages arrive.
               </div>
             }
           />

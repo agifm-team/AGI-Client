@@ -11,8 +11,34 @@ class MobileEvents extends EventEmitter {
     this.allowNotifications = { display: null };
 
     const tinyThis = this;
-    if (Capacitor.isNativePlatform())
+    if (Capacitor.isNativePlatform()) {
       App.addListener('backButton', (data) => tinyThis.emit('backButton', data));
+
+      App.addListener('appStateChange', (data) => tinyThis.emit('appStateChange', data));
+      App.addListener('appStateChange', ({ isActive }) =>
+        tinyThis.emit('appStateChangeIsActive', isActive),
+      );
+
+      App.addListener('appUrlOpen', (data) => tinyThis.emit('appUrlOpen', data));
+      App.addListener('appRestoredResult', (data) => tinyThis.emit('appRestoredResult', data));
+      App.addListener('pause', (data) => tinyThis.emit('pause', data));
+      App.addListener('resume', (data) => tinyThis.emit('resume', data));
+      App.addListener('backButton', (data) => tinyThis.emit('backButton', data));
+
+      if (__ENV_APP__.MODE === 'development') {
+        App.addListener('appStateChange', ({ isActive }) => {
+          console.log('[mobile] App state changed. Is active?', isActive);
+        });
+
+        App.addListener('appUrlOpen', (data) => {
+          console.log('[mobile] App opened with URL:', data);
+        });
+
+        App.addListener('appRestoredResult', (data) => {
+          console.log('[mobile] Restored state:', data);
+        });
+      }
+    }
   }
 
   checkNotificationPerm() {
@@ -43,9 +69,54 @@ class MobileEvents extends EventEmitter {
       }
     });
   }
+
+  getNotificationPerm() {
+    if (!Capacitor.isNativePlatform()) {
+      return window.Notification?.permission;
+    }
+    return this.allowNotifications.display;
+  }
 }
 
 const mobileEvents = new MobileEvents();
 mobileEvents.setMaxListeners(Infinity);
+
+export function isMobile(isNative = false) {
+  if (!isNative) {
+    return (
+      Capacitor.isNativePlatform() ||
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    );
+  }
+  return Capacitor.isNativePlatform();
+}
+
+export function notificationStatus() {
+  const mobileMode = Capacitor.isNativePlatform();
+  if (!mobileMode && window.Notification?.permission) {
+    return window.Notification?.permission;
+  }
+  if (mobileMode && mobileEvents.allowNotifications.display) {
+    return mobileEvents.allowNotifications.display;
+  }
+
+  return null;
+}
+
+export function noNotification() {
+  return !Capacitor.isNativePlatform() && window.Notification === undefined;
+}
+
+export function requestNotification() {
+  const mobileMode = Capacitor.isNativePlatform();
+  if (!mobileMode) {
+    return window.Notification.requestPermission();
+  }
+  if (mobileMode) {
+    return mobileEvents.checkNotificationPerm();
+  }
+
+  return null;
+}
 
 export default mobileEvents;

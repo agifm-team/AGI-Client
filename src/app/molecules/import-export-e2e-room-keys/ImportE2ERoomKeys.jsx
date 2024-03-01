@@ -11,6 +11,7 @@ import Input from '../../atoms/input/Input';
 import Spinner from '../../atoms/spinner/Spinner';
 
 import { useStore } from '../../hooks/useStore';
+import FileInput, { fileInputClick, fileInputValue } from '../file-input/FileInput';
 
 function ImportE2ERoomKeys() {
   const isMountStore = useStore();
@@ -49,7 +50,7 @@ function ImportE2ERoomKeys() {
           msg: 'Successfully imported all keys.',
           type: cons.status.SUCCESS,
         });
-        inputRef.current.value = null;
+        fileInputValue(inputRef, null);
         passwordRef.current.value = null;
       }
     } catch (e) {
@@ -71,8 +72,8 @@ function ImportE2ERoomKeys() {
     tryDecrypt(keyFile, password);
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files.item(0);
+  const handleFileChange = (target, getFile) => {
+    const file = getFile(0);
     passwordRef.current.value = '';
     setKeyFile(file);
     setStatus({
@@ -83,7 +84,7 @@ function ImportE2ERoomKeys() {
   };
   const removeImportKeysFile = () => {
     if (status.isOngoing) return;
-    inputRef.current.value = null;
+    fileInputValue(inputRef, null);
     passwordRef.current.value = null;
     setKeyFile(null);
     setStatus({
@@ -102,7 +103,26 @@ function ImportE2ERoomKeys() {
 
   return (
     <div className="import-e2e-room-keys">
-      <input ref={inputRef} onChange={handleFileChange} style={{ display: 'none' }} type="file" />
+      <FileInput
+        ref={inputRef}
+        onChange={handleFileChange}
+        accept={[
+          'text/plain',
+          'application/json',
+          'application/pkcs8',
+          'application/pkcs10',
+          'application/pkix-cert',
+          'application/pkix-crl',
+          'application/pkcs7-mime',
+          'application/x-x509-ca-cert',
+          'application/x-x509-user-cert',
+          'application/x-pkcs7-crl',
+          'application/x-pem-file',
+          'application/x-pkcs12',
+          'application/x-pkcs7-certificates',
+          'application/x-pkcs7-certreqresp',
+        ]}
+      />
 
       <form
         className="import-e2e-room-keys__form"
@@ -122,7 +142,7 @@ function ImportE2ERoomKeys() {
           </div>
         )}
         {keyFile === null && (
-          <Button className="me-3" onClick={() => inputRef.current.click()}>
+          <Button className="me-3" onClick={() => fileInputClick(inputRef, handleFileChange)}>
             Import keys
           </Button>
         )}

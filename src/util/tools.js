@@ -1,10 +1,9 @@
 import { Toast } from '@capacitor/toast';
-import { Capacitor } from '@capacitor/core';
 import moment from '@src/util/libs/momentjs';
 
 import tinyAPI from './mods';
 import { twemojify } from './twemojify';
-import mobileEvents from './libs/mobile';
+import mobileEvents, { isMobile } from './libs/mobile';
 
 let resizePlace = null;
 let resizeTimeout = null;
@@ -38,6 +37,12 @@ const blobCreator = (result) => {
 
   return new Blob([], { type: 'text/plain' });
 };
+
+export function tinyAtob(b64txt) {
+  const buff = Buffer.from(b64txt, 'base64');
+  const txt = buff.toString('utf16le');
+  return txt;
+}
 
 // Export
 export { tinyAppZoomValidator, blobCreator };
@@ -94,7 +99,7 @@ export function hljsFixer(el, where, callback = function () {}) {
 
 export function toast(msg, title) {
   return new Promise((resolve, reject) => {
-    if (Capacitor.isNativePlatform()) {
+    if (isMobile(true)) {
       Toast.show({ text: msg }).then(resolve).catch(reject);
     } else {
       resolve(alert(msg, title));
@@ -515,37 +520,8 @@ export function tinyConfirm(text = '', title = 'App Alert') {
   });
 }
 
-export function isMobile() {
-  return (
-    Capacitor.isNativePlatform() ||
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-  );
-}
-
-export function notificationStatus() {
-  if (!Capacitor.isNativePlatform() && window.Notification?.permission) {
-    return window.Notification?.permission;
-  }
-  if (Capacitor.isNativePlatform() && mobileEvents.allowNotifications.display) {
-    return mobileEvents.allowNotifications.display;
-  }
-
-  return null;
-}
-
-export function noNotification() {
-  return !Capacitor.isNativePlatform() && window.Notification === undefined;
-}
-
-export function requestNotification() {
-  if (!Capacitor.isNativePlatform()) {
-    return window.Notification.requestPermission();
-  }
-  if (Capacitor.isNativePlatform()) {
-    return mobileEvents.checkNotificationPerm();
-  }
-
-  return null;
+export function base64ToArrayBuffer(base64_string) {
+  return Uint8Array.from(atob(base64_string), (c) => c.charCodeAt(0));
 }
 
 export function cyrb128(str) {

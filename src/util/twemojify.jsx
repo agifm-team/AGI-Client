@@ -8,7 +8,7 @@ import linkifyRegisterKeywords from 'linkify-plugin-keyword';
 
 import parse from 'html-react-parser';
 import twemoji from 'twemoji';
-import keywords from '@mods/keywords';
+import startKeyWords from '@mods/keywords';
 
 import Tooltip from '../app/atoms/tooltip/Tooltip';
 import { sanitizeText } from './sanitize';
@@ -27,43 +27,60 @@ linkify.registerCustomProtocol('irc');
 
 linkify.registerCustomProtocol('ftp');
 
-if (envAPI.get('IPFS')) {
-  linkify.registerCustomProtocol('ipfs');
-}
+let needRegisterExtraProtocol = true;
+const registerExtraProtocols = () => {
+  if (needRegisterExtraProtocol) {
+    needRegisterExtraProtocol = false;
+    if (envAPI.get('IPFS')) {
+      linkify.registerCustomProtocol('ipfs');
+    }
 
-if (envAPI.get('WEB3')) {
-  linkify.registerCustomProtocol('bitcoin');
-  linkify.registerCustomProtocol('dogecoin');
-  linkify.registerCustomProtocol('monero');
+    if (envAPI.get('WEB3')) {
+      linkify.registerCustomProtocol('bitcoin');
+      linkify.registerCustomProtocol('dogecoin');
+      linkify.registerCustomProtocol('monero');
 
-  linkify.registerCustomProtocol('ethereum');
-  linkify.registerCustomProtocol('web3');
+      linkify.registerCustomProtocol('ethereum');
+      linkify.registerCustomProtocol('web3');
 
-  linkify.registerCustomProtocol('ar');
-  linkify.registerCustomProtocol('lbry');
-}
+      linkify.registerCustomProtocol('ar');
+      linkify.registerCustomProtocol('lbry');
+    }
+  }
+};
 
 // Register Keywords
-const tinywords = [];
 const tinywordsDB = {};
-for (const item in keywords) {
-  if (typeof keywords[item].name === 'string') {
-    tinywords.push(keywords[item].name);
-    tinywordsDB[keywords[item].name] = { href: keywords[item].href, title: keywords[item].title };
-  } else if (Array.isArray(keywords[item].name) && keywords[item].name.length > 0) {
-    for (const item2 in keywords[item].name) {
-      if (typeof keywords[item].name[item2] === 'string') {
-        tinywords.push(keywords[item].name[item2]);
-        tinywordsDB[keywords[item].name[item2]] = {
+
+let keywords = [];
+const insertKeyWords = () => {
+  if (keywords.length < 1) {
+    const tinywords = [];
+    keywords = startKeyWords();
+
+    for (const item in keywords) {
+      if (typeof keywords[item].name === 'string') {
+        tinywords.push(keywords[item].name);
+        tinywordsDB[keywords[item].name] = {
           href: keywords[item].href,
           title: keywords[item].title,
         };
+      } else if (Array.isArray(keywords[item].name) && keywords[item].name.length > 0) {
+        for (const item2 in keywords[item].name) {
+          if (typeof keywords[item].name[item2] === 'string') {
+            tinywords.push(keywords[item].name[item2]);
+            tinywordsDB[keywords[item].name[item2]] = {
+              href: keywords[item].href,
+              title: keywords[item].title,
+            };
+          }
+        }
       }
     }
-  }
-}
 
-linkifyRegisterKeywords(tinywords);
+    linkifyRegisterKeywords(tinywords);
+  }
+};
 
 // Emoji Base
 export const TWEMOJI_BASE_URL = './img/twemoji/';
@@ -180,6 +197,8 @@ tinyRender.list = {
  * @returns React component
  */
 const twemojifyAction = (text, opts, linkifyEnabled, sanitize, maths, isReact) => {
+  registerExtraProtocols();
+  insertKeyWords();
   // Not String
   if (typeof text !== 'string') return text;
 

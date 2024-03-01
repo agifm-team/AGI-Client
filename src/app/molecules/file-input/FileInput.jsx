@@ -9,7 +9,7 @@ import initMatrix from '@src/client/initMatrix';
 
 // Build HTML
 const FileInput = React.forwardRef(
-  ({ onChange, accept, required, webkitdirectory, directory, capture, multiple }, ref) => {
+  ({ onChange, accept, required, /* webkitdirectory, directory, */ capture, multiple }, ref) => {
     const inputRef = useRef(null);
 
     // Effect
@@ -50,8 +50,8 @@ const FileInput = React.forwardRef(
           Array.isArray(accept) ? accept.join(', ') : typeof accept === 'string' ? accept : null
         }
         required={required}
-        webkitdirectory={webkitdirectory}
-        directory={directory}
+        // webkitdirectory={webkitdirectory}
+        // directory={directory}
         capture={capture}
         multiple={multiple}
       />
@@ -182,8 +182,8 @@ FileInput.defaultProps = {
   onChange: null,
   capture: null,
   required: false,
-  webkitdirectory: false,
-  directory: false,
+  // webkitdirectory: false,
+  // directory: false,
   multiple: false,
 };
 FileInput.propTypes = {
@@ -191,8 +191,8 @@ FileInput.propTypes = {
   onChange: PropTypes.func,
   capture: PropTypes.string,
   required: PropTypes.bool,
-  webkitdirectory: PropTypes.bool,
-  directory: PropTypes.bool,
+  // webkitdirectory: PropTypes.bool,
+  // directory: PropTypes.bool,
   multiple: PropTypes.bool,
 };
 

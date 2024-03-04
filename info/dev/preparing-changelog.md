@@ -1,0 +1,2 @@
+- File uploader to mobile fixed.
+- Local room events save storage added. (Desktop only)

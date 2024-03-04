@@ -54,6 +54,13 @@ To build the desktop app:
 ```sh
 yarn electron:build # Compiles the app into the release/ directory
 ```
+
+### AppData
+
+If you need to manage client files on your desktop version. You can find specific storage files in the directory below:
+
+    %AppData%/pixxels-matrix/tinyMatrixData/
+
 ## FAQ
 
 ### Is my data shared with third parties?

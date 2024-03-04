@@ -3,6 +3,7 @@ import EventEmitter from 'events';
 import clone from 'clone';
 import objectHash from 'object-hash';
 import moment from '@src/util/libs/momentjs';
+import { insertIntoRoomEventsDB } from '@src/util/libs/roomEventsDB';
 
 import {
   Direction,
@@ -161,6 +162,7 @@ class RoomTimeline extends EventEmitter {
     super();
 
     // These are local timelines
+    this.setMaxListeners(Infinity);
     this.timeline = [];
     this.crdt = {};
     this.editedTimeline = new Map();
@@ -183,6 +185,8 @@ class RoomTimeline extends EventEmitter {
           lazyLoadMembers: true,
           timelineSupport: true,
         });
+
+    this.room.setMaxListeners(Infinity);
 
     // Nothing! Tiny cancel time.
     if (this.room === null) {
@@ -313,6 +317,7 @@ class RoomTimeline extends EventEmitter {
     roomTimeline.setMaxListeners(Infinity);
     const thread = roomTimeline.room.getThread(threadId);
     if (!thread) return null;
+    thread.setMaxListeners(Infinity);
 
     roomTimeline.liveTimeline = thread.liveTimeline;
     roomTimeline.activeTimeline = thread.liveTimeline;
@@ -565,6 +570,7 @@ class RoomTimeline extends EventEmitter {
 
   // Add to timeline
   addToTimeline(mEvent) {
+    insertIntoRoomEventsDB(mEvent).catch(console.error);
     const evType = mEvent.getType();
     if (evType !== 'pony.house.crdt' && !messageIsClassicCrdt(mEvent)) {
       // Filter Room Member Event and Matrix CRDT Events

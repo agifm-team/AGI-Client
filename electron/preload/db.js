@@ -42,6 +42,26 @@ const tinyDB = {
         );
     `,
       );
+
+      // History
+      await tinyDB.run(
+        `
+        CREATE TABLE IF NOT EXISTS room_events (
+            id TEXT,
+            event_id TEXT,
+            room_id TEXT,
+            thread_id TEXT,
+            thread_root_id TEXT,
+            type TEXT,
+            sender TEXT,
+            origin_server_ts BIGINT,
+            is_redaction BOOLEAN,
+            unsigned JSON,
+            content JSON,
+            PRIMARY KEY (id)
+        );
+    `,
+      );
     }
   },
 
@@ -63,8 +83,14 @@ contextBridge.exposeInMainWorld('tinyDB', tinyDB);
 
 ipcRenderer.on('requestDB', (event, result) => {
   if (dbCache[result.id]) {
-    if (typeof result.err !== 'undefined') dbCache[result.id].reject(clone(result.err));
-    else dbCache[result.id].resolve(clone(result.result));
+    if (typeof result.err !== 'undefined') {
+      const err = clone(result.err);
+      const error = new Error(err.message);
+      error.code = err.code;
+      error.stack = err.stack;
+      error.errno = err.errno;
+      dbCache[result.id].reject(error);
+    } else dbCache[result.id].resolve(clone(result.result));
     delete dbCache[result.id];
   }
 });

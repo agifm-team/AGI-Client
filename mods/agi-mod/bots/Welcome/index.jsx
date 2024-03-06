@@ -225,6 +225,7 @@ function Welcome({ isGuest }) {
   */
 
   // Result
+  /*
   return (
     <div className={`tiny-welcome border-0 h-100 noselect${isGuest ? ' is-guest' : ''}`}>
       <center className="w-100">
@@ -302,6 +303,88 @@ function Welcome({ isGuest }) {
               </div>
             </div>
           </div>
+          */
+    return (
+    <div className={`tiny-welcome border-0 h-100 noselect${isGuest ? ' is-guest' : ''}`}>
+      <center className="w-100">
+        <div id="welcome-carousel" className="py-4 mx-4 carousel slide" data-bs-ride="true">
+          <div className="carousel-indicators">
+            <button
+              type="button"
+              data-bs-target="#welcome-carousel"
+              data-bs-slide-to="0"
+              className="active"
+              aria-current="true"
+              aria-label="Slide 1"
+            />
+            <button
+              type="button"
+              data-bs-target="#welcome-carousel"
+              data-bs-slide-to="1"
+              aria-label="Slide 2"
+            />
+            <button
+              type="button"
+              data-bs-target="#welcome-carousel"
+              data-bs-slide-to="2"
+              aria-label="Slide 3"
+            />
+          </div>
+
+          <div className="carousel-inner">
+            <div className="carousel-item active">
+              <img
+                src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c1.jpg?raw=true"
+                className="d-block w-100"
+                draggable="false"
+                alt="..."
+              />
+              <div className="carousel-caption">
+                  <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', borderRadius: '5px', padding: '10px', display: 'inline-block' }}>
+                      <h5 style={{ color: '#fff' }}>Pixxel Forge</h5>
+                      <p style={{ color: '#fff' }}>
+                          Create Pixxels, customizing their personality, appearance, and knowledge domains
+                          <br /> Example: A writer Pixxel for brainstorming, a design Pixxel for layouts, a historian Pixxel for research
+                      </p>
+                  </div>
+              </div>
+            </div>
+
+            <div className="carousel-item">
+              <img
+                src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c2.jpg?raw=true"
+                className="d-block w-100"
+                draggable="false"
+                alt="..."
+              />
+              <div className="carousel-caption">
+                  <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', borderRadius: '5px', padding: '10px', display: 'inline-block' }}>
+                      <h5 style={{ color: '#fff' }}>Fantastical Tools</h5>
+                      <p style={{ color: '#fff' }}>
+                          Embed specialized AI tools for visuals, sound, coding, writing – the limit is the imagination of the Pixxels community
+                      </p>
+                  </div>
+              </div>
+            </div>
+
+            <div className="carousel-item">
+              <img
+                src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c3.jpg?raw=true"
+                className="d-block w-100"
+                draggable="false"
+                alt="..."
+              />
+              <div className="carousel-caption">
+                  <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', borderRadius: '5px', padding: '10px', display: 'inline-block' }}>
+                      <h5 style={{ color: '#fff' }}>Pixxel Spaces</h5>
+                      <p style={{ color: '#fff' }}>
+                          Whimsical virtual spaces where users collaborate with both human teams and their individual Pixxels
+                      </p>
+                  </div>
+              </div>
+            </div>
+          </div>
+    
 
           <button
             className="carousel-control-prev d-none"

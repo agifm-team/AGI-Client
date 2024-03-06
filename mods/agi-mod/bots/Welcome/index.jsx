@@ -260,7 +260,7 @@ function Welcome({ isGuest }) {
                 draggable="false"
                 alt="..."
               />
-              <div className="carousel-caption">
+              <div className="carousel-caption" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', borderRadius: '5px', padding: '10px' }}>
                 <h5>Pixxel Forge</h5>
                 <p>
                   Create Pixxels, customizing their personality, appearance, and knowledge domains{' '}
@@ -277,7 +277,7 @@ function Welcome({ isGuest }) {
                 draggable="false"
                 alt="..."
               />
-              <div className="carousel-caption">
+              <div className="carousel-caption" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', borderRadius: '5px', padding: '10px' }}>
                 <h5>Fantastical Tools</h5>
                 <p>
                   Embed specialized AI tools for visuals, sound, coding, writing – the limit is the
@@ -293,7 +293,7 @@ function Welcome({ isGuest }) {
                 draggable="false"
                 alt="..."
               />
-              <div className="carousel-caption">
+              <div className="carousel-caption" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', borderRadius: '5px', padding: '10px' }}>
                 <h5>Pixxel Spaces</h5>
                 <p>
                   Whimsical virtual spaces where users collaborate with both human teams and their

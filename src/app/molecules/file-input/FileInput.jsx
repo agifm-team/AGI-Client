@@ -4,33 +4,32 @@ import { Capacitor } from '@capacitor/core';
 import { Filesystem } from '@capacitor/filesystem';
 import { FilePicker } from '@capawesome/capacitor-file-picker';
 
-import { base64ToArrayBuffer, objType } from '@src/util/tools';
+import { objType } from '@src/util/tools';
 import initMatrix from '@src/client/initMatrix';
 
 // Build HTML
 const FileInput = React.forwardRef(
-  ({ onChange, accept, required, webkitdirectory, directory, capture, multiple }, ref) => {
+  ({ onChange, accept, required, /* webkitdirectory, directory, */ capture, multiple }, ref) => {
     const inputRef = useRef(null);
+    const isNativeMobile = Capacitor.isNativePlatform();
 
     // Effect
     useEffect(() => {
-      if (typeof onChange === 'function') {
+      if (typeof onChange === 'function' && !isNativeMobile) {
         const fileInput = ref ? $(ref.current) : $(inputRef.current);
         const tinyChange = (event) => {
-          if (!Capacitor.isNativePlatform()) {
-            const changeFunc = (index = 0) => {
-              if (typeof index === 'number') {
-                if (event.originalEvent.target.files.item)
-                  return event.originalEvent.target.files.item(index);
-                return event.originalEvent.target.files[index];
-              }
+          const changeFunc = (index = 0) => {
+            if (typeof index === 'number') {
+              if (event.originalEvent.target.files.item)
+                return event.originalEvent.target.files.item(index);
+              return event.originalEvent.target.files[index];
+            }
 
-              if (typeof index === 'boolean' && index) {
-                return event.originalEvent.target.files.length;
-              }
-            };
-            onChange(event.originalEvent.target, changeFunc);
-          }
+            if (typeof index === 'boolean' && index) {
+              return event.originalEvent.target.files.length;
+            }
+          };
+          onChange(event.originalEvent.target, changeFunc);
         };
 
         // Events
@@ -45,13 +44,13 @@ const FileInput = React.forwardRef(
       <input
         ref={ref || inputRef}
         style={{ display: 'none' }}
-        type="file"
+        type={!isNativeMobile ? 'file' : 'text'}
         accept={
           Array.isArray(accept) ? accept.join(', ') : typeof accept === 'string' ? accept : null
         }
         required={required}
-        webkitdirectory={webkitdirectory}
-        directory={directory}
+        // webkitdirectory={webkitdirectory}
+        // directory={directory}
         capture={capture}
         multiple={multiple}
       />
@@ -59,19 +58,29 @@ const FileInput = React.forwardRef(
   },
 );
 
-const uploadContent = (file, forceDefault = false) => {
+const uploadContent = (file, ops, forceDefault = false) => {
   if (!Capacitor.isNativePlatform() || forceDefault) {
     return initMatrix.matrixClient.uploadContent(file);
   }
-  console.log('uploadContent', Buffer.from(file.data, 'base64'));
-  return initMatrix.matrixClient.uploadContent(Buffer.from(file.data, 'base64'));
+
+  const tinyOps = {
+    type: file.type,
+    name: file.name,
+  };
+
+  if (objType(ops, 'object')) {
+    for (const item in ops) {
+      tinyOps[item] = ops[item];
+    }
+  }
+
+  return initMatrix.matrixClient.uploadContent(Buffer.from(file.data, 'base64'), tinyOps);
 };
 
 const createObjectURL = (file, forceDefault = false) => {
   if (!Capacitor.isNativePlatform() || forceDefault) {
     return URL.createObjectURL(file);
   }
-  console.log('createObjectURL', file.data);
   return URL.createObjectURL(file.data);
 };
 
@@ -79,7 +88,6 @@ const convertToBase64Mobile = (file) => {
   if (!Capacitor.isNativePlatform()) {
     return file;
   }
-  console.log('convertToBase64Mobile', file.data);
   return file.data;
 };
 
@@ -93,8 +101,14 @@ const fileReader = (file, readerType = 'readAsText') =>
       if (!Capacitor.isNativePlatform()) {
         reader[readerType](file);
       } else {
-        console.log('fileReader', file.atob());
-        fileReader(file.atob());
+        if (readerType === 'readAsText') {
+          resolve(file.atob());
+        }
+
+        // TEMP
+        if (readerType === 'readAsDataURL') {
+          resolve(file.atob());
+        }
       }
     } catch (err) {
       reject(err);
@@ -135,9 +149,9 @@ const fileInputClick = async (inputRef, onChange) => {
           result.files[i].type = result.files[i].mimeType;
           result.files[i].lastModified = result.files[i].modifiedAt;
           result.files[i].lastModifiedDate = new Date(result.files[i].modifiedAt);
-          result.files[i].arrayBuffer = () => base64ToArrayBuffer(result.files[i].data);
-          result.files[i].toBuffer = () => Buffer.from(result.files[i].data, 'base64');
+          result.files[i].arrayBuffer = () => Buffer.from(result.files[i].data, 'base64');
           result.files[i].atob = () => atob(result.files[i].data);
+          inputRef.current.value = result.files[i].path;
           return result.files[i];
         };
 
@@ -175,8 +189,8 @@ FileInput.defaultProps = {
   onChange: null,
   capture: null,
   required: false,
-  webkitdirectory: false,
-  directory: false,
+  // webkitdirectory: false,
+  // directory: false,
   multiple: false,
 };
 FileInput.propTypes = {
@@ -184,8 +198,8 @@ FileInput.propTypes = {
   onChange: PropTypes.func,
   capture: PropTypes.string,
   required: PropTypes.bool,
-  webkitdirectory: PropTypes.bool,
-  directory: PropTypes.bool,
+  // webkitdirectory: PropTypes.bool,
+  // directory: PropTypes.bool,
   multiple: PropTypes.bool,
 };
 

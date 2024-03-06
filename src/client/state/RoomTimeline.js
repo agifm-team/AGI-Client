@@ -3,6 +3,7 @@ import EventEmitter from 'events';
 import clone from 'clone';
 import objectHash from 'object-hash';
 import moment from '@src/util/libs/momentjs';
+// import { insertIntoRoomEventsDB } from '@src/util/libs/roomEventsDB';
 
 import {
   Direction,
@@ -25,6 +26,7 @@ import { objType } from '../../util/tools';
 import { updateRoomInfo } from '../action/navigation';
 import urlParams from '../../util/libs/urlParams';
 import { tinyFixScrollChat } from '../../app/molecules/media/mediaFix';
+// import { insertEvent } from './eventsDelay';
 
 const delayYdocUpdate = 100;
 const hashTryLimit = 10;
@@ -161,6 +163,7 @@ class RoomTimeline extends EventEmitter {
     super();
 
     // These are local timelines
+    this.setMaxListeners(Infinity);
     this.timeline = [];
     this.crdt = {};
     this.editedTimeline = new Map();
@@ -183,6 +186,8 @@ class RoomTimeline extends EventEmitter {
           lazyLoadMembers: true,
           timelineSupport: true,
         });
+
+    this.room.setMaxListeners(Infinity);
 
     // Nothing! Tiny cancel time.
     if (this.room === null) {
@@ -313,6 +318,7 @@ class RoomTimeline extends EventEmitter {
     roomTimeline.setMaxListeners(Infinity);
     const thread = roomTimeline.room.getThread(threadId);
     if (!thread) return null;
+    thread.setMaxListeners(Infinity);
 
     roomTimeline.liveTimeline = thread.liveTimeline;
     roomTimeline.activeTimeline = thread.liveTimeline;
@@ -565,6 +571,7 @@ class RoomTimeline extends EventEmitter {
 
   // Add to timeline
   addToTimeline(mEvent) {
+    // insertIntoRoomEventsDB(mEvent).catch(console.error);
     const evType = mEvent.getType();
     if (evType !== 'pony.house.crdt' && !messageIsClassicCrdt(mEvent)) {
       // Filter Room Member Event and Matrix CRDT Events
@@ -1210,7 +1217,7 @@ class RoomTimeline extends EventEmitter {
 
   // Active Listens
   _listenEvents() {
-    this._listenRoomTimeline = (event, room, toStartOfTimeline, removed, data) => {
+    this._listenRoomTimeline = (event, room, data) => {
       if (room.roomId !== this.roomId || event.threadRootId !== this.threadId) return;
       if (this.isOngoingPagination) return;
 
@@ -1257,6 +1264,15 @@ class RoomTimeline extends EventEmitter {
       tinyFixScrollChat();
     };
 
+    this._preListenRoomTimeline = (event, room, toStartOfTimeline, removed, data) =>
+      this._listenRoomTimeline(event, room, data);
+    this._preListenDecryptEvent = (event) => this._listenDecryptEvent(event);
+    /*
+        this._preListenRoomTimeline = (event, room, toStartOfTimeline, removed, data) =>
+      insertEvent(() => this._listenRoomTimeline(event, room, data));
+    this._preListenDecryptEvent = (event) => insertEvent(() => this._listenDecryptEvent(event));
+    */
+
     this._listenRedaction = (mEvent, room) => {
       if (room.roomId !== this.roomId) return;
       const rEvent = this.deleteFromTimeline(mEvent.event.redacts);
@@ -1293,9 +1309,9 @@ class RoomTimeline extends EventEmitter {
     };
 
     // Insert events
-    this.matrixClient.on(RoomEvent.Timeline, this._listenRoomTimeline);
+    this.matrixClient.on(RoomEvent.Timeline, this._preListenRoomTimeline);
     this.matrixClient.on(RoomEvent.Redaction, this._listenRedaction);
-    this.matrixClient.on(MatrixEventEvent.Decrypted, this._listenDecryptEvent);
+    this.matrixClient.on(MatrixEventEvent.Decrypted, this._preListenDecryptEvent);
     this.matrixClient.on(RoomMemberEvent.Typing, this._listenTypingEvent);
     this.matrixClient.on(RoomEvent.Receipt, this._listenReciptEvent);
 
@@ -1311,9 +1327,9 @@ class RoomTimeline extends EventEmitter {
     if (!this.initialized) return;
     this._disableYdoc();
 
-    this.matrixClient.removeListener(RoomEvent.Timeline, this._listenRoomTimeline);
+    this.matrixClient.removeListener(RoomEvent.Timeline, this._preListenRoomTimeline);
     this.matrixClient.removeListener(RoomEvent.Redaction, this._listenRedaction);
-    this.matrixClient.removeListener(MatrixEventEvent.Decrypted, this._listenDecryptEvent);
+    this.matrixClient.removeListener(MatrixEventEvent.Decrypted, this._preListenDecryptEvent);
     this.matrixClient.removeListener(RoomMemberEvent.Typing, this._listenTypingEvent);
     this.matrixClient.removeListener(RoomEvent.Receipt, this._listenReciptEvent);
 

@@ -1,8 +1,11 @@
+    scaleDownImage to gif
+
+    Mobile:
+    if (readerType === 'readAsDataURL')
+    uploadContent(isEncryptedRoom
+
     Mobile Background mode
     Mobile Rec audio
-
-    Mobile Send file
-    initMatrix.matrixClient.uploadContent
 
     Cadê o @everyone, @here, @room?
 

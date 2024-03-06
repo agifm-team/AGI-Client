@@ -39,6 +39,11 @@ To build the web app:
 yarn build # Compiles the app into the dist/ directory
 ```
 
+If the first option fails, please try this one:
+```sh
+yarn build:8gb # Compiles the app into the dist/ directory
+```
+
 ### Electron (Desktop)
 > While you're using the app's dev mode, it's normal for the app to show that it's disconnected for a few seconds before fully loading the page. Notifications may not mute OS sound in application dev mode. The same thing can happen for notification click events to fail only in dev mode.
 
@@ -54,6 +59,13 @@ To build the desktop app:
 ```sh
 yarn electron:build # Compiles the app into the release/ directory
 ```
+
+### AppData
+
+If you need to manage client files on your desktop version. You can find specific storage files in the directory below:
+
+    %AppData%/pixxels-matrix/tinyMatrixData/
+
 ## FAQ
 
 ### Is my data shared with third parties?
@@ -71,6 +83,10 @@ This client sends notification permission requests at the exact moment the page 
 ### Can I completely disable IPFS and Web3?
 
 Yep. To disable it via the client, you need to go to the settings tabs. To permanently deactivate the features, you need to modify the `.env` file so you can deploy a client without access to the features.
+
+### My browser keeps opening crypto wallet randomly
+
+It looks like you are using a browser that has a native crypto wallet. This is not an extension installed in your browser, I'm referring to something in your browser itself. (Example: Brave and Opera) And even with crypto features turned off, for some mysterious reason your browser still thinks it's a good idea to send you a ad to try force you to use the browser crypto wallet. If you want to disable this, research how to disable your browser's native crypto wallet.
 
 ### This client has web3 functionalities. Is this matrix client a crypto wallet?
 

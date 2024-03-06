@@ -4,6 +4,7 @@ import EventEmitter from 'events';
 
 import mobileEvents, { isMobile } from '@src/util/libs/mobile';
 import { cyrb128 } from '@src/util/tools';
+// import { insertIntoRoomEventsDB } from '@src/util/libs/roomEventsDB';
 
 import renderAvatar from '../../../app/atoms/avatar/render';
 import { cssColorMXID } from '../../../util/colorMXID';
@@ -18,6 +19,7 @@ import { getAccountStatus } from '../../../app/organisms/navigation/ProfileAvata
 import { messageIsClassicCrdt } from '../../../util/libs/crdt';
 import { checkerFavIcon } from '../../../util/libs/favicon';
 import { getPrivacyRefuseRoom } from '../../../app/organisms/navigation/Sidebar/InviteSidebar';
+// import { insertEvent } from '../eventsDelay';
 
 const soundFiles = {
   notification: new Audio('./sound/notification.ogg'),
@@ -319,11 +321,17 @@ class Notifications extends EventEmitter {
 
     // Data Prepare
     const userStatus = getAccountStatus('status');
-    if (!settings.showNotifications && !settings.isNotificationSounds) return;
+    if (!settings.showNotifications && !settings.isNotificationSounds) {
+      // insertIntoRoomEventsDB(mEvent, true).catch(console.error);
+      return;
+    }
 
     // Actions
     const actions = this.matrixClient.getPushActionsForEvent(mEvent);
-    if (!actions?.notify) return;
+    if (!actions?.notify) {
+      // insertIntoRoomEventsDB(mEvent, true).catch(console.error);
+      return;
+    }
 
     // Check Window
     if (
@@ -335,15 +343,22 @@ class Notifications extends EventEmitter {
         (mEvent.thread && navigation.selectedThreadId === mEvent.thread.id)) &&
       document.visibilityState === 'visible' &&
       !$('body').hasClass('windowHidden')
-    )
+    ) {
+      // insertIntoRoomEventsDB(mEvent, true).catch(console.error);
       return;
+    }
 
-    if (userStatus === 'dnd' || userStatus === '🔴') return;
+    if (userStatus === 'dnd' || userStatus === '🔴') {
+      // insertIntoRoomEventsDB(mEvent, true).catch(console.error);
+      return;
+    }
 
     // Encrypted
     if (mEvent.isEncrypted()) {
       await mEvent.attemptDecryption(this.matrixClient.getCrypto());
     }
+
+    // insertIntoRoomEventsDB(mEvent).catch(console.error);
 
     // Show Notification
     if (settings.showNotifications) {
@@ -455,20 +470,38 @@ class Notifications extends EventEmitter {
   }
 
   _listenEvents() {
-    this.matrixClient.on('Room.timeline', (mEvent, room) => {
+    this._listenRoomTimeline = (mEvent, room) => {
       if (mEvent.isRedaction()) this._deletePopupNoti(mEvent.event.redacts);
 
-      if (messageIsClassicCrdt(mEvent)) return;
-      if (room.isSpaceRoom()) return;
-      if (!isNotifEvent(mEvent)) return;
+      if (messageIsClassicCrdt(mEvent)) {
+        // insertIntoRoomEventsDB(mEvent, true).catch(console.error);
+        return;
+      }
+
+      if (room.isSpaceRoom()) {
+        // insertIntoRoomEventsDB(mEvent, true).catch(console.error);
+        return;
+      }
+
+      if (!isNotifEvent(mEvent)) {
+        // insertIntoRoomEventsDB(mEvent, true).catch(console.error);
+        return;
+      }
 
       const liveEvents = !mEvent.thread
         ? room.getLiveTimeline().getEvents()
         : mEvent.thread.timeline;
 
       const lastTimelineEvent = liveEvents[liveEvents.length - 1];
-      if (lastTimelineEvent.getId() !== mEvent.getId()) return;
-      if (mEvent.getSender() === this.matrixClient.getUserId()) return;
+      if (lastTimelineEvent.getId() !== mEvent.getId()) {
+        // insertIntoRoomEventsDB(mEvent, true).catch(console.error);
+        return;
+      }
+
+      if (mEvent.getSender() === this.matrixClient.getUserId()) {
+        // insertIntoRoomEventsDB(mEvent, true).catch(console.error);
+        return;
+      }
 
       const total = !mEvent.thread
         ? room.getRoomUnreadNotificationCount(NotificationCountType.Total)
@@ -482,6 +515,7 @@ class Notifications extends EventEmitter {
         this.getNotiType(room.roomId, mEvent.thread ? mEvent.thread.id : null) === cons.notifs.MUTE
       ) {
         this.deleteNoti(room.roomId, total ?? 0, highlight ?? 0);
+        // insertIntoRoomEventsDB(mEvent, true).catch(console.error);
         return;
       }
 
@@ -495,8 +529,17 @@ class Notifications extends EventEmitter {
 
       if (this.matrixClient.getSyncState() === 'SYNCING') {
         this._displayPopupNoti(mEvent, room);
+      } else {
+        // insertIntoRoomEventsDB(mEvent, true).catch(console.error);
       }
-    });
+    };
+
+    this.matrixClient.on('Room.timeline', (mEvent, room) => this._listenRoomTimeline(mEvent, room));
+    /* 
+    this.matrixClient.on('Room.timeline', (mEvent, room) =>
+      insertEvent(() => this._listenRoomTimeline(mEvent, room)),
+    );
+    */
 
     this.matrixClient.on('accountData', (mEvent, oldMEvent) => {
       if (mEvent.getType() === 'm.push_rules') {

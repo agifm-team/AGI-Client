@@ -2,7 +2,6 @@ module.exports = {
   globals: {
     '$': 'readonly',
     'ethereum': 'readonly',
-    'tinyAPI': 'readonly',
     'arguments': 'readonly',
     'getLogData': 'readonly',
     'playLogData': 'readonly',
@@ -14,6 +13,7 @@ module.exports = {
     'vegaLite': 'readonly',
     'vegaEmbed': 'readonly',
     'qrcode': 'readonly',
+    'tinyDB': 'readonly',
   },
   env: {
     browser: true,

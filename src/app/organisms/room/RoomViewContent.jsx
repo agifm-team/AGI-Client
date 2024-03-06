@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import moment, { momentFormat } from '@src/util/libs/momentjs';
+import windowEvents from '@src/util/libs/window';
 
 import { twemojifyReact } from '../../../util/twemojify';
 
@@ -36,6 +37,7 @@ import { rule3 } from '../../../util/tools';
 import { mediaFix } from '../../molecules/media/mediaFix';
 import matrixAppearance from '../../../util/libs/appearance';
 
+let forceDelay = false;
 let loadingPage = false;
 const PAG_LIMIT = 50;
 const MAX_MSG_DIFF_MINUTES = 5;
@@ -664,6 +666,25 @@ function RoomViewContent({
       timelineSV.off('scroll', handleTimelineScrollJquery);
     };
   }, [listenKeyArrowUp]);
+
+  useEffect(() => {
+    const forceUpdateTime = () => {
+      if (roomTimeline && roomTimeline.canPaginateForward() && !forceDelay) {
+        forceDelay = true;
+        forceUpdateLimit();
+      }
+    };
+
+    const timeoutTime = setInterval(() => {
+      if (forceDelay) forceDelay = false;
+    }, 200);
+
+    windowEvents.on('setWindowVisible', forceUpdateTime);
+    return () => {
+      clearInterval(timeoutTime);
+      windowEvents.off('setWindowVisible', forceUpdateTime);
+    };
+  });
 
   // Each time the timeline is loaded, this function is called
   const renderTimeline = () => {

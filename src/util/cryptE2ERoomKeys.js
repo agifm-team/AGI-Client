@@ -1,5 +1,6 @@
 // https://github.com/matrix-org/matrix-react-sdk/blob/e78a1adb6f1af2ea425b0bae9034fb7344a4b2e8/src/utils/MegolmExportEncryption.js
 import logger from '../client/logger';
+import { isMobile } from './libs/mobile';
 
 const subtleCrypto = window.crypto.subtle || window.crypto.webkitSubtle;
 
@@ -14,11 +15,12 @@ const subtleCrypto = window.crypto.subtle || window.crypto.webkitSubtle;
 function friendlyError(msg, friendlyText) {
   const e = new Error(msg);
   e.friendlyText = friendlyText;
+  console.error(e);
   return e;
 }
 
 function cryptoFailMsg() {
-  return 'Your browser does not support the required cryptography extensions';
+  return `Your ${isMobile() ? 'mobile' : __ENV_APP__.ELECTRON_MODE ? 'desktop' : 'browser'} client does not support the required cryptography extensions`;
 }
 /**
  * Derive the AES and HMAC-SHA-256 keys for the file

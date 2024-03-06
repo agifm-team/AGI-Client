@@ -334,7 +334,7 @@ function Welcome({ isGuest }) {
           <div className="carousel-inner">
             <div className="carousel-item active">
               <img
-                src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c1.jpg?raw=true"
+                src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c1.gif?raw=true"
                 className="d-block w-100"
                 draggable="false"
                 alt="..."
@@ -352,7 +352,7 @@ function Welcome({ isGuest }) {
 
             <div className="carousel-item">
               <img
-                src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c2.jpg?raw=true"
+                src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c2.gif?raw=true"
                 className="d-block w-100"
                 draggable="false"
                 alt="..."
@@ -369,7 +369,7 @@ function Welcome({ isGuest }) {
 
             <div className="carousel-item">
               <img
-                src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c3.jpg?raw=true"
+                src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c3.gif?raw=true"
                 className="d-block w-100"
                 draggable="false"
                 alt="..."

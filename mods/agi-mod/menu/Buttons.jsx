@@ -161,7 +161,6 @@ export function addRoomOptions(dt, roomType) {
               const users = [];
               for (const item in data) {
                 if (objType(data[item], 'object')) {
-
                   let newPhoto = null;
                   try {
                     newPhoto = insertAgiAvatar(data[item], null);

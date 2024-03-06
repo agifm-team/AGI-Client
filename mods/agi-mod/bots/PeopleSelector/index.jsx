@@ -40,7 +40,6 @@ export default function startPeopleSelector() {
     if (Array.isArray(tinyData)) {
       for (const item in tinyData) {
         if (objType(tinyData[item], 'object')) {
-
           const newData = {
             // name: tinyData[item].agent_name,
             name: tinyData[item].bot_username,
@@ -65,7 +64,6 @@ export default function startPeopleSelector() {
           }
 
           customItems.push(newData);
-
         }
       }
     }

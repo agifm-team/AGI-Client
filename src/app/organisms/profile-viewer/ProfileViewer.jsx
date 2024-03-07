@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import clone from 'clone';
 import envAPI from '@src/util/libs/env';
+import { serverDomain } from '@mods/agi-mod/socket';
+import { objType } from '@src/util/tools';
+import { setLoadingPage } from '@src/app/templates/client/Loading';
+import { duplicatorAgent } from '@mods/agi-mod/bots/PeopleSelector/lib';
 
 import { twemojifyReact } from '../../../util/twemojify';
 import { getUserStatus, updateUserStatusIcon } from '../../../util/onlineStatus';
@@ -176,7 +180,7 @@ SessionInfo.propTypes = {
   userId: PropTypes.string.isRequired,
 };
 
-function ProfileFooter({ roomId, userId, onRequestClose }) {
+function ProfileFooter({ roomId, userId, onRequestClose, agentData }) {
   const [isCreatingDM, setIsCreatingDM] = useState(false);
   const [isIgnoring, setIsIgnoring] = useState(false);
   const [isUserIgnored, setIsUserIgnored] = useState(initMatrix.matrixClient.isUserIgnored(userId));
@@ -277,6 +281,20 @@ function ProfileFooter({ roomId, userId, onRequestClose }) {
 
   return (
     <>
+      {agentData && agentData.data && typeof agentData.data.id === 'string' && agentData.data.id.length > 0 ? <Button className="me-2" variant="primary" onClick={async () => {
+        setLoadingPage();
+        duplicatorAgent(userId, agentData.data.id)
+          .then(() => {
+            setLoadingPage(false);
+          })
+          .catch((err) => {
+            console.error(err);
+            alert(err.message);
+          });
+      }} >
+        Duplicate
+      </Button> : null}
+
       <Button className="me-2" variant="primary" onClick={openDM} disabled={isCreatingDM}>
         {isCreatingDM ? 'Creating room...' : 'Message'}
       </Button>
@@ -383,6 +401,7 @@ function ProfileViewer() {
 
   const [isOpen, roomId, userId, closeDialog, handleAfterClose] = useToggleDialog();
   const [lightbox, setLightbox] = useState(false);
+  const [agentData, setAgentData] = useState({ loading: false, data: null, err: null });
 
   const userNameRef = useRef(null);
   const userPronounsRef = useRef(null);
@@ -401,6 +420,27 @@ function ProfileViewer() {
 
   useEffect(() => {
     if (user) {
+
+      if (!agentData.loading && !agentData.err && !agentData.data) {
+
+        setAgentData({
+          err: null,
+          data: null,
+          loading: true,
+        });
+
+        fetch(`https://bots.${serverDomain}/bot/${userId}`).then(res => res.json()).then((data) => setAgentData({
+          err: null,
+          data: objType(data, 'object') ? data : {},
+          loading: false,
+        })).catch((err) => setAgentData({
+          err,
+          data: null,
+          loading: false,
+        }));
+
+      }
+
       // Menu Bar
       const menubar = $(menubarRef.current);
       const menuBarItems = [];
@@ -698,7 +738,7 @@ function ProfileViewer() {
             <div className="col-md-9">
               <div className="float-end">
                 {userId !== mx.getUserId() && (
-                  <ProfileFooter roomId={roomId} userId={userId} onRequestClose={closeDialog} />
+                  <ProfileFooter agentData={agentData} roomId={roomId} userId={userId} onRequestClose={closeDialog} />
                 )}
               </div>
             </div>

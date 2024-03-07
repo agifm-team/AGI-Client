@@ -200,5 +200,12 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
   }
 }
 
+.sso-buttons {
+  display: block;
+  .btn {
+    display: inline-block !important;
+  }
+}
+
 @import './cards/login.scss';
 @import './cards/guest.scss';

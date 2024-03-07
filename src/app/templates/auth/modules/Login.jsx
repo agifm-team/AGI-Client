@@ -86,14 +86,20 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
       >
         <Modal.Header className="noselect" closeButton>
           <Modal.Title className="h5 emoji-size-fix">
-            {type === 'login' ? 'Login' : type === 'register' ? 'Register' : 'Recover Password'}
+            {type === 'login' ? 'Welcome back' : type === 'register' ? 'Register' : 'Recover Password'}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {type === 'login' ? (
             <>
+              <div>
+                <SSOButtons
+                  type="sso"
+                  identityProviders={ssoProviders.identity_providers}
+                  baseUrl={baseUrl}
+                />
+              </div>
               <div className="auth-form__heading m-0 mt-1">
-                <h5 className="m-0">Welcome back</h5>
                 {isPassword && (
                   <ContextMenu
                     placement="right"
@@ -231,15 +237,6 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
                   </a>
                 </p>
 
-                {type === 'login' ? (
-                  <div>
-                    <SSOButtons
-                      type="sso"
-                      identityProviders={ssoProviders.identity_providers}
-                      baseUrl={baseUrl}
-                    />
-                  </div>
-                ) : null}
               </center>
             </>
           )}

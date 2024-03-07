@@ -44,7 +44,7 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
         object-fit: cover; /* Cover the container without losing aspect ratio */
         opacity: 1;
       }
-        
+
       /* Hover Effect Addition */
       &:hover {
         transform: scale(1.02);
@@ -197,6 +197,13 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
       width: auto !important;
       max-width: 1700px !important;
     }
+  }
+}
+
+.sso-buttons {
+  display: block;
+  .btn {
+    display: inline-block !important;
   }
 }
 

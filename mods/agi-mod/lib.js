@@ -1,11 +1,11 @@
-import defaultAvatar from "@src/app/atoms/avatar/defaultAvatar";
-import initMatrix from "@src/client/initMatrix";
+import defaultAvatar from '@src/app/atoms/avatar/defaultAvatar';
+import initMatrix from '@src/client/initMatrix';
 
 import { serverDomain } from './socket';
 
 const logoutUrl = `https://auth.${serverDomain}/realms/Multi/protocol/openid-connect/logout`;
 const supabase = {
-  general: 'pddqpwpqigtmyiolyvxk.supabase.co'
+  general: 'pddqpwpqigtmyiolyvxk.supabase.co',
 };
 
 export function logout(/* redirect = true */) {
@@ -26,9 +26,14 @@ export function redirectLogout() {
 }
 
 export function insertAgiAvatar(data, defaultItem = 1) {
-  return typeof data.profile_photo === 'string' && data.profile_photo.startsWith(`https://${supabase.general}/`) ? data.profile_photo :
-    typeof data.avatar_mxc === 'string' && data.avatar_mxc.length ? initMatrix.matrixClient.mxcUrlToHttp(data.avatar_mxc) :
-      typeof defaultItem === 'number' ? defaultAvatar(defaultItem) : null;
-};
+  return typeof data.profile_photo === 'string' &&
+    data.profile_photo.startsWith(`https://${supabase.general}/`)
+    ? data.profile_photo
+    : typeof data.avatar_mxc === 'string' && data.avatar_mxc.length
+      ? initMatrix.matrixClient.mxcUrlToHttp(data.avatar_mxc)
+      : typeof defaultItem === 'number'
+        ? defaultAvatar(defaultItem)
+        : null;
+}
 
-export { logoutUrl, };
+export { logoutUrl };

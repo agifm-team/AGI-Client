@@ -11,7 +11,7 @@ function SSOButtons({ type, identityProviders, baseUrl }) {
     startSsoLogin(baseUrl, type, id);
   }
   return (
-    <div className="sso-buttons">
+    <center className="sso-buttons">
       {identityProviders
         .sort((idp, idp2) => {
           if (typeof idp.icon !== 'string') return -1;
@@ -26,7 +26,7 @@ function SSOButtons({ type, identityProviders, baseUrl }) {
               onClick={() => handleClick(idp.id)}
             >
               <img
-                className="sso-btn__img rounded-circle"
+                className="sso-btn__img rounded-circle border border-bg mb-2"
                 src={tempClient.mxcUrlToHttp(idp.icon)}
                 alt={idp.name}
               />
@@ -34,12 +34,12 @@ function SSOButtons({ type, identityProviders, baseUrl }) {
           ) : (
             <Button
               key={idp.id}
-              className="sso-btn__text-only"
+              className="sso-btn__text-only border border-bg mb-2"
               onClick={() => handleClick(idp.id)}
             >{`Login with ${idp.name}`}</Button>
           ),
         )}
-    </div>
+    </center>
   );
 }
 

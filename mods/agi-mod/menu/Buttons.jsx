@@ -1,8 +1,11 @@
 import React from 'react';
+import * as linkify from 'linkifyjs';
+
 import { btModal, objType } from '@src/util/tools';
 
 import initMatrix from '@src/client/initMatrix';
 import RawIcon from '@src/app/atoms/system-icons/RawIcon';
+import tinyAPI from '@src/util/mods';
 
 import { setLoadingPage } from '@src/app/templates/client/Loading';
 // import { selectRoom, selectRoomMode, selectTab } from '@src/client/action/navigation';
@@ -117,21 +120,32 @@ export default async function buttons() {
 
   // Add Click
   setLoadingPage(false);
-  superagent.tooltip({ placement: 'right' }).on('click', () =>
+  superagent.tooltip({ placement: 'right' }).on('click', () => {
+    const iframe = $('<iframe>', {
+      title: 'SuperAgent',
+      src: `https://super.${serverDomain}/?email=${encodeURIComponent(email)}`,
+      class: 'w-100 height-modal-full-size'
+    }).css('background-color', '#000');
+
+    const roomTimelineValidator = (data, event) => {
+      const content = event.getContent();
+      if (event.sender === `@otp:${serverDomain}` && typeof content.magic_link === 'string' && linkify.test(content.magic_link)) {
+        iframe.attr('src', content.magic_link);
+      }
+    };
+
+    tinyAPI.on('roomTimeline', roomTimelineValidator);
     btModal({
       id: 'agi-superagent-modal',
       dialog: 'modal-fullscreen',
       title: 'SuperAgent',
-      body: jReact(
-        <iframe
-          title="SuperAgent"
-          src={`https://super.${serverDomain}/?email=${encodeURIComponent(email)}`}
-          className="w-100 height-modal-full-size"
-          style={{ backgroundColor: '#000' }}
-        />,
-      ),
-    }),
-  );
+      hidden: () => {
+        tinyAPI.off('roomTimeline', roomTimelineValidator);
+      },
+      body: iframe,
+    });
+
+  });
 
   // Append
   spaceContainer.append(superagent);

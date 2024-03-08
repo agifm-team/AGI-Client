@@ -284,7 +284,7 @@ export default async function buttons() {
       body: jReact(
         <iframe
           title="SuperAgent"
-          src={`https://super.${serverDomain}/?email=${email}`}
+          src={`https://super.${serverDomain}/?email=${encodeURIComponent(email)}`}
           className="w-100 height-modal-full-size"
           style={{ backgroundColor: '#000' }}
         />,

@@ -11,6 +11,7 @@ import FileInput, {
   fileInputClick,
   fileInputValue,
 } from '@src/app/molecules/file-input/FileInput';
+import { clickAIButton } from '@mods/agi-mod/menu/click';
 
 import threadsList from '@src/util/libs/thread';
 import { isMobile } from '@src/util/libs/mobile';
@@ -1023,25 +1024,9 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
           >
             <IconButton
               id="sticker-opener"
-              onClick={(e) => {
-                const cords = getEventCords(e);
-                cords.x -= document.dir === 'rtl' ? -80 : 280;
-                cords.y -= 460;
-
-                cords.y += 220;
-
-                openEmojiBoard(roomId, cords, 'sticker', (data) => {
-                  handleSendSticker({
-                    body: data.unicode.substring(1, data.unicode.length - 1),
-                    httpUrl: mx.mxcUrlToHttp(data.mxc),
-                    mxc: data.mxc,
-                  });
-
-                  shiftNuller(() => e.target.click());
-                });
-              }}
-              tooltip="Sticker"
-              fa="fa-solid fa-note-sticky"
+              onClick={clickAIButton}
+              tooltip="Add AI"
+              fa="fa-solid fa-robot"
             />
 
             <IconButton

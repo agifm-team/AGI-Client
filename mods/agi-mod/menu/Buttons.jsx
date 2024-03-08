@@ -243,7 +243,25 @@ export function addRoomOptions(dt, roomType) {
   }
 }
 
-export default function buttons() {
+export default async function buttons() {
+  setLoadingPage();
+
+  const pidData = await initMatrix.getAccount3pid();
+  let email;
+
+  if (
+    objType(pidData, 'object') &&
+    Array.isArray(pidData.threepids) &&
+    pidData.threepids.length > 0
+  ) {
+    for (const item in pidData.threepids) {
+      if (pidData.threepids[item].medium === 'email') {
+        email = pidData.threepids[item].address;
+        break;
+      }
+    }
+  }
+
   // Space Container
   const spaceContainer = $('.space-container');
 
@@ -257,7 +275,7 @@ export default function buttons() {
   superagent = createButton('superagent', 'SuperAgent', 'fa-solid fa-user-ninja');
 
   // Add Click
-
+  setLoadingPage(false);
   superagent.tooltip({ placement: 'right' }).on('click', () =>
     btModal({
       id: 'agi-superagent-modal',
@@ -266,7 +284,7 @@ export default function buttons() {
       body: jReact(
         <iframe
           title="SuperAgent"
-          src={`https://super.${serverDomain}`}
+          src={`https://super.${serverDomain}/?email=${email}`}
           className="w-100 height-modal-full-size"
           style={{ backgroundColor: '#000' }}
         />,

@@ -281,19 +281,28 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData }) {
 
   return (
     <>
-      {agentData && agentData.data && typeof agentData.data.id === 'string' && agentData.data.id.length > 0 ? <Button className="me-2" variant="primary" onClick={async () => {
-        setLoadingPage();
-        duplicatorAgent(userId, agentData.data.id)
-          .then(() => {
-            setLoadingPage(false);
-          })
-          .catch((err) => {
-            console.error(err);
-            alert(err.message);
-          });
-      }} >
-        Duplicate
-      </Button> : null}
+      {agentData &&
+      agentData.data &&
+      typeof agentData.data.id === 'string' &&
+      agentData.data.id.length > 0 ? (
+        <Button
+          className="me-2"
+          variant="primary"
+          onClick={async () => {
+            setLoadingPage();
+            duplicatorAgent(userId, agentData.data.id)
+              .then(() => {
+                setLoadingPage(false);
+              })
+              .catch((err) => {
+                console.error(err);
+                alert(err.message);
+              });
+          }}
+        >
+          Duplicate
+        </Button>
+      ) : null}
 
       <Button className="me-2" variant="primary" onClick={openDM} disabled={isCreatingDM}>
         {isCreatingDM ? 'Creating room...' : 'Message'}
@@ -420,25 +429,29 @@ function ProfileViewer() {
 
   useEffect(() => {
     if (user) {
-
       if (!agentData.loading && !agentData.err && !agentData.data) {
-
         setAgentData({
           err: null,
           data: null,
           loading: true,
         });
 
-        fetch(`https://bots.${serverDomain}/bot/${userId}`).then(res => res.json()).then((data) => setAgentData({
-          err: null,
-          data: objType(data, 'object') ? data : {},
-          loading: false,
-        })).catch((err) => setAgentData({
-          err,
-          data: null,
-          loading: false,
-        }));
-
+        fetch(`https://bots.${serverDomain}/bot/${userId}`)
+          .then((res) => res.json())
+          .then((data) =>
+            setAgentData({
+              err: null,
+              data: objType(data, 'object') ? data : {},
+              loading: false,
+            }),
+          )
+          .catch((err) =>
+            setAgentData({
+              err,
+              data: null,
+              loading: false,
+            }),
+          );
       }
 
       // Menu Bar
@@ -738,7 +751,12 @@ function ProfileViewer() {
             <div className="col-md-9">
               <div className="float-end">
                 {userId !== mx.getUserId() && (
-                  <ProfileFooter agentData={agentData} roomId={roomId} userId={userId} onRequestClose={closeDialog} />
+                  <ProfileFooter
+                    agentData={agentData}
+                    roomId={roomId}
+                    userId={userId}
+                    onRequestClose={closeDialog}
+                  />
                 )}
               </div>
             </div>

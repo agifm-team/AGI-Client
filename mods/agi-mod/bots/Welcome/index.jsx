@@ -263,7 +263,8 @@ function Welcome({ isGuest }) {
               <div className="carousel-caption">
                 <h5>Pixxel Forge</h5>
                 <p>
-                  Create Ai Pixxels, customizing their personality, appearance, and knowledge domains
+                  Create Ai Pixxels, customizing their personality, appearance, and knowledge
+                  domains
                 </p>
               </div>
             </div>
@@ -278,7 +279,8 @@ function Welcome({ isGuest }) {
               <div className="carousel-caption">
                 <h5>Fantastical Tools</h5>
                 <p>
-                  Embed specialized AI tools for visuals, sound, coding, writing – the limit is the imagination of the Pixxels community
+                  Embed specialized AI tools for visuals, sound, coding, writing – the limit is the
+                  imagination of the Pixxels community
                 </p>
               </div>
             </div>
@@ -293,7 +295,8 @@ function Welcome({ isGuest }) {
               <div className="carousel-caption">
                 <h5>Pixxel Spaces</h5>
                 <p>
-                  Whimsical virtual spaces where users collaborate with both human teams and their individual Pixxels
+                  Whimsical virtual spaces where users collaborate with both human teams and their
+                  individual Pixxels
                 </p>
               </div>
             </div>

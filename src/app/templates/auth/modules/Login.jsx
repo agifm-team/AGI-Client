@@ -86,7 +86,11 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
       >
         <Modal.Header className="noselect" closeButton>
           <Modal.Title className="h5 emoji-size-fix">
-            {type === 'login' ? 'Welcome back' : type === 'register' ? 'Register' : 'Recover Password'}
+            {type === 'login'
+              ? 'Welcome back'
+              : type === 'register'
+                ? 'Register'
+                : 'Recover Password'}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -236,7 +240,6 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
                     {type === 'login' ? 'Register here' : 'Login here'}
                   </a>
                 </p>
-
               </center>
             </>
           )}

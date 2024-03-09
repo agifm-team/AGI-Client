@@ -180,10 +180,10 @@ export default function FeaturedTab() {
                     !appearanceSettings.enableAnimParams
                       ? room.getAvatarFallbackMember()?.getAvatarUrl(mx.baseUrl)
                       : getAnimatedImageUrl(
-                        room
-                          .getAvatarFallbackMember()
-                          ?.getAvatarUrl(mx.baseUrl, 42, 42, 'crop'),
-                      ) || !appearanceSettings.enableAnimParams
+                            room
+                              .getAvatarFallbackMember()
+                              ?.getAvatarUrl(mx.baseUrl, 42, 42, 'crop'),
+                          ) || !appearanceSettings.enableAnimParams
                         ? room.getAvatarUrl(mx.baseUrl)
                         : getAnimatedImageUrl(room.getAvatarUrl(mx.baseUrl, 42, 42, 'crop')) || null
                   }

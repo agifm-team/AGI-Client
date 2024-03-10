@@ -335,7 +335,21 @@ function Welcome({ isGuest }) {
             </button>
           ) : null}
 
-          <center className="w-100 h3 title-place">Popular Spaces</center>
+          <center style={{ width: '100%', display: 'block' }}>
+              <img
+                  src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/pixxel-logo/logo3.jpg?raw=true"
+                  alt="Ai Pixxels"
+                  style={{ 
+                      maxWidth: '50%', 
+                      width: 'auto', 
+                      height: 'auto', 
+                      display: 'block', 
+                      marginLeft: 'auto', 
+                      marginRight: 'auto' 
+                  }}
+                  />
+          </center>
+            /* <center className="w-100 h3 title-place">Popular Spaces</center> */
         </div>
 
         <div id="search-title">

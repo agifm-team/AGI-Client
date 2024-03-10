@@ -338,7 +338,6 @@ function Welcome({ isGuest }) {
           <center style={{ width: '100%', display: 'block' }}>
               <img
                   src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/pixxel-logo/logo3.jpg?raw=true"
-                  alt="Ai Pixxels"
                   style={{ 
                       maxWidth: '50%', 
                       width: 'auto', 
@@ -349,9 +348,9 @@ function Welcome({ isGuest }) {
                   }}
                   />
           </center>
-            /* <center className="w-100 h3 title-place">Popular Spaces</center> */
         </div>
-
+{/* <center className="w-100 h3 title-place">Popular Spaces</center> */}
+          
         <div id="search-title">
           <div className="search-info mb-3">
             <form className="search-form mb-2 mt-3" onSubmit={handleSearchSubmit}>

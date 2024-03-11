@@ -85,65 +85,71 @@ function Welcome({ isGuest }) {
 
   // Effect
   useEffect(() => {
+    let botListUpdate;
     // Set Data
     if (data === null && !loadingData) {
       // Load Data
       setLoadingData(true);
 
-      fetch(`https://bots.${serverDomain}/botlist`, {
-        headers: {
-          Accept: 'application/json',
-        },
-      })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return res.json();
+      const loadingFetch = () => {
+        fetch(`https://bots.${serverDomain}/botlist`, {
+          headers: {
+            Accept: 'application/json',
+          },
         })
-        .then((newData) => {
-          if (Array.isArray(newData)) {
-            const rooms = [];
-            const listTags = [];
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return res.json();
+          })
+          .then((newData) => {
+            if (Array.isArray(newData)) {
+              const rooms = [];
+              const listTags = [];
 
-            for (const item in newData) {
-              if (objType(newData[item], 'object')) {
-                if (Array.isArray(newData[item].tags)) {
-                  for (const item2 in newData[item].tags) {
-                    if (
-                      typeof newData[item].tags[item2] === 'string' &&
-                      listTags.indexOf(newData[item].tags[item2]) < 0
-                    ) {
-                      listTags.push(newData[item].tags[item2]);
+              for (const item in newData) {
+                if (objType(newData[item], 'object')) {
+                  if (Array.isArray(newData[item].tags)) {
+                    for (const item2 in newData[item].tags) {
+                      if (
+                        typeof newData[item].tags[item2] === 'string' &&
+                        listTags.indexOf(newData[item].tags[item2]) < 0
+                      ) {
+                        listTags.push(newData[item].tags[item2]);
+                      }
                     }
                   }
-                }
 
-                rooms.push(newData[item]);
+                  rooms.push(newData[item]);
+                }
               }
+
+              setList(listTags);
+              setRoomData(rooms);
+            } else {
+              console.error(newData);
+              setList(null);
+              setRoomData(null);
             }
 
-            setList(listTags);
-            setRoomData(rooms);
-          } else {
-            console.error(newData);
-            setList(null);
-            setRoomData(null);
-          }
+            setLoadingData(false);
+          })
+          .catch((err) => {
+            console.error(err);
+            alert(err.message);
 
-          setLoadingData(false);
-        })
-        .catch((err) => {
-          console.error(err);
-          alert(err.message);
+            if (!connectionTestTimeout) {
+              connectionTestTimeout = true;
+              setTimeout(() => {
+                setLoadingData(false);
+              }, 3000);
+            }
+          });
+      };
 
-          if (!connectionTestTimeout) {
-            connectionTestTimeout = true;
-            setTimeout(() => {
-              setLoadingData(false);
-            }, 3000);
-          }
-        });
+      loadingFetch();
+      botListUpdate = setInterval(() => botListUpdate(), 60000);
     }
 
     const chatroom = $('.tiny-welcome #chatrooms .chatroom');
@@ -157,6 +163,7 @@ function Welcome({ isGuest }) {
     rainbowBorder(chatroom, rainbowPosition);
     return () => {
       clearInterval(intervalChatRoom);
+      if (botListUpdate) clearInterval(botListUpdate);
     };
   });
 

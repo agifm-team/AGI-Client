@@ -1,7 +1,0 @@
-{
-  "name": "Pixxels",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "custom"
-}

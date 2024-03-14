@@ -15,6 +15,7 @@ import { setLoadingPage } from '@src/app/templates/client/Loading';
 import jReact from '../../lib/jReact';
 import { serverDomain } from '../socket';
 import { clickAIButton } from './click';
+import { updateAgentsList } from '../bots/PeopleSelector';
 
 /* const openRoom = (roomId) => {
 
@@ -144,6 +145,15 @@ export default async function buttons() {
       dialog: 'modal-fullscreen',
       title: 'SuperAgent',
       hidden: () => {
+        setLoadingPage();
+        updateAgentsList()
+          .then(() => {
+            setLoadingPage(false);
+          })
+          .catch((err) => {
+            console.error(err);
+            setLoadingPage(false);
+          });
         tinyAPI.off('roomTimeline', roomTimelineValidator);
       },
       body: iframe,

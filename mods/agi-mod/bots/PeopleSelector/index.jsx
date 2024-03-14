@@ -9,7 +9,7 @@ import { serverAddress } from '../../socket';
 import PeopleSelector from './Item';
 
 let tinyData = null;
-function updateAgentsList() {
+export function updateAgentsList() {
   return new Promise((resolve) => {
     fetch(`${serverAddress}list/${initMatrix.matrixClient.getUserId()}`, {
       headers: {

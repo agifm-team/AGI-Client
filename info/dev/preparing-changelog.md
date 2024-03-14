@@ -1,0 +1,2 @@
+- Notifications issue fixed.
+- Capacitor files removed.

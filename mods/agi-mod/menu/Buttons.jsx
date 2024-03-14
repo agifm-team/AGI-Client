@@ -15,6 +15,7 @@ import { setLoadingPage } from '@src/app/templates/client/Loading';
 import jReact from '../../lib/jReact';
 import { serverDomain } from '../socket';
 import { clickAIButton } from './click';
+import { updateAgentsList } from '../bots/PeopleSelector';
 
 /* const openRoom = (roomId) => {
 
@@ -124,12 +125,16 @@ export default async function buttons() {
     const iframe = $('<iframe>', {
       title: 'SuperAgent',
       src: `https://super.${serverDomain}/?email=${encodeURIComponent(email)}`,
-      class: 'w-100 height-modal-full-size'
+      class: 'w-100 height-modal-full-size',
     }).css('background-color', '#000');
 
     const roomTimelineValidator = (data, event) => {
       const content = event.getContent();
-      if (event.sender === `@otp:${serverDomain}` && typeof content.magic_link === 'string' && linkify.test(content.magic_link)) {
+      if (
+        event.sender === `@otp:${serverDomain}` &&
+        typeof content.magic_link === 'string' &&
+        linkify.test(content.magic_link)
+      ) {
         iframe.attr('src', content.magic_link);
       }
     };
@@ -140,11 +145,19 @@ export default async function buttons() {
       dialog: 'modal-fullscreen',
       title: 'SuperAgent',
       hidden: () => {
+        setLoadingPage();
+        updateAgentsList()
+          .then(() => {
+            setLoadingPage(false);
+          })
+          .catch((err) => {
+            console.error(err);
+            setLoadingPage(false);
+          });
         tinyAPI.off('roomTimeline', roomTimelineValidator);
       },
       body: iframe,
     });
-
   });
 
   // Append

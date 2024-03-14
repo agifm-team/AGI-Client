@@ -1,4 +1,4 @@
-import { LocalNotifications } from '@capacitor/local-notifications';
+// import { LocalNotifications } from '@capacitor/local-notifications';
 import { NotificationCountType } from 'matrix-js-sdk';
 import EventEmitter from 'events';
 
@@ -258,9 +258,9 @@ class Notifications extends EventEmitter {
           notiData.largeBody = data.body;
         }
 
-        await LocalNotifications.schedule({
+        /* await LocalNotifications.schedule({
           notifications: [notiData],
-        });
+        }); */
       }
 
       // Browser and Desktop
@@ -327,7 +327,8 @@ class Notifications extends EventEmitter {
 
     // Tiny API
     tinyAPI.emit('roomTimeline', mEvent, room);
-    if (stopNotification) return;
+    if (stopNotification || !this.hasNoti(room.roomId, mEvent.thread ? mEvent.thread.id : null))
+      return;
 
     // Data Prepare
     const userStatus = getAccountStatus('status');
@@ -478,6 +479,8 @@ class Notifications extends EventEmitter {
     this._listenRoomTimeline = (mEvent, room) => {
       if (mEvent.isRedaction()) this._deletePopupNoti(mEvent.event.redacts);
 
+      let total = 0;
+      let highlight = 0;
       let stopNotification = false;
       if (messageIsClassicCrdt(mEvent)) {
         // insertIntoRoomEventsDB(mEvent, true).catch(console.error);
@@ -511,11 +514,11 @@ class Notifications extends EventEmitter {
         }
 
         if (!stopNotification) {
-          const total = !mEvent.thread
+          total = !mEvent.thread
             ? room.getRoomUnreadNotificationCount(NotificationCountType.Total)
             : room.getThreadUnreadNotificationCount(mEvent.thread.id, NotificationCountType.Total);
 
-          const highlight = !mEvent.thread
+          highlight = !mEvent.thread
             ? room.getRoomUnreadNotificationCount(NotificationCountType.Highlight)
             : room.getThreadUnreadNotificationCount(
                 mEvent.thread.id,
@@ -545,7 +548,7 @@ class Notifications extends EventEmitter {
       }
 
       if (this.matrixClient.getSyncState() === 'SYNCING') {
-        this._displayPopupNoti(mEvent, room, stopNotification);
+        this._displayPopupNoti(mEvent, room, stopNotification, total, highlight);
       } else {
         // insertIntoRoomEventsDB(mEvent, true).catch(console.error);
       }

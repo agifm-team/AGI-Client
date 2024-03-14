@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { NotificationCountType } from 'matrix-js-sdk';
 import cons from '@src/client/state/cons';
+import { abbreviateNumber } from '@src/util/common';
 
 import { twemojifyReact } from '../../../util/twemojify';
 import { colorMXID } from '../../../util/colorMXID';
@@ -282,16 +282,16 @@ RoomSelector.propTypes = {
 };
 
 export default RoomSelector;
-export function ThreadSelector({ thread, isSelected, isMuted, options, onContextMenu }) {
+export function ThreadSelector({ room, thread, isSelected, isMuted, options, onContextMenu }) {
   const { rootEvent } = thread;
   const { notifications } = initMatrix;
 
   const [notificationCount, setNotiCount] = useState(
-    thread.room.getThreadUnreadNotificationCount(thread.id, NotificationCountType.Total),
+    notifications.getTotalNoti(room.roomId, thread.id),
   );
 
   const [highlightNotificationCount, setHighNotiCount] = useState(
-    thread.room.getThreadUnreadNotificationCount(thread.id, NotificationCountType.Highlight),
+    notifications.getHighlightNoti(room.roomId, thread.id),
   );
 
   const isUnread = !isMuted && notificationCount > 0;
@@ -307,13 +307,9 @@ export function ThreadSelector({ thread, isSelected, isMuted, options, onContext
   useEffect(() => {
     const threadUpdate = (tth) => {
       if (tth.id === thread.id) {
-        setNotiCount(
-          thread.room.getThreadUnreadNotificationCount(thread.id, NotificationCountType.Total),
-        );
+        setNotiCount(notifications.getTotalNoti(room.roomId, thread.id));
 
-        setHighNotiCount(
-          thread.room.getThreadUnreadNotificationCount(thread.id, NotificationCountType.Highlight),
-        );
+        setHighNotiCount(notifications.getHighlightNoti(room.roomId, thread.id));
       }
     };
 
@@ -341,7 +337,7 @@ export function ThreadSelector({ thread, isSelected, isMuted, options, onContext
             <NotificationBadge
               className="float-end"
               alert={isAlert}
-              content={notificationCount > 0 ? notificationCount : null}
+              content={notificationCount > 0 ? abbreviateNumber(notificationCount) : null}
             />
           )}
         </div>

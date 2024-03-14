@@ -9,7 +9,7 @@ import { serverAddress } from '../../socket';
 import PeopleSelector from './Item';
 
 let tinyData = null;
-function updateAgentsList() {
+export function updateAgentsList() {
   return new Promise((resolve) => {
     fetch(`${serverAddress}list/${initMatrix.matrixClient.getUserId()}`, {
       headers: {
@@ -37,35 +37,65 @@ export default function startPeopleSelector() {
     updateAgentsList();
 
     customItems = [];
-    if (Array.isArray(tinyData)) {
-      for (const item in tinyData) {
-        if (objType(tinyData[item], 'object')) {
-          const newData = {
-            // name: tinyData[item].agent_name,
-            name: tinyData[item].bot_username,
+    const addCustomItems = (theTinyData) => {
+      if (Array.isArray(theTinyData)) {
+        for (const item in theTinyData) {
+          if (objType(theTinyData[item], 'object')) {
+            const newData = {
+              // name: theTinyData[item].agent_name,
+              name: theTinyData[item].bot_username,
 
-            peopleRole: 'Bot',
-            powerLevel: undefined,
-            customData: tinyData[item].customData,
-            userId: tinyData[item].bot_username,
-            username: tinyData[item].bot_username,
+              peopleRole: 'Bot',
+              powerLevel: undefined,
+              customData: theTinyData[item].customData,
+              userId: theTinyData[item].bot_username,
+              username: theTinyData[item].bot_username,
 
-            customClick: (event) => {
-              event.preventDefault();
-            },
-            customSelector: PeopleSelector,
-          };
+              customClick: (event) => {
+                event.preventDefault();
+              },
+              customSelector: PeopleSelector,
+            };
 
-          try {
-            newData.avatarSrc = insertAgiAvatar(tinyData[item]);
-          } catch (err) {
-            console.error(err);
-            newData.avatarSrc = defaultAvatar(1);
+            try {
+              newData.avatarSrc = insertAgiAvatar(theTinyData[item]);
+            } catch (err) {
+              console.error(err);
+              newData.avatarSrc = defaultAvatar(1);
+            }
+
+            customItems.push(newData);
           }
-
-          customItems.push(newData);
         }
       }
+    };
+
+    if (objType(tinyData, 'object')) {
+      customItems.push({
+        name: 'My Agents',
+        peopleRole: 'divisor',
+        powerLevel: undefined,
+        userId: '',
+        username: '',
+        customClick: (event) => {
+          event.preventDefault();
+        },
+        customSelector: PeopleSelector,
+      });
+      addCustomItems(tinyData.personal);
+
+      customItems.push({
+        name: 'Public Agents',
+        peopleRole: 'divisor',
+        powerLevel: undefined,
+        userId: '',
+        username: '',
+        customClick: (event) => {
+          event.preventDefault();
+        },
+        customSelector: PeopleSelector,
+      });
+      addCustomItems(tinyData.public);
     }
 
     items.unshift({ name: 'Agents', value: 'agents', custom: customItems });

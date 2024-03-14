@@ -124,12 +124,16 @@ export default async function buttons() {
     const iframe = $('<iframe>', {
       title: 'SuperAgent',
       src: `https://super.${serverDomain}/?email=${encodeURIComponent(email)}`,
-      class: 'w-100 height-modal-full-size'
+      class: 'w-100 height-modal-full-size',
     }).css('background-color', '#000');
 
     const roomTimelineValidator = (data, event) => {
       const content = event.getContent();
-      if (event.sender === `@otp:${serverDomain}` && typeof content.magic_link === 'string' && linkify.test(content.magic_link)) {
+      if (
+        event.sender === `@otp:${serverDomain}` &&
+        typeof content.magic_link === 'string' &&
+        linkify.test(content.magic_link)
+      ) {
         iframe.attr('src', content.magic_link);
       }
     };
@@ -144,7 +148,6 @@ export default async function buttons() {
       },
       body: iframe,
     });
-
   });
 
   // Append

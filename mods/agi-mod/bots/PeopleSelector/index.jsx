@@ -71,7 +71,30 @@ export default function startPeopleSelector() {
     };
 
     if (objType(tinyData, 'object')) {
+      customItems.push({
+        name: 'My Agents',
+        peopleRole: 'divisor',
+        powerLevel: undefined,
+        userId: '',
+        username: '',
+        customClick: (event) => {
+          event.preventDefault();
+        },
+        customSelector: PeopleSelector,
+      });
       addCustomItems(tinyData.personal);
+
+      customItems.push({
+        name: 'Public Agents',
+        peopleRole: 'divisor',
+        powerLevel: undefined,
+        userId: '',
+        username: '',
+        customClick: (event) => {
+          event.preventDefault();
+        },
+        customSelector: PeopleSelector,
+      });
       addCustomItems(tinyData.public);
     }
 

@@ -61,7 +61,7 @@ function PeopleSelector({ avatarSrc, name, user, peopleRole, customData }) {
     };
   });
 
-  return (
+  return peopleRole !== 'divisor' ? (
     <div ref={profileButtonRef} className="card agent-button noselect">
       <div className="avatar-place text-start my-3 mx-4">
         <img
@@ -85,6 +85,8 @@ function PeopleSelector({ avatarSrc, name, user, peopleRole, customData }) {
         <p className="bot-role card-text very-small text-bg-low">{peopleRole}</p>
       </div>
     </div>
+  ) : (
+    <h5>{name}</h5>
   );
 }
 

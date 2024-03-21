@@ -29,6 +29,7 @@ export function updateAgentsList() {
   });
 }
 
+updateAgentsList();
 let customItems = [];
 export default function startPeopleSelector() {
   // Members List

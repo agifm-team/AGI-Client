@@ -1,3 +1,5 @@
+    Precisa ser criado um sistema onde o index.js é modificado a cada tipo de execução para atender um determinado tipo de script.
+
     scaleDownImage to gif
 
     Mobile:
@@ -7,9 +9,11 @@
     Mobile Background mode
     Mobile Rec audio
 
-    Cadê o @everyone, @here, @room?
-
     Fazer um sistema para facilitar rooms que são descrições de informação.
+
+    Adicionar suporte a link para ir diretamente a mensagens.
+
+    Corrigir scroll quando a página está perto demais.
 
     =============================================
 

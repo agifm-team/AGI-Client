@@ -100,7 +100,11 @@ export default function startPeopleSelector() {
     }
 
     items.unshift({ name: 'Agents', value: 'agents', custom: customItems });
+
     const banItem = items.findIndex((item) => item.value === 'ban');
     if (banItem > -1) items.splice(banItem, 1);
+
+    const invitedItem = items.findIndex((item) => item.value === 'invite');
+    if (invitedItem > -1) items.splice(invitedItem, 1);
   });
 }

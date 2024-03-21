@@ -72,7 +72,7 @@ export default function startPeopleSelector() {
     };
 
     if (objType(tinyData, 'object')) {
-      customItems.push({
+      /* customItems.push({
         name: 'My Agents',
         peopleRole: 'divisor',
         powerLevel: undefined,
@@ -83,7 +83,7 @@ export default function startPeopleSelector() {
         },
         customSelector: PeopleSelector,
       });
-      addCustomItems(tinyData.personal);
+      addCustomItems(tinyData.personal); */
 
       customItems.push({
         name: 'Public Agents',

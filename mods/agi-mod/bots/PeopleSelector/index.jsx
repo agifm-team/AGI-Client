@@ -30,15 +30,16 @@ export function updateAgentsList() {
 }
 
 updateAgentsList();
-let customItems = [];
+const customItems = { public: [], personal: [] };
 export default function startPeopleSelector() {
   // Members List
   updateAgentsList();
   tinyAPI.on('roomMembersOptions', (data, items) => {
     updateAgentsList();
 
-    customItems = [];
-    const addCustomItems = (theTinyData) => {
+    customItems.public = [];
+    customItems.personal = [];
+    const addCustomItems = (theTinyData, where) => {
       if (Array.isArray(theTinyData)) {
         for (const item in theTinyData) {
           if (objType(theTinyData[item], 'object')) {
@@ -65,14 +66,14 @@ export default function startPeopleSelector() {
               newData.avatarSrc = defaultAvatar(1);
             }
 
-            customItems.push(newData);
+            customItems[where].push(newData);
           }
         }
       }
     };
 
     if (objType(tinyData, 'object')) {
-      /* customItems.push({
+      customItems.personal.push({
         name: 'My Agents',
         peopleRole: 'divisor',
         powerLevel: undefined,
@@ -83,9 +84,9 @@ export default function startPeopleSelector() {
         },
         customSelector: PeopleSelector,
       });
-      addCustomItems(tinyData.personal); */
+      addCustomItems(tinyData.personal, 'personal');
 
-      customItems.push({
+      customItems.public.push({
         name: 'Public Agents',
         peopleRole: 'divisor',
         powerLevel: undefined,
@@ -96,15 +97,17 @@ export default function startPeopleSelector() {
         },
         customSelector: PeopleSelector,
       });
-      addCustomItems(tinyData.public);
+      addCustomItems(tinyData.public, 'public');
     }
 
-    items.unshift({ name: 'Agents', value: 'agents', custom: customItems });
+    items.unshift({ name: 'Personal', value: 'personal', custom: customItems.personal });
+    items.unshift({ name: 'Public', value: 'agents', custom: customItems.public });
 
     const banItem = items.findIndex((item) => item.value === 'ban');
     if (banItem > -1) items.splice(banItem, 1);
 
     const invitedItem = items.findIndex((item) => item.value === 'invite');
     if (invitedItem > -1) items.splice(invitedItem, 1);
+
   });
 }

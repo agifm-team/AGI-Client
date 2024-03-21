@@ -1,5 +1,5 @@
 ## Builder
-FROM node:18.19.0-alpine3.19 as builder
+FROM node:20-alpine3.19 as builder
 
 WORKDIR /src
 RUN apk add yarn

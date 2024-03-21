@@ -108,6 +108,5 @@ export default function startPeopleSelector() {
 
     const invitedItem = items.findIndex((item) => item.value === 'invite');
     if (invitedItem > -1) items.splice(invitedItem, 1);
-
   });
 }

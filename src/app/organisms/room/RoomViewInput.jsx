@@ -69,7 +69,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
   const rightOptionsRef = useRef(null);
 
   // Timeout Cfg
-  const TYPING_TIMEOUT = 5000;
+  const TYPING_TIMEOUT = 20000;
 
   // Matrix Client
   const mx = initMatrix.matrixClient;

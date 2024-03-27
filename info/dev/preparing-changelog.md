@@ -1,4 +1,2 @@
-- Notifications issue fixed.
-- Capacitor files removed.
-- GlobalNotifications page updated.
-- @everyone and @here added to notifications settings.
+- Typing warning timeout updated.
+- File upload issue fixed.

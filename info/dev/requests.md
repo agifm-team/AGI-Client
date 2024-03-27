@@ -1,5 +1,3 @@
-    Precisa ser criado um sistema onde o index.js é modificado a cada tipo de execução para atender um determinado tipo de script.
-
     scaleDownImage to gif
 
     Mobile:
@@ -12,16 +10,15 @@
     Fazer um sistema para facilitar rooms que são descrições de informação.
 
     Adicionar suporte a link para ir diretamente a mensagens.
+    /?room_id=&thread_id=&event_id=
 
-    Corrigir scroll quando a página está perto demais.
+    Opção opciolnal de desativar stickers
 
     =============================================
 
     Trocar o titulo da página de bolinha de notificação para números
 
     =============================================
-
-    --> Menu mobile de ícones precisa parar de ser table usar flex.
 
     --> Fazer opção para uma room de informações ser realmente de informação.
 

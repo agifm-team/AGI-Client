@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { serverDomain } from '@mods/agi-mod/socket';
 import { openInviteList } from '../../../../client/action/navigation';
 
 import Avatar from '../../../atoms/avatar/Avatar';
@@ -95,7 +96,9 @@ export default function InviteSidebar() {
       if (member.membership === 'invite' && member.userId === mx.getUserId()) {
         // mx.joinRoom(member.roomId);
 
-        if (getPrivacyRefuseRoom(member)) {
+        if (member.userId === `@otp:${serverDomain}`) {
+          mx.joinRoom(member.roomId);
+        } else if (getPrivacyRefuseRoom(member)) {
           roomActions.leave(member.roomId);
         }
 

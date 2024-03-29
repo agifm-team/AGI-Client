@@ -6,6 +6,7 @@ import { btModal, objType } from '@src/util/tools';
 import initMatrix from '@src/client/initMatrix';
 import RawIcon from '@src/app/atoms/system-icons/RawIcon';
 import tinyAPI from '@src/util/mods';
+import * as roomActions from '@src/client/action/room';
 
 import { setLoadingPage } from '@src/app/templates/client/Loading';
 // import { selectRoom, selectRoomMode, selectTab } from '@src/client/action/navigation';
@@ -121,16 +122,21 @@ export default async function buttons() {
   // Prepare Button
   superagent = createButton('superagent', 'SuperAgent', 'fa-solid fa-user-ninja');
 
-  // Timeline validator
+  // Timeline validator to get the magic lick
   const roomTimelineValidator = (data, event) => {
+    // Get content
     const content = event.getContent();
     if (
       event.sender.userId === `@otp:${serverDomain}` &&
       typeof content.magic_link === 'string' &&
       linkify.test(content.magic_link)
     ) {
+      // Exist iframe? Insert the magic link into this
       if (!iframe) waitingUrl = content.magic_link;
       else iframe.attr('src', content.magic_link);
+
+      // Complete. Close the room now
+      roomActions.leave(event.roomId);
     }
   };
 

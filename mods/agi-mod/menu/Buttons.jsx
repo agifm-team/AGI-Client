@@ -129,9 +129,8 @@ export default async function buttons() {
       typeof content.magic_link === 'string' &&
       linkify.test(content.magic_link)
     ) {
-      console.log(content.magic_link);
-      // iframe.attr('src', content.magic_link);
-      waitingUrl = content.magic_link;
+      if (!iframe) waitingUrl = content.magic_link;
+      else iframe.attr('src', content.magic_link);
     }
   };
 
@@ -155,6 +154,7 @@ export default async function buttons() {
       dialog: 'modal-fullscreen',
       title: 'SuperAgent',
       hidden: () => {
+        iframe = null;
         setLoadingPage();
         updateAgentsList()
           .then(() => {

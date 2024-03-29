@@ -88,6 +88,8 @@ export function addRoomOptions(dt, roomType) {
   }
 }
 
+let waitingUrl;
+let iframe;
 export default async function buttons() {
   setLoadingPage();
 
@@ -119,27 +121,35 @@ export default async function buttons() {
   // Prepare Button
   superagent = createButton('superagent', 'SuperAgent', 'fa-solid fa-user-ninja');
 
+  // Timeline validator
+  const roomTimelineValidator = (data, event) => {
+    const content = event.getContent();
+    if (
+      event.sender.userId === `@otp:${serverDomain}` &&
+      typeof content.magic_link === 'string' &&
+      linkify.test(content.magic_link)
+    ) {
+      console.log(content.magic_link);
+      // iframe.attr('src', content.magic_link);
+      waitingUrl = content.magic_link;
+    }
+  };
+
+  tinyAPI.on('roomTimeline', roomTimelineValidator);
+
   // Add Click
   setLoadingPage(false);
   superagent.tooltip({ placement: 'right' }).on('click', () => {
-    const iframe = $('<iframe>', {
+    const newUrl = !waitingUrl
+      ? `https://super.${serverDomain}/?email=${encodeURIComponent(email)}`
+      : waitingUrl;
+    iframe = $('<iframe>', {
       title: 'SuperAgent',
-      src: `https://super.${serverDomain}/?email=${encodeURIComponent(email)}`,
+      src: newUrl,
       class: 'w-100 height-modal-full-size',
     }).css('background-color', '#000');
+    waitingUrl = null;
 
-    const roomTimelineValidator = (data, event) => {
-      const content = event.getContent();
-      if (
-        event.sender === `@otp:${serverDomain}` &&
-        typeof content.magic_link === 'string' &&
-        linkify.test(content.magic_link)
-      ) {
-        iframe.attr('src', content.magic_link);
-      }
-    };
-
-    tinyAPI.on('roomTimeline', roomTimelineValidator);
     btModal({
       id: 'agi-superagent-modal',
       dialog: 'modal-fullscreen',
@@ -154,7 +164,6 @@ export default async function buttons() {
             console.error(err);
             setLoadingPage(false);
           });
-        tinyAPI.off('roomTimeline', roomTimelineValidator);
       },
       body: iframe,
     });

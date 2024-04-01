@@ -15,7 +15,6 @@ import { setLoadingPage } from '@src/app/templates/client/Loading';
 
 import jReact from '../../lib/jReact';
 import { serverDomain } from '../socket';
-import { clickAIButton } from './click';
 import { updateAgentsList } from '../bots/PeopleSelector';
 
 /* const openRoom = (roomId) => {
@@ -48,46 +47,6 @@ const createButton = (id, title, icon) =>
       </div>
     </button>,
   );
-
-export function addRoomOptions(dt, roomType) {
-  // Room Options list
-  const roomOptions = $('#room-options');
-
-  // Add Special Button
-  let botsMenu = roomOptions.find('#agi-bots-menu').remove();
-  if (roomType === 'room') {
-    // Prepare Button
-    botsMenu = jReact(
-      <li className="nav-item" id="agi-bots-menu">
-        <button
-          title="Add AI"
-          className={[
-            'btn',
-            'ic-btn',
-            'ic-btn-link',
-            'btn-bg',
-            'btn-link',
-            'btn-bg',
-            'btn-text-link',
-            'btn-bg',
-            'nav-link',
-            'border-0',
-          ].join(' ')}
-          tabIndex={0}
-          type="button"
-        >
-          <RawIcon fa="bi bi-lightbulb-fill" />
-        </button>
-      </li>,
-    );
-
-    // Bot List button
-    botsMenu.find('> button').tooltip({ placement: 'bottom' }).on('click', clickAIButton);
-
-    // Append
-    roomOptions.prepend(botsMenu);
-  }
-}
 
 let waitingUrl;
 let iframe;

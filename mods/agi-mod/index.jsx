@@ -4,7 +4,7 @@ import tinyAPI from '@src/util/mods';
 import './scss/style.scss';
 import startPeopleSelector from './bots/PeopleSelector';
 
-import buttons, { addRoomOptions } from './menu/Buttons';
+import buttons from './menu/Buttons';
 import Welcome from './bots/Welcome';
 import startMessage from './bots/Message';
 
@@ -20,9 +20,9 @@ export default function startAgiMod(firstTime) {
     startMessage();
 
     // Start Page Detector
-    addRoomOptions({}, 'room');
-    tinyAPI.on('selectedRoomModeAfter', addRoomOptions);
-    tinyAPI.on('selectTabAfter', () => addRoomOptions({}, 'room'));
+    // addRoomOptions({}, 'room');
+    // tinyAPI.on('selectedRoomModeAfter', addRoomOptions);
+    // tinyAPI.on('selectTabAfter', () => addRoomOptions({}, 'room'));
     tinyAPI.on('emptyTimeline', (data, forceUpdateLimit) => forceUpdateLimit());
 
     // Mod Loaded

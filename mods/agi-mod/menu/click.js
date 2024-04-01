@@ -78,8 +78,9 @@ const clickAIButton = () => {
     },
   })
     .then((res) => res.json())
-    .then((data) => {
-      if (Array.isArray(data)) {
+    .then((tinyData) => {
+      if (objType(tinyData, 'object') && Array.isArray(tinyData.personal)) {
+        const data = tinyData.personal;
         // Prepare to read data
         setLoadingPage(false);
         const users = [];
@@ -151,6 +152,8 @@ const clickAIButton = () => {
             $('<div>', { class: 'invite-user__content' }).append(users),
           ),
         });
+      } else {
+        setLoadingPage(false);
       }
     })
     .catch((err) => {

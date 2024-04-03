@@ -222,7 +222,9 @@ async function createRoom(opts) {
     visibility,
     room_alias_name: alias,
     initial_state: [],
-    power_level_content_override: undefined,
+    power_level_content_override: {
+      invite: 0,
+    },
   };
   if (isSpace) {
     options.creation_content = { type: 'm.space' };
@@ -240,10 +242,8 @@ async function createRoom(opts) {
     });
   }
   if (powerLevel) {
-    options.power_level_content_override = {
-      users: {
-        [mx.getUserId()]: powerLevel,
-      },
+    options.power_level_content_override.users = {
+      [mx.getUserId()]: powerLevel,
     };
   }
   if (parentId) {

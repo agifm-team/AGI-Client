@@ -3,6 +3,7 @@ import encrypt from 'matrix-encrypt-attachment';
 import { encode } from 'blurhash';
 import { EventTimeline } from 'matrix-js-sdk';
 
+import blobUrlManager from '@src/util/libs/blobUrlManager';
 import { isMobile } from '@src/util/libs/mobile';
 import { fileReader, uploadContent } from '@src/app/molecules/file-input/FileInput';
 
@@ -13,6 +14,7 @@ import cons from './cons';
 import settings from './settings';
 import { markdown, plain, html } from '../../util/markdown';
 import { clearUrlsFromHtml, clearUrlsFromText } from '../../util/clear-urls/clearUrls';
+import { fetchFn } from '../initMatrix';
 
 const blurhashField = 'xyz.amorgan.blurhash';
 
@@ -317,7 +319,7 @@ class RoomsInput extends EventEmitter {
     img.src = httpUrl;
 
     try {
-      const res = await fetch(httpUrl);
+      const res = await fetchFn(httpUrl);
       const blob = await res.blob();
       info.w = img.width;
       info.h = img.height;
@@ -348,9 +350,14 @@ class RoomsInput extends EventEmitter {
     let uploadData = null;
 
     if (fileType === 'image') {
-      const img = await loadImage(
-        !isMobile(true) ? URL.createObjectURL(file) : `data:${file.type};base64, ${file.data}`,
-      );
+      let imgData;
+      if (!isMobile(true)) {
+        imgData = await blobUrlManager.insert(file);
+      } else {
+        imgData = `data:${file.type};base64, ${file.data}`;
+      }
+
+      const img = await loadImage(imgData);
 
       info.w = img.width;
       info.h = img.height;

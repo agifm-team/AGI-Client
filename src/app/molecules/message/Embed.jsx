@@ -19,7 +19,7 @@ const tinyUrlAction = (event) => {
 };
 
 // Embed Data
-function Embed({ embed }) {
+function Embed({ embed, roomId, threadId }) {
   // URL Ref
   const tinyUrl = useRef(null);
   const itemEmbed = useRef(null);
@@ -29,9 +29,9 @@ function Embed({ embed }) {
     typeof embed['og:image:type'] === 'string' && embed['og:image:type'].length > 0
       ? embed['og:image:type'].split('/')
       : null;
-  useEffect(() => {
-    // console.log(itemEmbed);
 
+  // Add Click
+  useEffect(() => {
     $(tinyUrl.current).on('click', tinyUrlAction);
     return () => {
       $(tinyUrl.current).off('click', tinyUrlAction);
@@ -64,6 +64,8 @@ function Embed({ embed }) {
   ) {
     return (
       <Media.Image
+        roomId={roomId}
+        threadId={threadId}
         name={
           typeof embed['og:description'] === 'string' && embed['og:description'].length > 0
             ? embed['og:description']
@@ -117,6 +119,8 @@ function Embed({ embed }) {
         {isThumb && typeof imgUrl === 'string' ? (
           <span className="float-end">
             <Media.Image
+              roomId={roomId}
+              threadId={threadId}
               name="embed-img"
               className="embed-thumb"
               width={Number(embed['og:image:width'])}
@@ -178,6 +182,8 @@ function Embed({ embed }) {
 
           {!isVideo && !isThumb && typeof imgUrl === 'string' && imgUrl.length > 0 ? (
             <Media.Image
+              roomId={roomId}
+              threadId={threadId}
               name="embed-img"
               className="mt-2 embed-img"
               width={Number(embed['og:image:width'])}
@@ -218,10 +224,14 @@ function Embed({ embed }) {
 // Message Default Data
 Embed.defaultProps = {
   embed: {},
+  roomId: null,
+  threadId: null,
 };
 
 Embed.propTypes = {
   embed: PropTypes.object,
+  roomId: PropTypes.string,
+  threadId: PropTypes.string,
 };
 
 export default Embed;

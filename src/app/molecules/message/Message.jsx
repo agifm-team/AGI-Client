@@ -291,6 +291,7 @@ const createMessageData = (
   roomId = null,
   senderId = null,
   eventId = null,
+  threadId = null,
 ) => {
   let msgData = null;
   if (isCustomHTML) {
@@ -315,7 +316,7 @@ const createMessageData = (
       const msgOptions = tinyAPI.emit(
         'messageBody',
         content,
-        { roomId, senderId, eventId },
+        { roomId, threadId, senderId, eventId },
         insertMsg,
       );
 
@@ -383,6 +384,7 @@ const MessageBody = React.memo(
     roomId,
     senderId,
     eventId,
+    threadId,
     content,
     className,
     senderName,
@@ -413,6 +415,7 @@ const MessageBody = React.memo(
       roomId,
       senderId,
       eventId,
+      threadId,
     );
 
     // Emoji Only
@@ -457,6 +460,7 @@ MessageBody.defaultProps = {
   isSystem: false,
   isEdited: false,
   msgType: null,
+  threadId: null,
   content: {},
 };
 MessageBody.propTypes = {
@@ -465,6 +469,7 @@ MessageBody.propTypes = {
   roomId: PropTypes.string.isRequired,
   senderId: PropTypes.string.isRequired,
   eventId: PropTypes.string.isRequired,
+  threadId: PropTypes.string,
   body: PropTypes.node.isRequired,
   isSystem: PropTypes.bool,
   isCustomHTML: PropTypes.bool,
@@ -1131,6 +1136,8 @@ function genMediaContent(mE) {
     case 'm.file':
       return (
         <Media.File
+          roomId={mE.getRoomId()}
+          threadId={mE.getThread()?.id}
           name={mContent.body}
           link={mx.mxcUrlToHttp(mediaMXC)}
           type={mContent.info?.mimetype}
@@ -1142,6 +1149,8 @@ function genMediaContent(mE) {
     case 'm.image':
       return (
         <Media.Image
+          roomId={mE.getRoomId()}
+          threadId={mE.getThread()?.id}
           name={mContent.body}
           width={typeof mContent.info?.w === 'number' ? mContent.info?.w : null}
           height={typeof mContent.info?.h === 'number' ? mContent.info?.h : null}
@@ -1156,6 +1165,8 @@ function genMediaContent(mE) {
     case 'm.sticker':
       return (
         <Media.Sticker
+          roomId={mE.getRoomId()}
+          threadId={mE.getThread()?.id}
           name={mContent.body}
           width={
             typeof mContent.info?.w === 'number' && !Number.isNaN(mContent.info?.w)
@@ -1177,6 +1188,8 @@ function genMediaContent(mE) {
     case 'm.audio':
       return (
         <Media.Audio
+          roomId={mE.getRoomId()}
+          threadId={mE.getThread()?.id}
           name={mContent.body}
           link={mx.mxcUrlToHttp(mediaMXC)}
           type={mContent.info?.mimetype}
@@ -1191,6 +1204,8 @@ function genMediaContent(mE) {
       }
       return (
         <Media.Video
+          roomId={mE.getRoomId()}
+          threadId={mE.getThread()?.id}
           name={mContent.body}
           link={mx.mxcUrlToHttp(mediaMXC)}
           thumbnail={thumbnailMXC === null ? null : mx.mxcUrlToHttp(thumbnailMXC)}
@@ -1253,7 +1268,6 @@ function Message({
   const [existThread, updateExistThread] = useState(typeof threadId === 'string');
   const [embeds, setEmbeds] = useState([]);
   const [embedHeight, setEmbedHeight] = useState(null);
-  const itemEmbed = useRef(null);
 
   // Content Body
   const classList = ['message', isBodyOnly ? 'message--body-only' : 'message--full'];
@@ -1448,8 +1462,6 @@ function Message({
     };
   }, []);
 
-  useEffect(() => mediaFix(itemEmbed, embedHeight, setEmbedHeight));
-
   useEffect(() => {
     const threadUpdate = (tth) => {
       const thread = mEvent.getThread();
@@ -1534,6 +1546,7 @@ function Message({
                 roomId={roomId}
                 senderId={senderId}
                 eventId={eventId}
+                threadId={threadId}
                 className={classNameMessage}
                 senderName={username}
                 isCustomHTML={isCustomHTML}
@@ -1545,11 +1558,13 @@ function Message({
               />
 
               {embeds.length > 0 ? (
-                <div ref={itemEmbed} className="message-embed message-url-embed">
+                <div className="message-embed message-url-embed">
                   {embeds.map((embed) => {
                     if (embed.data)
                       return (
                         <Embed
+                          roomId={roomId}
+                          threadId={threadId}
                           key={`msg_embed_${embed.eventId}_${generateApiKey()}`}
                           embed={embed.data}
                         />
@@ -1651,6 +1666,7 @@ function Message({
             roomId={roomId}
             senderId={senderId}
             eventId={eventId}
+            threadId={threadId}
             senderName={username}
             isSystem={isCustomHTML}
             body={errorMessage}

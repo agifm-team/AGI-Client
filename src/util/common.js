@@ -1,5 +1,6 @@
 import { convertToBase64Mobile, createObjectURL } from '@src/app/molecules/file-input/FileInput';
 import urlParams from './libs/urlParams';
+import blobUrlManager from './libs/blobUrlManager';
 
 export function bytesToSize(bytes) {
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -160,46 +161,49 @@ export function getImageDimension(file) {
         w: img.width,
         h: img.height,
       });
-      URL.revokeObjectURL(img.src);
+      blobUrlManager.delete(img.src);
     };
-    img.src = URL.createObjectURL(file);
+    blobUrlManager.insert(file).then((src) => {
+      img.src = src;
+    });
   });
 }
 
 export function scaleDownImage(imageFile, width, height) {
   return new Promise((resolve) => {
-    const imgURL = createObjectURL(imageFile);
-    const img = new Image();
+    createObjectURL(imageFile).then((imgURL) => {
+      const img = new Image();
 
-    img.onload = () => {
-      let newWidth = img.width;
-      let newHeight = img.height;
-      if (newHeight <= height && newWidth <= width) {
-        resolve(convertToBase64Mobile(imageFile));
-      }
+      img.onload = () => {
+        let newWidth = img.width;
+        let newHeight = img.height;
+        if (newHeight <= height && newWidth <= width) {
+          resolve(convertToBase64Mobile(imageFile));
+        }
 
-      if (newHeight > height) {
-        newWidth = Math.floor(newWidth * (height / newHeight));
-        newHeight = height;
-      }
-      if (newWidth > width) {
-        newHeight = Math.floor(newHeight * (width / newWidth));
-        newWidth = width;
-      }
+        if (newHeight > height) {
+          newWidth = Math.floor(newWidth * (height / newHeight));
+          newHeight = height;
+        }
+        if (newWidth > width) {
+          newHeight = Math.floor(newHeight * (width / newWidth));
+          newWidth = width;
+        }
 
-      const canvas = document.createElement('canvas');
-      canvas.width = newWidth;
-      canvas.height = newHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, newWidth, newHeight);
+        const canvas = document.createElement('canvas');
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, newWidth, newHeight);
 
-      canvas.toBlob((thumbnail) => {
-        URL.revokeObjectURL(imgURL);
-        resolve(thumbnail);
-      }, imageFile.type);
-    };
+        canvas.toBlob((thumbnail) => {
+          blobUrlManager.delete(imgURL);
+          resolve(thumbnail);
+        }, imageFile.type);
+      };
 
-    img.src = imgURL;
+      img.src = imgURL;
+    });
   });
 }
 

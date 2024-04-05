@@ -3,33 +3,47 @@ import path from 'path';
 import fs from 'fs';
 import chokidar from 'chokidar';
 
-import { getAppFolders } from './libs/utils';
+import { getAppFolders, saveDownloadFile } from './libs/utils';
 
 // Prepare cache
 let started = false;
 const files = [];
 let dirs = null;
 
+const convertFileName = {
+  decode: (url) => decodeURIComponent(url),
+  encode: (url) => encodeURIComponent(url),
+};
+
 // Get file
 const urlCache = {};
 const getFile = async (url) => {
-  if (dirs) {
-    const folder = dirs.tempMedia;
-    // Escrever aqui o script que vai baixar o arquivo para fazer cache no pc. Isso precisa ser feito individualmente. E detectar quando um arquivo já está sendo baixado para não se repetir mais de uma vez.
+  if (dirs && (!urlCache[url] || !urlCache[url].downloading)) {
+    urlCache[url] = { downloading: true, error: false };
+
+    saveDownloadFile({
+      url,
+      directory: dirs.tempMedia,
+      filename: convertFileName.encode(url),
+    })
+      .then((result) => {
+        urlCache[url].downloading = false;
+        urlCache[url].url = result;
+      })
+      .catch((err) => {
+        console.error(err);
+        urlCache[url].error = true;
+        urlCache[url].downloading = false;
+      });
   }
 };
 
-const convertFileName = {
-  decode: () => {},
-  encode: () => {},
-};
-
 // Global get file url
-const cacheFileElectron = (url, type) => {
-  let value = url;
+const cacheFileElectron = (url, type) =>
+  /* let value = url;
 
   // Use cache
-  if (urlCache[url]) {
+  if (urlCache[url] && !urlCache[url].downloading && !urlCache[url].error) {
     value = urlCache[url].url;
   }
 
@@ -40,9 +54,8 @@ const cacheFileElectron = (url, type) => {
   }
 
   // Complete
-  return value;
-};
-
+  return value; */
+  url;
 // Start module
 contextBridge.exposeInMainWorld('startMediaCacheElectron', async () => {
   if (!started) {

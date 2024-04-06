@@ -11,21 +11,23 @@ import PeopleSelector from './Item';
 let tinyData = null;
 export function updateAgentsList() {
   return new Promise((resolve) => {
-    fetch(`${serverAddress}list/${initMatrix.matrixClient.getUserId()}`, {
-      headers: {
-        Accept: 'application/json',
-      },
-    })
-      .then((res) => res.json())
-      .then((newData) => {
-        tinyData = newData;
-        resolve();
+    if (initMatrix.matrixClient) {
+      fetch(`${serverAddress}list/${initMatrix.matrixClient.getUserId()}`, {
+        headers: {
+          Accept: 'application/json',
+        },
       })
-      .catch((err) => {
-        console.error(err);
-        alert(err.message);
-        resolve();
-      });
+        .then((res) => res.json())
+        .then((newData) => {
+          tinyData = newData;
+          resolve();
+        })
+        .catch((err) => {
+          console.error(err);
+          alert(err.message);
+          resolve();
+        });
+    } else resolve();
   });
 }
 

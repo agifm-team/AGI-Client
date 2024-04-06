@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import clone from 'clone';
 import envAPI from '@src/util/libs/env';
 import { serverDomain } from '@mods/agi-mod/socket';
-import { objType } from '@src/util/tools';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
 import { duplicatorAgent } from '@mods/agi-mod/bots/PeopleSelector/lib';
 
@@ -410,7 +409,9 @@ function ProfileViewer() {
 
   const [isOpen, roomId, userId, closeDialog, handleAfterClose] = useToggleDialog();
   const [lightbox, setLightbox] = useState(false);
+  const [lastUserId, setLastUserId] = useState(null);
   const [agentData, setAgentData] = useState({ loading: false, data: null, err: null });
+  const [agentFullPrompt, setAgentFullPrompt] = useState(false);
 
   const userNameRef = useRef(null);
   const userPronounsRef = useRef(null);
@@ -427,33 +428,50 @@ function ProfileViewer() {
 
   if (!isOpen) tinyMenuId = 'default';
 
+  // Super agent
+  useEffect(() => {
+    // Reset
+    if (lastUserId && userId && lastUserId !== userId) {
+      setLastUserId(userId);
+      setAgentFullPrompt(false);
+      setAgentData({
+        err: null,
+        data: null,
+        loading: false,
+      });
+    }
+
+    // Set agent data
+    if (user && !agentData.loading && !agentData.err && !agentData.data) {
+      setAgentData({
+        err: null,
+        data: null,
+        loading: true,
+      });
+
+      fetch(`https://bots.${serverDomain}/bot/${userId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setLastUserId(userId);
+          setAgentData({
+            err: null,
+            data: data || {},
+            loading: false,
+          });
+        })
+        .catch((err) => {
+          setLastUserId(userId);
+          setAgentData({
+            err,
+            data: null,
+            loading: false,
+          });
+        });
+    }
+  });
+
   useEffect(() => {
     if (user) {
-      if (!agentData.loading && !agentData.err && !agentData.data) {
-        setAgentData({
-          err: null,
-          data: null,
-          loading: true,
-        });
-
-        fetch(`https://bots.${serverDomain}/bot/${userId}`)
-          .then((res) => res.json())
-          .then((data) =>
-            setAgentData({
-              err: null,
-              data: objType(data, 'object') ? data : {},
-              loading: false,
-            }),
-          )
-          .catch((err) =>
-            setAgentData({
-              err,
-              data: null,
-              loading: false,
-            }),
-          );
-      }
-
       // Menu Bar
       const menubar = $(menubarRef.current);
       const menuBarItems = [];
@@ -809,6 +827,43 @@ function ProfileViewer() {
                 <div className="text-gray text-uppercase fw-bold very-small mb-2">About me</div>
                 <div id="tiny-bio" className="emoji-size-fix small text-freedom" />
               </div>
+
+              {agentData.data &&
+              typeof agentData.data.id === 'string' &&
+              (typeof agentData.data.llmModel === 'string' ||
+                typeof agentData.data.prompt === 'string') ? (
+                <>
+                  <hr />
+
+                  <div className="mt-2">
+                    {typeof agentData.data.llmModel === 'string' && (
+                      <div className="very-small mb-2">
+                        <span className="fw-bold">LLM Model: </span> {agentData.data.llmModel} test
+                      </div>
+                    )}
+
+                    {typeof agentData.data.prompt === 'string' && (
+                      <div className="very-small mb-2">
+                        <span className="fw-bold">Prompt: </span>{' '}
+                        {agentData.data.prompt.length < 100 || agentFullPrompt ? (
+                          agentData.data.prompt
+                        ) : (
+                          <a
+                            href="#"
+                            className="text-white"
+                            onClick={(event) => {
+                              event.preventDefault();
+                              setAgentFullPrompt(true);
+                            }}
+                          >
+                            {`${agentData.data.prompt.substring(0, 100)}...`}
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : null}
 
               <hr />
 

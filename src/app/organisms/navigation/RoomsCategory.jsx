@@ -110,11 +110,13 @@ function RoomsCategory({ spaceId, name, hideHeader, roomIds, drawerPostie, notSp
   // Prepare Rooms
   const roomData = roomIds.map(renderData);
 
-  if (!isDM) {
+  /* if (!isDM) {
     roomData.sort(sortName);
   } else {
     roomData.sort(sortTime);
-  }
+  } */
+
+  roomData.sort(sortTime);
 
   const roomHTML = roomData.map(renderSelector);
 

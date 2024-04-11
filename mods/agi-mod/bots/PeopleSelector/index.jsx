@@ -7,6 +7,7 @@ import { objType } from '@src/util/tools';
 
 import { serverAddress } from '../../socket';
 import PeopleSelector from './Item';
+import DefaultPeopleSelector from './DefaultItem';
 
 let tinyData = null;
 export function updateAgentsList() {
@@ -36,6 +37,14 @@ const customItems = { public: [], personal: [] };
 export default function startPeopleSelector() {
   // Members List
   updateAgentsList();
+  tinyAPI.on('roomSearchedMembers', (data, items, membership) => {
+    if (membership.value === 'join') {
+      for (const item in items) {
+        items[item].customSelector = DefaultPeopleSelector;
+      }
+    }
+  });
+
   tinyAPI.on('roomMembersOptions', (data, items) => {
     updateAgentsList();
 

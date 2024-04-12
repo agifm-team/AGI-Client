@@ -6,14 +6,10 @@ import moment from '@src/util/libs/momentjs';
 import { ReactEditor } from 'slate-react';
 import { Editor, Transforms } from 'slate';
 
-import FileInput, {
-  createObjectURL,
-  fileInputClick,
-  fileInputValue,
-} from '@src/app/molecules/file-input/FileInput';
+import FileInput, { fileInputClick, fileInputValue } from '@src/app/molecules/file-input/FileInput';
 import { clickAIButton } from '@mods/agi-mod/menu/click';
-import { readImageUrl } from '@src/util/libs/mediaCache';
 
+import { blobToBase64 } from '@src/util/libs/blobUrlManager';
 import threadsList from '@src/util/libs/thread';
 import { isMobile } from '@src/util/libs/mobile';
 import initMatrix from '../../../client/initMatrix';
@@ -939,7 +935,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
         <Text className="room-input__alert">
           {tombstoneEvent
             ? tombstoneEvent.getContent()?.body ??
-              'This room has been replaced and is no longer active.'
+            'This room has been replaced and is no longer active.'
             : 'You do not have permission to post to this room'}
         </Text>
       );
@@ -951,9 +947,8 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
     return (
       <>
         <div
-          className={`room-input__option-container${
-            attachment === null ? '' : ' room-attachment__option'
-          }`}
+          className={`room-input__option-container${attachment === null ? '' : ' room-attachment__option'
+            }`}
         >
           <FileInput onChange={uploadFileChange} ref={uploadInputRef} />
 
@@ -1082,13 +1077,18 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
   // Insert File
   useEffect(() => {
     if (!fileSrc && attachment) {
-      if (!isMobile(true)) {
-        createObjectURL(attachment).then((tinySrc) => {
-          setFileSrc(readImageUrl(tinySrc));
+      /* if (!isMobile(true)) {
+        blobToBase64(attachment).then((tinySrc) => {
+          setFileSrc(`data:${attachment.type};base64, ${tinySrc}`);
         });
       } else {
         setFileSrc(`data:${attachment.type};base64, ${attachment.data}`);
-      }
+      } */
+      blobToBase64(attachment).then((tinySrc) => {
+        setFileSrc(tinySrc);
+      });
+    } else if (fileSrc && !attachment) {
+      setFileSrc(null);
     }
   });
 
@@ -1099,9 +1099,8 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
     return (
       <div className="room-attachment">
         <div
-          className={`room-attachment__preview${
-            fileType !== 'image' ? ' room-attachment__icon' : ''
-          }`}
+          className={`room-attachment__preview${fileType !== 'image' ? ' room-attachment__icon' : ''
+            }`}
         >
           {fileType === 'image' && fileSrc && <img alt={attachment.name} src={fileSrc} />}
           {fileType === 'video' && <RawIcon fa="fa-solid fa-film" />}

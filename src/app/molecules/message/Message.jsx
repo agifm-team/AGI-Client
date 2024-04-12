@@ -70,6 +70,7 @@ import { getDataList } from '../../../util/selectedRoom';
 import { tinyLinkifyFixer } from '../../../util/clear-urls/clearUrls';
 import { canPinMessage, isPinnedMessage, setPinMessage } from '../../../util/libs/pinMessage';
 import { mediaFix, tinyFixScrollChat } from '../media/mediaFix';
+import { everyoneTags } from '../global-notification/KeywordNotification';
 
 function PlaceholderMessage() {
   return (
@@ -1242,6 +1243,7 @@ function Message({
   isBodyOnly,
   roomTimeline,
   focus,
+  focusTime,
   fullTime,
   isEdit,
   setEdit,
@@ -1268,10 +1270,11 @@ function Message({
   const [existThread, updateExistThread] = useState(typeof threadId === 'string');
   const [embeds, setEmbeds] = useState([]);
   const [embedHeight, setEmbedHeight] = useState(null);
+  const [isFocus, setIsFocus] = useState(null);
+  const messageElement = useRef(null);
 
   // Content Body
   const classList = ['message', isBodyOnly ? 'message--body-only' : 'message--full'];
-  if (focus) classList.push('message-focus');
   const content = mEvent.getContent();
   const eventId = mEvent.getId();
   const msgType = content?.msgtype;
@@ -1476,11 +1479,39 @@ function Message({
     };
   });
 
+  let isMentioned = false;
+  const bodyLower = body.toLowerCase();
+  for (const item in everyoneTags) {
+    if (bodyLower.includes(everyoneTags[item])) {
+      isMentioned = true;
+    }
+  }
+
+  useEffect(() => {
+    let removeFocusTimeout = null;
+    const msgElement = $(messageElement.current);
+    if (isFocus === null) setIsFocus(focus);
+    if (isFocus || isMentioned) {
+      msgElement.addClass('message-focus');
+      if (isMentioned) msgElement.addClass('message-mention');
+      if (typeof focusTime === 'number') {
+        removeFocusTimeout = setTimeout(() => {
+          if (!isMentioned) msgElement.removeClass('message-focus');
+        }, 1000 * focusTime);
+      }
+    }
+    return () => {
+      if (removeFocusTimeout) clearTimeout(removeFocusTimeout);
+      if (!isMentioned) msgElement.removeClass('message-focus');
+    };
+  });
+
   // Normal Message
   if (msgType !== 'm.bad.encrypted') {
     // Return Data
     return (
       <tr
+        ref={messageElement}
         roomid={roomId}
         senderid={senderId}
         eventid={eventId}
@@ -1612,6 +1643,7 @@ function Message({
   isCustomHTML = true;
   return (
     <tr
+      ref={messageElement}
       roomid={roomId}
       senderid={senderId}
       eventid={eventId}
@@ -1709,6 +1741,7 @@ function Message({
 
 // Message Default Data
 Message.defaultProps = {
+  focusTime: 10,
   classNameMessage: null,
   className: null,
   isBodyOnly: false,
@@ -1723,6 +1756,7 @@ Message.defaultProps = {
 };
 
 Message.propTypes = {
+  focusTime: PropTypes.number,
   classNameMessage: PropTypes.string,
   className: PropTypes.string,
   mEvent: PropTypes.shape({}).isRequired,

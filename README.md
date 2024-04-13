@@ -16,6 +16,8 @@ To set default Homeserver on login and register page, place a customized [`.env`
 
 If you want to use devtools in production mode in the destkop version before the application is opened, type `--devtools` after the file path.
 
+<h3 align="center">Pixxels App Demo</h3>
+
 <p align="center">
   <a href="https://www.youtube.com/watch?v=bva3bA2iDBE">
     <img src="https://img.youtube.com/vi/bva3bA2iDBE/0.jpg" alt="Pixxels App Demo" width="400">

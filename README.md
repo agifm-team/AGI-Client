@@ -1,6 +1,12 @@
-<center>
-<!-- <img align="center" src="https://raw.githubusercontent.com/pixxels-team/Pixxels-App/dev/public/favicon.ico?raw=true" height="380"> -->
-</center>
+<p align="center">
+  <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/pixxel-logo/logo3.jpg?raw=true" alt="Pixxels App Logo" width="400">
+</p>
+
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=bva3bA2iDBE">
+    <img src="https://img.youtube.com/vi/bva3bA2iDBE/0.jpg" alt="Pixxels App Demo" width="400">
+  </a>
+</p>
 
 # Pixxels
 

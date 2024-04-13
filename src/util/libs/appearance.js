@@ -36,6 +36,16 @@ class MatrixAppearance extends EventEmitter {
           ? this.content.isAnimateAvatarsEnabled
           : true;
 
+      this.content.showStickers =
+        typeof this.content.showStickers === 'boolean'
+          ? this.content.showStickers
+          : !!__ENV_APP__.SHOW_STICKERS;
+
+      this.content.useCustomEmojis =
+        typeof this.content.useCustomEmojis === 'boolean'
+          ? this.content.useCustomEmojis
+          : !!__ENV_APP__.USE_CUSTOM_EMOJIS;
+
       this.content.sendFileBefore =
         typeof this.content.sendFileBefore === 'boolean' ? this.content.sendFileBefore : true;
 

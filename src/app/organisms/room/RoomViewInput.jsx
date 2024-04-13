@@ -34,7 +34,7 @@ import { MessageReply } from '../../molecules/message/Message';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 
 import commands from '../../../commands';
-import { getAppearance } from '../../../util/libs/appearance';
+import matrixAppearance, { getAppearance } from '../../../util/libs/appearance';
 import { mediaFix } from '../../molecules/media/mediaFix';
 import RoomUpload from '../../molecules/room-upload-button/RoomUpload';
 
@@ -47,6 +47,7 @@ let cmdCursorPos = null;
 function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput }) {
   // Rec Ref
   const recAudioRef = useRef(null);
+  const [isStickersVisible, setIsStickersVisible] = useState(matrixAppearance.get('showStickers'));
   const [embedHeight, setEmbedHeight] = useState(null);
   const [closeUpButton, setCloseUpButton] = useState(null);
   const [fileSrc, setFileSrc] = useState(null);
@@ -920,6 +921,16 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
     roomTimeline.addListener(cons.events.roomTimeline.SCROLL_TO_LIVE, focusOnLive);
     return () => {
       roomTimeline.removeListener(cons.events.roomTimeline.SCROLL_TO_LIVE, focusOnLive);
+    };
+  });
+
+  useEffect(() => {
+    const updateShowStickers = (showStickers) => {
+      setIsStickersVisible(showStickers);
+    };
+    matrixAppearance.on('showStickers', updateShowStickers);
+    return () => {
+      matrixAppearance.off('showStickers', updateShowStickers);
     };
   });
 

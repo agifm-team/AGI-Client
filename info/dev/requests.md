@@ -15,8 +15,6 @@
     Adicionar suporte a link para ir diretamente a mensagens.
     /?room_id=&thread_id=&event_id=
 
-    Opção opciolnal de desativar stickers
-
     =============================================
 
     Trocar o titulo da página de bolinha de notificação para números
@@ -53,7 +51,6 @@ Made by Me
     Coisas que não atualiza sozinho:
         Alteração de friend nickname.
         O username do display da conta logada.
-        O atualizar de emojis de rooms só funciona quando muda de room.
         Lista de usuários online na room ainda não atualiza em tempo real.
         Banner do space.
         Esconder Pin messages event

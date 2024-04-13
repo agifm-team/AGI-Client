@@ -2,11 +2,6 @@
   <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/pixxel-logo/logo3.jpg?raw=true" alt="Pixxels App Logo" width="400">
 </p>
 
-<p align="center">
-  <a href="https://www.youtube.com/watch?v=bva3bA2iDBE">
-    <img src="https://img.youtube.com/vi/bva3bA2iDBE/0.jpg" alt="Pixxels App Demo" width="400">
-  </a>
-</p>
 
 # Pixxels
 
@@ -20,6 +15,12 @@ You can serve the application with a webserver of your choice by simply copying 
 To set default Homeserver on login and register page, place a customized [`.env`](.env) in webroot of your choice.
 
 If you want to use devtools in production mode in the destkop version before the application is opened, type `--devtools` after the file path.
+
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=bva3bA2iDBE">
+    <img src="https://img.youtube.com/vi/bva3bA2iDBE/0.jpg" alt="Pixxels App Demo" width="400">
+  </a>
+</p>
 
 ## Local development
 > We recommend using a version manager as versions change very quickly. You will likely need to switch 

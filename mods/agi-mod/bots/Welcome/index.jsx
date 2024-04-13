@@ -344,7 +344,7 @@ function Welcome({ isGuest }) {
 
           <center style={{ width: '100%', display: 'block' }}>
             <img
-              src="./img/pixxel-logo/logo3.jpg"
+              src="./img/pixxel-logo/logo3.png"
               alt="logo"
               style={{
                 maxWidth: '50%',

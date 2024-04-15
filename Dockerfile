@@ -2,7 +2,7 @@
 FROM node:20-alpine3.19 as builder
 
 WORKDIR /src
-RUN apk add yarn git
+RUN apk add yarn
 COPY .npmrc package.json yarn.lock /src/
 RUN yarn install --frozen-lockfile
 #RUN yarn setup

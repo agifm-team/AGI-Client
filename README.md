@@ -1,6 +1,7 @@
-<center>
-<!-- <img align="center" src="https://raw.githubusercontent.com/pixxels-team/Pixxels-App/dev/public/favicon.ico?raw=true" height="380"> -->
-</center>
+<p align="center">
+  <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/pixxel-logo/logo3.png?raw=true" alt="Pixxels App Logo" width="400">
+</p>
+
 
 # Pixxels
 
@@ -14,6 +15,14 @@ You can serve the application with a webserver of your choice by simply copying 
 To set default Homeserver on login and register page, place a customized [`.env`](.env) in webroot of your choice.
 
 If you want to use devtools in production mode in the destkop version before the application is opened, type `--devtools` after the file path.
+
+<h3 align="center">Pixxels App Demo Video</h3>
+
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=bva3bA2iDBE">
+    <img src="https://img.youtube.com/vi/bva3bA2iDBE/0.jpg" alt="Pixxels App Demo" width="400">
+  </a>
+</p>
 
 ## Local development
 > We recommend using a version manager as versions change very quickly. You will likely need to switch 
@@ -30,7 +39,7 @@ npm install yarn -g
 
 Execute the following commands to start a development server (or a Ionic environment):
 ```sh
-yarn setup # Installs all dependencies
+yarn # Installs all dependencies
 yarn start # Serve a development version
 ```
 
@@ -51,7 +60,7 @@ The application has only been tested on the linux platform. But that won't stop 
 
 Execute the following commands to start a development server (or a Ionic environment):
 ```sh
-yarn setup # Installs all dependencies
+yarn # Installs all dependencies
 yarn electron:start # Serve a development version
 ```
 

@@ -95,7 +95,7 @@ export default async function buttons() {
       else iframe.attr('src', content.magic_link);
 
       // Complete. Close the room now
-      roomActions.leave(event.roomId);
+      roomActions.leave(event.getRoomId());
     }
   };
 

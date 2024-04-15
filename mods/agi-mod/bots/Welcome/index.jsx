@@ -262,7 +262,7 @@ function Welcome({ isGuest }) {
           <div className="carousel-inner">
             <div className="carousel-item active">
               <img
-                src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c1.gif?raw=true"
+                src="./img/homepage-slider/c1.gif"
                 className="d-block w-100"
                 draggable="false"
                 alt="..."
@@ -278,7 +278,7 @@ function Welcome({ isGuest }) {
 
             <div className="carousel-item">
               <img
-                src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c2.gif?raw=true"
+                src="./img/homepage-slider/c2.gif"
                 className="d-block w-100"
                 draggable="false"
                 alt="..."
@@ -294,7 +294,7 @@ function Welcome({ isGuest }) {
 
             <div className="carousel-item">
               <img
-                src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c3.gif?raw=true"
+                src="./img/homepage-slider/c3.gif"
                 className="d-block w-100"
                 draggable="false"
                 alt="..."
@@ -344,7 +344,8 @@ function Welcome({ isGuest }) {
 
           <center style={{ width: '100%', display: 'block' }}>
             <img
-              src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/pixxel-logo/logo3.jpg?raw=true"
+              src="./img/pixxel-logo/logo3.png"
+              alt="logo"
               style={{
                 maxWidth: '50%',
                 width: 'auto',
@@ -356,7 +357,6 @@ function Welcome({ isGuest }) {
             />
           </center>
         </div>
-        {/* <center className="w-100 h3 title-place">Popular Spaces</center> */}
 
         <div id="search-title">
           <div className="search-info mb-3">

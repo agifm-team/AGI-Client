@@ -13,8 +13,9 @@ import * as roomActions from '@src/client/action/room';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
 import { getRoomInfo } from '@src/app/organisms/room/Room';
 import { openProfileViewer } from '@src/client/action/navigation';
+import { twemojifyReact } from '@src/util/twemojify';
 
-function PeopleSelector({ avatarSrc, name, user, peopleRole, customData }) {
+function PeopleSelector({ avatarSrc, name, user, peopleRole /* , customData */ }) {
   // Refs
   const buttonRef = useRef(null);
   const profileButtonRef = useRef(null);
@@ -75,7 +76,7 @@ function PeopleSelector({ avatarSrc, name, user, peopleRole, customData }) {
       </div>
       <div className="button-place text-start card-body mt-0 pt-0">
         <h5 className="card-title small text-bg">
-          <span className="bot-name">{name}</span>
+          <span className="bot-name">{twemojifyReact(name)}</span>
           <div className="float-end">
             <button ref={buttonRef} className="btn btn-primary btn-sm my-1">
               Invite

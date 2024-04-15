@@ -26,6 +26,7 @@ if (!fs.existsSync(soundsFolder)) {
 
 fs.copyFileSync(path.join(__dirname, './public/sound/notification.ogg'), path.join(soundsFolder, './notification.ogg'));
 fs.copyFileSync(path.join(__dirname, './public/sound/invite.ogg'), path.join(soundsFolder, './invite.ogg'));
+fse.copySync(path.join(__dirname, './vendor/twemoji/assets'), path.join(__dirname, './public/img/twemoji'), { overwrite: true });
 
 const copyFiles = {
   targets: [
@@ -162,6 +163,8 @@ export default defineConfig(({ command, mode }) => {
 
     SAVE_ROOM_DB: !!(env.SAVE_ROOM_DB === true || env.SAVE_ROOM_DB === 'true'),
     DISCORD_STYLE: !!(env.DISCORD_STYLE === true || env.DISCORD_STYLE === 'true'),
+    SHOW_STICKERS: !!(env.SHOW_STICKERS === true || env.SHOW_STICKERS === 'true'),
+    USE_CUSTOM_EMOJIS: !!(env.USE_CUSTOM_EMOJIS === true || env.USE_CUSTOM_EMOJIS === 'true'),
     USE_ANIM_PARAMS: !!(env.USE_ANIM_PARAMS === true || env.USE_ANIM_PARAMS === 'true'),
 
     LOGIN: {
@@ -188,6 +191,9 @@ export default defineConfig(({ command, mode }) => {
     },
 
     server: {
+      hmr: {
+        overlay: true,
+      },
       watch: {
         ignored: [
           "**/vendor/**",

@@ -210,6 +210,7 @@ Use the msgOptions.custom object to customize the final result of your message. 
 ### roomSearchedMembers
 
     mList
+    membership
 
 <hr/>
 

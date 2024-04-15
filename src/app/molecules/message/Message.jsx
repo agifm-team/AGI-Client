@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { generateApiKey } from 'generate-api-key';
 
 import { MatrixEventEvent, RoomEvent, THREAD_RELATION_TYPE } from 'matrix-js-sdk';
 
@@ -70,6 +69,7 @@ import { getDataList } from '../../../util/selectedRoom';
 import { tinyLinkifyFixer } from '../../../util/clear-urls/clearUrls';
 import { canPinMessage, isPinnedMessage, setPinMessage } from '../../../util/libs/pinMessage';
 import { mediaFix, tinyFixScrollChat } from '../media/mediaFix';
+import { everyoneTags } from '../global-notification/KeywordNotification';
 
 function PlaceholderMessage() {
   return (
@@ -1242,6 +1242,7 @@ function Message({
   isBodyOnly,
   roomTimeline,
   focus,
+  focusTime,
   fullTime,
   isEdit,
   setEdit,
@@ -1268,10 +1269,13 @@ function Message({
   const [existThread, updateExistThread] = useState(typeof threadId === 'string');
   const [embeds, setEmbeds] = useState([]);
   const [embedHeight, setEmbedHeight] = useState(null);
+  const [isFocus, setIsFocus] = useState(null);
+  const messageElement = useRef(null);
+
+  const [isStickersVisible, setIsStickersVisible] = useState(matrixAppearance.get('showStickers'));
 
   // Content Body
   const classList = ['message', isBodyOnly ? 'message--body-only' : 'message--full'];
-  if (focus) classList.push('message-focus');
   const content = mEvent.getContent();
   const eventId = mEvent.getId();
   const msgType = content?.msgtype;
@@ -1282,6 +1286,7 @@ function Message({
   else classList.push('user-other-message');
 
   let { body } = content;
+  const [bodyData, setBodyData] = useState(body);
 
   // User Data
   const fNickname = getDataList('user_cache', 'friend_nickname', senderId);
@@ -1312,7 +1317,6 @@ function Message({
   const edit = useCallback(() => {
     if (eventId && setEdit) setEdit(eventId);
     mediaFix(null, embedHeight, setEmbedHeight);
-    setEmbeds([]);
   }, [setEdit, eventId]);
 
   // Reply Data
@@ -1367,100 +1371,87 @@ function Message({
   }
 
   useEffect(() => {
-    const bodyUrls = [];
-    if (typeof body === 'string' && body.length > 0) {
-      try {
-        const newBodyUrls = linkify.find(
-          body
-            .replace(
-              /\> \<\@([\S\s]+?)\> ([\S\s]+?)\n\n|\> \<\@([\S\s]+?)\> ([\S\s]+?)\\n\\n/gm,
-              '',
-            )
-            .replace(
-              /^((?:(?:[ ]{4}|\t).*(\R|$))+)|`{3}([\w]*)\n([\S\s]+?)`{3}|`{3}([\S\s]+?)`{3}|`{2}([\S\s]+?)`{2}|`([\S\s]+?)|\[([\S\s]+?)\]|\{([\S\s]+?)\}|\<([\S\s]+?)\>|\(([\S\s]+?)\)/gm,
-              '',
-            ),
-        );
+    if (embeds.length < 1) {
+      const bodyUrls = [];
+      if (typeof bodyData === 'string' && bodyData.length > 0) {
+        try {
+          const newBodyUrls = linkify.find(
+            bodyData
+              .replace(
+                /\> \<\@([\S\s]+?)\> ([\S\s]+?)\n\n|\> \<\@([\S\s]+?)\> ([\S\s]+?)\\n\\n/gm,
+                '',
+              )
+              .replace(
+                /^((?:(?:[ ]{4}|\t).*(\R|$))+)|`{3}([\w]*)\n([\S\s]+?)`{3}|`{3}([\S\s]+?)`{3}|`{2}([\S\s]+?)`{2}|`([\S\s]+?)|\[([\S\s]+?)\]|\{([\S\s]+?)\}|\<([\S\s]+?)\>|\(([\S\s]+?)\)/gm,
+                '',
+              ),
+          );
 
-        if (Array.isArray(newBodyUrls)) {
-          for (const item in newBodyUrls) {
-            if (tinyLinkifyFixer(newBodyUrls[item].type, newBodyUrls[item].value)) {
-              bodyUrls.push(newBodyUrls[item]);
-            }
-          }
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    // Room jQuery base
-    const messageFinder = `[roomid='${roomId}'][senderid='${senderId}'][eventid='${eventId}'][msgtype='${msgType}']`;
-
-    // Read Message
-    if (msgType === 'm.text') {
-      // Check Urls on the message
-      const appAppearance = getAppearance();
-      if (appAppearance.isEmbedEnabled === true && bodyUrls.length > 0) {
-        // Create embed base
-        const newEmbeds = clone(embeds);
-        const searchEmbeds = async () => {
-          let limit = 5;
-          for (const item in bodyUrls) {
-            if (
-              bodyUrls[item].href &&
-              limit > 0 &&
-              newEmbeds.findIndex(
-                (tb) =>
-                  tb.url &&
-                  tb.url.href === bodyUrls[item].href &&
-                  tb.roomId === roomId &&
-                  tb.senderId === senderId &&
-                  tb.eventId === eventId,
-              ) < 0 &&
-              !bodyUrls[item].href.startsWith('@')
-            ) {
-              const tinyEmbed = {
-                url: bodyUrls[item],
-                roomId,
-                senderId,
-                eventId,
-              };
-
-              if (
-                bodyUrls[item].href.startsWith('http') ||
-                bodyUrls[item].href.startsWith('https')
-              ) {
-                try {
-                  tinyEmbed.data = await getUrlPreview(bodyUrls[item].href);
-                  mediaFix(null, embedHeight, setEmbedHeight);
-                } catch (err) {
-                  tinyEmbed.data = null;
-                  console.error(err);
-                }
-              } else {
-                tinyEmbed.data = null;
+          if (Array.isArray(newBodyUrls)) {
+            for (const item in newBodyUrls) {
+              if (tinyLinkifyFixer(newBodyUrls[item].type, newBodyUrls[item].value)) {
+                bodyUrls.push(newBodyUrls[item]);
               }
-
-              newEmbeds.push(tinyEmbed);
-              limit--;
             }
           }
-
-          mediaFix(null, embedHeight, setEmbedHeight);
-          setEmbeds(newEmbeds);
-        };
-
-        searchEmbeds();
+        } catch (err) {
+          console.error(err);
+        }
       }
-    }
 
-    // Complete
-    mediaFix(null, embedHeight, setEmbedHeight);
-    return () => {
-      $(messageFinder).find('.message-url-embed').remove();
-    };
-  }, []);
+      // Room jQuery base
+      const messageFinder = `[roomid='${roomId}'][senderid='${senderId}'][eventid='${eventId}'][msgtype='${msgType}']`;
+
+      // Read Message
+      if (msgType === 'm.text') {
+        // Check Urls on the message
+        const appAppearance = getAppearance();
+        if (appAppearance.isEmbedEnabled === true && bodyUrls.length > 0) {
+          // Create embed base
+          const newEmbeds = [];
+          const searchEmbeds = async () => {
+            let limit = 5;
+            for (const item in bodyUrls) {
+              if (bodyUrls[item].href && limit > 0 && !bodyUrls[item].href.startsWith('@')) {
+                const tinyEmbed = {
+                  url: bodyUrls[item],
+                  roomId,
+                  senderId,
+                  eventId,
+                };
+
+                if (
+                  bodyUrls[item].href.startsWith('http') ||
+                  bodyUrls[item].href.startsWith('https')
+                ) {
+                  try {
+                    tinyEmbed.data = await getUrlPreview(bodyUrls[item].href);
+                    mediaFix(null, embedHeight, setEmbedHeight);
+                  } catch (err) {
+                    tinyEmbed.data = null;
+                    console.error(err);
+                  }
+                } else {
+                  tinyEmbed.data = null;
+                }
+
+                newEmbeds.push(tinyEmbed);
+                limit--;
+              }
+            }
+
+            mediaFix(null, embedHeight, setEmbedHeight);
+            setEmbeds(newEmbeds);
+          };
+
+          searchEmbeds();
+        }
+      }
+
+      // Complete
+      mediaFix(null, embedHeight, setEmbedHeight);
+    }
+  });
 
   useEffect(() => {
     const threadUpdate = (tth) => {
@@ -1476,135 +1467,181 @@ function Message({
     };
   });
 
+  let isMentioned = false;
+  const bodyLower = body.toLowerCase();
+  for (const item in everyoneTags) {
+    if (bodyLower.includes(everyoneTags[item])) {
+      isMentioned = true;
+    }
+  }
+
+  useEffect(() => {
+    let removeFocusTimeout = null;
+    const msgElement = $(messageElement.current);
+    if (isFocus === null) setIsFocus(focus);
+    if (isFocus || isMentioned) {
+      msgElement.addClass('message-focus');
+      if (isMentioned) msgElement.addClass('message-mention');
+      if (typeof focusTime === 'number') {
+        removeFocusTimeout = setTimeout(() => {
+          if (!isMentioned) msgElement.removeClass('message-focus');
+        }, 1000 * focusTime);
+      }
+    }
+    return () => {
+      if (removeFocusTimeout) clearTimeout(removeFocusTimeout);
+      if (!isMentioned) msgElement.removeClass('message-focus');
+    };
+  });
+
+  useEffect(() => {
+    const updateShowStickers = (showStickers) => {
+      setIsStickersVisible(showStickers);
+    };
+    matrixAppearance.on('showStickers', updateShowStickers);
+    return () => {
+      matrixAppearance.off('showStickers', updateShowStickers);
+    };
+  });
+
   // Normal Message
   if (msgType !== 'm.bad.encrypted') {
-    // Return Data
-    return (
-      <tr
-        roomid={roomId}
-        senderid={senderId}
-        eventid={eventId}
-        msgtype={msgType}
-        className={classList.join(' ')}
-      >
-        <td className="p-0 ps-2 ps-md-4 py-1 pe-md-2 align-top text-center chat-base">
-          {
-            // User Avatar
-            !isBodyOnly ? (
-              <MessageAvatar
-                roomId={roomId}
-                avatarSrc={avatarSrc}
-                avatarAnimSrc={avatarAnimSrc}
-                userId={senderId}
-                username={username}
-                contextMenu={(e) => {
-                  openReusableContextMenu('bottom', getEventCords(e, '.ic-btn'), (closeMenu) => (
-                    <UserOptions userId={senderId} afterOptionSelect={closeMenu} />
-                  ));
+    if (mEvent.getType() !== 'm.sticker' || isStickersVisible) {
+      // Return Data
+      return (
+        <tr
+          ref={messageElement}
+          roomid={roomId}
+          senderid={senderId}
+          eventid={eventId}
+          msgtype={msgType}
+          className={classList.join(' ')}
+        >
+          <td className="p-0 ps-2 ps-md-4 py-1 pe-md-2 align-top text-center chat-base">
+            {
+              // User Avatar
+              !isBodyOnly ? (
+                <MessageAvatar
+                  roomId={roomId}
+                  avatarSrc={avatarSrc}
+                  avatarAnimSrc={avatarAnimSrc}
+                  userId={senderId}
+                  username={username}
+                  contextMenu={(e) => {
+                    openReusableContextMenu('bottom', getEventCords(e, '.ic-btn'), (closeMenu) => (
+                      <UserOptions userId={senderId} afterOptionSelect={closeMenu} />
+                    ));
 
-                  e.preventDefault();
-                }}
+                    e.preventDefault();
+                  }}
+                />
+              ) : (
+                <MessageTime className="hc-time" timestamp={mEvent.getTs()} fullTime={fullTime} />
+              )
+            }
+          </td>
+
+          <td className="p-0 pe-3 py-1" colSpan={!children ? '2' : ''}>
+            {!isGuest && !disableActions && roomTimeline && !isEdit && (
+              <MessageOptions
+                refRoomInput={refRoomInput}
+                customHTML={customHTML}
+                body={body}
+                roomid={roomId}
+                senderid={senderId}
+                eventid={eventId}
+                msgtype={msgType}
+                roomTimeline={roomTimeline}
+                mEvent={mEvent}
+                edit={edit}
+                reply={reply}
               />
-            ) : (
-              <MessageTime className="hc-time" timestamp={mEvent.getTs()} fullTime={fullTime} />
-            )
-          }
-        </td>
+            )}
 
-        <td className="p-0 pe-3 py-1" colSpan={!children ? '2' : ''}>
-          {!isGuest && !disableActions && roomTimeline && !isEdit && (
-            <MessageOptions
-              refRoomInput={refRoomInput}
-              customHTML={customHTML}
-              body={body}
-              roomid={roomId}
-              senderid={senderId}
-              eventid={eventId}
-              msgtype={msgType}
-              roomTimeline={roomTimeline}
-              mEvent={mEvent}
-              edit={edit}
-              reply={reply}
-            />
-          )}
+            {!isBodyOnly && (
+              <div className="mb-1">
+                <MessageHeader
+                  usernameHover={usernameHover}
+                  userId={senderId}
+                  username={username}
+                />
 
-          {!isBodyOnly && (
-            <div className="mb-1">
-              <MessageHeader usernameHover={usernameHover} userId={senderId} username={username} />
+                <MessageTime className="ms-2" timestamp={mEvent.getTs()} fullTime={fullTime} />
+              </div>
+            )}
 
-              <MessageTime className="ms-2" timestamp={mEvent.getTs()} fullTime={fullTime} />
-            </div>
-          )}
+            {roomTimeline && isReply && (
+              <MessageReplyWrapper roomTimeline={roomTimeline} eventId={mEvent.replyEventId} />
+            )}
 
-          {roomTimeline && isReply && (
-            <MessageReplyWrapper roomTimeline={roomTimeline} eventId={mEvent.replyEventId} />
-          )}
+            {!isEdit && (
+              <>
+                <MessageBody
+                  roomId={roomId}
+                  senderId={senderId}
+                  eventId={eventId}
+                  threadId={threadId}
+                  className={classNameMessage}
+                  senderName={username}
+                  isCustomHTML={isCustomHTML}
+                  body={isMedia(mEvent) ? genMediaContent(mEvent) : customHTML ?? body}
+                  content={content}
+                  msgType={msgType}
+                  isEdited={isEdited}
+                  messageStatus={messageStatus}
+                />
 
-          {!isEdit && (
-            <>
-              <MessageBody
+                {embeds.length > 0 ? (
+                  <div className="message-embed message-url-embed">
+                    {embeds.map((embed) => {
+                      if (embed.data)
+                        return (
+                          <Embed
+                            roomId={roomId}
+                            threadId={threadId}
+                            key={`msg_embed_${embed.eventId}_${embed.url}`}
+                            embed={embed.data}
+                          />
+                        );
+                    })}
+                  </div>
+                ) : null}
+              </>
+            )}
+
+            {isEdit && (
+              <MessageEdit
                 roomId={roomId}
-                senderId={senderId}
-                eventId={eventId}
-                threadId={threadId}
-                className={classNameMessage}
-                senderName={username}
-                isCustomHTML={isCustomHTML}
-                body={isMedia(mEvent) ? genMediaContent(mEvent) : customHTML ?? body}
-                content={content}
-                msgType={msgType}
-                isEdited={isEdited}
-                messageStatus={messageStatus}
-              />
-
-              {embeds.length > 0 ? (
-                <div className="message-embed message-url-embed">
-                  {embeds.map((embed) => {
-                    if (embed.data)
-                      return (
-                        <Embed
-                          roomId={roomId}
-                          threadId={threadId}
-                          key={`msg_embed_${embed.eventId}_${generateApiKey()}`}
-                          embed={embed.data}
-                        />
-                      );
-                  })}
-                </div>
-              ) : null}
-            </>
-          )}
-
-          {isEdit && (
-            <MessageEdit
-              roomId={roomId}
-              eventId={mEvent.getId()}
-              refRoomInput={refRoomInput}
-              body={
-                customHTML
-                  ? html(customHTML, { kind: 'edit', onlyPlain: true }).plain
-                  : plain(body, { kind: 'edit', onlyPlain: true }).plain
-              }
-              onSave={(newBody, oldBody) => {
-                if (newBody !== oldBody) {
-                  initMatrix.roomsInput.sendEditedMessage(roomId, threadId, mEvent, newBody);
+                eventId={mEvent.getId()}
+                refRoomInput={refRoomInput}
+                body={
+                  customHTML
+                    ? html(customHTML, { kind: 'edit', onlyPlain: true }).plain
+                    : plain(body, { kind: 'edit', onlyPlain: true }).plain
                 }
-                cancelEdit();
-              }}
-              onCancel={cancelEdit}
-            />
-          )}
+                onSave={(newBody, oldBody) => {
+                  if (newBody !== oldBody) {
+                    setBodyData(newBody);
+                    setEmbeds([]);
+                    initMatrix.roomsInput.sendEditedMessage(roomId, threadId, mEvent, newBody);
+                  }
+                  cancelEdit();
+                }}
+                onCancel={cancelEdit}
+              />
+            )}
 
-          {haveReactions && <MessageReactionGroup roomTimeline={roomTimeline} mEvent={mEvent} />}
+            {haveReactions && <MessageReactionGroup roomTimeline={roomTimeline} mEvent={mEvent} />}
 
-          {roomTimeline && shouldShowThreadSummary(mEvent, roomTimeline) && (
-            <MessageThreadSummary thread={mEvent.thread} />
-          )}
-        </td>
+            {roomTimeline && shouldShowThreadSummary(mEvent, roomTimeline) && (
+              <MessageThreadSummary thread={mEvent.thread} />
+            )}
+          </td>
 
-        {children && <td className="p-0 pe-3 py-1">{children}</td>}
-      </tr>
-    );
+          {children && <td className="p-0 pe-3 py-1">{children}</td>}
+        </tr>
+      );
+    }
   }
 
   // Bad Message
@@ -1612,6 +1649,7 @@ function Message({
   isCustomHTML = true;
   return (
     <tr
+      ref={messageElement}
       roomid={roomId}
       senderid={senderId}
       eventid={eventId}
@@ -1689,6 +1727,8 @@ function Message({
             }
             onSave={(newBody, oldBody) => {
               if (newBody !== oldBody) {
+                setBodyData(newBody);
+                setEmbeds([]);
                 initMatrix.roomsInput.sendEditedMessage(roomId, threadId, mEvent, newBody);
               }
               cancelEdit();
@@ -1709,6 +1749,7 @@ function Message({
 
 // Message Default Data
 Message.defaultProps = {
+  focusTime: 10,
   classNameMessage: null,
   className: null,
   isBodyOnly: false,
@@ -1723,6 +1764,7 @@ Message.defaultProps = {
 };
 
 Message.propTypes = {
+  focusTime: PropTypes.number,
   classNameMessage: PropTypes.string,
   className: PropTypes.string,
   mEvent: PropTypes.shape({}).isRequired,

@@ -150,6 +150,7 @@ function Image({
   className,
   classImage,
   ignoreContainer,
+  maxWidth,
 }) {
   const [url, setUrl] = useState(null);
   const [blur, setBlur] = useState(true);
@@ -176,32 +177,40 @@ function Image({
     setLightbox(!lightbox);
   };
 
-  const imgData = url !== null && (
-    <img
-      className={`${classImage}${ignoreContainer ? ` ${className}` : ''}`}
-      draggable="false"
-      style={{
-        display: blur ? 'none' : 'unset',
-        height: width !== null ? getNativeHeight(width, height) : 'unset',
-      }}
-      onLoad={(event) => {
-        mediaFix(itemEmbed, embedHeight, setEmbedHeight);
-        setBlur(false);
-        let imageLoaded = false;
-        if (!imageLoaded && event.target) {
-          imageLoaded = true;
-          const img = $(event.target);
-          const imgAction = () => {
-            imageViewer({ lightbox, imgQuery: img, name, url });
-          };
+  const imgHeight = width !== null ? getNativeHeight(width, height, maxWidth) : 200;
 
-          img.off('click', imgAction);
-          img.on('click', imgAction);
-        }
+  const imgData = url !== null && (
+    <div
+      style={{
+        minHeight: imgHeight,
       }}
-      src={url || link}
-      alt={name}
-    />
+    >
+      <img
+        className={`${classImage}${ignoreContainer ? ` ${className}` : ''}`}
+        draggable="false"
+        style={{
+          display: blur ? 'none' : 'unset',
+          height: imgHeight,
+        }}
+        onLoad={(event) => {
+          mediaFix(itemEmbed, embedHeight, setEmbedHeight);
+          setBlur(false);
+          let imageLoaded = false;
+          if (!imageLoaded && event.target) {
+            imageLoaded = true;
+            const img = $(event.target);
+            const imgAction = () => {
+              imageViewer({ lightbox, imgQuery: img, name, url });
+            };
+
+            img.off('click', imgAction);
+            img.on('click', imgAction);
+          }
+        }}
+        src={url || link}
+        alt={name}
+      />
+    </div>
   );
 
   useEffect(() => mediaFix(itemEmbed, embedHeight, setEmbedHeight));
@@ -211,7 +220,7 @@ function Image({
     return (
       <div className={`file-container${className ? ` ${className}` : ''}`}>
         <div
-          style={{ height: width !== null ? getNativeHeight(width, height) : 'unset' }}
+          style={{ minHeight: imgHeight }}
           className="image-container"
           role="button"
           tabIndex="0"
@@ -228,6 +237,7 @@ function Image({
   return imgData;
 }
 Image.defaultProps = {
+  maxWidth: 296,
   ignoreContainer: false,
   file: null,
   width: null,
@@ -238,6 +248,7 @@ Image.defaultProps = {
   blurhash: '',
 };
 Image.propTypes = {
+  maxWidth: PropTypes.number,
   ignoreContainer: PropTypes.bool,
   name: PropTypes.string.isRequired,
   width: PropTypes.number,

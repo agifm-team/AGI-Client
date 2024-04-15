@@ -7,7 +7,7 @@ COPY .npmrc package.json yarn.lock /src/
 RUN yarn install --frozen-lockfile
 COPY . /src/
 ENV NODE_OPTIONS=--max_old_space_size=4096
-RUN npm run build
+RUN yarn build
 
 
 ## App

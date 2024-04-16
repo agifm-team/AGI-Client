@@ -358,6 +358,10 @@ function Welcome({ isGuest }) {
           </center>
         </div>
 
+        {__ENV_APP__.MODE === 'development' ? (
+          <iframe id="morphic" src="https://www.morphic.sh/" />
+        ) : null}
+
         <div id="search-title">
           <div className="search-info mb-3">
             <form className="search-form mb-2 mt-3" onSubmit={handleSearchSubmit}>

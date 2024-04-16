@@ -946,7 +946,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
         <Text className="room-input__alert">
           {tombstoneEvent
             ? tombstoneEvent.getContent()?.body ??
-            'This room has been replaced and is no longer active.'
+              'This room has been replaced and is no longer active.'
             : 'You do not have permission to post to this room'}
         </Text>
       );
@@ -958,8 +958,9 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
     return (
       <>
         <div
-          className={`room-input__option-container${attachment === null ? '' : ' room-attachment__option'
-            }`}
+          className={`room-input__option-container${
+            attachment === null ? '' : ' room-attachment__option'
+          }`}
         >
           <FileInput onChange={uploadFileChange} ref={uploadInputRef} />
 
@@ -1110,8 +1111,9 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
     return (
       <div className="room-attachment">
         <div
-          className={`room-attachment__preview${fileType !== 'image' ? ' room-attachment__icon' : ''
-            }`}
+          className={`room-attachment__preview${
+            fileType !== 'image' ? ' room-attachment__icon' : ''
+          }`}
         >
           {fileType === 'image' && fileSrc && <img alt={attachment.name} src={fileSrc} />}
           {fileType === 'video' && <RawIcon fa="fa-solid fa-film" />}

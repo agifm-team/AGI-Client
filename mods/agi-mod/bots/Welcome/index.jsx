@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import clone from 'clone';
 
 import { insertAgiAvatar } from '@mods/agi-mod/lib';
@@ -50,6 +50,7 @@ function Welcome({ isGuest }) {
 
   const [data, setRoomData] = useState(null); // room data
   const [dataTag, setSelectedTag] = useState(null);
+  const morphic = useRef(null);
 
   // Generator
   const categoryGenerator = (where, type, title, citem) => (
@@ -82,6 +83,22 @@ function Welcome({ isGuest }) {
     event.preventDefault();
     setSelectedTag(tempSearch);
   };
+
+  // Iframe block issue
+  /* useEffect(() => {
+    if (morphic.current) {
+      const tinyMorphicUpdate = setInterval(() => {
+        if (morphic.current && morphic.current.contentWindow) {
+          // console.log(morphic.current.contentWindow.document);
+          // const morRef = $(morphic.current.contentWindow);
+          // console.log(morRef.height());
+        }
+      }, 100);
+      return () => {
+        clearInterval(tinyMorphicUpdate);
+      };
+    }
+  }); */
 
   // Effect
   useEffect(() => {
@@ -359,7 +376,7 @@ function Welcome({ isGuest }) {
         </div>
 
         {__ENV_APP__.MODE === 'development' ? (
-          <iframe id="morphic" src="https://www.morphic.sh/" />
+          <iframe ref={morphic} id="morphic" src="https://www.morphic.sh/" />
         ) : null}
 
         <div id="search-title">

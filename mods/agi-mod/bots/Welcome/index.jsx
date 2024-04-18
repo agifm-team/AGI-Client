@@ -383,7 +383,7 @@ function Welcome({ isGuest }) {
         </div>
 
         {__ENV_APP__.MODE === 'development' ? (
-          <iframe ref={morphic} id="morphic" src="https://www.morphic.sh/" />
+          <iframe ref={morphic} id="morphic" src="https://morphic-liard-nu.vercel.app" />
         ) : null}
 
         <div id="search-title">

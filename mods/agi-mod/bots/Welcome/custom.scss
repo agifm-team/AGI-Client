@@ -51,6 +51,19 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
         transition: transform 0.2s ease-in-out;
       }
     }
+    /* Add the following styles for rounded carousel */
+    &.rounded-carousel {
+      border-radius: 10px; /* Adjust the border-radius value to your desired roundness */
+      overflow: hidden; /* Hide the content that exceeds the rounded corners */
+
+      .carousel-inner {
+        border-radius: 10px; /* Apply the same border-radius value as the container */
+      }
+
+      .carousel-item img {
+        border-radius: 10px; /* Apply the same border-radius value to the carousel images */
+      }
+    }
   }
 
   .Formy {

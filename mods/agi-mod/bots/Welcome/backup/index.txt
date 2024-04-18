@@ -12,7 +12,7 @@
             value={tempSearch}
             // onChange={handleSearchChange}
             // onSubmit={handleSearchSubmit}
-            placeholder="Search for Pixxels and join Pixxel rooms..."
+            placeholder="find and create Ai-Pixxels: customizing their personality, appearance, and knowledge domains..."
         />
         </form>
 

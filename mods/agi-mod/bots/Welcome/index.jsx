@@ -395,7 +395,7 @@ function Welcome({ isGuest }) {
                 value={tempSearch}
                 onChange={handleSearchChange}
                 onSubmit={handleSearchSubmit}
-                placeholder="Search or create AI-Pixxels by customizing their personality, appearance, and knowledge domains.."
+                placeholder="Search or Create custom AI-Pixxels ..."
               />
             </form>
           </div>

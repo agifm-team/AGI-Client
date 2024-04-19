@@ -1,5 +1,6 @@
+
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import clone from 'clone';
 
 import { insertAgiAvatar } from '@mods/agi-mod/lib';
@@ -50,6 +51,7 @@ function Welcome({ isGuest }) {
 
   const [data, setRoomData] = useState(null); // room data
   const [dataTag, setSelectedTag] = useState(null);
+  const morphic = useRef(null);
 
   // Generator
   const categoryGenerator = (where, type, title, citem) => (
@@ -82,6 +84,22 @@ function Welcome({ isGuest }) {
     event.preventDefault();
     setSelectedTag(tempSearch);
   };
+
+  // Iframe block issue
+  /* useEffect(() => {
+    if (morphic.current) {
+      const tinyMorphicUpdate = setInterval(() => {
+        if (morphic.current && morphic.current.contentWindow) {
+          // console.log(morphic.current.contentWindow.document);
+          // const morRef = $(morphic.current.contentWindow);
+          // console.log(morRef.height());
+        }
+      }, 100);
+      return () => {
+        clearInterval(tinyMorphicUpdate);
+      };
+    }
+  }); */
 
   // Effect
   useEffect(() => {
@@ -234,8 +252,13 @@ function Welcome({ isGuest }) {
   // Result
   return (
     <div className={`tiny-welcome border-0 h-100 noselect${isGuest ? ' is-guest' : ''}`}>
+      {/*
       <center className="w-100">
-        <div id="welcome-carousel" className="py-4 mx-4 carousel slide" data-bs-ride="true">
+        <div
+          id="welcome-carousel"
+          className="py-4 mx-4 carousel slide rounded-carousel"
+          data-bs-ride="true"
+        >
           <div className="carousel-indicators">
             <button
               type="button"
@@ -329,6 +352,7 @@ function Welcome({ isGuest }) {
           </button>
         </div>
       </center>
+      */}
       <center className={`py-4 px-4 w-100${isGuest ? ' mb-5' : ''}`}>
         <div id="menu" className={`text-start${isGuest ? ' is-guest' : ''}`}>
           {!isGuest ? (
@@ -358,6 +382,10 @@ function Welcome({ isGuest }) {
           </center>
         </div>
 
+        {__ENV_APP__.MODE === 'development' ? (
+          <iframe ref={morphic} id="morphic" src="https://morphic-liard-nu.vercel.app" />
+        ) : null}
+
         <div id="search-title">
           <div className="search-info mb-3">
             <form className="search-form mb-2 mt-3" onSubmit={handleSearchSubmit}>
@@ -367,7 +395,7 @@ function Welcome({ isGuest }) {
                 value={tempSearch}
                 onChange={handleSearchChange}
                 onSubmit={handleSearchSubmit}
-                placeholder="Search for bots and rooms..."
+                placeholder="Search or Create custom AI-Pixxels ..."
               />
             </form>
           </div>

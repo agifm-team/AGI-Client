@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 
 import threadsList from '@src/util/libs/thread';
 import { objType } from '@src/util/tools';
+
+import muteUserManager from '@src/util/libs/muteUserManager';
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
@@ -42,6 +44,7 @@ function Selector({ roomId, isDM, drawerPostie, onClick, roomObject, isProfile, 
   }
 
   // Get User room
+  let allowCustomUsername = false;
   let user;
   let roomName = room.name;
   if (isDM) {
@@ -51,17 +54,8 @@ function Selector({ roomId, isDM, drawerPostie, onClick, roomObject, isProfile, 
       const member = members.find((m) => m.userId !== mx.getUserId());
       if (member) {
         user = mx.getUser(member.userId);
-        const fNickname = getDataList('user_cache', 'friend_nickname', user.userId);
-
-        if (typeof fNickname !== 'string' || fNickname.length === 0) {
-          if (typeof user.displayName === 'string' && user.displayName.length > 0) {
-            roomName = user.displayName;
-          } else if (typeof user.userId === 'string' && user.userId.length > 0) {
-            roomName = user.userId;
-          }
-        } else {
-          roomName = fNickname;
-        }
+        roomName = muteUserManager.getSelectorName(user);
+        allowCustomUsername = true;
       }
     }
   }
@@ -156,6 +150,7 @@ function Selector({ roomId, isDM, drawerPostie, onClick, roomObject, isProfile, 
   return (
     <>
       <RoomSelector
+        allowCustomUsername={allowCustomUsername}
         notSpace={notSpace}
         key={roomId}
         isProfile={isProfile}

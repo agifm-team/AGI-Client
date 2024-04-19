@@ -5,13 +5,6 @@ ENS Ethereum
 
     scaleDownImage to gif
 
-    Mobile:
-    if (readerType === 'readAsDataURL')
-    uploadContent(isEncryptedRoom
-
-    Mobile Background mode
-    Mobile Rec audio
-
     Fazer um sistema para facilitar rooms que são descrições de informação.
 
     Adicionar suporte a link para ir diretamente a mensagens.
@@ -51,12 +44,8 @@ Made by Me
 
     selectedRoom.room.eventNames()
     Coisas que não atualiza sozinho:
-        Alteração de friend nickname.
-        O username do display da conta logada.
         Lista de usuários online na room ainda não atualiza em tempo real.
         Banner do space.
-        Esconder Pin messages event
-        Revelar Pin messages event
 
     =======================================================
 
@@ -75,17 +64,18 @@ Made by Me
 
     =======================================================
 
-    --> Criar filtro para desativar animação de gifs especificas. A gente vai usar a ID e dominio do arquivo para facilitar isso.
-    (Limite de 600 itens por array) (Opçao alternativa de fazer a animação ser hover)
-
-    --> Opção de desativar ou ativar animação de emojis ou stickers
-    (Também ser possível banir animação de usuários individualmente - limite de 600 itens por array) (Opçao alternativa de fazer a animação ser hover)
-
-    =======================================================
-
     --> Voice Chat
     https://matrix-org.github.io/matrix-js-sdk/stable/classes/MatrixCall.html#transferToCall
     https://github.com/matrix-org/matrix-js-sdk/blob/develop/examples/voip/browserTest.js
 
     Web3 XMTP Chat
     https://xmtp.org/docs/build/get-started
+
+    =======================================================
+
+    Mobile:
+    if (readerType === 'readAsDataURL')
+    uploadContent(isEncryptedRoom
+
+    Mobile Background mode
+    Mobile Rec audio

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useReducer } from 'react';
 import PropTypes from 'prop-types';
 
 import { MatrixEventEvent, RoomEvent, THREAD_RELATION_TYPE } from 'matrix-js-sdk';
@@ -10,6 +10,7 @@ import * as linkify from 'linkifyjs';
 import cons from '@src/client/state/cons';
 import { isMobile } from '@src/util/libs/mobile';
 import { readImageUrl } from '@src/util/libs/mediaCache';
+import muteUserManager from '@src/util/libs/muteUserManager';
 
 import Text from '../../atoms/text/Text';
 import { hljsFixer, resizeWindowChecker, toast } from '../../../util/tools';
@@ -119,14 +120,33 @@ const MessageAvatar = React.memo(
 );
 
 // Message Header
-const MessageHeader = React.memo(({ userId, username }) => (
-  <span className="username-base emoji-size-fix" style={{ color: colorMXID(userId) }}>
-    <span className="username disable-username">{twemojifyReact(username)}</span>
-  </span>
-));
+const MessageHeader = React.memo(({ userId, username }) => {
+  const usernameClick = (e) => {
+    e.preventDefault();
+    openProfileViewer(userId, roomId);
+  };
+
+  return (
+    <span
+      onClick={usernameClick}
+      onContextMenu={(e) => {
+        openReusableContextMenu('bottom', getEventCords(e, '.username'), (closeMenu) => (
+          <UserOptions userId={userId} afterOptionSelect={closeMenu} />
+        ));
+
+        e.preventDefault();
+      }}
+      className="username-base emoji-size-fix"
+      style={{ color: colorMXID(userId) }}
+    >
+      <span className="username disable-username">{twemojifyReact(username)}</span>
+    </span>
+  );
+});
 
 MessageHeader.propTypes = {
   userId: PropTypes.string.isRequired,
+  roomId: PropTypes.string.isRequired,
   username: PropTypes.string.isRequired,
 };
 
@@ -299,14 +319,14 @@ const createMessageData = (
       const insertMsg = () =>
         !isJquery
           ? twemojifyReact(
-              sanitizeCustomHtml(initMatrix.matrixClient, body),
+              sanitizeCustomHtml(initMatrix.matrixClient, body, senderId),
               undefined,
               true,
               false,
               true,
             )
           : twemojify(
-              sanitizeCustomHtml(initMatrix.matrixClient, body),
+              sanitizeCustomHtml(initMatrix.matrixClient, body, senderId),
               undefined,
               true,
               false,
@@ -691,6 +711,7 @@ MessageReaction.propTypes = {
 function MessageReactionGroup({ roomTimeline, mEvent }) {
   const itemEmbed = useRef(null);
   const [embedHeight, setEmbedHeight] = useState(null);
+  const [, forceUpdate] = useReducer((count) => count + 1, 0);
 
   const { roomId, room, reactionTimeline } = roomTimeline;
   const mx = initMatrix.matrixClient;
@@ -699,6 +720,13 @@ function MessageReactionGroup({ roomTimeline, mEvent }) {
 
   const eventReactions = reactionTimeline.get(mEvent.getId());
 
+  useEffect(() => {
+    const tinyUpdate = () => forceUpdate();
+    muteUserManager.on('muteReaction', tinyUpdate);
+    return () => {
+      muteUserManager.off('muteReaction', tinyUpdate);
+    };
+  });
   const addReaction = (key, shortcode, count, senderId, isActive, index) => {
     let isNewReaction = false;
     let reaction = reactions[key];
@@ -735,7 +763,10 @@ function MessageReactionGroup({ roomTimeline, mEvent }) {
       const { shortcode } = rEvent.getContent();
       const isActive = senderId === mx.getUserId();
 
-      if (addReaction(reaction.key, shortcode, undefined, senderId, isActive, tinyIndex)) {
+      if (
+        !muteUserManager.isReactionMuted(senderId) &&
+        addReaction(reaction.key, shortcode, undefined, senderId, isActive, tinyIndex)
+      ) {
         tinyIndex++;
       }
     });
@@ -1096,7 +1127,7 @@ const MessageThreadSummary = React.memo(({ thread }) => {
 });
 
 // Media Generator
-function genMediaContent(mE) {
+function genMediaContent(mE, seeHiddenData, setSeeHiddenData) {
   // Client
   const mx = initMatrix.matrixClient;
   const mContent = mE.getContent();
@@ -1130,6 +1161,7 @@ function genMediaContent(mE) {
   }
 
   const blurhash = mContent?.info?.['xyz.amorgan.blurhash'];
+  const senderId = mE.getSender();
 
   switch (msgType) {
     // File
@@ -1147,7 +1179,7 @@ function genMediaContent(mE) {
 
     // Image
     case 'm.image':
-      return (
+      return !muteUserManager.isImageMuted(senderId) || seeHiddenData ? (
         <Media.Image
           roomId={mE.getRoomId()}
           threadId={mE.getThread()?.id}
@@ -1159,11 +1191,24 @@ function genMediaContent(mE) {
           type={mContent.info?.mimetype}
           blurhash={blurhash}
         />
+      ) : (
+        <a
+          href="#"
+          className="text-warning"
+          onClick={(e) => {
+            e.preventDefault();
+            setSeeHiddenData(true);
+          }}
+        >
+          <i className="fa-solid fa-eye-slash me-1" />
+          Hidden Image. Click here to view.
+        </a>
       );
 
     // Sticker
     case 'm.sticker':
-      return (
+      const enableAnimParams = getAppearance('enableAnimParams');
+      return !muteUserManager.isStickerMuted(senderId) || seeHiddenData ? (
         <Media.Sticker
           roomId={mE.getRoomId()}
           threadId={mE.getThread()?.id}
@@ -1178,10 +1223,26 @@ function genMediaContent(mE) {
               ? mContent.info?.h
               : null
           }
-          link={mx.mxcUrlToHttp(mediaMXC)}
+          link={
+            !enableAnimParams
+              ? mx.mxcUrlToHttp(mediaMXC)
+              : getAnimatedImageUrl(mx.mxcUrlToHttp(mediaMXC, 170, 170, 'crop'))
+          }
           file={isEncryptedFile ? mContent.file : null}
           type={mContent.info?.mimetype}
         />
+      ) : (
+        <a
+          href="#"
+          className="text-warning"
+          onClick={(e) => {
+            e.preventDefault();
+            setSeeHiddenData(true);
+          }}
+        >
+          <i className="fa-solid fa-eye-slash me-1" />
+          Hidden Sticker. Click here to view.
+        </a>
       );
 
     // Audio
@@ -1202,7 +1263,7 @@ function genMediaContent(mE) {
       if (typeof thumbnailMXC === 'undefined') {
         thumbnailMXC = mContent.info?.thumbnail_file?.url || null;
       }
-      return (
+      return !muteUserManager.isVideoMuted(senderId) || seeHiddenData ? (
         <Media.Video
           roomId={mE.getRoomId()}
           threadId={mE.getThread()?.id}
@@ -1217,6 +1278,18 @@ function genMediaContent(mE) {
           type={mContent.info?.mimetype}
           blurhash={blurhash}
         />
+      ) : (
+        <a
+          href="#"
+          className="text-warning"
+          onClick={(e) => {
+            e.preventDefault();
+            setSeeHiddenData(true);
+          }}
+        >
+          <i className="fa-solid fa-eye-slash me-1" />
+          Hidden Video. Click here to view.
+        </a>
       );
 
     // Bad Event Again?
@@ -1266,6 +1339,8 @@ function Message({
   const threadId = mEvent.getThread()?.id;
   const { editedTimeline, reactionTimeline } = roomTimeline ?? {};
 
+  const [, forceUpdate] = useReducer((count) => count + 1, 0);
+  const [seeHiddenData, setSeeHiddenData] = useState(false);
   const [existThread, updateExistThread] = useState(typeof threadId === 'string');
   const [embeds, setEmbeds] = useState([]);
   const [embedHeight, setEmbedHeight] = useState(null);
@@ -1288,9 +1363,6 @@ function Message({
   let { body } = content;
   const [bodyData, setBodyData] = useState(body);
 
-  // User Data
-  const fNickname = getDataList('user_cache', 'friend_nickname', senderId);
-
   // make the message transparent while sending and red if it failed sending
   const [messageStatus, setMessageStatus] = useState(mEvent.status);
 
@@ -1298,12 +1370,7 @@ function Message({
     setMessageStatus(e.status);
   });
 
-  const username =
-    !isDM || typeof fNickname !== 'string' || fNickname.length === 0
-      ? mEvent.sender
-        ? getUsernameOfRoomMember(mEvent.sender)
-        : getUsername(senderId)
-      : fNickname;
+  const username = muteUserManager.getMessageName(mEvent, isDM);
   const avatarSrc = mEvent.sender?.getAvatarUrl(mx.baseUrl, 36, 36, 'crop') ?? null;
   const avatarAnimSrc = !appearanceSettings.enableAnimParams
     ? mEvent.sender?.getAvatarUrl(mx.baseUrl)
@@ -1371,7 +1438,7 @@ function Message({
   }
 
   useEffect(() => {
-    if (embeds.length < 1) {
+    if (embeds.length < 1 && !muteUserManager.isEmbedMuted(senderId)) {
       const bodyUrls = [];
       if (typeof bodyData === 'string' && bodyData.length > 0) {
         try {
@@ -1450,6 +1517,8 @@ function Message({
 
       // Complete
       mediaFix(null, embedHeight, setEmbedHeight);
+    } else if (embeds.length > 0 && muteUserManager.isEmbedMuted(senderId)) {
+      setEmbeds([]);
     }
   });
 
@@ -1501,6 +1570,18 @@ function Message({
     matrixAppearance.on('showStickers', updateShowStickers);
     return () => {
       matrixAppearance.off('showStickers', updateShowStickers);
+    };
+  });
+
+  useEffect(() => {
+    const tinyUpdate = (info) => {
+      if (info.userId === senderId) forceUpdate();
+    };
+    muteUserManager.on('mute', tinyUpdate);
+    muteUserManager.on('friendNickname', tinyUpdate);
+    return () => {
+      muteUserManager.off('mute', tinyUpdate);
+      muteUserManager.off('friendNickname', tinyUpdate);
     };
   });
 
@@ -1564,6 +1645,7 @@ function Message({
                   usernameHover={usernameHover}
                   userId={senderId}
                   username={username}
+                  roomId={roomId}
                 />
 
                 <MessageTime className="ms-2" timestamp={mEvent.getTs()} fullTime={fullTime} />
@@ -1584,7 +1666,11 @@ function Message({
                   className={classNameMessage}
                   senderName={username}
                   isCustomHTML={isCustomHTML}
-                  body={isMedia(mEvent) ? genMediaContent(mEvent) : customHTML ?? body}
+                  body={
+                    isMedia(mEvent)
+                      ? genMediaContent(mEvent, seeHiddenData, setSeeHiddenData)
+                      : customHTML ?? body
+                  }
                   content={content}
                   msgType={msgType}
                   isEdited={isEdited}
@@ -1689,7 +1775,12 @@ function Message({
 
         {!isBodyOnly && (
           <div className="mb-1">
-            <MessageHeader usernameHover={usernameHover} userId={senderId} username={username} />
+            <MessageHeader
+              usernameHover={usernameHover}
+              userId={senderId}
+              username={username}
+              roomId={roomId}
+            />
 
             <MessageTime className="ms-2" timestamp={mEvent.getTs()} fullTime={fullTime} />
           </div>

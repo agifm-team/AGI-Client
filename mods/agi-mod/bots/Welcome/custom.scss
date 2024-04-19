@@ -18,6 +18,7 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
 }
 
 .tiny-welcome {
+  /*
   #welcome-carousel {
     max-width: 1920px;
     .carousel-indicators {
@@ -39,19 +40,31 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
       }
 
       & > img {
-        height: 250px; /* Control the image height */
-        width: 100%; /* Ensure the image spans the full width of the container */
-        object-fit: cover; /* Cover the container without losing aspect ratio */
+        height: 250px;
+        width: 100%;
+        object-fit: cover;
         opacity: 1;
       }
 
-      /* Hover Effect Addition */
       &:hover {
         transform: scale(1.02);
         transition: transform 0.2s ease-in-out;
       }
     }
+    &.rounded-carousel {
+      border-radius: 10px;
+      overflow: hidden;
+
+      .carousel-inner {
+        border-radius: 10px;
+      }
+
+      .carousel-item img {
+        border-radius: 10px;
+      }
+    }
   }
+  */
 
   .Formy {
     input {

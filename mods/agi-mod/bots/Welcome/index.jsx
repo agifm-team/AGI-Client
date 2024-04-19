@@ -1,3 +1,4 @@
+
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
 import clone from 'clone';
@@ -251,8 +252,13 @@ function Welcome({ isGuest }) {
   // Result
   return (
     <div className={`tiny-welcome border-0 h-100 noselect${isGuest ? ' is-guest' : ''}`}>
+      {/*
       <center className="w-100">
-        <div id="welcome-carousel" className="py-4 mx-4 carousel slide" data-bs-ride="true">
+        <div
+          id="welcome-carousel"
+          className="py-4 mx-4 carousel slide rounded-carousel"
+          data-bs-ride="true"
+        >
           <div className="carousel-indicators">
             <button
               type="button"
@@ -346,6 +352,7 @@ function Welcome({ isGuest }) {
           </button>
         </div>
       </center>
+      */}
       <center className={`py-4 px-4 w-100${isGuest ? ' mb-5' : ''}`}>
         <div id="menu" className={`text-start${isGuest ? ' is-guest' : ''}`}>
           {!isGuest ? (
@@ -376,7 +383,7 @@ function Welcome({ isGuest }) {
         </div>
 
         {__ENV_APP__.MODE === 'development' ? (
-          <iframe ref={morphic} id="morphic" src="https://www.morphic.sh/" />
+          <iframe ref={morphic} id="morphic" src="https://morphic-liard-nu.vercel.app" />
         ) : null}
 
         <div id="search-title">
@@ -388,7 +395,7 @@ function Welcome({ isGuest }) {
                 value={tempSearch}
                 onChange={handleSearchChange}
                 onSubmit={handleSearchSubmit}
-                placeholder="Search for bots and rooms..."
+                placeholder="Search or Create custom AI-Pixxels ..."
               />
             </form>
           </div>

@@ -10,6 +10,7 @@
   "scripts": {
     "start": "git submodule update --init && vite dev",
     "build": "git submodule update --init && vite build",
+    "build:dev": "git submodule update --init && vite build --mode development",
     "build:8gb": "git submodule update --init && cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build",
     "electron:start": "git submodule update --init && cross-env ELECTRON_MODE=true vite dev",
     "electron:build": "git submodule update --init && cross-env ELECTRON_MODE=true vite build && electron-builder",

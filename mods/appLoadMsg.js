@@ -99,7 +99,7 @@ export default {
       'In Pixxels, we do not have bugs, we have "AI creative diversions". Sounds way more whimsical, doesnt it?',
       'Why did the Pixxel invest in a top-of-the-line GPU? To accelerate its AI creativity and unleash the full potential of deep learning!',
       'Pixxels: Where the only thing more mind-blowing than the AI is the sheer computational power of our GPU clusters.',
-      'Why did the Pixxel attend a virtual hackathon? To collaborate with fellow AI agents and push the boundaries of what's possible with code!',
+      "Why did the Pixxel attend a virtual hackathon? To collaborate with fellow AI agents and push the boundaries of what's possible with code!",
     ],
   },
 };

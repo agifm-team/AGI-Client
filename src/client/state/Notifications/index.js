@@ -419,33 +419,45 @@ class Notifications extends EventEmitter {
         body = plain(content.body, state);
       }
 
-      const tinyThis = this;
-      await this.sendNotification({
-        tag: mEvent.getId(),
-        title,
-        body: body.plain,
-        icon,
+      if (!mEvent.thread) {
+        const tinyThis = this;
+        await this.sendNotification({
+          tag: mEvent.getId(),
+          title,
+          body: body.plain,
+          icon,
 
-        onClick: {
-          desktop: () => {
-            selectRoom(room.roomId, mEvent.getId(), !mEvent.thread ? null : mEvent.thread.id, true);
-            window.focusAppWindow();
+          onClick: {
+            desktop: () => {
+              selectRoom(
+                room.roomId,
+                mEvent.getId(),
+                !mEvent.thread ? null : mEvent.thread.id,
+                true,
+              );
+              window.focusAppWindow();
+            },
+
+            browser: () =>
+              selectRoom(
+                room.roomId,
+                mEvent.getId(),
+                !mEvent.thread ? null : mEvent.thread.id,
+                true,
+              ),
           },
 
-          browser: () =>
-            selectRoom(room.roomId, mEvent.getId(), !mEvent.thread ? null : mEvent.thread.id, true),
-        },
-
-        onComplete: (noti) => {
-          // Set Event
-          tinyThis.eventIdToPopupNoti.set(mEvent.getId(), noti);
-          if (tinyThis.roomIdToPopupNotis.has(room.roomId)) {
-            tinyThis.roomIdToPopupNotis.get(room.roomId).push(noti);
-          } else {
-            tinyThis.roomIdToPopupNotis.set(room.roomId, [noti]);
-          }
-        },
-      });
+          onComplete: (noti) => {
+            // Set Event
+            tinyThis.eventIdToPopupNoti.set(mEvent.getId(), noti);
+            if (tinyThis.roomIdToPopupNotis.has(room.roomId)) {
+              tinyThis.roomIdToPopupNotis.get(room.roomId).push(noti);
+            } else {
+              tinyThis.roomIdToPopupNotis.set(room.roomId, [noti]);
+            }
+          },
+        });
+      }
     }
 
     // Notification Sound Play

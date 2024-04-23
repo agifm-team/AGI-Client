@@ -19,6 +19,7 @@
     }
 
     .content {
+      height: 27px;
       .username-unread {
         margin-right: 27px;
       }
@@ -31,6 +32,7 @@
       }
 
       &.content-dm {
+        height: 45px;
         .notification-badge {
           margin-top: -29px !important;
         }
@@ -52,10 +54,6 @@
         .user-status::before {
           font-size: 8pt;
         }
-      }
-
-      &.content-dm {
-        height: 45px;
       }
 
       &.content-dm:not(.content-with-custom-status) {

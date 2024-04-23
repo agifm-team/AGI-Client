@@ -167,6 +167,9 @@ export default defineConfig(({ command, mode }) => {
     USE_CUSTOM_EMOJIS: !!(env.USE_CUSTOM_EMOJIS === true || env.USE_CUSTOM_EMOJIS === 'true'),
     USE_ANIM_PARAMS: !!(env.USE_ANIM_PARAMS === true || env.USE_ANIM_PARAMS === 'true'),
 
+    AUTO_ENCRYPT_CREATE_DM: !!(env.AUTO_ENCRYPT_CREATE_DM === true || env.AUTO_ENCRYPT_CREATE_DM === 'true'),
+    DISABLE_ENCRYPT_SETTINGS: !!(env.DISABLE_ENCRYPT_SETTINGS === true || env.DISABLE_ENCRYPT_SETTINGS === 'true'),
+
     LOGIN: {
       DEFAULT_HOMESERVER: Number(env.DEFAULT_HOMESERVER),
       ALLOW_CUSTOM_HOMESERVERS: !!(typeof env.ALLOW_CUSTOM_HOMESERVERS === 'string' && env.ALLOW_CUSTOM_HOMESERVERS === 'true'),

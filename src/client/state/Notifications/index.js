@@ -1,11 +1,12 @@
 // import { LocalNotifications } from '@capacitor/local-notifications';
-import { NotificationCountType } from 'matrix-js-sdk';
+import { MatrixEventEvent, NotificationCountType } from 'matrix-js-sdk';
 import EventEmitter from 'events';
 
 import mobileEvents, { isMobile } from '@src/util/libs/mobile';
 import { cyrb128 } from '@src/util/tools';
 import tinyAPI from '@src/util/mods';
 import { getAppearance } from '@src/util/libs/appearance';
+import attemptDecryption from '@src/util/libs/attemptDecryption';
 // import { insertIntoRoomEventsDB } from '@src/util/libs/roomEventsDB';
 
 import renderAvatar from '../../../app/atoms/avatar/render';
@@ -323,18 +324,56 @@ class Notifications extends EventEmitter {
 
     // Encrypted
     if (mEvent.isEncrypted()) {
-      try {
-        await mEvent.attemptDecryption(this.matrixClient.getCrypto());
-      } catch (err) {
-        console.error(err);
-      }
+      await attemptDecryption.exec(mEvent, null, true);
     }
 
     // Tiny API
     tinyAPI.emit('roomTimeline', mEvent, room);
-    if (stopNotification || !this.hasNoti(room.roomId, mEvent.thread ? mEvent.thread.id : null))
-      return;
 
+    // Decrypt Notification
+    if (!stopNotification && this.hasNoti(room.roomId, mEvent.thread ? mEvent.thread.id : null)) {
+      const content = mEvent.getContent();
+      const msgType = content?.msgtype;
+      if (msgType !== 'm.bad.encrypted') {
+        this._sendDisplayPopupNoti(mEvent, content, room);
+      }
+
+      // Fail Decrypt 1
+      else {
+        const tinyThis = this;
+        let decryptTimeout;
+        const decryptFunction = (mEvent2) => {
+          if (decryptTimeout) {
+            clearTimeout(decryptTimeout);
+            decryptTimeout = null;
+          }
+
+          // Decrypt Notification 2
+          const content2 = mEvent2.getContent();
+          const msgType2 = content2?.msgtype;
+          if (msgType2 !== 'm.bad.encrypted') {
+            tinyThis._sendDisplayPopupNoti(mEvent2, content2, room);
+          }
+
+          // Fail Decrypt 2
+          else {
+            decryptTimeout = setTimeout(() => {
+              mEvent2.off(MatrixEventEvent.Decrypted, decryptFunction);
+            }, 60000);
+            mEvent2.once(MatrixEventEvent.Decrypted, decryptFunction);
+          }
+        };
+
+        // Try decrypt again
+        decryptTimeout = setTimeout(() => {
+          mEvent.off(MatrixEventEvent.Decrypted, decryptFunction);
+        }, 60000);
+        mEvent.once(MatrixEventEvent.Decrypted, decryptFunction);
+      }
+    }
+  }
+
+  async _sendDisplayPopupNoti(mEvent, content, room) {
     // Data Prepare
     const userStatus = getAccountStatus('status');
     if (!settings.showNotifications && !settings.isNotificationSounds) {
@@ -409,8 +448,6 @@ class Notifications extends EventEmitter {
         scale: 8,
       });
 
-      const content = mEvent.getContent();
-
       const state = { kind: 'notification', onlyPlain: true };
       let body;
       if (content.format === 'org.matrix.custom.html') {
@@ -419,33 +456,45 @@ class Notifications extends EventEmitter {
         body = plain(content.body, state);
       }
 
-      const tinyThis = this;
-      await this.sendNotification({
-        tag: mEvent.getId(),
-        title,
-        body: body.plain,
-        icon,
+      if (!mEvent.thread) {
+        const tinyThis = this;
+        await this.sendNotification({
+          tag: mEvent.getId(),
+          title,
+          body: body.plain,
+          icon,
 
-        onClick: {
-          desktop: () => {
-            selectRoom(room.roomId, mEvent.getId(), !mEvent.thread ? null : mEvent.thread.id, true);
-            window.focusAppWindow();
+          onClick: {
+            desktop: () => {
+              selectRoom(
+                room.roomId,
+                mEvent.getId(),
+                !mEvent.thread ? null : mEvent.thread.id,
+                true,
+              );
+              window.focusAppWindow();
+            },
+
+            browser: () =>
+              selectRoom(
+                room.roomId,
+                mEvent.getId(),
+                !mEvent.thread ? null : mEvent.thread.id,
+                true,
+              ),
           },
 
-          browser: () =>
-            selectRoom(room.roomId, mEvent.getId(), !mEvent.thread ? null : mEvent.thread.id, true),
-        },
-
-        onComplete: (noti) => {
-          // Set Event
-          tinyThis.eventIdToPopupNoti.set(mEvent.getId(), noti);
-          if (tinyThis.roomIdToPopupNotis.has(room.roomId)) {
-            tinyThis.roomIdToPopupNotis.get(room.roomId).push(noti);
-          } else {
-            tinyThis.roomIdToPopupNotis.set(room.roomId, [noti]);
-          }
-        },
-      });
+          onComplete: (noti) => {
+            // Set Event
+            tinyThis.eventIdToPopupNoti.set(mEvent.getId(), noti);
+            if (tinyThis.roomIdToPopupNotis.has(room.roomId)) {
+              tinyThis.roomIdToPopupNotis.get(room.roomId).push(noti);
+            } else {
+              tinyThis.roomIdToPopupNotis.set(room.roomId, [noti]);
+            }
+          },
+        });
+      }
     }
 
     // Notification Sound Play

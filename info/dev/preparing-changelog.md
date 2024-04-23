@@ -1,7 +1,3 @@
-- Embed cache time updated.
-- Mute user message types added.
-- MessageHeader - username button click.
-- The application will now try on its own to detect whether the user is using 24 hours and the calendar format.
-- Avatar code tiny update.
-- DM profile buttons now opens the user's profile.
-- friendNickname - real time update added.
+- auto encrypt createDM setting added to ENV.
+- Disable encrypt settings added to ENV.
+- When an existing message is decrypted, it is updated in real time now.

@@ -1,3 +1,14 @@
+Tentativa de obter perfil desconhecido
+Opção de odernar a lista de rooms geral por atividade.
+
+Ver qual Friend ninkcname está sendo usado.
+
+Ver em quais rooms o usuário está (Pelo perfil)
+
+Tonar isso mais usável ao react events.
+src/app/organisms/space-settings/handleBannerUpload.js
+
+Fazer o load de mensagens no thread
 ENS Ethereum
 
 /src/app/organisms/navigation/Directs.jsx
@@ -45,7 +56,6 @@ Made by Me
     selectedRoom.room.eventNames()
     Coisas que não atualiza sozinho:
         Lista de usuários online na room ainda não atualiza em tempo real.
-        Banner do space.
 
     =======================================================
 

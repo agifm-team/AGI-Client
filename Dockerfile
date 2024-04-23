@@ -12,7 +12,7 @@ RUN yarn build:dev
 
 
 ## App
-FROM nginx:alpine
+FROM nginx:1.25.5-alpine
 
 COPY --from=builder /src/dist /usr/share/nginx/html
 

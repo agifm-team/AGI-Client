@@ -1,5 +1,3 @@
-Fazer o embed cache funcionar por timestamp invés de time local
-
 Tentativa de obter perfil desconhecido
 Opção de odernar a lista de rooms geral por atividade.
 
@@ -22,10 +20,6 @@ ENS Ethereum
 
     Adicionar suporte a link para ir diretamente a mensagens.
     /?room_id=&thread_id=&event_id=
-
-    =============================================
-
-    Trocar o titulo da página de bolinha de notificação para números
 
     =============================================
 

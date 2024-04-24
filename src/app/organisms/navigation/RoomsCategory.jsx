@@ -122,8 +122,6 @@ function RoomsCategory({ spaceId, name, hideHeader, roomIds, drawerPostie, notSp
     roomData.sort(sortTime);
   }
 
-  roomData.sort(sortTime);
-
   useEffect(() => {
     const forceUpdateRoomList = (value) => {
       setOrderHomeByActivity(value);

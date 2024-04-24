@@ -1,5 +1,6 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
+import matrixAppearance, { getAppearance } from '@src/util/libs/appearance';
 
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
@@ -23,6 +24,9 @@ function Home({ spaceId }) {
   useCategorizedSpaces();
   const isCategorized = accountData.categorizedSpaces.has(spaceId);
   const [, forceUpdate] = useReducer((count) => count + 1, 0);
+  const [orderHomeByActivity, setOrderHomeByActivity] = useState(
+    getAppearance('orderHomeByActivity'),
+  );
 
   let categories = null;
   let spaceIds = [];
@@ -48,7 +52,7 @@ function Home({ spaceId }) {
   useEffect(() => {
     // Update the room list to execute the item order list
     const forceUpdateRoomList = () => {
-      if (!spaceId) forceUpdate();
+      if (orderHomeByActivity && !spaceId) forceUpdate();
     };
 
     const selectorChanged = (
@@ -63,7 +67,7 @@ function Home({ spaceId }) {
         addresses.push(prevSelectedRoomId);
       if (addresses.length === 0) return;
       drawerPostie.post('selector-change', addresses, selectedRoomId);
-      forceUpdateRoomList();
+      if (orderHomeByActivity) forceUpdateRoomList();
     };
 
     const notiChanged = (roomId, total, prevTotal) => {
@@ -71,7 +75,7 @@ function Home({ spaceId }) {
       if (drawerPostie.hasTopicAndSubscriber('unread-change', roomId)) {
         drawerPostie.post('unread-change', roomId);
       }
-      forceUpdateRoomList();
+      if (orderHomeByActivity) forceUpdateRoomList();
     };
 
     if (roomsInput) roomsInput.on(cons.events.roomsInput.MESSAGE_SENT, forceUpdateRoomList);
@@ -85,7 +89,17 @@ function Home({ spaceId }) {
       notifications.removeListener(cons.events.notifications.NOTI_CHANGED, notiChanged);
       notifications.removeListener(cons.events.notifications.MUTE_TOGGLED, notiChanged);
     };
-  }, [spaceId]);
+  }, [spaceId, orderHomeByActivity]);
+
+  useEffect(() => {
+    const forceUpdateRoomList = (value) => {
+      setOrderHomeByActivity(value);
+    };
+    matrixAppearance.on('orderHomeByActivity', forceUpdateRoomList);
+    return () => {
+      matrixAppearance.off('orderHomeByActivity', forceUpdateRoomList);
+    };
+  });
 
   const room = mx.getRoom(spaceId);
 
@@ -102,7 +116,7 @@ function Home({ spaceId }) {
           notSpace={roomSettings.notSpace}
           type="home"
           name="Spaces"
-          roomIds={spaceIds.sort(roomIdByActivity)}
+          roomIds={spaceIds.sort(orderHomeByActivity ? roomIdByActivity : roomIdByAtoZ)}
           drawerPostie={drawerPostie}
         />
       )}
@@ -112,7 +126,7 @@ function Home({ spaceId }) {
           notSpace={roomSettings.notSpace}
           type="home"
           name="Rooms"
-          roomIds={roomIds.sort(roomIdByActivity)}
+          roomIds={roomIds.sort(orderHomeByActivity ? roomIdByActivity : roomIdByAtoZ)}
           drawerPostie={drawerPostie}
         />
       )) ||

@@ -45,7 +45,7 @@ import RawIcon from '../../atoms/system-icons/RawIcon';
 import Button from '../../atoms/button/Button';
 import Tooltip from '../../atoms/tooltip/Tooltip';
 import Input from '../../atoms/input/Input';
-import Avatar from '../../atoms/avatar/Avatar';
+import Avatar, { avatarDefaultColor } from '../../atoms/avatar/Avatar';
 import IconButton from '../../atoms/button/IconButton';
 import Time from '../../atoms/time/Time';
 import ContextMenu, {
@@ -102,7 +102,7 @@ function PlaceholderMessage() {
 
 // Avatar Generator
 const MessageAvatar = React.memo(
-  ({ roomId, avatarSrc, avatarAnimSrc, userId, username, contextMenu }) => (
+  ({ roomId, avatarSrc, avatarAnimSrc, userId, username, contextMenu, bgColor }) => (
     <button
       type="button"
       onContextMenu={contextMenu}
@@ -113,8 +113,7 @@ const MessageAvatar = React.memo(
         imageAnimSrc={avatarAnimSrc}
         imageSrc={avatarSrc}
         text={username}
-        bgColor={colorMXID(userId)}
-        isDefaultImage
+        bgColor={bgColor}
       />
     </button>
   ),
@@ -469,7 +468,7 @@ const MessageBody = React.memo(
           </>
         )}
         {msgData}
-        {isEdited && <div className="very-small text-gray">(edited)</div>}
+        {isEdited && <div className="very-small text-gray noselect">(edited)</div>}
       </div>
     );
   },
@@ -1375,11 +1374,14 @@ function Message({
     forceUpdate();
   });
 
+  const color = colorMXID(senderId);
   const username = muteUserManager.getMessageName(mEvent, isDM);
-  const avatarSrc = mEvent.sender?.getAvatarUrl(mx.baseUrl, 36, 36, 'crop') ?? null;
+  const avatarSrc =
+    mEvent.sender?.getAvatarUrl(mx.baseUrl, 36, 36, 'crop') ?? avatarDefaultColor(color);
   const avatarAnimSrc = !appearanceSettings.enableAnimParams
     ? mEvent.sender?.getAvatarUrl(mx.baseUrl)
-    : getAnimatedImageUrl(mEvent.sender?.getAvatarUrl(mx.baseUrl, 36, 36, 'crop')) ?? null;
+    : getAnimatedImageUrl(mEvent.sender?.getAvatarUrl(mx.baseUrl, 36, 36, 'crop')) ??
+      avatarDefaultColor(color);
 
   // Content Data
   let isCustomHTML = content.format === 'org.matrix.custom.html';
@@ -1590,6 +1592,14 @@ function Message({
     };
   });
 
+  const contextMenuClick = (e) => {
+    openReusableContextMenu('bottom', getEventCords(e, '.ic-btn'), (closeMenu) => (
+      <UserOptions userId={senderId} afterOptionSelect={closeMenu} />
+    ));
+
+    e.preventDefault();
+  };
+
   // Normal Message
   if (msgType !== 'm.bad.encrypted') {
     if (mEvent.getType() !== 'm.sticker' || isStickersVisible) {
@@ -1613,13 +1623,8 @@ function Message({
                   avatarAnimSrc={avatarAnimSrc}
                   userId={senderId}
                   username={username}
-                  contextMenu={(e) => {
-                    openReusableContextMenu('bottom', getEventCords(e, '.ic-btn'), (closeMenu) => (
-                      <UserOptions userId={senderId} afterOptionSelect={closeMenu} />
-                    ));
-
-                    e.preventDefault();
-                  }}
+                  bgColor={color}
+                  contextMenu={contextMenuClick}
                 />
               ) : (
                 <MessageTime className="hc-time" timestamp={mEvent.getTs()} fullTime={fullTime} />
@@ -1754,8 +1759,11 @@ function Message({
             <MessageAvatar
               roomId={roomId}
               avatarSrc={avatarSrc}
+              avatarAnimSrc={avatarAnimSrc}
               userId={senderId}
               username={username}
+              bgColor={color}
+              contextMenu={contextMenuClick}
             />
           ) : (
             <MessageTime className="hc-time" timestamp={mEvent.getTs()} fullTime={fullTime} />

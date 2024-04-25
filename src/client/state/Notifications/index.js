@@ -64,6 +64,8 @@ export const getRoomTitle = (room, sender, thread) => {
       title = `(${room.nameCinny.category}) - ${title}`;
     }
   }
+
+  return title;
 };
 
 class Notifications extends EventEmitter {
@@ -106,7 +108,7 @@ class Notifications extends EventEmitter {
     [...this.roomList.directs].forEach(addNoti);
 
     this.initialized = true;
-    // this._updateFavicon();
+    checkerFavIcon();
   }
 
   doesRoomHaveUnread(room) {
@@ -213,7 +215,7 @@ class Notifications extends EventEmitter {
       addNoti(spaceId, addT, addH, roomId);
     });
 
-    // this._updateFavicon();
+    checkerFavIcon();
   }
 
   _deleteNoti(roomId, threadId, total, highlight) {
@@ -250,7 +252,7 @@ class Notifications extends EventEmitter {
       removeNoti(spaceId, total, highlight, roomId);
     });
 
-    // this._updateFavicon();
+    checkerFavIcon();
   }
 
   async sendNotification(data) {
@@ -589,7 +591,12 @@ class Notifications extends EventEmitter {
             this.getNotiType(room.roomId, mEvent.thread ? mEvent.thread.id : null) ===
             cons.notifs.MUTE
           ) {
-            this.deleteNoti(room.roomId, total ?? 0, highlight ?? 0);
+            this.deleteNoti(
+              room.roomId,
+              mEvent.thread ? mEvent.thread.id : null,
+              total ?? 0,
+              highlight ?? 0,
+            );
             // insertIntoRoomEventsDB(mEvent, true).catch(console.error);
             stopNotification = true;
           }

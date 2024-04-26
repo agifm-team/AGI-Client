@@ -282,9 +282,9 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData }) {
   return (
     <>
       {agentData &&
-        agentData.data &&
-        typeof agentData.data.id === 'string' &&
-        agentData.data.id.length > 0 ? (
+      agentData.data &&
+      typeof agentData.data.id === 'string' &&
+      agentData.data.id.length > 0 ? (
         <Button
           className="me-2"
           variant="primary"
@@ -733,8 +733,8 @@ function ProfileViewer() {
         .then((userProfile) => {
           newAvatar =
             userProfile.avatar_url &&
-              userProfile.avatar_url !== 'null' &&
-              userProfile.avatar_url !== null
+            userProfile.avatar_url !== 'null' &&
+            userProfile.avatar_url !== null
               ? mx.mxcUrlToHttp(userProfile.avatar_url)
               : null;
 
@@ -890,9 +890,9 @@ function ProfileViewer() {
               </div>
 
               {agentData.data &&
-                typeof agentData.data.id === 'string' &&
-                (typeof agentData.data.llmModel === 'string' ||
-                  typeof agentData.data.prompt === 'string') ? (
+              typeof agentData.data.id === 'string' &&
+              (typeof agentData.data.llmModel === 'string' ||
+                typeof agentData.data.prompt === 'string') ? (
                 <>
                   <hr />
 

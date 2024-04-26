@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import defaultAvatar from '@src/app/atoms/avatar/defaultAvatar';
+import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 import { selectRoom, selectRoomMode, selectTab } from '@src/client/action/navigation';
 import cons from '@src/client/state/cons';
 

@@ -1,4 +1,4 @@
-import defaultAvatar from '@src/app/atoms/avatar/defaultAvatar';
+import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 import initMatrix from '@src/client/initMatrix';
 
 import { serverDomain } from './socket';

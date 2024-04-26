@@ -1,4 +1,4 @@
-import defaultAvatar from '@src/app/atoms/avatar/defaultAvatar';
+import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 
 import { insertAgiAvatar } from '@mods/agi-mod/lib';
 import tinyAPI from '@src/util/mods';

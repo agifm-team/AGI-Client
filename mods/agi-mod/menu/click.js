@@ -1,4 +1,4 @@
-import defaultAvatar from '@src/app/atoms/avatar/defaultAvatar';
+import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 import * as roomActions from '@src/client/action/room';
 import { getRoomInfo } from '@src/app/organisms/room/Room';
 import { setLoadingPage } from '@src/app/templates/client/Loading';

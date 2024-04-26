@@ -7,3 +7,5 @@
 - Edited text - noselect.
 - Avatar load animation added.
 - New profile modal bg border value: --bg-profile-banner
+- Default avatars - size fix to banners.
+- content['m.mentions'] added to message event.

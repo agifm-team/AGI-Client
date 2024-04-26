@@ -14,7 +14,7 @@ import muteUserManager from '@src/util/libs/muteUserManager';
 import attemptDecryption from '@src/util/libs/attemptDecryption';
 
 import Text from '../../atoms/text/Text';
-import { hljsFixer, resizeWindowChecker, toast } from '../../../util/tools';
+import { hljsFixer, objType, resizeWindowChecker, toast } from '../../../util/tools';
 import { twemojify, twemojifyReact } from '../../../util/twemojify';
 import initMatrix from '../../../client/initMatrix';
 
@@ -871,6 +871,7 @@ const MessageOptions = React.memo(
     edit,
     reply,
     roomid,
+    threadId,
     senderid,
     eventid,
     msgtype,
@@ -972,8 +973,9 @@ const MessageOptions = React.memo(
                   if (messageBody.length > 0) {
                     copyToClipboard(
                       customHTML
-                        ? html(customHTML, { kind: 'edit', onlyPlain: true }).plain
-                        : plain(body, { kind: 'edit', onlyPlain: true }).plain,
+                        ? html(customHTML, roomId, threadId, { kind: 'edit', onlyPlain: true })
+                            .plain
+                        : plain(body, roomId, threadId, { kind: 'edit', onlyPlain: true }).plain,
                     );
                     toast('Text successfully copied to the clipboard.');
                   } else {
@@ -1054,6 +1056,7 @@ const MessageOptions = React.memo(
 // Options Default
 MessageOptions.propTypes = {
   roomid: PropTypes.string,
+  threadId: PropTypes.string,
   senderid: PropTypes.string,
   eventid: PropTypes.string,
   msgtype: PropTypes.string,
@@ -1551,6 +1554,21 @@ function Message({
     }
   }
 
+  if (
+    objType(content['m.mentions'], 'object') &&
+    Array.isArray(content['m.mentions'].user_ids) &&
+    content['m.mentions'].user_ids.length > 0
+  ) {
+    for (const item in content['m.mentions'].user_ids) {
+      if (
+        typeof content['m.mentions'].user_ids[item] === 'string' &&
+        content['m.mentions'].user_ids[item] === yourId
+      ) {
+        isMentioned = true;
+      }
+    }
+  }
+
   useEffect(() => {
     let removeFocusTimeout = null;
     const msgElement = $(messageElement.current);
@@ -1639,6 +1657,7 @@ function Message({
                 customHTML={customHTML}
                 body={body}
                 roomid={roomId}
+                threadId={threadId}
                 senderid={senderId}
                 eventid={eventId}
                 msgtype={msgType}
@@ -1712,8 +1731,8 @@ function Message({
                 refRoomInput={refRoomInput}
                 body={
                   customHTML
-                    ? html(customHTML, { kind: 'edit', onlyPlain: true }).plain
-                    : plain(body, { kind: 'edit', onlyPlain: true }).plain
+                    ? html(customHTML, roomId, threadId, { kind: 'edit', onlyPlain: true }).plain
+                    : plain(body, roomId, threadId, { kind: 'edit', onlyPlain: true }).plain
                 }
                 onSave={(newBody, oldBody) => {
                   if (newBody !== oldBody) {
@@ -1776,6 +1795,7 @@ function Message({
           <MessageOptions
             refRoomInput={refRoomInput}
             roomid={roomId}
+            threadId={threadId}
             senderid={senderId}
             eventid={eventId}
             msgtype={msgType}
@@ -1826,8 +1846,8 @@ function Message({
             refRoomInput={refRoomInput}
             body={
               customHTML
-                ? html(customHTML, { kind: 'edit', onlyPlain: true }).plain
-                : plain(body, { kind: 'edit', onlyPlain: true }).plain
+                ? html(customHTML, roomId, threadId, { kind: 'edit', onlyPlain: true }).plain
+                : plain(body, roomId, threadId, { kind: 'edit', onlyPlain: true }).plain
             }
             onSave={(newBody, oldBody) => {
               if (newBody !== oldBody) {

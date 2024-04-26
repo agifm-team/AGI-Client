@@ -5,7 +5,7 @@ import envAPI from '@src/util/libs/env';
 import { serverDomain } from '@mods/agi-mod/socket';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
 import { duplicatorAgent } from '@mods/agi-mod/bots/PeopleSelector/lib';
-import defaultAvatar from '@src/app/atoms/avatar/defaultAvatar';
+import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 
 import { twemojifyReact } from '../../../util/twemojify';
 import { getUserStatus, updateUserStatusIcon } from '../../../util/onlineStatus';

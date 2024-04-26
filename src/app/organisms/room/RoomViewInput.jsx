@@ -659,6 +659,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
     // Send Input
     if (roomsInput)
       await roomsInput.sendInput(roomId, threadId, opt).catch((err) => {
+        console.error(err);
         toast(err.message);
       });
 

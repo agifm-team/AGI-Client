@@ -1,3 +1,11 @@
 - auto encrypt createDM setting added to ENV.
 - Disable encrypt settings added to ENV.
 - When an existing message is decrypted, it is updated in real time now.
+- urlPreviewStore - optimized clear cache.
+- Rooms notification number added to the favicon.
+- Sort "Home" rooms in order by activity. (New appearance setting added)
+- Edited text - noselect.
+- Avatar load animation added.
+- New profile modal bg border value: --bg-profile-banner
+- Default avatars - size fix to banners.
+- content['m.mentions'] added to message event.

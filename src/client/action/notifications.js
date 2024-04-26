@@ -1,4 +1,6 @@
 import { NotificationCountType, ReceiptType } from 'matrix-js-sdk';
+import { checkerFavIcon } from '@src/util/libs/favicon';
+
 import initMatrix from '../initMatrix';
 import cons from '../state/cons';
 
@@ -15,7 +17,7 @@ export async function markAsRead(roomId, threadId) {
     notifications.emit(cons.events.notifications.THREAD_NOTIFICATION, thread);
   }
 
-  initMatrix.notifications.deleteNoti(roomId);
+  initMatrix.notifications.deleteNoti(roomId, threadId);
 
   const userId = mx.getUserId();
   if (!userId) {
@@ -46,4 +48,5 @@ export async function markAsRead(roomId, threadId) {
       ? ReceiptType.Read
       : ReceiptType.ReadPrivate;
   await mx.sendReadReceipt(latestEvent, receiptType);
+  checkerFavIcon();
 }

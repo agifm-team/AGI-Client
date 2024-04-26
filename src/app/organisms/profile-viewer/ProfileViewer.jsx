@@ -5,6 +5,7 @@ import envAPI from '@src/util/libs/env';
 import { serverDomain } from '@mods/agi-mod/socket';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
 import { duplicatorAgent } from '@mods/agi-mod/bots/PeopleSelector/lib';
+import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 
 import { twemojifyReact } from '../../../util/twemojify';
 import { getUserStatus, updateUserStatusIcon } from '../../../util/onlineStatus';
@@ -35,7 +36,7 @@ import { colorMXID, cssColorMXID } from '../../../util/colorMXID';
 import Text from '../../atoms/text/Text';
 import Chip from '../../atoms/chip/Chip';
 import Input from '../../atoms/input/Input';
-import Avatar from '../../atoms/avatar/Avatar';
+import Avatar, { avatarDefaultColor } from '../../atoms/avatar/Avatar';
 import Button from '../../atoms/button/Button';
 import { MenuItem } from '../../atoms/context-menu/ContextMenu';
 import PowerLevelSelector from '../../molecules/power-level-selector/PowerLevelSelector';
@@ -421,10 +422,20 @@ function ProfileViewer() {
 
   // Get Data
   const mx = initMatrix.matrixClient;
+
   const user = mx.getUser(userId);
   const room = mx.getRoom(roomId);
-  let avatarUrl;
-  let username;
+  const roomMember = room ? room.getMember(userId) : null;
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [username, setUsername] = useState(null);
+
+  const getTheUsername = () => {
+    if (userId) {
+      const newUsername = getUsername(userId);
+      if (newUsername) return newUsername;
+    }
+    return null;
+  };
 
   if (!isOpen) tinyMenuId = 'default';
 
@@ -472,6 +483,33 @@ function ProfileViewer() {
 
   useEffect(() => {
     if (user) {
+      const avatarMxc = roomMember
+        ? roomMember?.getMxcAvatarUrl?.()
+        : user
+          ? user?.avatarUrl
+          : null;
+
+      const newAvatar =
+        avatarMxc && avatarMxc !== 'null' && avatarMxc !== null
+          ? mx.mxcUrlToHttp(avatarMxc)
+          : avatarDefaultColor(colorMXID(userId));
+
+      setAvatarUrl(newAvatar);
+      setUsername(roomMember ? getUsernameOfRoomMember(roomMember) : getTheUsername());
+
+      // Avatar Preview
+      const tinyAvatarPreview = () => {
+        if (newAvatar) {
+          imageViewer({
+            lightbox,
+            imgQuery: $(profileAvatar.current).find('> img'),
+            name: username,
+            url: newAvatar,
+            readMime: true,
+          });
+        }
+      };
+
       // Menu Bar
       const menubar = $(menubarRef.current);
       const menuBarItems = [];
@@ -629,17 +667,6 @@ function ProfileViewer() {
         display: (event) => copyText(event, 'Display name successfully copied to the clipboard.'),
       };
 
-      // Avatar Preview
-      const tinyAvatarPreview = () => {
-        imageViewer({
-          lightbox,
-          imgQuery: $(profileAvatar.current).find('> img'),
-          name: username,
-          url: avatarUrl,
-          readMime: true,
-        });
-      };
-
       // Update Note
       const tinyNoteUpdate = (event) => {
         addToDataFolder('user_cache', 'note', userId, $(event.target).val(), 200);
@@ -654,9 +681,9 @@ function ProfileViewer() {
       // Read Events
       const tinyNote = getDataList('user_cache', 'note', userId);
 
-      user.on('User.currentlyActive', updateProfileStatus);
-      user.on('User.lastPresenceTs', updateProfileStatus);
-      user.on('User.presence', updateProfileStatus);
+      if (user) user.on('User.currentlyActive', updateProfileStatus);
+      if (user) user.on('User.lastPresenceTs', updateProfileStatus);
+      if (user) user.on('User.presence', updateProfileStatus);
 
       $(displayNameRef.current).find('> .button').on('click', copyUsername.display);
       $(userNameRef.current).find('> .button').on('click', copyUsername.tag);
@@ -668,7 +695,7 @@ function ProfileViewer() {
         .val(tinyNote);
 
       tinyNoteSpacing({ target: noteRef.current });
-      updateProfileStatus(null, user);
+      if (user) updateProfileStatus(null, user);
 
       return () => {
         menubar.empty();
@@ -678,21 +705,55 @@ function ProfileViewer() {
           .off('change', tinyNoteUpdate)
           .off('keypress keyup keydown', tinyNoteSpacing);
         $(profileAvatar.current).off('click', tinyAvatarPreview);
-        user.removeListener('User.currentlyActive', updateProfileStatus);
-        user.removeListener('User.lastPresenceTs', updateProfileStatus);
-        user.removeListener('User.presence', updateProfileStatus);
+        if (user) user.removeListener('User.currentlyActive', updateProfileStatus);
+        if (user) user.removeListener('User.lastPresenceTs', updateProfileStatus);
+        if (user) user.removeListener('User.presence', updateProfileStatus);
+      };
+    } else if (!userId) {
+      setAvatarUrl(defaultAvatar(0));
+      setUsername(null);
+    }
+    if (username === null && avatarUrl === defaultAvatar(0)) {
+      // Avatar Preview
+      let newAvatar;
+      const tinyAvatarPreview = () => {
+        if (newAvatar) {
+          imageViewer({
+            lightbox,
+            imgQuery: $(profileAvatar.current).find('> img'),
+            name: userId,
+            url: newAvatar,
+            readMime: true,
+          });
+        }
+      };
+
+      $(profileAvatar.current).on('click', tinyAvatarPreview);
+      mx.getProfileInfo(userId)
+        .then((userProfile) => {
+          newAvatar =
+            userProfile.avatar_url &&
+            userProfile.avatar_url !== 'null' &&
+            userProfile.avatar_url !== null
+              ? mx.mxcUrlToHttp(userProfile.avatar_url)
+              : null;
+
+          setUsername(userProfile.displayname);
+          setAvatarUrl(newAvatar);
+        })
+        .catch((err) => {
+          console.error(err);
+          alert(err.message);
+        });
+
+      return () => {
+        $(profileAvatar.current).off('click', tinyAvatarPreview);
       };
     }
   }, [user]);
 
   // Render Profile
   const renderProfile = () => {
-    const roomMember = room.getMember(userId);
-    username = roomMember ? getUsernameOfRoomMember(roomMember) : getUsername(userId);
-
-    const avatarMxc = roomMember?.getMxcAvatarUrl?.() || user?.avatarUrl;
-    avatarUrl = avatarMxc && avatarMxc !== 'null' ? mx.mxcUrlToHttp(avatarMxc) : null;
-
     const powerLevel = roomMember?.powerLevel || 0;
     const myPowerLevel = room.getMember(mx.getUserId())?.powerLevel || 0;
 

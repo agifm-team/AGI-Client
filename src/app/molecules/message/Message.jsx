@@ -14,7 +14,7 @@ import muteUserManager from '@src/util/libs/muteUserManager';
 import attemptDecryption from '@src/util/libs/attemptDecryption';
 
 import Text from '../../atoms/text/Text';
-import { hljsFixer, resizeWindowChecker, toast } from '../../../util/tools';
+import { hljsFixer, objType, resizeWindowChecker, toast } from '../../../util/tools';
 import { twemojify, twemojifyReact } from '../../../util/twemojify';
 import initMatrix from '../../../client/initMatrix';
 
@@ -45,7 +45,7 @@ import RawIcon from '../../atoms/system-icons/RawIcon';
 import Button from '../../atoms/button/Button';
 import Tooltip from '../../atoms/tooltip/Tooltip';
 import Input from '../../atoms/input/Input';
-import Avatar from '../../atoms/avatar/Avatar';
+import Avatar, { avatarDefaultColor } from '../../atoms/avatar/Avatar';
 import IconButton from '../../atoms/button/IconButton';
 import Time from '../../atoms/time/Time';
 import ContextMenu, {
@@ -102,7 +102,7 @@ function PlaceholderMessage() {
 
 // Avatar Generator
 const MessageAvatar = React.memo(
-  ({ roomId, avatarSrc, avatarAnimSrc, userId, username, contextMenu }) => (
+  ({ roomId, avatarSrc, avatarAnimSrc, userId, username, contextMenu, bgColor }) => (
     <button
       type="button"
       onContextMenu={contextMenu}
@@ -113,8 +113,7 @@ const MessageAvatar = React.memo(
         imageAnimSrc={avatarAnimSrc}
         imageSrc={avatarSrc}
         text={username}
-        bgColor={colorMXID(userId)}
-        isDefaultImage
+        bgColor={bgColor}
       />
     </button>
   ),
@@ -469,7 +468,7 @@ const MessageBody = React.memo(
           </>
         )}
         {msgData}
-        {isEdited && <div className="very-small text-gray">(edited)</div>}
+        {isEdited && <div className="very-small text-gray noselect">(edited)</div>}
       </div>
     );
   },
@@ -872,6 +871,7 @@ const MessageOptions = React.memo(
     edit,
     reply,
     roomid,
+    threadId,
     senderid,
     eventid,
     msgtype,
@@ -973,8 +973,9 @@ const MessageOptions = React.memo(
                   if (messageBody.length > 0) {
                     copyToClipboard(
                       customHTML
-                        ? html(customHTML, { kind: 'edit', onlyPlain: true }).plain
-                        : plain(body, { kind: 'edit', onlyPlain: true }).plain,
+                        ? html(customHTML, roomId, threadId, { kind: 'edit', onlyPlain: true })
+                            .plain
+                        : plain(body, roomId, threadId, { kind: 'edit', onlyPlain: true }).plain,
                     );
                     toast('Text successfully copied to the clipboard.');
                   } else {
@@ -1055,6 +1056,7 @@ const MessageOptions = React.memo(
 // Options Default
 MessageOptions.propTypes = {
   roomid: PropTypes.string,
+  threadId: PropTypes.string,
   senderid: PropTypes.string,
   eventid: PropTypes.string,
   msgtype: PropTypes.string,
@@ -1375,11 +1377,14 @@ function Message({
     forceUpdate();
   });
 
+  const color = colorMXID(senderId);
   const username = muteUserManager.getMessageName(mEvent, isDM);
-  const avatarSrc = mEvent.sender?.getAvatarUrl(mx.baseUrl, 36, 36, 'crop') ?? null;
+  const avatarSrc =
+    mEvent.sender?.getAvatarUrl(mx.baseUrl, 36, 36, 'crop') ?? avatarDefaultColor(color);
   const avatarAnimSrc = !appearanceSettings.enableAnimParams
     ? mEvent.sender?.getAvatarUrl(mx.baseUrl)
-    : getAnimatedImageUrl(mEvent.sender?.getAvatarUrl(mx.baseUrl, 36, 36, 'crop')) ?? null;
+    : getAnimatedImageUrl(mEvent.sender?.getAvatarUrl(mx.baseUrl, 36, 36, 'crop')) ??
+      avatarDefaultColor(color);
 
   // Content Data
   let isCustomHTML = content.format === 'org.matrix.custom.html';
@@ -1549,6 +1554,21 @@ function Message({
     }
   }
 
+  if (
+    objType(content['m.mentions'], 'object') &&
+    Array.isArray(content['m.mentions'].user_ids) &&
+    content['m.mentions'].user_ids.length > 0
+  ) {
+    for (const item in content['m.mentions'].user_ids) {
+      if (
+        typeof content['m.mentions'].user_ids[item] === 'string' &&
+        content['m.mentions'].user_ids[item] === yourId
+      ) {
+        isMentioned = true;
+      }
+    }
+  }
+
   useEffect(() => {
     let removeFocusTimeout = null;
     const msgElement = $(messageElement.current);
@@ -1590,6 +1610,14 @@ function Message({
     };
   });
 
+  const contextMenuClick = (e) => {
+    openReusableContextMenu('bottom', getEventCords(e, '.ic-btn'), (closeMenu) => (
+      <UserOptions userId={senderId} afterOptionSelect={closeMenu} />
+    ));
+
+    e.preventDefault();
+  };
+
   // Normal Message
   if (msgType !== 'm.bad.encrypted') {
     if (mEvent.getType() !== 'm.sticker' || isStickersVisible) {
@@ -1613,13 +1641,8 @@ function Message({
                   avatarAnimSrc={avatarAnimSrc}
                   userId={senderId}
                   username={username}
-                  contextMenu={(e) => {
-                    openReusableContextMenu('bottom', getEventCords(e, '.ic-btn'), (closeMenu) => (
-                      <UserOptions userId={senderId} afterOptionSelect={closeMenu} />
-                    ));
-
-                    e.preventDefault();
-                  }}
+                  bgColor={color}
+                  contextMenu={contextMenuClick}
                 />
               ) : (
                 <MessageTime className="hc-time" timestamp={mEvent.getTs()} fullTime={fullTime} />
@@ -1634,6 +1657,7 @@ function Message({
                 customHTML={customHTML}
                 body={body}
                 roomid={roomId}
+                threadId={threadId}
                 senderid={senderId}
                 eventid={eventId}
                 msgtype={msgType}
@@ -1707,8 +1731,8 @@ function Message({
                 refRoomInput={refRoomInput}
                 body={
                   customHTML
-                    ? html(customHTML, { kind: 'edit', onlyPlain: true }).plain
-                    : plain(body, { kind: 'edit', onlyPlain: true }).plain
+                    ? html(customHTML, roomId, threadId, { kind: 'edit', onlyPlain: true }).plain
+                    : plain(body, roomId, threadId, { kind: 'edit', onlyPlain: true }).plain
                 }
                 onSave={(newBody, oldBody) => {
                   if (newBody !== oldBody) {
@@ -1754,8 +1778,11 @@ function Message({
             <MessageAvatar
               roomId={roomId}
               avatarSrc={avatarSrc}
+              avatarAnimSrc={avatarAnimSrc}
               userId={senderId}
               username={username}
+              bgColor={color}
+              contextMenu={contextMenuClick}
             />
           ) : (
             <MessageTime className="hc-time" timestamp={mEvent.getTs()} fullTime={fullTime} />
@@ -1768,6 +1795,7 @@ function Message({
           <MessageOptions
             refRoomInput={refRoomInput}
             roomid={roomId}
+            threadId={threadId}
             senderid={senderId}
             eventid={eventId}
             msgtype={msgType}
@@ -1818,8 +1846,8 @@ function Message({
             refRoomInput={refRoomInput}
             body={
               customHTML
-                ? html(customHTML, { kind: 'edit', onlyPlain: true }).plain
-                : plain(body, { kind: 'edit', onlyPlain: true }).plain
+                ? html(customHTML, roomId, threadId, { kind: 'edit', onlyPlain: true }).plain
+                : plain(body, roomId, threadId, { kind: 'edit', onlyPlain: true }).plain
             }
             onSave={(newBody, oldBody) => {
               if (newBody !== oldBody) {

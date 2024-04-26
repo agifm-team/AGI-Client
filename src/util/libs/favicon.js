@@ -2,6 +2,7 @@ const urlBase = './img/png/';
 const favicon = {
   value: 'cinny.png',
   title: document.title,
+  subTitle: null,
 };
 
 export function favIconQuery() {
@@ -12,7 +13,15 @@ export function titleQuery() {
   return $('head > title');
 }
 
-export function changeFavIcon(value, unread = false, notis = 0) {
+export function changeFavIconSubtitle(value) {
+  if (typeof value === 'string') favicon.subTitle = value;
+}
+
+export function resetFavIconSubtitle() {
+  favicon.subTitle = null;
+}
+
+export function changeFavIcon(value, unread = false, notis = 0, directCount = 0) {
   if (typeof value === 'string') {
     const newValue = `${urlBase}${value}`;
     favicon.value = value;
@@ -21,7 +30,7 @@ export function changeFavIcon(value, unread = false, notis = 0) {
     // document.title = !unread ? favicon.title : `${typeof notis === 'number' && notis > 0 ? `${notis <= 99 ? `(${String(notis)})` : '(+99)'} ` : ''}${favicon.title}`;
     document.title = !unread
       ? favicon.title
-      : `${typeof notis === 'number' && notis > 0 ? `(•) ` : ''}${favicon.title}`;
+      : `${typeof notis === 'number' ? `(${directCount > 0 ? `${directCount < 99 ? String(directCount) : '99+'}` : '•'}) ` : ''}${favicon.title}${typeof favicon.subTitle === 'string' ? ` | ${favicon.subTitle}` : ''}`;
   }
 }
 
@@ -37,10 +46,10 @@ export function checkerFavIcon() {
     let indirectCount = 0;
 
     // Retrieves notification badges
-    const badges = $('.sidebar .notification-badge');
+    const badges = $('.sidebar .sidebar-1 .notification-badge:not(.ignore-notification)');
     for (const badge of badges) {
       indirectCount++;
-      const nb = Number($(badges[badge]).text());
+      const nb = Number($(badge).text());
 
       if (!Number.isNaN(nb) && Number.isFinite(nb)) {
         directCount += nb;
@@ -50,7 +59,7 @@ export function checkerFavIcon() {
     // Change Icon
     const finalNumber = directCount || indirectCount;
     if (finalNumber > 0) {
-      changeFavIcon('cinny-unread-red.png', true, finalNumber);
+      changeFavIcon('cinny-unread-red.png', true, finalNumber, directCount);
       if (__ENV_APP__.ELECTRON_MODE) {
         global.changeTrayIcon('cinny-unread-red.png');
         global.changeAppIcon('cinny-unread-red.png');

@@ -1,6 +1,3 @@
-Tentativa de obter perfil desconhecido
-Opção de odernar a lista de rooms geral por atividade.
-
 Ver qual Friend ninkcname está sendo usado.
 
 Ver em quais rooms o usuário está (Pelo perfil)
@@ -20,10 +17,6 @@ ENS Ethereum
 
     Adicionar suporte a link para ir diretamente a mensagens.
     /?room_id=&thread_id=&event_id=
-
-    =============================================
-
-    Trocar o titulo da página de bolinha de notificação para números
 
     =============================================
 

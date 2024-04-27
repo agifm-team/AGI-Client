@@ -14,10 +14,11 @@ export async function markAsRead(roomId, threadId) {
   if (thread) {
     thread.setUnread(NotificationCountType.Total, 0);
     thread.setUnread(NotificationCountType.Highlight, 0);
+    initMatrix.notifications.deleteNoti(roomId, threadId);
     notifications.emit(cons.events.notifications.THREAD_NOTIFICATION, thread);
+  } else {
+    initMatrix.notifications.deleteNoti(roomId);
   }
-
-  initMatrix.notifications.deleteNoti(roomId, threadId);
 
   const userId = mx.getUserId();
   if (!userId) {
@@ -25,14 +26,22 @@ export async function markAsRead(roomId, threadId) {
     return;
   }
 
-  const timeline = room.getLiveTimeline().getEvents();
-  const readEventId = room.getEventReadUpTo(userId);
+  const timeline = !thread ? room.getLiveTimeline().getEvents() : thread.timeline;
+  const readEventId = !thread ? room.getEventReadUpTo(userId) : thread.getEventReadUpTo(userId);
 
   const getLatestValidEvent = () => {
-    for (let i = timeline.length - 1; i >= 0; i -= 1) {
-      const latestEvent = timeline[i];
-      if (latestEvent.getId() === readEventId) return null;
-      if (!latestEvent.isSending()) return latestEvent;
+    if (!thread) {
+      for (let i = timeline.length - 1; i >= 0; i -= 1) {
+        const latestEvent = timeline[i];
+        if (latestEvent.getId() === readEventId) return null;
+        if (!latestEvent.isSending()) return latestEvent;
+      }
+    } else {
+      for (let i = 0; i < timeline.length; i++) {
+        const latestEvent = timeline[i];
+        if (latestEvent.getId() === readEventId) return null;
+        if (!latestEvent.isSending()) return latestEvent;
+      }
     }
     return null;
   };

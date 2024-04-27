@@ -78,6 +78,11 @@ class MatrixAppearance extends EventEmitter {
           ? this.content.useCustomEmojis
           : !!__ENV_APP__.USE_CUSTOM_EMOJIS;
 
+      this.content.embedParallelLoad =
+        typeof this.content.embedParallelLoad === 'boolean'
+          ? this.content.embedParallelLoad
+          : !!__ENV_APP__.EMBED_PARALLEL_LOAD;
+
       this.content.sendFileBefore =
         typeof this.content.sendFileBefore === 'boolean' ? this.content.sendFileBefore : true;
 
@@ -129,6 +134,12 @@ class MatrixAppearance extends EventEmitter {
         typeof this.content.noReconnectRefresh === 'boolean'
           ? this.content.noReconnectRefresh
           : false;
+
+      this.content.advancedUserMode =
+        typeof this.content.advancedUserMode === 'boolean' ? this.content.advancedUserMode : false;
+
+      this.content.basicUserMode =
+        typeof this.content.basicUserMode === 'boolean' ? this.content.basicUserMode : true;
     }
   }
 

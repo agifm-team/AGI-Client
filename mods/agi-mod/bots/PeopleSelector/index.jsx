@@ -3,7 +3,7 @@ import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 import { insertAgiAvatar } from '@mods/agi-mod/lib';
 import tinyAPI from '@src/util/mods';
 import initMatrix from '@src/client/initMatrix';
-import { objType } from 'for-promise';
+import { objType } from 'for-promise/utils/lib.mjs';
 
 import { serverAddress } from '../../socket';
 import PeopleSelector from './Item';

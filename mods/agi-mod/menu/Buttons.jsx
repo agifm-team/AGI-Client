@@ -1,7 +1,8 @@
 import React from 'react';
 import * as linkify from 'linkifyjs';
+import { objType } from 'for-promise/utils/lib.mjs';
 
-import { btModal, objType } from '@src/util/tools';
+import { btModal } from '@src/util/tools';
 
 import initMatrix from '@src/client/initMatrix';
 import RawIcon from '@src/app/atoms/system-icons/RawIcon';

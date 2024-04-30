@@ -6,8 +6,9 @@ import React, { useRef, useEffect, useState } from 'react';
 import clone from 'clone';
 import { client } from '@gradio/client';
 import objectHash from 'object-hash';
+import { objType } from 'for-promise/utils/lib.mjs';
 
-import { objType, tinyConfirm, toast } from '@src/util/tools';
+import { tinyConfirm, toast } from '@src/util/tools';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
 import openTinyURL from '@src/util/message/urlProtection';
 import { getRoomInfo } from '@src/app/organisms/room/Room';

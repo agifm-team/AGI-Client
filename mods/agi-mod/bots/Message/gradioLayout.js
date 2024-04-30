@@ -14,8 +14,9 @@ import sanitizeHtml from 'sanitize-html';
 import { marked } from 'marked';
 import clone from 'clone';
 import isBase64 from 'is-base64';
+import { objType } from 'for-promise/utils/lib.mjs';
 
-import { blobCreator, hljsFixer, objType, toast } from '@src/util/tools';
+import { blobCreator, hljsFixer, toast } from '@src/util/tools';
 import { copyToClipboard } from '@src/util/common';
 import initMatrix from '@src/client/initMatrix';
 import openTinyURL from '@src/util/message/urlProtection';

@@ -40,9 +40,10 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
   const isDM = initMatrix.roomList && initMatrix.roomList.directs.has(roomId);
   const room = !roomItem ? mx.getRoom(roomId) : roomItem;
 
-  const [pixxEmbeds, setPixxEmbeds] = useState(
-    getCurrentState(room).getStateEvents('pixx.co.settings.embeds')[0]?.getContent() ?? {},
-  );
+  const [pixxEmbeds, setPixxEmbeds] = useState({
+    data: getCurrentState(room).getStateEvents('pixx.co.settings.embeds')[0]?.getContent() ?? {},
+    roomId,
+  });
 
   const getAvatarUrl = () =>
     isDM
@@ -123,7 +124,7 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
   useEffect(() => {
     const handleEvent = (event) => {
       if (event.getType() !== 'pixx.co.settings.embeds') return;
-      setPixxEmbeds(newEvent.getContent() ?? {});
+      setPixxEmbeds({ data: newEvent.getContent() ?? {}, roomId });
     };
 
     mx.on('RoomState.events', handleEvent);
@@ -224,7 +225,7 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                         });
                         if (value !== null) {
                           const newEvent = { value };
-                          setPixxEmbeds(newEvent);
+                          setPixxEmbeds({ data: newEvent, roomId });
                           mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', newEvent);
                         }
                       }}
@@ -300,10 +301,11 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
       </Header>
 
       {objType(pixxEmbeds, 'object') &&
-      typeof pixxEmbeds.value === 'string' &&
-      (pixxEmbeds.value.startsWith('http://') || pixxEmbeds.value.startsWith('https://')) ? (
+        pixxEmbeds.roomId === roomId &&
+        typeof pixxEmbeds.data.value === 'string' &&
+        (pixxEmbeds.data.value.startsWith('http://') || pixxEmbeds.data.value.startsWith('https://')) ? (
         <Header>
-          <iframe className="pixx-embed" alt="pixx embed" src={pixxEmbeds.value} />
+          <iframe className="pixx-embed" alt="pixx embed" src={pixxEmbeds.data.value} />
         </Header>
       ) : null}
     </>

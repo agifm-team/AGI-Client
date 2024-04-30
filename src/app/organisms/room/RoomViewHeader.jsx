@@ -216,12 +216,12 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                     <IconButton
                       className="nav-link btn btn-bg border-0"
                       onClick={async () => {
-                        const agiSettings =
-                          getCurrentState(room)
-                            .getStateEvents('pixx.co.settings.embeds')[0]
-                            ?.getContent() ?? {};
+                        const agiSettings = getCurrentState(room)
+                          .getStateEvents('pixx.co.settings.embeds')[0]
+                          ?.getContent();
+
                         const value = await tinyPrompt('Enter the embed url:', 'Embed Url', {
-                          value: agiSettings.value,
+                          value: objType(agiSettings, 'object') ? agiSettings.value : null,
                         });
                         if (value !== null) {
                           const newEvent = { value };
@@ -301,9 +301,10 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
       </Header>
 
       {objType(pixxEmbeds, 'object') &&
-        pixxEmbeds.roomId === roomId &&
-        typeof pixxEmbeds.data.value === 'string' &&
-        (pixxEmbeds.data.value.startsWith('http://') || pixxEmbeds.data.value.startsWith('https://')) ? (
+      pixxEmbeds.roomId === roomId &&
+      typeof pixxEmbeds.data.value === 'string' &&
+      (pixxEmbeds.data.value.startsWith('http://') ||
+        pixxEmbeds.data.value.startsWith('https://')) ? (
         <Header>
           <iframe className="pixx-embed" alt="pixx embed" src={pixxEmbeds.data.value} />
         </Header>

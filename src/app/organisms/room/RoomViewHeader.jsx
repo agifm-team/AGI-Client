@@ -206,36 +206,33 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
 
         {!disableActions ? (
           <ul className="navbar-nav ms-auto mb-0 small" id="room-options">
+            {getCurrentState(room).maySendStateEvent('pixx.co.settings.embeds', mx.getUserId()) ? (
+              <li className="nav-item">
+                <IconButton
+                  className="nav-link btn btn-bg border-0"
+                  onClick={async () => {
+                    const agiSettings = getCurrentState(room)
+                      .getStateEvents('pixx.co.settings.embeds')[0]
+                      ?.getContent();
+
+                    const value = await tinyPrompt('Enter the embed url:', 'Embed Url', {
+                      value: objType(agiSettings, 'object') ? agiSettings.value : null,
+                    });
+                    if (value !== null) {
+                      const newEvent = { value };
+                      setPixxEmbeds({ data: newEvent, roomId });
+                      mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', newEvent);
+                    }
+                  }}
+                  tooltipPlacement="bottom"
+                  tooltip="Embed Widget"
+                  fa="fa-solid fa-plus"
+                />
+              </li>
+            ) : null}
+
             {mx.isRoomEncrypted(roomId) === false && (
               <>
-                {getCurrentState(room).maySendStateEvent(
-                  'pixx.co.settings.embeds',
-                  mx.getUserId(),
-                ) ? (
-                  <li className="nav-item">
-                    <IconButton
-                      className="nav-link btn btn-bg border-0"
-                      onClick={async () => {
-                        const agiSettings = getCurrentState(room)
-                          .getStateEvents('pixx.co.settings.embeds')[0]
-                          ?.getContent();
-
-                        const value = await tinyPrompt('Enter the embed url:', 'Embed Url', {
-                          value: objType(agiSettings, 'object') ? agiSettings.value : null,
-                        });
-                        if (value !== null) {
-                          const newEvent = { value };
-                          setPixxEmbeds({ data: newEvent, roomId });
-                          mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', newEvent);
-                        }
-                      }}
-                      tooltipPlacement="bottom"
-                      tooltip="Embed Widget"
-                      fa="fa-solid fa-plus"
-                    />
-                  </li>
-                ) : null}
-
                 <li className="nav-item">
                   <IconButton
                     className="nav-link btn btn-bg border-0"

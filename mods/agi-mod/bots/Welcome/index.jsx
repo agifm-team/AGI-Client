@@ -4,7 +4,7 @@ import clone from 'clone';
 
 import { insertAgiAvatar } from '@mods/agi-mod/lib';
 // import initMatrix from '@src/client/initMatrix';
-import { objType } from '@src/util/tools';
+import { objType } from 'for-promise/utils/lib.mjs';
 import { selectRoomMode } from '@src/client/action/navigation';
 // import { ChatRoomFrame } from '@src/app/embed/ChatRoom';
 

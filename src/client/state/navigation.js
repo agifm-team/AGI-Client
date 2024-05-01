@@ -1,11 +1,13 @@
 import EventEmitter from 'events';
+import { objType } from 'for-promise/utils/lib.mjs';
+
+import { checkerFavIcon } from '@src/util/libs/favicon';
 import appDispatcher from '../dispatcher';
 import cons from './cons';
 import tinyAPI from '../../util/mods';
 import urlParams from '../../util/libs/urlParams';
-import { setSelectRoom, setSelectSpace } from '../../util/selectedRoom';
+import { setSelectRoom, setSelectThread, setSelectSpace } from '../../util/selectedRoom';
 import { tinyCrypto } from '../../util/web3';
-import { objType } from '../../util/tools';
 
 class Navigation extends EventEmitter {
   constructor() {
@@ -161,6 +163,7 @@ class Navigation extends EventEmitter {
 
     // Refresh Url Params
     urlParams.refreshState();
+    checkerFavIcon();
   }
 
   _selectTabWithRoom(roomId) {
@@ -392,6 +395,7 @@ class Navigation extends EventEmitter {
         else urlParams.delete('tab', undefined, false);
 
         urlParams.refreshState();
+        checkerFavIcon();
       },
 
       [cons.actions.navigation.UPDATE_EMOJI_LIST]: () => {
@@ -435,6 +439,7 @@ class Navigation extends EventEmitter {
       [cons.actions.navigation.SELECT_ROOM]: () => {
         $('.space-drawer-menu-item').removeClass('active');
         setSelectRoom(action.roomId);
+        setSelectThread(action.threadId);
 
         tinyAPI.emit('selectedRoom', action.roomId, action.forceScroll);
         if (action.roomId) this._selectTabWithRoom(action.roomId, action.forceScroll);

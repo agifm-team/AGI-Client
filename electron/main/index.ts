@@ -4,7 +4,8 @@ import fs from 'node:fs';
 import { release } from 'node:os';
 import path from 'node:path';
 
-import { objType } from './util/tools';
+// @ts-ignore
+import { objType } from 'for-promise/utils/lib.mjs';
 
 import startNotifications from './notification';
 import startEvents from './events';
@@ -256,6 +257,16 @@ if (!gotTheLock) {
               if (win) win.show();
               appShow.change(true);
               if (win) win.webContents.send('check-version', true);
+            }
+          },
+        },
+        {
+          label: `Refresh Client`,
+          click: () => {
+            if (appStarted) {
+              if (win) win.show();
+              appShow.change(true);
+              if (win) win.webContents.send('refresh-client', true);
             }
           },
         },

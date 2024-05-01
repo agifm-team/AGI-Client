@@ -189,6 +189,13 @@ const permissionsInfo = {
     description: 'Set minimum power level to modify the emoji and sticker list.',
     default: 50,
   },
+
+  'pixx.co.settings.embeds': {
+    parent: 'events',
+    name: 'Pixx.co Settings',
+    description: 'Set minimum power level to modify the pixx embed url.',
+    default: 50,
+  },
 };
 
 const roomPermsGroups = {
@@ -216,6 +223,7 @@ const roomPermsGroups = {
     'm.room.pinned_events',
     'm.room.server_acl',
     'im.vector.modular.widgets',
+    'pixx.co.settings.embeds',
   ],
 };
 

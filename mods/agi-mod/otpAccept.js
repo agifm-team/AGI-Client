@@ -1,6 +1,6 @@
 import { serverDomain } from '@mods/agi-mod/socket';
 import initMatrix from '@src/client/initMatrix';
-import { objType } from '@src/util/tools';
+import { objType } from 'for-promise/utils/lib.mjs';
 
 export function otpAccept(member) {
   const mx = initMatrix.matrixClient;

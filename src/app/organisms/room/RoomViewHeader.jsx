@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import * as linkify from 'linkifyjs';
 
 import { objType } from 'for-promise/utils/lib.mjs';
 import { tinyPrompt } from '@src/util/tools';
@@ -143,6 +144,7 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
     pixxEmbeds.roomId === roomId &&
     pixxEmbeds.data.visible &&
     typeof pixxEmbeds.data.value === 'string' &&
+    linkify.test(pixxEmbeds.data.value) &&
     (pixxEmbeds.data.value.startsWith('http://') || pixxEmbeds.data.value.startsWith('https://'));
   console.log(pixxEmbeds.roomId, pixxEmbeds.data);
 

@@ -146,7 +146,6 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
     typeof pixxEmbeds.data.value === 'string' &&
     linkify.test(pixxEmbeds.data.value) &&
     (pixxEmbeds.data.value.startsWith('http://') || pixxEmbeds.data.value.startsWith('https://'));
-  console.log(pixxEmbeds.roomId, pixxEmbeds.data);
 
   return (
     <>

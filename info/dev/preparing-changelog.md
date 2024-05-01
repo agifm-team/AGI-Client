@@ -1,2 +1,1 @@
-- Emoji z-index fix.
-- Reload client button added to the desktop version.
+- fixGetUrlValues added to getUrlPreview.js file.

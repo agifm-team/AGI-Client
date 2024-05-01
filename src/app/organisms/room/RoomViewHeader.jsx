@@ -40,11 +40,6 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
   const isDM = initMatrix.roomList && initMatrix.roomList.directs.has(roomId);
   const room = !roomItem ? mx.getRoom(roomId) : roomItem;
 
-  const [pixxEmbeds, setPixxEmbeds] = useState({
-    data: getCurrentState(room).getStateEvents('pixx.co.settings.embeds')[0]?.getContent() ?? {},
-    roomId,
-  });
-
   const getAvatarUrl = () =>
     isDM
       ? room.getAvatarFallbackMember()?.getAvatarUrl(mx.baseUrl, 36, 36, 'crop')
@@ -121,17 +116,35 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
     }
   };
 
+  // pixx.co.settings.embeds
+  const [pixxEmbeds, setPixxEmbeds] = useState({});
   useEffect(() => {
     const handleEvent = (event) => {
       if (event.getType() !== 'pixx.co.settings.embeds') return;
       setPixxEmbeds({ data: newEvent.getContent() ?? {}, roomId });
     };
 
+    if (pixxEmbeds.roomId !== roomId) {
+      setPixxEmbeds({
+        data:
+          getCurrentState(room).getStateEvents('pixx.co.settings.embeds')[0]?.getContent() ?? {},
+        roomId,
+      });
+    }
+
     mx.on('RoomState.events', handleEvent);
     return () => {
       mx.removeListener('RoomState.events', handleEvent);
     };
-  }, [room, mx]);
+  });
+
+  const pixxEmbedVisible =
+    objType(pixxEmbeds.data, 'object') &&
+    pixxEmbeds.roomId === roomId &&
+    pixxEmbeds.data.visible &&
+    typeof pixxEmbeds.data.value === 'string' &&
+    (pixxEmbeds.data.value.startsWith('http://') || pixxEmbeds.data.value.startsWith('https://'));
+  console.log(pixxEmbeds.roomId, pixxEmbeds.data);
 
   return (
     <>
@@ -206,6 +219,33 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
 
         {!disableActions ? (
           <ul className="navbar-nav ms-auto mb-0 small" id="room-options">
+            <li className="nav-item">
+              <IconButton
+                className="nav-link btn btn-bg border-0"
+                onClick={() => {
+                  const agiSettings =
+                    getCurrentState(room)
+                      .getStateEvents('pixx.co.settings.embeds')[0]
+                      ?.getContent() ?? {};
+
+                  agiSettings.visible =
+                    typeof agiSettings.visible !== 'boolean' || agiSettings.visible === false
+                      ? true
+                      : false;
+                  setPixxEmbeds({ data: agiSettings, roomId });
+                  mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', agiSettings);
+                }}
+                tooltipPlacement="bottom"
+                tooltip={`${
+                  objType(pixxEmbeds.data, 'object') &&
+                  pixxEmbeds.roomId === roomId &&
+                  pixxEmbeds.data.visible
+                    ? 'Hide'
+                    : 'Show'
+                } Embed`}
+                fa={`fa-solid fa-${pixxEmbedVisible ? 'window-minimize' : 'window-restore'}`}
+              />
+            </li>
             {getCurrentState(room).maySendStateEvent('pixx.co.settings.embeds', mx.getUserId()) ? (
               <li className="nav-item">
                 <IconButton
@@ -297,14 +337,8 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
         ) : null}
       </Header>
 
-      {objType(pixxEmbeds, 'object') &&
-      pixxEmbeds.roomId === roomId &&
-      typeof pixxEmbeds.data.value === 'string' &&
-      (pixxEmbeds.data.value.startsWith('http://') ||
-        pixxEmbeds.data.value.startsWith('https://')) ? (
-        <Header>
-          <iframe className="pixx-embed" alt="pixx embed" src={pixxEmbeds.data.value} />
-        </Header>
+      {pixxEmbedVisible ? (
+        <iframe className="pixx-embed" alt="pixx embed" src={pixxEmbeds.data.value} />
       ) : null}
     </>
   );

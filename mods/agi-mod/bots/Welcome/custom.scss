@@ -221,7 +221,10 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
 }
 
 .pixx-embed {
-  border: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  border-bottom: 1px solid var(--bg-surface-border);
   width: 100%;
   height: 250px;
 }

@@ -227,6 +227,18 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
   border-bottom: 1px solid var(--bg-surface-border);
   width: 100%;
   height: 250px;
+  &.expand-embed {
+    height: 350px;
+  }
+}
+
+.pixx-embed-expand {
+  position: relative;
+  display: inline-block;
+  text-align: end;
+  margin-top: -31px;
+  top: 33px;
+  right: 2px;
 }
 
 @import './cards/login.scss';

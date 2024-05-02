@@ -35,7 +35,7 @@ import copyText from '../profile-viewer/copyText';
 import { openPinMessageModal } from '../../../util/libs/pinMessage';
 import { openThreadsMessageModal } from '../../../util/libs/thread';
 
-function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions }) {
+function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions = false }) {
   const [, forceUpdate] = useForceUpdate();
   const mx = initMatrix.matrixClient;
   const isDM = initMatrix.roomList && initMatrix.roomList.directs.has(roomId);
@@ -344,9 +344,6 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
     </>
   );
 }
-RoomViewHeader.defaultProps = {
-  disableActions: false,
-};
 
 RoomViewHeader.propTypes = {
   roomId: PropTypes.string.isRequired,

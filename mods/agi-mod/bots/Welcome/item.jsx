@@ -46,7 +46,8 @@ const valuesLoad = {
       // Create new DM
       try {
         setLoadingPage();
-        await roomActions.createDM(userId, await hasDevices(userId));
+        const { room_id } = await roomActions.createDM(userId, await hasDevices(userId));
+        selectRoom(room_id);
         setLoadingPage(false);
       } catch (err) {
         console.error(err);

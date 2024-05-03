@@ -4,11 +4,11 @@ import clone from 'clone';
 import envAPI from '@src/util/libs/env';
 import { serverDomain } from '@mods/agi-mod/socket';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
-import { duplicatorAgent } from '@mods/agi-mod/bots/PeopleSelector/lib';
+import { duplicatorAgent, reconnectAgent } from '@mods/agi-mod/bots/PeopleSelector/lib';
 import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 
 import { twemojifyReact } from '../../../util/twemojify';
-import { getUserStatus, updateUserStatusIcon } from '../../../util/onlineStatus';
+import { getPresence, getUserStatus, updateUserStatusIcon } from '../../../util/onlineStatus';
 
 import imageViewer from '../../../util/imageViewer';
 
@@ -180,7 +180,7 @@ SessionInfo.propTypes = {
   userId: PropTypes.string.isRequired,
 };
 
-function ProfileFooter({ roomId, userId, onRequestClose, agentData }) {
+function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence }) {
   const [isCreatingDM, setIsCreatingDM] = useState(false);
   const [isIgnoring, setIsIgnoring] = useState(false);
   const [isUserIgnored, setIsUserIgnored] = useState(initMatrix.matrixClient.isUserIgnored(userId));
@@ -285,23 +285,46 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData }) {
       agentData.data &&
       typeof agentData.data.id === 'string' &&
       agentData.data.id.length > 0 ? (
-        <Button
-          className="me-2"
-          variant="primary"
-          onClick={async () => {
-            setLoadingPage();
-            duplicatorAgent(userId, agentData.data.id)
-              .then(() => {
-                setLoadingPage(false);
-              })
-              .catch((err) => {
-                console.error(err);
-                alert(err.message);
-              });
-          }}
-        >
-          Duplicate
-        </Button>
+        <>
+          <Button
+            className="me-2"
+            variant="primary"
+            onClick={async () => {
+              setLoadingPage();
+              duplicatorAgent(userId, agentData.data.id)
+                .then(() => {
+                  setLoadingPage(false);
+                })
+                .catch((err) => {
+                  console.error(err);
+                  alert(err.message);
+                });
+            }}
+          >
+            Duplicate
+          </Button>
+          {typeof tinyPresence.presence !== 'string' ||
+          tinyPresence.presence === 'offline' ||
+          tinyPresence.presence === 'invisible' ? (
+            <Button
+              className="me-2"
+              variant="primary"
+              onClick={async () => {
+                setLoadingPage();
+                reconnectAgent(userId)
+                  .then(() => {
+                    setLoadingPage(false);
+                  })
+                  .catch((err) => {
+                    console.error(err);
+                    alert(err.message);
+                  });
+              }}
+            >
+              Reconnect
+            </Button>
+          ) : null}
+        </>
       ) : null}
 
       <Button className="me-2" variant="primary" onClick={openDM} disabled={isCreatingDM}>
@@ -802,6 +825,8 @@ function ProfileViewer() {
       setLightbox(!lightbox);
     };
 
+    const tinyPresence = getPresence(user);
+
     return (
       <>
         <div ref={profileBanner} className={`profile-banner profile-bg${cssColorMXID(userId)}`} />
@@ -823,7 +848,7 @@ function ProfileViewer() {
               />
               <i
                 ref={statusRef}
-                className={`user-status user-status-icon pe-2 ${getUserStatus(user)}`}
+                className={`user-status user-status-icon pe-2 ${getUserStatus(user, tinyPresence)}`}
               />
             </div>
 
@@ -831,6 +856,7 @@ function ProfileViewer() {
               <div className="float-end">
                 {userId !== mx.getUserId() && (
                   <ProfileFooter
+                    tinyPresence={tinyPresence}
                     agentData={agentData}
                     roomId={roomId}
                     userId={userId}

@@ -17,3 +17,17 @@ export function duplicatorAgent(userId, botId) {
       .catch(reject);
   });
 }
+
+export function reconnectAgent(botUsername) {
+  return new Promise((resolve, reject) => {
+    fetch(`https://bots.${serverDomain}/bots/restart/${botUsername}`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+      },
+    })
+      .then((res) => res.json())
+      .then(resolve)
+      .catch(reject);
+  });
+}

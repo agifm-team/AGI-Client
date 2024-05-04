@@ -105,6 +105,11 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
     }
   }
 
+  .title {
+    font-family: 'slkscr';
+    color: yellow !important;
+  }
+
   .bots {
     display: flex;
     flex-wrap: wrap;

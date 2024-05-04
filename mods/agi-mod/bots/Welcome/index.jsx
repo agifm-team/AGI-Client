@@ -59,7 +59,7 @@ function Welcome({ isGuest }) {
   const categoryGenerator = (where, type, title, citem) => (
     <>
       <hr />
-      <h5 className="title mt-2 mb-3">{title}</h5>
+      <h5 className="title mt-2 mb-3 h2">{title}</h5>
       <br />
 
       <div className={`row welcome-card${isGuest ? ' guest' : ''}`}>

@@ -16,7 +16,7 @@ import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
 import settings from '../../../client/state/settings';
-import { openProfileViewer } from '../../../client/action/navigation';
+import { openProfileViewer, openRoomViewer } from '../../../client/action/navigation';
 import { diffMinutes, isInSameDay, Throttle } from '../../../util/common';
 import { markAsRead } from '../../../client/action/notifications';
 
@@ -35,11 +35,10 @@ import { getCurrentState } from '../../../util/matrixUtil';
 import tinyAPI from '../../../util/mods';
 import { rule3 } from '../../../util/tools';
 import { mediaFix } from '../../molecules/media/mediaFix';
-import matrixAppearance from '../../../util/libs/appearance';
+import matrixAppearance, { getAppearance } from '../../../util/libs/appearance';
 
 let forceDelay = false;
 let loadingPage = false;
-const PAG_LIMIT = 50;
 const MAX_MSG_DIFF_MINUTES = 5;
 const PLACEHOLDER_COUNT = 2;
 const PLACEHOLDERS_HEIGHT = 96 * PLACEHOLDER_COUNT;
@@ -119,13 +118,24 @@ function RoomIntroContainer({ event, timeline }) {
   );
 }
 
+const mentionOpen = {
+  '@': (userId) => {
+    const roomId = navigation.selectedRoomId;
+    openProfileViewer(userId, roomId);
+  },
+
+  '#': (roomId) => {
+    openRoomViewer(roomId);
+  },
+};
+
 function handleOnClickCapture(e) {
   const { target, nativeEvent } = e;
 
-  const userId = target.getAttribute('data-mx-pill');
-  if (userId) {
-    const roomId = navigation.selectedRoomId;
-    openProfileViewer(userId, roomId);
+  const itemId = target.getAttribute('data-mx-pill');
+  if (typeof itemId === 'string' && itemId.length > 0) {
+    const tag = itemId[0];
+    if (typeof mentionOpen[tag] === 'function') mentionOpen[tag](itemId);
   }
 
   const spoiler = nativeEvent.composedPath().find((el) => el?.hasAttribute?.('data-mx-spoiler'));
@@ -259,6 +269,16 @@ function usePaginate(
   eventLimitRef,
 ) {
   const [info, setInfo] = useState(null);
+  const [pageLimit, setPageLimit] = useState(getAppearance('pageLimit'));
+
+  useEffect(() => {
+    const updatePageLimit = (value) => setPageLimit(value);
+    matrixAppearance.on('pageLimit', updatePageLimit);
+
+    return () => {
+      matrixAppearance.off('pageLimit', updatePageLimit);
+    };
+  });
 
   useEffect(() => {
     const handlePaginatedFromServer = (backwards, loaded) => {
@@ -268,7 +288,7 @@ function usePaginate(
         const readUpToId = roomTimeline.getReadUpToEventId();
         readUptoEvtStore.setItem(roomTimeline.findEventByIdInTimelineSet(readUpToId));
       }
-      limit.paginate(backwards, PAG_LIMIT, roomTimeline.timeline.length);
+      limit.paginate(backwards, pageLimit, roomTimeline.timeline.length);
       setTimeout(() =>
         setInfo({
           backwards,
@@ -300,12 +320,12 @@ function usePaginate(
     if (timelineScroll.bottom < SCROLL_TRIGGER_POS) {
       if (limit.length < tLength) {
         // paginate from memory
-        limit.paginate(false, PAG_LIMIT, tLength);
+        limit.paginate(false, pageLimit, tLength);
         //
         forceUpdateLimit();
       } else if (roomTimeline.canPaginateForward()) {
         // paginate from server.
-        await roomTimeline.paginateTimeline(false, PAG_LIMIT);
+        await roomTimeline.paginateTimeline(false, pageLimit);
         loadingPage = false;
         return;
       }
@@ -314,11 +334,11 @@ function usePaginate(
     if (timelineScroll.top < SCROLL_TRIGGER_POS || roomTimeline.timeline.length < 1) {
       if (limit.from > 0) {
         // paginate from memory
-        limit.paginate(true, PAG_LIMIT, tLength);
+        limit.paginate(true, pageLimit, tLength);
         forceUpdateLimit();
       } else if (roomTimeline.canPaginateBackward()) {
         // paginate from server.
-        await roomTimeline.paginateTimeline(true, PAG_LIMIT);
+        await roomTimeline.paginateTimeline(true, pageLimit);
       }
     }
 
@@ -457,11 +477,11 @@ function useEventArrive(roomTimeline, readUptoEvtStore, timelineScrollRef, event
 let jumpToItemIndex = -1;
 
 function RoomViewContent({
-  eventId,
+  eventId = null,
   roomTimeline,
   isUserList,
-  isGuest,
-  disableActions,
+  isGuest = false,
+  disableActions = false,
   usernameHover,
   refRoomInput,
   isLoading,
@@ -469,6 +489,7 @@ function RoomViewContent({
   const [, forceUpdate] = useReducer((count) => count + 1, 0);
   const [throttle] = useState(new Throttle());
   const [embedHeight, setEmbedHeight] = useState(null);
+  const [pageLimit, setPageLimit] = useState(getAppearance('pageLimit'));
 
   const timelineSVRef = useRef(null);
   const timelineScrollRef = useRef(null);
@@ -810,7 +831,7 @@ function RoomViewContent({
   setTimeout(() => {
     if (roomTimeline.timeline.length < 1) {
       autoPaginate().then(() => {
-        if (roomTimeline.timeline.length <= rule3(50, 10, PAG_LIMIT)) {
+        if (roomTimeline.timeline.length <= rule3(50, 10, pageLimit)) {
           $(phMsgQuery)
             .addClass('no-loading')
             .off('click', noLoadingPageButton)
@@ -821,7 +842,7 @@ function RoomViewContent({
           tinyAPI.emit('emptyTimeline', forceUpdateLimit);
         }
       });
-    } else if (roomTimeline.timeline.length <= rule3(50, 10, PAG_LIMIT)) {
+    } else if (roomTimeline.timeline.length <= rule3(50, 10, pageLimit)) {
       $(phMsgQuery)
         .addClass('no-loading')
         .off('click', noLoadingPageButton)
@@ -831,10 +852,13 @@ function RoomViewContent({
 
   useEffect(() => {
     const updateClock = () => forceUpdate();
+    const updatePageLimit = (value) => setPageLimit(value);
+    matrixAppearance.on('pageLimit', updatePageLimit);
     matrixAppearance.on('is24hours', updateClock);
     matrixAppearance.on('calendarFormat', updateClock);
 
     return () => {
+      matrixAppearance.off('pageLimit', updatePageLimit);
       matrixAppearance.off('is24hours', updateClock);
       matrixAppearance.off('calendarFormat', updateClock);
     };
@@ -857,11 +881,6 @@ function RoomViewContent({
   );
 }
 
-RoomViewContent.defaultProps = {
-  eventId: null,
-  isGuest: false,
-  disableActions: false,
-};
 RoomViewContent.propTypes = {
   eventId: PropTypes.string,
   isGuest: PropTypes.bool,

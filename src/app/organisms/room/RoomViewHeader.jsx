@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import * as linkify from 'linkifyjs';
 
 import { objType } from 'for-promise/utils/lib.mjs';
 import { tinyPrompt } from '@src/util/tools';
 import { getCurrentState } from '@src/util/matrixUtil';
+import Button from '@src/app/atoms/button/Button';
 
 import { forceUnloadedAvatars } from '../../atoms/avatar/load';
 import { twemojifyReact } from '../../../util/twemojify';
@@ -34,7 +36,7 @@ import copyText from '../profile-viewer/copyText';
 import { openPinMessageModal } from '../../../util/libs/pinMessage';
 import { openThreadsMessageModal } from '../../../util/libs/thread';
 
-function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions }) {
+function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions = false }) {
   const [, forceUpdate] = useForceUpdate();
   const mx = initMatrix.matrixClient;
   const isDM = initMatrix.roomList && initMatrix.roomList.directs.has(roomId);
@@ -118,6 +120,7 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
 
   // pixx.co.settings.embeds
   const [pixxEmbeds, setPixxEmbeds] = useState({});
+  const [expandPixxIframe, setExpandPixxIframe] = useState(false);
   useEffect(() => {
     const handleEvent = (event) => {
       if (event.getType() !== 'pixx.co.settings.embeds') return;
@@ -143,8 +146,8 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
     pixxEmbeds.roomId === roomId &&
     pixxEmbeds.data.visible &&
     typeof pixxEmbeds.data.value === 'string' &&
+    linkify.test(pixxEmbeds.data.value) &&
     (pixxEmbeds.data.value.startsWith('http://') || pixxEmbeds.data.value.startsWith('https://'));
-  console.log(pixxEmbeds.roomId, pixxEmbeds.data);
 
   return (
     <>
@@ -338,14 +341,25 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
       </Header>
 
       {pixxEmbedVisible ? (
-        <iframe className="pixx-embed" alt="pixx embed" src={pixxEmbeds.data.value} />
+        <>
+          <div className="pixx-embed-expand">
+            <Button
+              variant="primary"
+              type="button"
+              faSrc="fa-solid fa-expand"
+              onClick={() => setExpandPixxIframe(!expandPixxIframe)}
+            />
+          </div>
+          <iframe
+            className={`pixx-embed${!expandPixxIframe ? '' : ' expand-embed'}`}
+            alt="pixx embed"
+            src={pixxEmbeds.data.value}
+          />
+        </>
       ) : null}
     </>
   );
 }
-RoomViewHeader.defaultProps = {
-  disableActions: false,
-};
 
 RoomViewHeader.propTypes = {
   roomId: PropTypes.string.isRequired,

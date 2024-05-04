@@ -35,3 +35,40 @@
     local('gg sans SemiBold Regular'),
     url('./fonts/gg-sans-Semibold.woff') format('woff');
 }
+
+/* #### Silkscreen by Jason Aleksandr Kottke #### */
+@font-face {
+  font-family: 'slkscr';
+  font-style: normal;
+  font-weight: normal;
+  src:
+    local('slkscr'),
+    url('./fonts/slkscr.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'slkscrb';
+  font-style: normal;
+  font-weight: normal;
+  src:
+    local('slkscrb'),
+    url('./fonts/slkscrb.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'slkscre';
+  font-style: normal;
+  font-weight: normal;
+  src:
+    local('slkscre'),
+    url('./fonts/slkscre.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'slkscreb';
+  font-style: normal;
+  font-weight: normal;
+  src:
+    local('slkscreb'),
+    url('./fonts/slkscreb.ttf') format('truetype');
+}

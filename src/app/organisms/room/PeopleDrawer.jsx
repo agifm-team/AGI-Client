@@ -32,7 +32,7 @@ function simplyfiMembers(members) {
     userId: member.userId,
     name: getUsernameOfRoomMember(member),
     username: member.userId.slice(1, member.userId.indexOf(':')),
-    avatarSrc: member.getAvatarUrl(mx.baseUrl, 32, 32, 'crop'),
+    avatarSrc: member.getAvatarUrl(mx.baseUrl, 72, 72, 'crop'),
     peopleRole: getPowerLabel(member.powerLevel),
     powerLevel: members.powerLevel,
   }));
@@ -241,7 +241,7 @@ function PeopleDrawer({ roomId, isUserList, setIsUserList }) {
             !member.customSelector ? (
               isUserList ? (
                 <PeopleSelector
-                  avatarSize={32}
+                  avatarSize={72}
                   key={member.userId}
                   user={mx.getUser(member.userId)}
                   onClick={() =>

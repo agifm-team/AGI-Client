@@ -6,7 +6,21 @@ import { blurOnBubbling } from './script';
 import { arrayItems as bsColorsArray } from '../../../util/styles-bootstrap';
 
 const Button = React.forwardRef(
-  ({ id, className, variant, iconSrc, faSrc, type, onClick, children, disabled, size }, ref) => {
+  (
+    {
+      id = '',
+      className = null,
+      variant = 'link btn-bg',
+      iconSrc = null,
+      faSrc = null,
+      type = 'button',
+      onClick = null,
+      children,
+      disabled = false,
+      size = 'sm',
+    },
+    ref,
+  ) => {
     const iconClass = iconSrc === null ? '' : `btn-${variant}--icon`;
 
     return (
@@ -19,25 +33,15 @@ const Button = React.forwardRef(
         type={type}
         disabled={disabled}
       >
-        {iconSrc !== null && <RawIcon size="small" className="me-2" src={iconSrc} />}
-        {faSrc !== null && <RawIcon size="small" className="me-2" fa={faSrc} />}
+        {iconSrc !== null && (
+          <RawIcon size="small" className={children ? 'me-2' : null} src={iconSrc} />
+        )}
+        {faSrc !== null && <RawIcon size="small" className={children ? 'me-2' : null} fa={faSrc} />}
         {children}
       </button>
     );
   },
 );
-
-Button.defaultProps = {
-  id: '',
-  size: 'sm',
-  className: null,
-  variant: 'link btn-bg',
-  iconSrc: null,
-  faSrc: null,
-  type: 'button',
-  onClick: null,
-  disabled: false,
-};
 
 Button.propTypes = {
   id: PropTypes.string,

@@ -44,12 +44,15 @@ const rainbowBorder = (chatroom, dreg = 124) => {
 
 function Welcome({ isGuest }) {
   // Data
+  const [categories, setCategories] = useState(null); // [data, setData
   const [list, setList] = useState(null); // [data, setData
   const [tempSearch, setTempSearch] = useState('');
   const [loadingData, setLoadingData] = useState(false);
 
   const [data, setRoomData] = useState(null); // room data
   const [dataTag, setSelectedTag] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
   const morphic = useRef(null);
 
   // Generator
@@ -124,6 +127,7 @@ function Welcome({ isGuest }) {
             if (Array.isArray(newData)) {
               const rooms = [];
               const listTags = [];
+              const listCategories = [];
 
               for (const item in newData) {
                 if (objType(newData[item], 'object')) {
@@ -138,14 +142,27 @@ function Welcome({ isGuest }) {
                     }
                   }
 
+                  if (Array.isArray(newData[item].categories)) {
+                    for (const item2 in newData[item].categories) {
+                      if (
+                        typeof newData[item].categories[item2] === 'string' &&
+                        listTags.indexOf(newData[item].categories[item2]) < 0
+                      ) {
+                        listTags.push(newData[item].categories[item2]);
+                      }
+                    }
+                  }
+
                   rooms.push(newData[item]);
                 }
               }
 
+              setCategories(listCategories);
               setList(listTags);
               setRoomData(rooms);
             } else {
               console.error(newData);
+              setCategories(null);
               setList(null);
               setRoomData(null);
             }
@@ -190,6 +207,14 @@ function Welcome({ isGuest }) {
   if (!loadingData && Array.isArray(data)) {
     for (const item in data) {
       if (
+        // Category
+        (!Array.isArray(data[item].categories) ||
+          (data[item].categories.length > 0 &&
+            ((typeof selectedCategory === 'string' &&
+              selectedCategory.length > 0 &&
+              data[item].categories.indexOf(selectedCategory) > -1) ||
+              selectedCategory === null))) &&
+        // Tags
         Array.isArray(data[item].tags) &&
         data[item].tags.length > 0 &&
         ((typeof dataTag === 'string' &&
@@ -384,6 +409,22 @@ function Welcome({ isGuest }) {
         {__ENV_APP__.MODE === 'development' ? (
           <iframe ref={morphic} id="morphic" src="https://morphic-liard-nu.vercel.app" />
         ) : null}
+
+        <center className="taggy taggy2 taggy3">
+          {categories && (
+            <>
+              {categories.map((tag) => (
+                <button
+                  className={`btn taggyButton btn-bg btn-lg ${typeof selectedCategory === 'string' && selectedCategory === tag ? ' active' : ''} text-uppercase`}
+                  key={tag}
+                  onClick={() => setSelectedCategory(tag)}
+                >
+                  {tag}
+                </button>
+              ))}
+            </>
+          )}
+        </center>
 
         <div id="search-title">
           <div className="search-info mb-3">

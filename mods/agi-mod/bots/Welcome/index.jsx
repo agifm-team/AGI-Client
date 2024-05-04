@@ -50,7 +50,7 @@ function Welcome({ isGuest }) {
   const [loadingData, setLoadingData] = useState(false);
 
   const [data, setRoomData] = useState(null); // room data
-  const [dataTag, setSelectedTag] = useState(null);
+  const [dataTag, setSelectedTag] = useState('fun');
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   const morphic = useRef(null);

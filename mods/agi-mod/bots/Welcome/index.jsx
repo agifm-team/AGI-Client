@@ -111,26 +111,35 @@ function Welcome({ isGuest }) {
       // Load Data
       setLoadingData(true);
 
+      // Loading Bot list
       const loadingFetch = () => {
         fetch(`https://bots.${serverDomain}/botlist`, {
           headers: {
             Accept: 'application/json',
           },
         })
+          // Check network
           .then((res) => {
             if (!res.ok) {
               throw new Error('Network response was not ok');
             }
             return res.json();
           })
+
+          // Read Data
           .then((newData) => {
+            // is Array
             if (Array.isArray(newData)) {
+              // Prepare data
               const rooms = [];
               const listTags = [];
               const listCategories = [];
 
+              // Get Data
               for (const item in newData) {
+                // Is Object
                 if (objType(newData[item], 'object')) {
+                  // Get Tags
                   if (Array.isArray(newData[item].tags)) {
                     for (const item2 in newData[item].tags) {
                       if (
@@ -142,6 +151,7 @@ function Welcome({ isGuest }) {
                     }
                   }
 
+                  // Get Category
                   if (
                     typeof newData[item].category === 'string' &&
                     listTags.indexOf(newData[item].category) < 0
@@ -149,14 +159,19 @@ function Welcome({ isGuest }) {
                     listTags.push(newData[item].category);
                   }
 
+                  // Insert rooms
                   rooms.push(newData[item]);
                 }
               }
 
+              // Set data
               setCategories(listCategories);
               setList(listTags);
               setRoomData(rooms);
-            } else {
+            }
+
+            // Error
+            else {
               console.error(newData);
               setCategories(null);
               setList(null);
@@ -165,6 +180,8 @@ function Welcome({ isGuest }) {
 
             setLoadingData(false);
           })
+
+          // Error
           .catch((err) => {
             console.error(err);
             alert(err.message);
@@ -178,10 +195,12 @@ function Welcome({ isGuest }) {
           });
       };
 
+      // Execute script
       loadingFetch();
       botListUpdate = setInterval(() => botListUpdate(), 60000);
     }
 
+    // Rainbow
     const chatroom = $('.tiny-welcome #chatrooms .chatroom');
     let rainbowPosition = 124;
     const intervalChatRoom = setInterval(() => {
@@ -191,16 +210,20 @@ function Welcome({ isGuest }) {
     }, 12);
 
     rainbowBorder(chatroom, rainbowPosition);
+
+    // Complete
     return () => {
       clearInterval(intervalChatRoom);
       if (botListUpdate) clearInterval(botListUpdate);
     };
   });
 
+  // Final data prepare
   const users = [];
   const rooms = [];
   const spaces = [];
 
+  // Read data
   if (!loadingData && Array.isArray(data)) {
     for (const item in data) {
       if (
@@ -217,6 +240,7 @@ function Welcome({ isGuest }) {
           data[item].tags.indexOf(dataTag) > -1) ||
           dataTag === null)
       ) {
+        // Room base data
         const roomData = {
           agiId: data[item].id,
           description: data[item].desc,
@@ -224,6 +248,7 @@ function Welcome({ isGuest }) {
           tags: data[item].tags,
         };
 
+        // Get avatar
         try {
           roomData.avatar = insertAgiAvatar(data[item], null);
         } catch (err) {
@@ -231,18 +256,21 @@ function Welcome({ isGuest }) {
           roomData.avatar = null;
         }
 
+        // Is Room
         if (typeof data[item].room_id === 'string') {
           const newRoomData = clone(roomData);
           newRoomData.id = data[item].room_id;
           rooms.push(newRoomData);
         }
 
+        // Is Space
         if (typeof data[item].space_id === 'string') {
           const newRoomData = clone(roomData);
           newRoomData.id = data[item].space_id;
           spaces.push(newRoomData);
         }
 
+        // Is Bot
         if (typeof data[item].bot_username === 'string') {
           const newRoomData = clone(roomData);
           newRoomData.id = data[item].bot_username;

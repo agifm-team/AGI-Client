@@ -199,6 +199,7 @@ function Welcome({ isGuest }) {
 
   const users = [];
   const rooms = [];
+  const spaces = [];
 
   if (!loadingData && Array.isArray(data)) {
     for (const item in data) {
@@ -234,6 +235,12 @@ function Welcome({ isGuest }) {
           const newRoomData = clone(roomData);
           newRoomData.id = data[item].room_id;
           rooms.push(newRoomData);
+        }
+
+        if (typeof data[item].space_id === 'string') {
+          const newRoomData = clone(roomData);
+          newRoomData.id = data[item].space_id;
+          spaces.push(newRoomData);
         }
 
         if (typeof data[item].bot_username === 'string') {
@@ -463,6 +470,9 @@ function Welcome({ isGuest }) {
           <>
             {users.length > 0 ? categoryGenerator('popular_bots', 'bots', 'Bots', users) : null}
             {rooms.length > 0 ? categoryGenerator('popular_rooms', 'rooms', 'Rooms', rooms) : null}
+            {spaces.length > 0
+              ? categoryGenerator('popular_spaces', 'spaces', 'Spaces', spaces)
+              : null}
           </>
         ) : (
           <>

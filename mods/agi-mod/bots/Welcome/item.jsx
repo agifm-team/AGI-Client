@@ -89,6 +89,40 @@ const valuesLoad = {
       }
     },
   },
+
+  // Spaces
+  spaces: {
+    // Tab
+    tab: cons.tabs.HOME,
+
+    // Data Button
+    getRoom: async (alias) => {
+      const mx = initMatrix.matrixClient;
+      setLoadingPage('Looking for address...');
+      let via;
+      if (alias.startsWith('#')) {
+        try {
+          const aliasData = await mx.getRoomIdForAlias(alias);
+          via = aliasData?.servers.slice(0, 3) || [];
+          setLoadingPage(`Joining ${alias}...`);
+        } catch (err) {
+          setLoadingPage(false);
+          console.error(err);
+          alert(
+            `Unable to find room/space with ${alias}. Either room/space is private or doesn't exist.`,
+          );
+        }
+      }
+      try {
+        const roomId = await join(alias, false, via);
+        openRoom(roomId);
+        setLoadingPage(false);
+      } catch {
+        setLoadingPage(false);
+        alert(`Unable to join ${alias}. Either room/space is private or doesn't exist.`);
+      }
+    },
+  },
 };
 
 function ItemWelcome({ bot, type, isGuest, setSelectedTag }) {

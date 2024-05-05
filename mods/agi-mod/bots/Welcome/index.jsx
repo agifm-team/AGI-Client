@@ -288,107 +288,107 @@ function Welcome({ isGuest }) {
   // Result
   return (
     <div className={`tiny-welcome border-0 h-100 noselect${isGuest ? ' is-guest' : ''}`}>
-      {/*
-      <center className="w-100">
-        <div
-          id="welcome-carousel"
-          className="py-4 mx-4 carousel slide rounded-carousel"
-          data-bs-ride="true"
-        >
-          <div className="carousel-indicators">
-            <button
-              type="button"
-              data-bs-target="#welcome-carousel"
-              data-bs-slide-to="0"
-              className="active"
-              aria-current="true"
-              aria-label="Slide 1"
-            />
-            <button
-              type="button"
-              data-bs-target="#welcome-carousel"
-              data-bs-slide-to="1"
-              aria-label="Slide 2"
-            />
-            <button
-              type="button"
-              data-bs-target="#welcome-carousel"
-              data-bs-slide-to="2"
-              aria-label="Slide 3"
-            />
-          </div>
-
-          <div className="carousel-inner">
-            <div className="carousel-item active">
-              <img
-                src="./img/homepage-slider/c1.gif"
-                className="d-block w-100"
-                draggable="false"
-                alt="..."
-              />
-              <div className="carousel-caption">
-                <h5>Pixxel Forge</h5>
-                <p>
-                  Create Ai Pixxels, customizing their personality, appearance, and knowledge
-                  domains
-                </p>
-              </div>
-            </div>
-
-            <div className="carousel-item">
-              <img
-                src="./img/homepage-slider/c2.gif"
-                className="d-block w-100"
-                draggable="false"
-                alt="..."
-              />
-              <div className="carousel-caption">
-                <h5>Fantastical Tools</h5>
-                <p>
-                  Embed specialized AI tools for visuals, sound, coding, writing – the limit is the
-                  imagination of the Pixxels community
-                </p>
-              </div>
-            </div>
-
-            <div className="carousel-item">
-              <img
-                src="./img/homepage-slider/c3.gif"
-                className="d-block w-100"
-                draggable="false"
-                alt="..."
-              />
-              <div className="carousel-caption">
-                <h5>Pixxel Spaces</h5>
-                <p>
-                  Whimsical virtual spaces where users collaborate with both human teams and their
-                  individual Pixxels
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <button
-            className="carousel-control-prev d-none"
-            type="button"
-            data-bs-target="#welcome-carousel"
-            data-bs-slide="prev"
+      {
+        <center className="w-100">
+          <div
+            id="welcome-carousel"
+            className="py-4 mx-4 carousel slide rounded-carousel"
+            data-bs-ride="true"
           >
-            <span className="carousel-control-prev-icon" aria-hidden="true" />
-            <span className="visually-hidden">Previous</span>
-          </button>
-          <button
-            className="carousel-control-next d-none"
-            type="button"
-            data-bs-target="#welcome-carousel"
-            data-bs-slide="next"
-          >
-            <span className="carousel-control-next-icon" aria-hidden="true" />
-            <span className="visually-hidden">Next</span>
-          </button>
-        </div>
-      </center>
-      */}
+            <div className="carousel-indicators">
+              <button
+                type="button"
+                data-bs-target="#welcome-carousel"
+                data-bs-slide-to="0"
+                className="active"
+                aria-current="true"
+                aria-label="Slide 1"
+              />
+              <button
+                type="button"
+                data-bs-target="#welcome-carousel"
+                data-bs-slide-to="1"
+                aria-label="Slide 2"
+              />
+              <button
+                type="button"
+                data-bs-target="#welcome-carousel"
+                data-bs-slide-to="2"
+                aria-label="Slide 3"
+              />
+            </div>
+
+            <div className="carousel-inner">
+              <div className="carousel-item active">
+                <img
+                  src="./img/homepage-slider/c1.gif"
+                  className="d-block w-100"
+                  draggable="false"
+                  alt="..."
+                />
+                <div className="carousel-caption">
+                  <h5>Pixxel Forge</h5>
+                  <p>
+                    Create Ai Pixxels, customizing their personality, appearance, and knowledge
+                    domains
+                  </p>
+                </div>
+              </div>
+
+              <div className="carousel-item">
+                <img
+                  src="./img/homepage-slider/c2.gif"
+                  className="d-block w-100"
+                  draggable="false"
+                  alt="..."
+                />
+                <div className="carousel-caption">
+                  <h5>Fantastical Tools</h5>
+                  <p>
+                    Embed specialized AI tools for visuals, sound, coding, writing – the limit is
+                    the imagination of the Pixxels community
+                  </p>
+                </div>
+              </div>
+
+              <div className="carousel-item">
+                <img
+                  src="./img/homepage-slider/c3.gif"
+                  className="d-block w-100"
+                  draggable="false"
+                  alt="..."
+                />
+                <div className="carousel-caption">
+                  <h5>Pixxel Spaces</h5>
+                  <p>
+                    Whimsical virtual spaces where users collaborate with both human teams and their
+                    individual Pixxels
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <button
+              className="carousel-control-prev d-none"
+              type="button"
+              data-bs-target="#welcome-carousel"
+              data-bs-slide="prev"
+            >
+              <span className="carousel-control-prev-icon" aria-hidden="true" />
+              <span className="visually-hidden">Previous</span>
+            </button>
+            <button
+              className="carousel-control-next d-none"
+              type="button"
+              data-bs-target="#welcome-carousel"
+              data-bs-slide="next"
+            >
+              <span className="carousel-control-next-icon" aria-hidden="true" />
+              <span className="visually-hidden">Next</span>
+            </button>
+          </div>
+        </center>
+      }
       <center className={`py-4 px-4 w-100${isGuest ? ' mb-5' : ''}`}>
         <div id="menu" className={`text-start${isGuest ? ' is-guest' : ''}`}>
           {!isGuest ? (

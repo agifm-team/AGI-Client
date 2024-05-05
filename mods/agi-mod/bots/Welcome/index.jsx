@@ -53,8 +53,6 @@ function Welcome({ isGuest }) {
   const [dataTag, setSelectedTag] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('work');
 
-  const morphic = useRef(null);
-
   // Generator
   const categoryGenerator = (where, type, title, citem) => (
     <>
@@ -86,22 +84,6 @@ function Welcome({ isGuest }) {
     event.preventDefault();
     setSelectedTag(tempSearch);
   };
-
-  // Iframe block issue
-  /* useEffect(() => {
-    if (morphic.current) {
-      const tinyMorphicUpdate = setInterval(() => {
-        if (morphic.current && morphic.current.contentWindow) {
-          // console.log(morphic.current.contentWindow.document);
-          // const morRef = $(morphic.current.contentWindow);
-          // console.log(morRef.height());
-        }
-      }, 100);
-      return () => {
-        clearInterval(tinyMorphicUpdate);
-      };
-    }
-  }); */
 
   // Effect
   useEffect(() => {
@@ -435,10 +417,6 @@ function Welcome({ isGuest }) {
             />
           </center>
         </div>
-
-        {__ENV_APP__.MODE === 'development' ? (
-          <iframe ref={morphic} id="morphic" src="https://morphic-liard-nu.vercel.app" />
-        ) : null}
 
         <center className="taggy taggy2 taggy3">
           {categories && (

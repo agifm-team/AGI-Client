@@ -51,7 +51,7 @@ function Welcome({ isGuest }) {
 
   const [data, setRoomData] = useState(null); // room data
   const [dataTag, setSelectedTag] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState('work');
+  const [selectedCategory, setSelectedCategory] = useState('fun');
 
   // Generator
   const categoryGenerator = (where, type, title, citem) => (
@@ -136,9 +136,9 @@ function Welcome({ isGuest }) {
                   // Get Category
                   if (
                     typeof newData[item].category === 'string' &&
-                    listTags.indexOf(newData[item].category) < 0
+                    listCategories.indexOf(newData[item].category) < 0
                   ) {
-                    listTags.push(newData[item].category);
+                    listCategories.push(newData[item].category);
                   }
 
                   // Insert rooms
@@ -210,25 +210,20 @@ function Welcome({ isGuest }) {
     for (const item in data) {
       if (
         // Category
-        (typeof data[item].category !== 'string' ||
-          (typeof selectedCategory === 'string' &&
-            selectedCategory.length > 0 &&
-            data[item].category === selectedCategory)) &&
+        ((typeof data[item].category !== 'string' && typeof selectedCategory !== 'string') ||
+          data[item].category === selectedCategory) &&
         // Tags
-        Array.isArray(data[item].tags) &&
-        data[item].tags.length > 0 &&
-        ((typeof dataTag === 'string' &&
-          dataTag.length > 0 &&
-          data[item].tags.indexOf(dataTag) > -1) ||
+        (!Array.isArray(data[item].tags) ||
+          (typeof dataTag === 'string' && data[item].tags.indexOf(dataTag) > -1) ||
           dataTag === null)
       ) {
         // Room base data
         const roomData = {
           agiId: data[item].id,
-          description: data[item].desc,
-          title: data[item].name,
-          tags: data[item].tags,
-          category: data[item].category,
+          description: data[item].desc || data[item].description,
+          title: data[item].name || '???',
+          tags: data[item].tags || [],
+          category: data[item].category || '',
         };
 
         // Get avatar

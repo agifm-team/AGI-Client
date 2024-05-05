@@ -210,7 +210,8 @@ function Welcome({ isGuest }) {
     for (const item in data) {
       if (
         // Category
-        ((typeof data[item].category !== 'string' && typeof selectedCategory !== 'string') ||
+        (typeof data[item].category !== 'string' ||
+          typeof selectedCategory !== 'string' ||
           data[item].category === selectedCategory) &&
         // Tags
         (!Array.isArray(data[item].tags) ||

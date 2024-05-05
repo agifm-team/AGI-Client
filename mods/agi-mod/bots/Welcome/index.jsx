@@ -246,6 +246,7 @@ function Welcome({ isGuest }) {
           description: data[item].desc,
           title: data[item].name,
           tags: data[item].tags,
+          category: data[item].category,
         };
 
         // Get avatar

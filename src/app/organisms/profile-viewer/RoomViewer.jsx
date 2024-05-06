@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { objType } from 'for-promise/utils/lib.mjs';
 
 import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 import { twemojifyReact } from '../../../util/twemojify';
-
 import imageViewer from '../../../util/imageViewer';
 
 import initMatrix from '../../../client/initMatrix';
@@ -12,7 +12,7 @@ import navigation from '../../../client/state/navigation';
 import { selectRoom, selectRoomMode } from '../../../client/action/navigation';
 import * as roomActions from '../../../client/action/room';
 
-import { hasDMWith, hasDevices } from '../../../util/matrixUtil';
+import { getCurrentState, hasDMWith, hasDevices } from '../../../util/matrixUtil';
 import { colorMXID } from '../../../util/colorMXID';
 
 import Avatar, { avatarDefaultColor } from '../../atoms/avatar/Avatar';
@@ -22,11 +22,10 @@ import Dialog from '../../molecules/dialog/Dialog';
 import copyText from './copyText';
 import tinyAPI from '../../../util/mods';
 
-function RoomFooter({ roomId, onRequestClose }) {
+function RoomFooter({ roomId, publicData, isSpace, room, onRequestClose }) {
   const [isCreatingDM, setIsCreatingDM] = useState(false);
 
   const mx = initMatrix.matrixClient;
-  const room = mx.getRoom(roomId);
 
   const onCreated = (dmRoomId) => {
     setIsCreatingDM(false);
@@ -63,30 +62,56 @@ function RoomFooter({ roomId, onRequestClose }) {
   };
 
   // disabled={isCreatingDM}
-
-  return (
-    <>
-      <Button className="me-2" variant="primary" onClick={openDM} disabled>
+  /*
+        <Button className="me-2" variant="primary" onClick={openDM} disabled>
         {isCreatingDM ? 'Creating room...' : 'Message'}
       </Button>
+      */
+  const isJoined = roomId
+    ? initMatrix.matrixClient.getRoom(roomId)?.getMyMembership() === 'join'
+    : null;
+
+  return roomId ? (
+    <>
+      {isJoined && (
+        <Button onClick={() => {}} variant="secondary" disabled>
+          Open
+        </Button>
+      )}
+      {!isJoined && (
+        <Button onClick={() => {}} variant="primary" disabled>
+          Join
+        </Button>
+      )}
     </>
-  );
+  ) : null;
 }
 RoomFooter.propTypes = {
+  isSpace: PropTypes.bool.isRequired,
   roomId: PropTypes.string.isRequired,
+  room: PropTypes.object.isRequired,
+  publicData: PropTypes.object.isRequire,
   onRequestClose: PropTypes.func.isRequired,
 };
 
 function useToggleDialog() {
   const [isOpen, setIsOpen] = useState(false);
   const [roomId, setRoomId] = useState(null);
+  const [aliasId, setAliasId] = useState(null);
   const [originalRoomId, setOriginalRoomId] = useState(null);
+  const [publicData, setPublicData] = useState(null);
+  const [isLoadingPublic, setIsLoadingPublic] = useState(false);
+  const [isLoadingId, setIsLoadingId] = useState(null);
 
   useEffect(() => {
     const loadRoom = (rId, oId) => {
+      setIsLoadingPublic(true);
       setIsOpen(true);
       setRoomId(rId);
+      setAliasId(null);
       setOriginalRoomId(oId);
+      setPublicData(null);
+      setIsLoadingPublic(false);
     };
     navigation.on(cons.events.navigation.ROOM_VIEWER_OPENED, loadRoom);
     return () => {
@@ -94,14 +119,73 @@ function useToggleDialog() {
     };
   }, []);
 
-  const closeDialog = () => setIsOpen(false);
+  useEffect(() => {
+    if (roomId) {
+      if (publicData === null && (!isLoadingPublic || isLoadingId !== originalRoomId)) {
+        setIsLoadingPublic(true);
+        setIsLoadingId(originalRoomId);
+
+        const tinyError = (err) => {
+          console.error(err);
+          alert(err.message);
+          setPublicData({});
+          setIsLoadingPublic(false);
+          setIsLoadingId(null);
+        };
+
+        const finalResult = (result, aliasId) => {
+          if (isLoadingId === null) {
+            setAliasId(aliasId);
+            if (
+              objType(result, 'object') &&
+              Array.isArray(result.chunk) &&
+              objType(result.chunk[0], 'object')
+            )
+              setPublicData(result.chunk[0]);
+            else setPublicData({});
+            setIsLoadingPublic(false);
+            setIsLoadingId(null);
+          }
+        };
+
+        const getAlias = (result) => {
+          initMatrix.matrixClient
+            .getRoomIdForAlias(originalRoomId)
+            .then((data) => {
+              finalResult(result, data?.room_id);
+            })
+            .catch(tinyError);
+        };
+
+        initMatrix.matrixClient
+          .publicRooms({
+            server: originalRoomId.split(':')[1],
+            limit: 1,
+            include_all_networks: true,
+            filter: {
+              generic_search_term: originalRoomId.split(':')[0],
+            },
+          })
+          .then((result) => getAlias(result))
+          .catch(tinyError);
+      }
+    }
+  });
+
+  const closeDialog = () => {
+    setIsLoadingPublic(true);
+    setIsOpen(false);
+  };
 
   const afterClose = () => {
     setRoomId(null);
+    setAliasId(null);
     setOriginalRoomId(null);
+    setPublicData(null);
+    setIsLoadingId(null);
   };
 
-  return [isOpen, originalRoomId, roomId, closeDialog, afterClose];
+  return [isOpen, originalRoomId, roomId, aliasId, publicData, closeDialog, afterClose];
 }
 
 // Read Profile
@@ -109,7 +193,8 @@ function RoomViewer() {
   // Prepare
   const profileAvatar = useRef(null);
 
-  const [isOpen, originalRoomId, roomId, closeDialog, handleAfterClose] = useToggleDialog();
+  const [isOpen, originalRoomId, roomId, aliasId, publicData, closeDialog, handleAfterClose] =
+    useToggleDialog();
   const [lightbox, setLightbox] = useState(false);
 
   const userNameRef = useRef(null);
@@ -118,19 +203,19 @@ function RoomViewer() {
   // Get Data
   const mx = initMatrix.matrixClient;
 
-  const room = mx.getRoom(roomId);
-  const isSpace = room ? room.isSpaceRoom() : null;
+  const room = mx.getRoom(aliasId);
+  let isSpace = room ? room.isSpaceRoom() : null;
 
   const [avatarUrl, setAvatarUrl] = useState(null);
+  const [isDefaultAvatar, setIsDefaultAvatar] = useState(true);
   const [username, setUsername] = useState(null);
-
-  console.log(room, roomId, originalRoomId, avatarUrl, username);
 
   useEffect(() => {
     if (room) {
       const theAvatar = room.getAvatarUrl(initMatrix.matrixClient.baseUrl);
       const newAvatar = theAvatar ? theAvatar : avatarDefaultColor(colorMXID(roomId));
 
+      setIsDefaultAvatar(!theAvatar);
       setAvatarUrl(newAvatar);
       setUsername(room.name || roomId);
 
@@ -164,10 +249,54 @@ function RoomViewer() {
         $(profileAvatar.current).off('click', tinyAvatarPreview);
       };
     } else if (!roomId) {
-      setAvatarUrl(defaultAvatar(0));
+      setIsDefaultAvatar(true);
+      setAvatarUrl(
+        originalRoomId ? avatarDefaultColor(colorMXID(originalRoomId)) : defaultAvatar(0),
+      );
       setUsername(null);
     }
   }, [room]);
+
+  // Get avatar
+  let imageSrc;
+  if (!isDefaultAvatar || publicData === null || typeof publicData.avatar_url !== 'string') {
+    imageSrc = avatarUrl;
+  } else {
+    imageSrc = mx.mxcUrlToHttp(publicData.avatar_url);
+  }
+
+  // Get username
+  let roomName;
+  if (publicData === null || typeof publicData.name !== 'string') {
+    roomName = username;
+  } else {
+    roomName = publicData.name;
+  }
+
+  // Is Space
+  if (isSpace === null && publicData !== null && typeof publicData.room_type === 'string') {
+    isSpace = publicData.room_type === 'm.space';
+  }
+
+  // Get data
+  const profileData = {};
+  if (publicData) {
+    profileData.topic = publicData.topic;
+    profileData.alias =
+      typeof publicData.canonical_alias === 'string'
+        ? publicData.canonical_alias
+        : publicData.room_id;
+    profileData.joinedMembersCount = publicData.num_joined_members;
+
+    if (room) {
+      const currentState = getCurrentState(room);
+      profileData.topic = currentState.getStateEvents('m.room.topic')[0]?.getContent().topic;
+    }
+  } else if (room) {
+    const currentState = getCurrentState(room);
+    profileData.topic = currentState.getStateEvents('m.room.topic')[0]?.getContent().topic;
+    profileData.alias = originalRoomId;
+  }
 
   // Render Profile
   const renderProfile = () => {
@@ -187,7 +316,7 @@ function RoomViewer() {
             >
               <Avatar
                 ref={profileAvatar}
-                imageSrc={avatarUrl}
+                imageSrc={imageSrc}
                 text={username}
                 bgColor={colorMXID(roomId)}
                 size="large"
@@ -197,19 +326,62 @@ function RoomViewer() {
 
             <div className="col-md-9 buttons-list">
               <div className="float-end">
-                <RoomFooter roomId={roomId} onRequestClose={closeDialog} />
+                <RoomFooter
+                  publicData={publicData}
+                  roomId={aliasId}
+                  room={room}
+                  isSpace={isSpace}
+                  onRequestClose={closeDialog}
+                />
               </div>
             </div>
           </div>
 
           <div className="card bg-bg">
             <div className="card-body">
-              <h6 ref={displayNameRef} className="emoji-size-fix m-0 mb-1 fw-bold display-name">
-                <span className="button">{twemojifyReact(username)}</span>
-              </h6>
+              {roomName ? (
+                <h6 ref={displayNameRef} className="emoji-size-fix m-0 mb-1 fw-bold display-name">
+                  <span className="button">{twemojifyReact(roomName)}</span>
+                </h6>
+              ) : null}
               <small ref={userNameRef} className="text-gray emoji-size-fix username">
                 <span className="button">{twemojifyReact(originalRoomId)}</span>
               </small>
+
+              {typeof profileData.topic === 'string' && profileData.topic.length > 0 ? (
+                <>
+                  <hr />
+                  <div className="text-gray text-uppercase fw-bold very-small mb-2">About</div>
+                  <p className="card-text p-y-1 text-freedom text-size-box very-small emoji-size-fix">
+                    {twemojifyReact(profileData.topic, undefined, true)}
+                  </p>
+                </>
+              ) : null}
+
+              {publicData &&
+              (profileData.topic === 'string' ||
+                typeof profileData.alias === 'string' ||
+                typeof profileData.joinedMembersCount !== 'undefined') ? (
+                <p className="card-text p-y-1 very-small text-gray">
+                  {profileData.alias !== originalRoomId ? profileData.alias : ''}
+                  {typeof profileData.joinedMembersCount !== 'number'
+                    ? ''
+                    : `${profileData.alias !== originalRoomId ? ' •' : ''} ${profileData.joinedMembersCount} members`}
+                </p>
+              ) : !publicData ? (
+                <>
+                  <br />
+                  <strong className="small">
+                    <div
+                      role="status"
+                      className="me-2 spinner-border spinner-border-sm d-inline-block"
+                    >
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                    Loading data...
+                  </strong>
+                </>
+              ) : null}
             </div>
           </div>
         </div>
@@ -223,7 +395,7 @@ function RoomViewer() {
       bodyClass="bg-bg2 p-0"
       className="modal-dialog-scrollable modal-dialog-centered modal-lg noselect modal-dialog-user-profile modal-dialog-room-profile"
       isOpen={isOpen}
-      title="Room Profile"
+      title={`${!isSpace ? 'Room' : 'Space'} Profile`}
       onAfterClose={handleAfterClose}
       onRequestClose={closeDialog}
     >

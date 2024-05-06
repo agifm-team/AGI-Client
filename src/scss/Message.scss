@@ -69,6 +69,7 @@
     padding: 0 var(--sp-ultra-tight);
     display: inline-flex;
     align-items: center;
+    align-content: center;
     color: var(--tc-surface-normal);
     background-color: var(--bg-surface-low);
     border: 1px solid var(--bg-surface-border);
@@ -76,15 +77,42 @@
     margin-right: 3px;
     cursor: pointer;
 
+    /* First fix */
     & .react-emoji {
       height: 13px;
-      margin: 2px;
+      padding-left: 3px;
+      padding-right: 3px;
     }
     &-count {
-      margin: 0 var(--sp-ultra-tight);
+      padding-left: 3px;
+      padding-right: 3px;
       color: var(--tc-surface-normal);
     }
 
+    /* Fix Position */
+    .msg__reaction-count {
+      top: 1px;
+      position: relative;
+    }
+
+    &.default-emoji {
+      top: -2px;
+      position: relative;
+      .linkify-base {
+        height: 100%;
+      }
+      .react-emoji {
+        margin-top: -3px;
+      }
+    }
+
+    &.custom-emoji {
+      .react-emoji {
+        margin-top: 1px;
+      }
+    }
+
+    /* Others */
     @media (hover: hover) {
       &:hover {
         background-color: var(--bg-surface-hover);
@@ -105,6 +133,17 @@
       &:active {
         background-color: var(--bg-reaction-active);
       }
+    }
+  }
+
+  .reaction-message {
+    height: 26px;
+    position: relative;
+    top: -3px;
+    i {
+      font-size: 13px;
+      position: relative;
+      top: -3px;
     }
   }
 
@@ -336,6 +375,23 @@ em-emoji-picker {
     td {
       padding-left: 0px !important;
       padding-right: 0px !important;
+    }
+  }
+}
+
+.msg__reaction-tooltip,
+.msg__reaction-tooltip .tooltip-inner {
+  min-width: 325px;
+}
+
+.msg__reaction-tooltip .tooltip-inner {
+  small {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    img {
+      height: 52px !important;
+      margin-right: 7px;
     }
   }
 }

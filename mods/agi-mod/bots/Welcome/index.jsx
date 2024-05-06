@@ -51,9 +51,7 @@ function Welcome({ isGuest }) {
 
   const [data, setRoomData] = useState(null); // room data
   const [dataTag, setSelectedTag] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState('work');
-
-  const morphic = useRef(null);
+  const [selectedCategory, setSelectedCategory] = useState('fun');
 
   // Generator
   const categoryGenerator = (where, type, title, citem) => (
@@ -87,22 +85,6 @@ function Welcome({ isGuest }) {
     setSelectedTag(tempSearch);
   };
 
-  // Iframe block issue
-  /* useEffect(() => {
-    if (morphic.current) {
-      const tinyMorphicUpdate = setInterval(() => {
-        if (morphic.current && morphic.current.contentWindow) {
-          // console.log(morphic.current.contentWindow.document);
-          // const morRef = $(morphic.current.contentWindow);
-          // console.log(morRef.height());
-        }
-      }, 100);
-      return () => {
-        clearInterval(tinyMorphicUpdate);
-      };
-    }
-  }); */
-
   // Effect
   useEffect(() => {
     let botListUpdate;
@@ -111,26 +93,35 @@ function Welcome({ isGuest }) {
       // Load Data
       setLoadingData(true);
 
+      // Loading Bot list
       const loadingFetch = () => {
         fetch(`https://bots.${serverDomain}/botlist`, {
           headers: {
             Accept: 'application/json',
           },
         })
+          // Check network
           .then((res) => {
             if (!res.ok) {
               throw new Error('Network response was not ok');
             }
             return res.json();
           })
+
+          // Read Data
           .then((newData) => {
+            // is Array
             if (Array.isArray(newData)) {
+              // Prepare data
               const rooms = [];
               const listTags = [];
               const listCategories = [];
 
+              // Get Data
               for (const item in newData) {
+                // Is Object
                 if (objType(newData[item], 'object')) {
+                  // Get Tags
                   if (Array.isArray(newData[item].tags)) {
                     for (const item2 in newData[item].tags) {
                       if (
@@ -142,25 +133,27 @@ function Welcome({ isGuest }) {
                     }
                   }
 
-                  if (Array.isArray(newData[item].categories)) {
-                    for (const item2 in newData[item].categories) {
-                      if (
-                        typeof newData[item].categories[item2] === 'string' &&
-                        listTags.indexOf(newData[item].categories[item2]) < 0
-                      ) {
-                        listTags.push(newData[item].categories[item2]);
-                      }
-                    }
+                  // Get Category
+                  if (
+                    typeof newData[item].category === 'string' &&
+                    listCategories.indexOf(newData[item].category) < 0
+                  ) {
+                    listCategories.push(newData[item].category);
                   }
 
+                  // Insert rooms
                   rooms.push(newData[item]);
                 }
               }
 
+              // Set data
               setCategories(listCategories);
               setList(listTags);
               setRoomData(rooms);
-            } else {
+            }
+
+            // Error
+            else {
               console.error(newData);
               setCategories(null);
               setList(null);
@@ -169,6 +162,8 @@ function Welcome({ isGuest }) {
 
             setLoadingData(false);
           })
+
+          // Error
           .catch((err) => {
             console.error(err);
             alert(err.message);
@@ -182,10 +177,12 @@ function Welcome({ isGuest }) {
           });
       };
 
+      // Execute script
       loadingFetch();
       botListUpdate = setInterval(() => botListUpdate(), 60000);
     }
 
+    // Rainbow
     const chatroom = $('.tiny-welcome #chatrooms .chatroom');
     let rainbowPosition = 124;
     const intervalChatRoom = setInterval(() => {
@@ -195,40 +192,42 @@ function Welcome({ isGuest }) {
     }, 12);
 
     rainbowBorder(chatroom, rainbowPosition);
+
+    // Complete
     return () => {
       clearInterval(intervalChatRoom);
       if (botListUpdate) clearInterval(botListUpdate);
     };
   });
 
+  // Final data prepare
   const users = [];
   const rooms = [];
+  const spaces = [];
 
+  // Read data
   if (!loadingData && Array.isArray(data)) {
     for (const item in data) {
       if (
         // Category
-        (!Array.isArray(data[item].categories) ||
-          (data[item].categories.length > 0 &&
-            ((typeof selectedCategory === 'string' &&
-              selectedCategory.length > 0 &&
-              data[item].categories.indexOf(selectedCategory) > -1) ||
-              selectedCategory === null))) &&
+        (typeof data[item].category !== 'string' ||
+          typeof selectedCategory !== 'string' ||
+          data[item].category === selectedCategory) &&
         // Tags
-        Array.isArray(data[item].tags) &&
-        data[item].tags.length > 0 &&
-        ((typeof dataTag === 'string' &&
-          dataTag.length > 0 &&
-          data[item].tags.indexOf(dataTag) > -1) ||
+        (!Array.isArray(data[item].tags) ||
+          (typeof dataTag === 'string' && data[item].tags.indexOf(dataTag) > -1) ||
           dataTag === null)
       ) {
+        // Room base data
         const roomData = {
           agiId: data[item].id,
-          description: data[item].desc,
-          title: data[item].name,
-          tags: data[item].tags,
+          description: data[item].desc || data[item].description,
+          title: data[item].name || '???',
+          tags: data[item].tags || [],
+          category: data[item].category || '',
         };
 
+        // Get avatar
         try {
           roomData.avatar = insertAgiAvatar(data[item], null);
         } catch (err) {
@@ -236,12 +235,21 @@ function Welcome({ isGuest }) {
           roomData.avatar = null;
         }
 
+        // Is Room
         if (typeof data[item].room_id === 'string') {
           const newRoomData = clone(roomData);
           newRoomData.id = data[item].room_id;
           rooms.push(newRoomData);
         }
 
+        // Is Space
+        if (typeof data[item].space_id === 'string') {
+          const newRoomData = clone(roomData);
+          newRoomData.id = data[item].space_id;
+          spaces.push(newRoomData);
+        }
+
+        // Is Bot
         if (typeof data[item].bot_username === 'string') {
           const newRoomData = clone(roomData);
           newRoomData.id = data[item].bot_username;
@@ -276,107 +284,107 @@ function Welcome({ isGuest }) {
   // Result
   return (
     <div className={`tiny-welcome border-0 h-100 noselect${isGuest ? ' is-guest' : ''}`}>
-      {/*
-      <center className="w-100">
-        <div
-          id="welcome-carousel"
-          className="py-4 mx-4 carousel slide rounded-carousel"
-          data-bs-ride="true"
-        >
-          <div className="carousel-indicators">
-            <button
-              type="button"
-              data-bs-target="#welcome-carousel"
-              data-bs-slide-to="0"
-              className="active"
-              aria-current="true"
-              aria-label="Slide 1"
-            />
-            <button
-              type="button"
-              data-bs-target="#welcome-carousel"
-              data-bs-slide-to="1"
-              aria-label="Slide 2"
-            />
-            <button
-              type="button"
-              data-bs-target="#welcome-carousel"
-              data-bs-slide-to="2"
-              aria-label="Slide 3"
-            />
-          </div>
-
-          <div className="carousel-inner">
-            <div className="carousel-item active">
-              <img
-                src="./img/homepage-slider/c1.gif"
-                className="d-block w-100"
-                draggable="false"
-                alt="..."
-              />
-              <div className="carousel-caption">
-                <h5>Pixxel Forge</h5>
-                <p>
-                  Create Ai Pixxels, customizing their personality, appearance, and knowledge
-                  domains
-                </p>
-              </div>
-            </div>
-
-            <div className="carousel-item">
-              <img
-                src="./img/homepage-slider/c2.gif"
-                className="d-block w-100"
-                draggable="false"
-                alt="..."
-              />
-              <div className="carousel-caption">
-                <h5>Fantastical Tools</h5>
-                <p>
-                  Embed specialized AI tools for visuals, sound, coding, writing – the limit is the
-                  imagination of the Pixxels community
-                </p>
-              </div>
-            </div>
-
-            <div className="carousel-item">
-              <img
-                src="./img/homepage-slider/c3.gif"
-                className="d-block w-100"
-                draggable="false"
-                alt="..."
-              />
-              <div className="carousel-caption">
-                <h5>Pixxel Spaces</h5>
-                <p>
-                  Whimsical virtual spaces where users collaborate with both human teams and their
-                  individual Pixxels
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <button
-            className="carousel-control-prev d-none"
-            type="button"
-            data-bs-target="#welcome-carousel"
-            data-bs-slide="prev"
+      {
+        <center className="w-100">
+          <div
+            id="welcome-carousel"
+            className="py-4 mx-4 carousel slide rounded-carousel"
+            data-bs-ride="true"
           >
-            <span className="carousel-control-prev-icon" aria-hidden="true" />
-            <span className="visually-hidden">Previous</span>
-          </button>
-          <button
-            className="carousel-control-next d-none"
-            type="button"
-            data-bs-target="#welcome-carousel"
-            data-bs-slide="next"
-          >
-            <span className="carousel-control-next-icon" aria-hidden="true" />
-            <span className="visually-hidden">Next</span>
-          </button>
-        </div>
-      </center>
-      */}
+            <div className="carousel-indicators">
+              <button
+                type="button"
+                data-bs-target="#welcome-carousel"
+                data-bs-slide-to="0"
+                className="active"
+                aria-current="true"
+                aria-label="Slide 1"
+              />
+              <button
+                type="button"
+                data-bs-target="#welcome-carousel"
+                data-bs-slide-to="1"
+                aria-label="Slide 2"
+              />
+              <button
+                type="button"
+                data-bs-target="#welcome-carousel"
+                data-bs-slide-to="2"
+                aria-label="Slide 3"
+              />
+            </div>
+
+            <div className="carousel-inner">
+              <div className="carousel-item active">
+                <img
+                  src="./img/homepage-slider/c1.gif"
+                  className="d-block w-100"
+                  draggable="false"
+                  alt="..."
+                />
+                <div className="carousel-caption">
+                  <h5>Pixxel Forge</h5>
+                  <p>
+                    Create Ai Pixxels, customizing their personality, appearance, and knowledge
+                    domains
+                  </p>
+                </div>
+              </div>
+
+              <div className="carousel-item">
+                <img
+                  src="./img/homepage-slider/c2.gif"
+                  className="d-block w-100"
+                  draggable="false"
+                  alt="..."
+                />
+                <div className="carousel-caption">
+                  <h5>Fantastical Tools</h5>
+                  <p>
+                    Embed specialized AI tools for visuals, sound, coding, writing – the limit is
+                    the imagination of the Pixxels community
+                  </p>
+                </div>
+              </div>
+
+              <div className="carousel-item">
+                <img
+                  src="./img/homepage-slider/c3.gif"
+                  className="d-block w-100"
+                  draggable="false"
+                  alt="..."
+                />
+                <div className="carousel-caption">
+                  <h5>Pixxel Spaces</h5>
+                  <p>
+                    Whimsical virtual spaces where users collaborate with both human teams and their
+                    individual Pixxels
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <button
+              className="carousel-control-prev d-none"
+              type="button"
+              data-bs-target="#welcome-carousel"
+              data-bs-slide="prev"
+            >
+              <span className="carousel-control-prev-icon" aria-hidden="true" />
+              <span className="visually-hidden">Previous</span>
+            </button>
+            <button
+              className="carousel-control-next d-none"
+              type="button"
+              data-bs-target="#welcome-carousel"
+              data-bs-slide="next"
+            >
+              <span className="carousel-control-next-icon" aria-hidden="true" />
+              <span className="visually-hidden">Next</span>
+            </button>
+          </div>
+        </center>
+      }
       <center className={`py-4 px-4 w-100${isGuest ? ' mb-5' : ''}`}>
         <div id="menu" className={`text-start${isGuest ? ' is-guest' : ''}`}>
           {!isGuest ? (
@@ -405,10 +413,6 @@ function Welcome({ isGuest }) {
             />
           </center>
         </div>
-
-        {__ENV_APP__.MODE === 'development' ? (
-          <iframe ref={morphic} id="morphic" src="https://morphic-liard-nu.vercel.app" />
-        ) : null}
 
         <center className="taggy taggy2 taggy3">
           {categories && (
@@ -469,6 +473,9 @@ function Welcome({ isGuest }) {
           <>
             {users.length > 0 ? categoryGenerator('popular_bots', 'bots', 'Bots', users) : null}
             {rooms.length > 0 ? categoryGenerator('popular_rooms', 'rooms', 'Rooms', rooms) : null}
+            {spaces.length > 0
+              ? categoryGenerator('popular_spaces', 'spaces', 'Spaces', spaces)
+              : null}
           </>
         ) : (
           <>

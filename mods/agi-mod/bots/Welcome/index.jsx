@@ -95,86 +95,104 @@ function Welcome({ isGuest }) {
 
       // Loading Bot list
       const loadingFetch = () => {
-        fetch(`https://bots.${serverDomain}/botlist`, {
-          headers: {
-            Accept: 'application/json',
-          },
-        })
-          // Check network
-          .then((res) => {
-            if (!res.ok) {
-              throw new Error('Network response was not ok');
-            }
-            return res.json();
-          })
-
-          // Read Data
-          .then((newData) => {
-            // is Array
-            if (Array.isArray(newData)) {
-              // Prepare data
-              const rooms = [];
-              const listTags = [];
-              const listCategories = [];
-
-              // Get Data
-              for (const item in newData) {
-                // Is Object
-                if (objType(newData[item], 'object')) {
-                  // Get Tags
-                  if (Array.isArray(newData[item].tags)) {
-                    for (const item2 in newData[item].tags) {
-                      if (
-                        typeof newData[item].tags[item2] === 'string' &&
-                        listTags.indexOf(newData[item].tags[item2]) < 0
-                      ) {
-                        listTags.push(newData[item].tags[item2]);
-                      }
-                    }
-                  }
-
-                  // Get Category
-                  if (
-                    typeof newData[item].category === 'string' &&
-                    listCategories.indexOf(newData[item].category) < 0
-                  ) {
-                    listCategories.push(newData[item].category);
-                  }
-
-                  // Insert rooms
-                  rooms.push(newData[item]);
+        const fetchJSON = (url) =>
+          new Promise((resolve, reject) => {
+            fetch(url, {
+              headers: {
+                Accept: 'application/json',
+              },
+            })
+              // Check network
+              .then((res) => {
+                if (!res.ok) {
+                  throw new Error('Network response was not ok');
                 }
-              }
-
-              // Set data
-              setCategories(listCategories);
-              setList(listTags);
-              setRoomData(rooms);
-            }
-
-            // Error
-            else {
-              console.error(newData);
-              setCategories(null);
-              setList(null);
-              setRoomData(null);
-            }
-
-            setLoadingData(false);
-          })
-
-          // Error
-          .catch((err) => {
-            console.error(err);
-            alert(err.message);
-
-            if (!connectionTestTimeout) {
-              connectionTestTimeout = true;
-              setTimeout(() => {
-                setLoadingData(false);
-              }, 3000);
-            }
+                return res.json();
+              })
+              .then(resolve)
+              .catch(reject);
           });
+
+        const tinyError = (err) => {
+          console.error(err);
+          alert(err.message);
+
+          if (!connectionTestTimeout) {
+            connectionTestTimeout = true;
+            setTimeout(() => {
+              setLoadingData(false);
+            }, 3000);
+          }
+        };
+
+        fetchJSON(`https://bots.${serverDomain}/botlist`)
+          .then((botList) => {
+            fetchJSON(`https://bots.${serverDomain}/public`)
+              .then((publix) => {
+                // is Array
+                if (Array.isArray(botList) && Array.isArray(publix)) {
+                  // Prepare data
+                  const rooms = [];
+                  const listTags = [];
+                  const listCategories = [];
+
+                  const insertData = (item, where) => {
+                    // Is Object
+                    if (objType(where[item], 'object')) {
+                      // Get Tags
+                      if (Array.isArray(where[item].tags)) {
+                        for (const item2 in where[item].tags) {
+                          if (
+                            typeof where[item].tags[item2] === 'string' &&
+                            listTags.indexOf(where[item].tags[item2]) < 0
+                          ) {
+                            listTags.push(where[item].tags[item2]);
+                          }
+                        }
+                      }
+
+                      // Get Category
+                      if (
+                        typeof where[item].category === 'string' &&
+                        listCategories.indexOf(where[item].category) < 0
+                      ) {
+                        listCategories.push(where[item].category);
+                      }
+
+                      // Insert rooms
+                      rooms.push(where[item]);
+                    }
+                  };
+
+                  // Get Data
+                  for (const item in botList) {
+                    insertData(item, botList);
+                  }
+                  for (const item in publix) {
+                    insertData(item, publix);
+                  }
+
+                  // Set data
+                  setCategories(listCategories);
+                  setList(listTags);
+                  setRoomData(rooms);
+                }
+
+                // Error
+                else {
+                  console.error(botList);
+                  setCategories(null);
+                  setList(null);
+                  setRoomData(null);
+                }
+
+                setLoadingData(false);
+              })
+
+              // Error
+              .catch(tinyError);
+          })
+          .catch(tinyError);
       };
 
       // Execute script

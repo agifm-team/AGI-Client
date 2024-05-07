@@ -12,7 +12,7 @@ import { serverAddress } from '../socket';
 import { duplicatorAgent } from '../bots/PeopleSelector/lib';
 import { insertAgiAvatar } from '../lib';
 
-const userGenerator = (username, botid, nickname, avatar) =>
+const userGenerator = (data, username, botid, nickname, avatar) =>
   $('<div>', { class: 'room-tile' }).append(
     $('<div>', { class: 'room-tile__avatar' }).append(
       $('<div>', { class: 'avatar-container avatar-container__normal  noselect' }).append(
@@ -33,6 +33,7 @@ const userGenerator = (username, botid, nickname, avatar) =>
     $('<div>', { class: 'room-tile__options' }).append(
       $('<button>', { class: 'btn btn-primary btn-sm noselect', type: 'button' })
         .data('pony-house-username', username)
+        .data('pixx-bot-data', data)
         .text('Invite')
         .on('click', async (event) => {
           const userId = $(event.target).data('pony-house-username');
@@ -52,20 +53,21 @@ const userGenerator = (username, botid, nickname, avatar) =>
       $('<button>', { class: 'btn btn-primary btn-sm noselect ms-2', type: 'button' })
         .data('pony-house-username', username)
         .data('pony-house-botid', botid)
+        .data('pixx-bot-data', data)
         .text('Duplicate')
         .on('click', async (event) => {
           const userId = $(event.target).data('pony-house-username');
           const botId = $(event.target).data('pony-house-botid');
 
-          /* setLoadingPage();
-          duplicatorAgent(userId, botId)
+          setLoadingPage();
+          duplicatorAgent(data)
             .then(() => {
               setLoadingPage(false);
             })
             .catch((err) => {
               console.error(err);
               alert(err.message);
-            }); */
+            });
         }),
     ),
   );
@@ -110,6 +112,7 @@ const clickAIButton = () => {
               if (objType(user, 'object')) {
                 users.push(
                   userGenerator(
+                    data[item],
                     user.userId ?? userId,
                     data[item].id,
                     user.displayName
@@ -123,6 +126,7 @@ const clickAIButton = () => {
               } else {
                 users.push(
                   userGenerator(
+                    data[item],
                     userId,
                     data[item].id,
                     data[item].agent_name ? data[item].agent_name : userId,
@@ -133,7 +137,7 @@ const clickAIButton = () => {
             } catch (err) {
               // Error
               console.error(err);
-              users.push(userGenerator(data[item], null, data[item], defaultAvatar(1)));
+              users.push(userGenerator({}, data[item], null, data[item], defaultAvatar(1)));
             }
           }
         }

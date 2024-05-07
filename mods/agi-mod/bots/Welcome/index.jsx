@@ -12,6 +12,7 @@ import { serverDomain } from '../../socket';
 import ItemWelcome from './item';
 // import AgentCard from './AgentCard/AgentCard.jsx';
 import './custom.scss';
+import './logo.scss';
 
 /*
     <ChatRoomFrame roomId=`#imagegen:${serverDomain}` hsUrl={isGuest && `https://matrix.${serverDomain}`} className='m-3 border border-bg' refreshTime={1} />
@@ -416,20 +417,7 @@ function Welcome({ isGuest }) {
             </button>
           ) : null}
 
-          <center style={{ width: '100%', display: 'block' }}>
-            <img
-              src="./img/pixxel-logo/logo3.png"
-              alt="logo"
-              style={{
-                maxWidth: '50%',
-                width: 'auto',
-                height: 'auto',
-                display: 'block',
-                marginLeft: 'auto',
-                marginRight: 'auto',
-              }}
-            />
-          </center>
+          <center className="logo-page">AI Pixxels</center>
         </div>
 
         <center className="taggy taggy2 taggy3">

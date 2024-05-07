@@ -1,0 +1,96 @@
+.tiny-welcome {
+  .logo-page {
+    font-family: 'slkscr';
+    color: yellow !important;
+    margin-top: -70px;
+    margin-bottom: -40px;
+    font-size: 130pt;
+  }
+
+  @media (max-width: 1900px) {
+    .logo-page {
+      font-size: 100pt;
+      margin-top: -60px;
+      margin-bottom: -20px;
+    }
+  }
+
+  @media (max-width: 1400px) {
+    .logo-page {
+      font-size: 75pt;
+      margin-top: -50px;
+      margin-bottom: -10px;
+    }
+  }
+
+  @media (max-width: 1250px) {
+    .logo-page {
+      font-size: 52pt;
+      margin-top: -40px;
+      margin-bottom: 0px;
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .logo-page {
+      font-size: 32pt;
+      margin-top: -40px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .logo-page {
+      font-size: 52pt;
+      margin-top: -90px !important;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .logo-page {
+      font-size: 42pt;
+      margin-top: -70px !important;
+    }
+  }
+
+  @media (max-width: 500px) {
+    .logo-page {
+      font-size: 32pt;
+      margin-top: -60px !important;
+    }
+  }
+}
+
+.tiny-welcome.is-guest {
+  @media (max-width: 1250px) {
+    .logo-page {
+      font-size: 72pt;
+      margin-top: -50px;
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .logo-page {
+      font-size: 62pt;
+      margin-top: -40px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .logo-page {
+      font-size: 42pt;
+      margin-top: -30px !important;
+    }
+  }
+  @media (max-width: 640px) {
+    .logo-page {
+      margin-top: -30px !important;
+    }
+  }
+
+  @media (max-width: 500px) {
+    .logo-page {
+      font-size: 32pt;
+      margin-top: -60px !important;
+    }
+  }
+}

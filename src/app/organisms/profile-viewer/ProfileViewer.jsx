@@ -291,7 +291,7 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence
             variant="primary"
             onClick={async () => {
               setLoadingPage();
-              duplicatorAgent(userId, agentData.data.id)
+              duplicatorAgent(agentData.data)
                 .then(() => {
                   setLoadingPage(false);
                 })
@@ -434,7 +434,12 @@ function ProfileViewer() {
   const [isOpen, roomId, userId, closeDialog, handleAfterClose] = useToggleDialog();
   const [lightbox, setLightbox] = useState(false);
   const [lastUserId, setLastUserId] = useState(null);
-  const [agentData, setAgentData] = useState({ loading: false, data: null, err: null });
+  const [agentData, setAgentData] = useState({
+    loading: false,
+    data: null,
+    err: null,
+  });
+
   const [agentFullPrompt, setAgentFullPrompt] = useState(false);
 
   const userNameRef = useRef(null);

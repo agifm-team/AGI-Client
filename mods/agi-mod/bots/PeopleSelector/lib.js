@@ -1,31 +1,18 @@
+import clone from 'clone';
 import { serverDomain } from '@mods/agi-mod/socket';
 import initMatrix from '@src/client/initMatrix';
 
-export function duplicatorAgent(userId, botId) {
+export function duplicatorAgent(data) {
   return new Promise((resolve, reject) => {
     const username = initMatrix.matrixClient.getUserId();
-    /*
-    "desc": "My new workflow",
-    "name": "devin",
-    "tags": [
-      "devin"
-    ],
-    "type": "WORKFLOW",
-    "avatar_mxc": null,
-    "profile_photo": null,
-    "prompt": null,
-    "llmModel": null
-    */
+    const newData = clone(data);
+    // newData.username = username;
     fetch(`https://bots.${serverDomain}/agent/duplicate/${username}`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
       },
-      body: JSON.stringify({
-        username,
-        bot_username: userId,
-        id: botId,
-      }),
+      body: JSON.stringify(newData),
     })
       .then((res) => res.json())
       .then(resolve)

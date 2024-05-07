@@ -57,7 +57,7 @@ const userGenerator = (username, botid, nickname, avatar) =>
           const userId = $(event.target).data('pony-house-username');
           const botId = $(event.target).data('pony-house-botid');
 
-          setLoadingPage();
+          /* setLoadingPage();
           duplicatorAgent(userId, botId)
             .then(() => {
               setLoadingPage(false);
@@ -65,7 +65,7 @@ const userGenerator = (username, botid, nickname, avatar) =>
             .catch((err) => {
               console.error(err);
               alert(err.message);
-            });
+            }); */
         }),
     ),
   );

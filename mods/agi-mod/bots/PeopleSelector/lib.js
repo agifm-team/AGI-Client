@@ -1,7 +1,7 @@
 import { serverDomain } from '@mods/agi-mod/socket';
-// import initMatrix from '@src/client/initMatrix';
+import initMatrix from '@src/client/initMatrix';
 
-export function duplicatorAgent(userId, botId) {
+export function duplicatorAgent(botId) {
   return new Promise((resolve, reject) => {
     fetch(`https://bots.${serverDomain}/agent/duplicate`, {
       method: 'POST',
@@ -9,8 +9,7 @@ export function duplicatorAgent(userId, botId) {
         Accept: 'application/json',
       },
       body: JSON.stringify({
-        username: userId,
-        // author: initMatrix.matrixClient.getUserId(),
+        username: initMatrix.matrixClient.getUserId(),
         agent_id: botId,
       }),
     })

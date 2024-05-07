@@ -58,7 +58,7 @@ const userGenerator = (username, botid, nickname, avatar) =>
           const botId = $(event.target).data('pony-house-botid');
 
           setLoadingPage();
-          duplicatorAgent(userId, botId)
+          duplicatorAgent(botId)
             .then(() => {
               setLoadingPage(false);
             })

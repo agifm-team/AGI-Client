@@ -43,7 +43,13 @@ export const checkRoomAgents = (roomId) =>
         Accept: 'application/json',
       },
     })
-      .then((res) => res.json())
-      .then((data) => (objType(data, 'object') && Array.isArray(data.bots) ? data.bots : []))
+      .then(async (res) => {
+        try {
+          const data = await res.json();
+          resolve(objType(data, 'object') && Array.isArray(data.bots) ? data.bots : []);
+        } catch (err) {
+          reject(err);
+        }
+      })
       .catch(reject),
   );

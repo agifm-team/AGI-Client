@@ -43,19 +43,10 @@ const rainbowBorder = (chatroom, dreg = 124) => {
   });
 };
 
-function Welcome({ isGuest }) {
-  // Data
-  const [categories, setCategories] = useState(null); // [data, setData
-  const [list, setList] = useState(null); // [data, setData
-  const [tempSearch, setTempSearch] = useState('');
-  const [loadingData, setLoadingData] = useState(false);
+// Generator
+const CategoryGenerator = ({ type, title, citem, isGuest, setSelectedTag }) => {
 
-  const [data, setRoomData] = useState(null); // room data
-  const [dataTag, setSelectedTag] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState('fun');
-
-  // Generator
-  const categoryGenerator = (where, type, title, citem) => (
+  return (
     <>
       <hr />
       <h5 className="title mt-2 mb-3 h2">{title}</h5>
@@ -74,7 +65,20 @@ function Welcome({ isGuest }) {
         ))}
       </div>
     </>
-  );
+  )
+
+};
+
+function Welcome({ isGuest }) {
+  // Data
+  const [categories, setCategories] = useState(null); // [data, setData
+  const [list, setList] = useState(null); // [data, setData
+  const [tempSearch, setTempSearch] = useState('');
+  const [loadingData, setLoadingData] = useState(false);
+
+  const [data, setRoomData] = useState(null); // room data
+  const [dataTag, setSelectedTag] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('fun');
 
   // handleSearch
   const handleSearchChange = (event) => {
@@ -477,10 +481,10 @@ function Welcome({ isGuest }) {
 
         {!loadingData ? (
           <>
-            {users.length > 0 ? categoryGenerator('popular_bots', 'bots', 'Bots', users) : null}
-            {rooms.length > 0 ? categoryGenerator('popular_rooms', 'rooms', 'Rooms', rooms) : null}
+            {users.length > 0 ? <CategoryGenerator isGuest={isGuest} setSelectedTag={setSelectedTag} type='bots' title='Bots' citem={users} /> : null}
+            {rooms.length > 0 ? <CategoryGenerator isGuest={isGuest} setSelectedTag={setSelectedTag} type='rooms' title='Rooms' citem={rooms} /> : null}
             {spaces.length > 0
-              ? categoryGenerator('popular_spaces', 'spaces', 'Spaces', spaces)
+              ? <CategoryGenerator isGuest={isGuest} setSelectedTag={setSelectedTag} type='spaces' title='Spaces' citem={spaces} />
               : null}
           </>
         ) : (

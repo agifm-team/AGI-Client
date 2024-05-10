@@ -130,7 +130,14 @@ function PeopleDrawer({ roomId, isUserList, setIsUserList }) {
           membersData = membersWithMembership;
         }
 
-        checkRoomAgents(roomId)
+        const bots = [];
+        if (membersData) {
+          for (const item in membersData) {
+            if (membersData[item]) bots.push(membersData[item].userId);
+          }
+        }
+
+        checkRoomAgents(roomId, { bots })
           .then((data) => {
             setAgents(data);
             setMemberList(simplyfiMembers(membersData));

@@ -94,7 +94,10 @@ function PeopleSelector({
   */
 
   const defaultAvatar = avatarDefaultColor(colorMXID(user ? user.userId : 0));
-  const isAgent = user && Array.isArray(agents) ? agents.indexOf(user.userId) > -1 : false;
+  const isAgent =
+    user && agents && typeof agents[user.userId] === 'boolean' && agents[user.userId]
+      ? true
+      : false;
 
   return (
     <div className="card agent-button noselect" onClick={onClick} onContextMenu={contextMenu}>

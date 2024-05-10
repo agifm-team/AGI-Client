@@ -35,18 +35,19 @@ export function reconnectAgent(botUsername) {
   });
 }
 
-export const checkRoomAgents = (roomId) =>
+export const checkRoomAgents = (roomId, info) =>
   new Promise((resolve, reject) =>
     fetch(`https://bots.${serverDomain}/bots/${roomId}/check`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
       },
+      body: JSON.stringify(info),
     })
       .then(async (res) => {
         try {
           const data = await res.json();
-          resolve(objType(data, 'object') && Array.isArray(data.bots) ? data.bots : []);
+          resolve(objType(data, 'object') ? data : {});
         } catch (err) {
           reject(err);
         }

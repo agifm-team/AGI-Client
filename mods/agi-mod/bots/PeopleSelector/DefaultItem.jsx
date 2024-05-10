@@ -9,6 +9,7 @@ import initMatrix from '@src/client/initMatrix';
 import insertCustomStatus from '@src/app/molecules/people-selector/insertCustomStatus';
 import { getAnimatedImageUrl, getAppearance } from '@src/util/libs/appearance';
 import { colorMXID } from '@src/util/colorMXID';
+import { setLoadingPage } from '@src/app/templates/client/Loading';
 
 function PeopleSelector({
   avatarSrc,
@@ -21,10 +22,10 @@ function PeopleSelector({
   disableStatus,
   avatarSize,
   contextMenu,
+  agents,
 }) {
   const statusRef = useRef(null);
   const customStatusRef = useRef(null);
-  const restartButtonRef = useRef(null);
 
   const [imageAnimSrc, setImageAnimSrc] = useState(avatarAnimSrc);
   const [imageSrc, setImageSrc] = useState(avatarSrc);
@@ -40,10 +41,6 @@ function PeopleSelector({
   useEffect(() => {
     if (user) {
       const mx = initMatrix.matrixClient;
-
-      // Button
-      const restartButton = $(restartButtonRef.current);
-      const restartFunction = () => {};
 
       // Update Status Profile
       const updateProfileStatus = (mEvent, tinyData) => {
@@ -72,13 +69,11 @@ function PeopleSelector({
       };
 
       // Read Events
-      restartButton.on('click', restartFunction);
       user.on('User.avatarUrl', updateProfileStatus);
       user.on('User.currentlyActive', updateProfileStatus);
       user.on('User.lastPresenceTs', updateProfileStatus);
       user.on('User.presence', updateProfileStatus);
       return () => {
-        restartButton.off('click', restartFunction);
         user.removeListener('User.currentlyActive', updateProfileStatus);
         user.removeListener('User.lastPresenceTs', updateProfileStatus);
         user.removeListener('User.presence', updateProfileStatus);
@@ -99,6 +94,7 @@ function PeopleSelector({
   */
 
   const defaultAvatar = avatarDefaultColor(colorMXID(user ? user.userId : 0));
+  const isAgent = user ? agents.indexOf(user.userId) > -1 : false;
 
   return (
     <div className="card agent-button noselect" onClick={onClick} onContextMenu={contextMenu}>
@@ -121,9 +117,24 @@ function PeopleSelector({
         <h5 className="card-title small text-bg">
           <span className="bot-name">{twemojifyReact(name)}</span>
           <div className="float-end">
-            <button ref={restartButtonRef} className="btn btn-primary btn-sm my-1 d-none">
-              Restart
-            </button>
+            {user && isAgent ? (
+              <button
+                onClick={async () => {
+                  setLoadingPage();
+                  reconnectAgent(user.userId)
+                    .then(() => {
+                      setLoadingPage(false);
+                    })
+                    .catch((err) => {
+                      console.error(err);
+                      alert(err.message);
+                    });
+                }}
+                className="btn btn-primary btn-sm my-1"
+              >
+                Restart
+              </button>
+            ) : null}
           </div>
         </h5>
         <p className="bot-role card-text very-small text-bg-low">{peopleRole}</p>

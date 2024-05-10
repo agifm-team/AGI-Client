@@ -138,6 +138,7 @@ function PeopleDrawer({ roomId, isUserList, setIsUserList }) {
           .catch((err) => {
             alert(err.message);
             console.error(err);
+            setMemberList(simplyfiMembers(membersData));
           });
       }
 

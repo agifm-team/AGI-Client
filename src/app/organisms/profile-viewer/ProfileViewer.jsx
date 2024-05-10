@@ -291,7 +291,24 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence
             variant="primary"
             onClick={async () => {
               setLoadingPage();
-              duplicatorAgent(userId, agentData.data.id)
+              reconnectAgent(userId)
+                .then(() => {
+                  setLoadingPage(false);
+                })
+                .catch((err) => {
+                  console.error(err);
+                  alert(err.message);
+                });
+            }}
+          >
+            Restart
+          </Button>
+          <Button
+            className="me-2"
+            variant="primary"
+            onClick={async () => {
+              setLoadingPage();
+              duplicatorAgent(agentData.data)
                 .then(() => {
                   setLoadingPage(false);
                 })
@@ -303,27 +320,6 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence
           >
             Duplicate
           </Button>
-          {typeof tinyPresence.presence !== 'string' ||
-          tinyPresence.presence === 'offline' ||
-          tinyPresence.presence === 'invisible' ? (
-            <Button
-              className="me-2"
-              variant="primary"
-              onClick={async () => {
-                setLoadingPage();
-                reconnectAgent(userId)
-                  .then(() => {
-                    setLoadingPage(false);
-                  })
-                  .catch((err) => {
-                    console.error(err);
-                    alert(err.message);
-                  });
-              }}
-            >
-              Reconnect
-            </Button>
-          ) : null}
         </>
       ) : null}
 
@@ -434,7 +430,12 @@ function ProfileViewer() {
   const [isOpen, roomId, userId, closeDialog, handleAfterClose] = useToggleDialog();
   const [lightbox, setLightbox] = useState(false);
   const [lastUserId, setLastUserId] = useState(null);
-  const [agentData, setAgentData] = useState({ loading: false, data: null, err: null });
+  const [agentData, setAgentData] = useState({
+    loading: false,
+    data: null,
+    err: null,
+  });
+
   const [agentFullPrompt, setAgentFullPrompt] = useState(false);
 
   const userNameRef = useRef(null);

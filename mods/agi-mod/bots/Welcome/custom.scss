@@ -100,12 +100,30 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
     .btn {
       font-family: 'slkscr';
       color: yellow !important;
+      text-shadow:
+        2px 0 #000,
+        -2px 0 #000,
+        0 2px #000,
+        0 -2px #000,
+        1px 1px #000,
+        -1px -1px #000,
+        1px -1px #000,
+        -1px 1px #000;
     }
   }
 
   .title {
     font-family: 'slkscr';
     color: yellow !important;
+    text-shadow:
+      2px 0 #000,
+      -2px 0 #000,
+      0 2px #000,
+      0 -2px #000,
+      1px 1px #000,
+      -1px -1px #000,
+      1px -1px #000,
+      -1px 1px #000;
   }
 
   .bots {

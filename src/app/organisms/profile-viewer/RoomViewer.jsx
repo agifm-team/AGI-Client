@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 import { objType } from 'for-promise/utils/lib.mjs';
 
 import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
+import { setLoadingPage } from '@src/app/templates/client/Loading';
 import { twemojifyReact } from '../../../util/twemojify';
 import imageViewer from '../../../util/imageViewer';
 
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
-import { selectRoom, selectRoomMode } from '../../../client/action/navigation';
+import { selectRoom, selectRoomMode, selectTab } from '../../../client/action/navigation';
 import * as roomActions from '../../../client/action/room';
 
 import { getCurrentState, hasDMWith, hasDevices } from '../../../util/matrixUtil';
@@ -22,9 +23,7 @@ import Dialog from '../../molecules/dialog/Dialog';
 import copyText from './copyText';
 import tinyAPI from '../../../util/mods';
 
-function RoomFooter({ roomId, publicData, isSpace, room, onRequestClose }) {
-  const [isCreatingDM, setIsCreatingDM] = useState(false);
-
+function RoomFooter({ roomId, publicData, onRequestClose }) {
   const mx = initMatrix.matrixClient;
 
   const onCreated = (dmRoomId) => {
@@ -42,44 +41,40 @@ function RoomFooter({ roomId, publicData, isSpace, room, onRequestClose }) {
     };
   }, []);
 
-  const openDM = async () => {
-    // Check and open if room already have a DM with roomId.
-    const dmRoomId = hasDMWith(roomId);
-    if (dmRoomId) {
-      selectRoomMode('room');
-      selectRoom(dmRoomId);
-      onRequestClose();
-      return;
-    }
-
-    // Create new DM
-    try {
-      setIsCreatingDM(true);
-      await roomActions.createDM(roomId, await hasDevices(roomId));
-    } catch {
-      setIsCreatingDM(false);
-    }
-  };
-
-  // disabled={isCreatingDM}
-  /*
-        <Button className="me-2" variant="primary" onClick={openDM} disabled>
-        {isCreatingDM ? 'Creating room...' : 'Message'}
-      </Button>
-      */
   const isJoined = roomId
     ? initMatrix.matrixClient.getRoom(roomId)?.getMyMembership() === 'join'
     : null;
 
+  const openRoom = () => {
+    const room = initMatrix.matrixClient.getRoom(roomId);
+    if (room.isSpaceRoom()) selectTab(roomId, true);
+    else {
+      selectRoomMode('room');
+      selectRoom(roomId);
+    }
+  };
+  function handleViewRoom() {
+    openRoom();
+    onRequestClose();
+  }
+
+  async function joinRoom() {
+    onRequestClose();
+    setLoadingPage('Joining room...');
+    await roomActions.join(roomId, false);
+    setLoadingPage(false);
+    openRoom();
+  }
+
   return roomId ? (
     <>
       {isJoined && (
-        <Button onClick={() => {}} variant="secondary" disabled>
+        <Button onClick={handleViewRoom} variant="secondary">
           Open
         </Button>
       )}
       {!isJoined && (
-        <Button onClick={() => {}} variant="primary" disabled>
+        <Button onClick={joinRoom} variant="primary">
           Join
         </Button>
       )}

@@ -3,11 +3,13 @@ import PropTypes from 'prop-types';
 
 import { twemojifyReact } from '@src/util/twemojify';
 
-import Avatar from '@src/app/atoms/avatar/Avatar';
+import Avatar, { avatarDefaultColor } from '@src/app/atoms/avatar/Avatar';
 import { getUserStatus, updateUserStatusIcon, getPresence } from '@src/util/onlineStatus';
 import initMatrix from '@src/client/initMatrix';
 import insertCustomStatus from '@src/app/molecules/people-selector/insertCustomStatus';
 import { getAnimatedImageUrl, getAppearance } from '@src/util/libs/appearance';
+import { colorMXID } from '@src/util/colorMXID';
+import { setLoadingPage } from '@src/app/templates/client/Loading';
 
 function PeopleSelector({
   avatarSrc,
@@ -20,6 +22,7 @@ function PeopleSelector({
   disableStatus,
   avatarSize,
   contextMenu,
+  agents,
 }) {
   const statusRef = useRef(null);
   const customStatusRef = useRef(null);
@@ -49,7 +52,7 @@ function PeopleSelector({
         // Image
         const newImageSrc =
           tinyUser && tinyUser.avatarUrl
-            ? mx.mxcUrlToHttp(tinyUser.avatarUrl, avatarSize, avatarSize, 'crop')
+            ? mx.mxcUrlToHttp(tinyUser.avatarUrl, 100, 100, 'crop')
             : null;
         setImageSrc(newImageSrc);
 
@@ -57,9 +60,7 @@ function PeopleSelector({
           tinyUser && tinyUser.avatarUrl
             ? !appearanceSettings.enableAnimParams
               ? mx.mxcUrlToHttp(tinyUser.avatarUrl)
-              : getAnimatedImageUrl(
-                  mx.mxcUrlToHttp(tinyUser.avatarUrl, avatarSize, avatarSize, 'crop'),
-                )
+              : getAnimatedImageUrl(mx.mxcUrlToHttp(tinyUser.avatarUrl, 100, 100, 'crop'))
             : null;
         setImageAnimSrc(newImageAnimSrc);
 
@@ -81,10 +82,8 @@ function PeopleSelector({
     }
   }, [user]);
 
-  return (
-    <div className="card agent-button noselect" onClick={onClick} onContextMenu={contextMenu}>
-      <div className="avatar-place text-start my-3 mx-4">
-        <Avatar
+  /*
+          <Avatar
           imageAnimSrc={imageAnimSrc}
           imageSrc={imageSrc}
           text={name}
@@ -92,16 +91,54 @@ function PeopleSelector({
           size="small"
           isDefaultImage
         />
+  */
+
+  const defaultAvatar = avatarDefaultColor(colorMXID(user ? user.userId : 0));
+  /* const isAgent =
+    user && agents && typeof agents[user.userId] === 'boolean' && agents[user.userId]
+      ? true
+      : false; */
+  const isAgent = true;
+
+  return (
+    <div className="card agent-button noselect" onClick={onClick} onContextMenu={contextMenu}>
+      <div className="avatar-place text-start my-3 mx-4">
+        <img
+          src={avatarSrc || defaultAvatar}
+          className="img-fluid avatar rounded-circle"
+          draggable={false}
+          height={100}
+          width={100}
+          alt="avatar"
+        />
+        {!disableStatus ? (
+          <i ref={statusRef} className={`user-status-icon ${getUserStatus(user)}`} />
+        ) : (
+          ''
+        )}
       </div>
       <div className="button-place text-start card-body mt-0 pt-0">
         <h5 className="card-title small text-bg">
           <span className="bot-name">{twemojifyReact(name)}</span>
           <div className="float-end">
-            {!disableStatus ? (
-              <i ref={statusRef} className={`user-status-icon ${getUserStatus(user)}`} />
-            ) : (
-              ''
-            )}
+            {user && isAgent ? (
+              <button
+                onClick={async () => {
+                  setLoadingPage();
+                  reconnectAgent(user.userId)
+                    .then(() => {
+                      setLoadingPage(false);
+                    })
+                    .catch((err) => {
+                      console.error(err);
+                      alert(err.message);
+                    });
+                }}
+                className="btn btn-primary btn-sm my-1"
+              >
+                Restart
+              </button>
+            ) : null}
           </div>
         </h5>
         <p className="bot-role card-text very-small text-bg-low">{peopleRole}</p>

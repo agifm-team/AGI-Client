@@ -6,6 +6,7 @@ import { insertAgiAvatar } from '@mods/agi-mod/lib';
 // import initMatrix from '@src/client/initMatrix';
 import { objType } from 'for-promise/utils/lib.mjs';
 import { selectRoomMode } from '@src/client/action/navigation';
+import Button from '@src/app/atoms/button/Button';
 // import { ChatRoomFrame } from '@src/app/embed/ChatRoom';
 
 import { serverDomain } from '../../socket';
@@ -43,6 +44,47 @@ const rainbowBorder = (chatroom, dreg = 124) => {
   });
 };
 
+// Generator
+const CategoryGenerator = ({ type, title, citem, isGuest, setSelectedTag }) => {
+  const firstLimit = 3;
+  const notUsingLimit = citem.length < firstLimit;
+  const [isLimited, setIsLimited] = useState(true);
+  const [limitAmount, setLimitAmount] = useState(notUsingLimit ? citem.length : firstLimit);
+  let limitCounter = 0;
+
+  return (
+    <>
+      <hr />
+      <h5 className="title mt-2 mb-3 h2">{title}</h5>
+      <br />
+
+      <div className={`row welcome-card${isGuest ? ' guest' : ''}`}>
+        {citem.map((bot) => {
+          if (limitCounter < limitAmount || !isLimited) {
+            limitCounter++;
+            return (
+              <ItemWelcome
+                setSelectedTag={setSelectedTag}
+                isGuest={isGuest}
+                bot={bot}
+                type={type}
+                index={0}
+                itemsLength={bot.length}
+              />
+            );
+          }
+        })}
+      </div>
+
+      {!notUsingLimit && isLimited ? (
+        <Button variant="primary" size="lg" onClick={() => setIsLimited(false)}>
+          Show more
+        </Button>
+      ) : null}
+    </>
+  );
+};
+
 function Welcome({ isGuest }) {
   // Data
   const [categories, setCategories] = useState(null); // [data, setData
@@ -53,28 +95,6 @@ function Welcome({ isGuest }) {
   const [data, setRoomData] = useState(null); // room data
   const [dataTag, setSelectedTag] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('fun');
-
-  // Generator
-  const categoryGenerator = (where, type, title, citem) => (
-    <>
-      <hr />
-      <h5 className="title mt-2 mb-3 h2">{title}</h5>
-      <br />
-
-      <div className={`row welcome-card${isGuest ? ' guest' : ''}`}>
-        {citem.map((bot) => (
-          <ItemWelcome
-            setSelectedTag={setSelectedTag}
-            isGuest={isGuest}
-            bot={bot}
-            type={type}
-            index={0}
-            itemsLength={bot.length}
-          />
-        ))}
-      </div>
-    </>
-  );
 
   // handleSearch
   const handleSearchChange = (event) => {
@@ -477,11 +497,33 @@ function Welcome({ isGuest }) {
 
         {!loadingData ? (
           <>
-            {users.length > 0 ? categoryGenerator('popular_bots', 'bots', 'Bots', users) : null}
-            {rooms.length > 0 ? categoryGenerator('popular_rooms', 'rooms', 'Rooms', rooms) : null}
-            {spaces.length > 0
-              ? categoryGenerator('popular_spaces', 'spaces', 'Spaces', spaces)
-              : null}
+            {users.length > 0 ? (
+              <CategoryGenerator
+                isGuest={isGuest}
+                setSelectedTag={setSelectedTag}
+                type="bots"
+                title="Bots"
+                citem={users}
+              />
+            ) : null}
+            {rooms.length > 0 ? (
+              <CategoryGenerator
+                isGuest={isGuest}
+                setSelectedTag={setSelectedTag}
+                type="rooms"
+                title="Rooms"
+                citem={rooms}
+              />
+            ) : null}
+            {spaces.length > 0 ? (
+              <CategoryGenerator
+                isGuest={isGuest}
+                setSelectedTag={setSelectedTag}
+                type="spaces"
+                title="Spaces"
+                citem={spaces}
+              />
+            ) : null}
           </>
         ) : (
           <>

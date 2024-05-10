@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { checkRoomAgents } from '@mods/agi-mod/bots/PeopleSelector/lib';
 
 import initMatrix from '../../../client/initMatrix';
 import { getPowerLabel, getUsernameOfRoomMember } from '../../../util/matrixUtil';
@@ -62,6 +63,7 @@ function PeopleDrawer({ roomId, isUserList, setIsUserList }) {
   const [itemCount, setItemCount] = useState(PER_PAGE_MEMBER);
   const [membership, setMembership] = useState(defaultMembership);
   const [memberList, setMemberList] = useState([]);
+  const [agents, setAgents] = useState([]);
   const [searchedMembers, setSearchedMembers] = useState(null);
   const searchRef = useRef(null);
 
@@ -128,7 +130,23 @@ function PeopleDrawer({ roomId, isUserList, setIsUserList }) {
           membersData = membersWithMembership;
         }
 
-        setMemberList(simplyfiMembers(membersData));
+        const bots = [];
+        if (membersData) {
+          for (const item in membersData) {
+            if (membersData[item]) bots.push(membersData[item].userId);
+          }
+        }
+
+        checkRoomAgents(roomId, { bots })
+          .then((data) => {
+            setAgents(data);
+            setMemberList(simplyfiMembers(membersData));
+          })
+          .catch((err) => {
+            alert(err.message);
+            console.error(err);
+            setMemberList(simplyfiMembers(membersData));
+          });
       }
 
       // Custom
@@ -241,6 +259,7 @@ function PeopleDrawer({ roomId, isUserList, setIsUserList }) {
             !member.customSelector ? (
               isUserList ? (
                 <PeopleSelector
+                  agents={agents}
                   avatarSize={72}
                   key={member.userId}
                   user={mx.getUser(member.userId)}
@@ -265,6 +284,7 @@ function PeopleDrawer({ roomId, isUserList, setIsUserList }) {
               ) : member.userId !== mx.getUserId() ? (
                 <PeopleSelectorBanner
                   key={member.userId}
+                  agents={agents}
                   roomId={roomId}
                   user={mx.getUser(member.userId)}
                   name={member.name}
@@ -276,6 +296,7 @@ function PeopleDrawer({ roomId, isUserList, setIsUserList }) {
               )
             ) : (
               <member.customSelector
+                agents={agents}
                 key={member.userId}
                 user={mx.getUser(member.userId)}
                 onClick={() =>

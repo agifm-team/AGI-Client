@@ -5,6 +5,15 @@
     margin-top: -70px;
     margin-bottom: -40px;
     font-size: 130pt;
+    text-shadow:
+      8px 0 #000,
+      -8px 0 #000,
+      0 8px #000,
+      0 -8px #000,
+      4px 4px #000,
+      -4px -4px #000,
+      4px -4px #000,
+      -4px 4px #000;
   }
 
   @media (max-width: 1900px) {
@@ -20,6 +29,15 @@
       font-size: 75pt;
       margin-top: -50px;
       margin-bottom: -10px;
+      text-shadow:
+        4px 0 #000,
+        -4px 0 #000,
+        0 4px #000,
+        0 -4px #000,
+        2px 2px #000,
+        -2px -2px #000,
+        2px -2px #000,
+        -2px 2px #000;
     }
   }
 

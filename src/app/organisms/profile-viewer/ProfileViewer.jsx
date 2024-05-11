@@ -237,9 +237,11 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence
     try {
       setIsCreatingDM(true);
       await roomActions.createDM(userId, await hasDevices(userId));
-    } catch {
+    } catch (err) {
       if (isMountedRef.current === false) return;
       setIsCreatingDM(false);
+      console.error(err);
+      alert(err.message);
     }
   };
 

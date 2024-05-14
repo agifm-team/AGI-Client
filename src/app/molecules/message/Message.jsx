@@ -1399,6 +1399,10 @@ function Message({
     forceUpdate();
   });
 
+  mEvent.once(MatrixEventEvent.Replaced, () => {
+    forceUpdate();
+  });
+
   const color = colorMXID(senderId);
   const username = muteUserManager.getMessageName(mEvent, isDM);
   const avatarSrc =

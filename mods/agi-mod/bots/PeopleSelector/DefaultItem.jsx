@@ -99,6 +99,8 @@ function PeopleSelector({
       ? true
       : false; */
   const isAgent = true;
+  let newName = typeof name === 'string' ? name.split(':')[0] : '';
+  if (newName.startsWith('@')) newName = newName.substring(1);
 
   return (
     <div className="card agent-button noselect" onClick={onClick} onContextMenu={contextMenu}>
@@ -119,7 +121,7 @@ function PeopleSelector({
       </div>
       <div className="button-place text-start card-body mt-0 pt-0">
         <h5 className="card-title small text-bg">
-          <span className="bot-name">{twemojifyReact(name)}</span>
+          <span className="bot-name">{twemojifyReact(newName)}</span>
           <div className="float-end">
             {user && isAgent ? (
               <button

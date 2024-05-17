@@ -62,6 +62,8 @@ function PeopleSelector({ avatarSrc, name, user, peopleRole /* , customData */ }
     };
   });
 
+  let newName = typeof name === 'string' ? name.split(':')[0] : '';
+  if (newName.startsWith('@')) newName = newName.substring(1);
   return peopleRole !== 'divisor' ? (
     <div ref={profileButtonRef} className="card agent-button noselect">
       <div className="avatar-place text-start my-3 mx-4">
@@ -76,7 +78,7 @@ function PeopleSelector({ avatarSrc, name, user, peopleRole /* , customData */ }
       </div>
       <div className="button-place text-start card-body mt-0 pt-0">
         <h5 className="card-title small text-bg">
-          <span className="bot-name">{twemojifyReact(name)}</span>
+          <span className="bot-name">{twemojifyReact(newName)}</span>
           <div className="float-end">
             <button ref={buttonRef} className="btn btn-primary btn-sm my-1">
               Invite

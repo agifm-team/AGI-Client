@@ -218,15 +218,15 @@ function PeopleDrawer({
         onMouseEnter={
           isHoverSidebar
             ? () => {
-              if (isHoverSidebar) $('body').addClass('people-drawer-hover');
-            }
+                if (isHoverSidebar) $('body').addClass('people-drawer-hover');
+              }
             : null
         }
         onMouseLeave={
           isHoverSidebar
             ? () => {
-              if (isHoverSidebar) $('body').removeClass('people-drawer-hover');
-            }
+                if (isHoverSidebar) $('body').removeClass('people-drawer-hover');
+              }
             : null
         }
       >
@@ -295,9 +295,13 @@ function PeopleDrawer({
                         : member.customClick()
                     }
                     contextMenu={(e) => {
-                      openReusableContextMenu('bottom', getEventCords(e, '.ic-btn'), (closeMenu) => (
-                        <UserOptions userId={member.userId} afterOptionSelect={closeMenu} />
-                      ));
+                      openReusableContextMenu(
+                        'bottom',
+                        getEventCords(e, '.ic-btn'),
+                        (closeMenu) => (
+                          <UserOptions userId={member.userId} afterOptionSelect={closeMenu} />
+                        ),
+                      );
 
                       e.preventDefault();
                     }}
@@ -383,15 +387,15 @@ function PeopleDrawer({
         onMouseEnter={
           isHoverSidebar
             ? () => {
-              if (isHoverSidebar) $('body').addClass('people-drawer-hover');
-            }
+                if (isHoverSidebar) $('body').addClass('people-drawer-hover');
+              }
             : null
         }
         onMouseLeave={
           isHoverSidebar
             ? () => {
-              if (isHoverSidebar) $('body').removeClass('people-drawer-hover');
-            }
+                if (isHoverSidebar) $('body').removeClass('people-drawer-hover');
+              }
             : null
         }
       >

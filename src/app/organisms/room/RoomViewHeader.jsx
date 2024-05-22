@@ -22,7 +22,10 @@ import {
   openNavigation,
   selectRoomMode,
 } from '../../../client/action/navigation';
-import { togglePeopleDrawer /* , startVoiceChat */ } from '../../../client/action/settings';
+import {
+  toggleNavigationSidebarHidden,
+  togglePeopleDrawer /* , startVoiceChat */,
+} from '../../../client/action/settings';
 import { colorMXID } from '../../../util/colorMXID';
 import { getEventCords } from '../../../util/common';
 
@@ -44,10 +47,6 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
   const mx = initMatrix.matrixClient;
   const isDM = initMatrix.roomList && initMatrix.roomList.directs.has(roomId);
   const room = !roomItem ? mx.getRoom(roomId) : roomItem;
-
-  const [navigationSidebarHidden, setNavigationSidebarHidden] = useState(
-    settings.getIsNavigationSidebarHidden(),
-  );
 
   const getAvatarUrl = () =>
     isDM
@@ -113,33 +112,14 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
   //       <IconButton className="room-header__drawer-btn" onClick={startVoiceChat} tooltip="Start VC" fa="fa-solid fa-phone" />
 
   setTimeout(forceUnloadedAvatars, 200);
-
-  const navigationSidebarCallback = (value) => {
+  const navigationSidebarCallback = () => {
     if (window.matchMedia('screen and (max-width: 768px)').matches) {
       selectRoomMode('navigation');
       openNavigation();
     } else {
-      navigationSidebarSet(value);
+      toggleNavigationSidebarHidden();
     }
   };
-
-  const navigationSidebarSet = (value = null) => {
-    if (typeof value !== 'boolean') {
-      if (!navigationSidebarHidden) {
-        $('body').removeClass('disable-navigation-wrapper');
-        setNavigationSidebarHidden(true);
-      } else {
-        $('body').addClass('disable-navigation-wrapper');
-        setNavigationSidebarHidden(false);
-      }
-    } else if (!value) {
-      $('body').removeClass('disable-navigation-wrapper');
-    } else {
-      $('body').addClass('disable-navigation-wrapper');
-    }
-  };
-
-  navigationSidebarSet(!navigationSidebarHidden);
 
   // pixx.co.settings.embeds
   const [pixxEmbeds, setPixxEmbeds] = useState({});

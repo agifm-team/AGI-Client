@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+
+import settings from '@src/client/state/settings';
+
 import * as linkify from 'linkifyjs';
 
 import { objType } from 'for-promise/utils/lib.mjs';
@@ -41,6 +44,10 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
   const mx = initMatrix.matrixClient;
   const isDM = initMatrix.roomList && initMatrix.roomList.directs.has(roomId);
   const room = !roomItem ? mx.getRoom(roomId) : roomItem;
+
+  const [navigationSidebarHidden, setNavigationSidebarHidden] = useState(
+    settings.getIsNavigationSidebarHidden(),
+  );
 
   const getAvatarUrl = () =>
     isDM
@@ -107,47 +114,32 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
 
   setTimeout(forceUnloadedAvatars, 200);
 
-  const navigationSidebarCallback = () => {
+  const navigationSidebarCallback = (value) => {
     if (window.matchMedia('screen and (max-width: 768px)').matches) {
       selectRoomMode('navigation');
       openNavigation();
-    } else if ($('body').hasClass('disable-navigation-wrapper')) {
+    } else {
+      navigationSidebarSet(value);
+    }
+  };
+
+  const navigationSidebarSet = (value = null) => {
+    if (typeof value !== 'boolean') {
+      if (!navigationSidebarHidden) {
+        $('body').removeClass('disable-navigation-wrapper');
+        setNavigationSidebarHidden(true);
+      } else {
+        $('body').addClass('disable-navigation-wrapper');
+        setNavigationSidebarHidden(false);
+      }
+    } else if (!value) {
       $('body').removeClass('disable-navigation-wrapper');
     } else {
       $('body').addClass('disable-navigation-wrapper');
     }
   };
 
-  // pixx.co.settings.embeds
-  const [pixxEmbeds, setPixxEmbeds] = useState({});
-  const [expandPixxIframe, setExpandPixxIframe] = useState(false);
-  useEffect(() => {
-    const handleEvent = (event) => {
-      if (event.getType() !== 'pixx.co.settings.embeds') return;
-      setPixxEmbeds({ data: newEvent.getContent() ?? {}, roomId });
-    };
-
-    if (pixxEmbeds.roomId !== roomId) {
-      setPixxEmbeds({
-        data:
-          getCurrentState(room).getStateEvents('pixx.co.settings.embeds')[0]?.getContent() ?? {},
-        roomId,
-      });
-    }
-
-    mx.on('RoomState.events', handleEvent);
-    return () => {
-      mx.removeListener('RoomState.events', handleEvent);
-    };
-  });
-
-  const pixxEmbedVisible =
-    objType(pixxEmbeds.data, 'object') &&
-    pixxEmbeds.roomId === roomId &&
-    pixxEmbeds.data.visible &&
-    typeof pixxEmbeds.data.value === 'string' &&
-    linkify.test(pixxEmbeds.data.value) &&
-    (pixxEmbeds.data.value.startsWith('http://') || pixxEmbeds.data.value.startsWith('https://'));
+  navigationSidebarSet(!navigationSidebarHidden);
 
   return (
     <>
@@ -222,148 +214,122 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
 
         {!disableActions ? (
           <ul className="navbar-nav ms-auto mb-0 small" id="room-options">
-            <li className="nav-item">
-              <IconButton
-                className="nav-link btn btn-bg border-0"
-                onClick={() => {
-                  const agiSettings =
-                    getCurrentState(room)
-                      .getStateEvents('pixx.co.settings.embeds')[0]
-                      ?.getContent() ?? {};
-
-                  agiSettings.visible =
-                    typeof agiSettings.visible !== 'boolean' || agiSettings.visible === false
-                      ? true
-                      : false;
-                  setPixxEmbeds({ data: agiSettings, roomId });
-                  mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', agiSettings);
-                }}
-                tooltipPlacement="bottom"
-                tooltip={`${
-                  objType(pixxEmbeds.data, 'object') &&
-                  pixxEmbeds.roomId === roomId &&
-                  pixxEmbeds.data.visible
-                    ? 'Hide'
-                    : 'Show'
-                } Embed`}
-                fa={`fa-solid fa-${pixxEmbedVisible ? 'window-minimize' : 'window-restore'}`}
-              />
-            </li>
-            {getCurrentState(room).maySendStateEvent('pixx.co.settings.embeds', mx.getUserId()) ? (
-              <li className="nav-item">
-                <IconButton
-                  className="nav-link btn btn-bg border-0"
-                  onClick={async () => {
-                    const agiSettings = getCurrentState(room)
-                      .getStateEvents('pixx.co.settings.embeds')[0]
-                      ?.getContent();
-
-                    const value = await tinyPrompt('Enter the embed url:', 'Embed Url', {
-                      value: objType(agiSettings, 'object') ? agiSettings.value : null,
-                    });
-                    if (value !== null) {
-                      const newEvent = { value };
-                      setPixxEmbeds({ data: newEvent, roomId });
-                      mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', newEvent);
-                    }
-                  }}
-                  tooltipPlacement="bottom"
-                  tooltip="Embed Widget"
-                  fa="fa-solid fa-plus"
-                />
-              </li>
-            ) : null}
-
             {mx.isRoomEncrypted(roomId) === false && (
               <>
                 <li className="nav-item">
                   <IconButton
                     className="nav-link btn btn-bg border-0"
-                    onClick={() => toggleRoomSettings(tabText.SEARCH)}
+                    onClick={async () => {
+                      const agiSettings = getCurrentState(room)
+                        .getStateEvents('pixx.co.settings.embeds')[0]
+                        ?.getContent();
+
+                      const value = await tinyPrompt('Enter the embed url:', 'Embed Url', {
+                        value: objType(agiSettings, 'object') ? agiSettings.value : null,
+                      });
+                      if (value !== null) {
+                        const newEvent = { value };
+                        setPixxEmbeds({ data: newEvent, roomId });
+                        mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', newEvent);
+                      }
+                    }}
                     tooltipPlacement="bottom"
-                    tooltip="Search"
-                    fa="fa-solid fa-magnifying-glass"
+                    tooltip="Embed Widget"
+                    fa="fa-solid fa-plus"
+                  />
+                </li>
+            ) : null}
+
+                {mx.isRoomEncrypted(roomId) === false && (
+                  <>
+                    <li className="nav-item">
+                      <IconButton
+                        className="nav-link btn btn-bg border-0"
+                        onClick={() => toggleRoomSettings(tabText.SEARCH)}
+                        tooltipPlacement="bottom"
+                        tooltip="Search"
+                        fa="fa-solid fa-magnifying-glass"
+                      />
+                    </li>
+
+                    <li className="nav-item">
+                      <IconButton
+                        className="nav-link border-0 d-none d-sm-block"
+                        onClick={() => openThreadsMessageModal(room)}
+                        tooltipPlacement="bottom"
+                        tooltip="Threads"
+                        fa="bi bi-layers"
+                      />
+                    </li>
+
+                    <li className="nav-item">
+                      <IconButton
+                        className="nav-link border-0 d-none d-sm-block"
+                        onClick={() => openPinMessageModal(room)}
+                        tooltipPlacement="bottom"
+                        tooltip="Pinned Messages"
+                        fa="bi bi-pin-angle-fill"
+                      />
+                    </li>
+                  </>
+                )}
+
+                <li className="nav-item">
+                  <IconButton
+                    className="nav-link border-0 d-none d-sm-block"
+                    onClick={togglePeopleDrawer}
+                    tooltipPlacement="bottom"
+                    tooltip="People"
+                    fa="fa-solid fa-user"
+                  />
+                </li>
+                <li className="nav-item">
+                  <IconButton
+                    className="nav-link border-0 d-none d-sm-block"
+                    onClick={() => toggleRoomSettings(tabText.MEMBERS)}
+                    tooltipPlacement="bottom"
+                    tooltip="Members"
+                    fa="fa-solid fa-users"
                   />
                 </li>
 
                 <li className="nav-item">
                   <IconButton
-                    className="nav-link border-0 d-none d-sm-block"
-                    onClick={() => openThreadsMessageModal(room)}
                     tooltipPlacement="bottom"
-                    tooltip="Threads"
-                    fa="bi bi-layers"
+                    className="nav-link border-0"
+                    onClick={openRoomOptions}
+                    tooltip="Options"
+                    fa="bi bi-three-dots-vertical"
                   />
                 </li>
-
-                <li className="nav-item">
-                  <IconButton
-                    className="nav-link border-0 d-none d-sm-block"
-                    onClick={() => openPinMessageModal(room)}
-                    tooltipPlacement="bottom"
-                    tooltip="Pinned Messages"
-                    fa="bi bi-pin-angle-fill"
-                  />
-                </li>
-              </>
-            )}
-
-            <li className="nav-item">
-              <IconButton
-                className="nav-link border-0 d-none d-sm-block"
-                onClick={togglePeopleDrawer}
-                tooltipPlacement="bottom"
-                tooltip="People"
-                fa="fa-solid fa-user"
-              />
-            </li>
-            <li className="nav-item">
-              <IconButton
-                className="nav-link border-0 d-none d-sm-block"
-                onClick={() => toggleRoomSettings(tabText.MEMBERS)}
-                tooltipPlacement="bottom"
-                tooltip="Members"
-                fa="fa-solid fa-users"
-              />
-            </li>
-
-            <li className="nav-item">
-              <IconButton
-                tooltipPlacement="bottom"
-                className="nav-link border-0"
-                onClick={openRoomOptions}
-                tooltip="Options"
-                fa="bi bi-three-dots-vertical"
-              />
-            </li>
-          </ul>
+              </ul>
         ) : null}
-      </Header>
+          </Header>
 
       {pixxEmbedVisible ? (
-        <>
-          <div className="pixx-embed-expand">
-            <Button
-              variant="primary"
-              type="button"
-              faSrc="fa-solid fa-expand"
-              onClick={() => setExpandPixxIframe(!expandPixxIframe)}
+          <>
+            <div className="pixx-embed-expand">
+              <Button
+                variant="primary"
+                type="button"
+                faSrc="fa-solid fa-expand"
+                onClick={() => setExpandPixxIframe(!expandPixxIframe)}
+              />
+            </div>
+            <iframe
+              className={`pixx-embed${!expandPixxIframe ? '' : ' expand-embed'}`}
+              alt="pixx embed"
+              src={pixxEmbeds.data.value}
             />
-          </div>
-          <iframe
-            className={`pixx-embed${!expandPixxIframe ? '' : ' expand-embed'}`}
-            alt="pixx embed"
-            src={pixxEmbeds.data.value}
-          />
-        </>
-      ) : null}
-    </>
-  );
+          </>
+        ) : null}
+      </>
+      );
 }
 
-RoomViewHeader.propTypes = {
-  roomId: PropTypes.string.isRequired,
-  disableActions: PropTypes.bool,
+      RoomViewHeader.propTypes = {
+        roomId: PropTypes.string.isRequired,
+      disableActions: PropTypes.bool,
 };
 
-export default RoomViewHeader;
+      export default RoomViewHeader;

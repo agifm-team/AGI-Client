@@ -253,7 +253,7 @@ function Client() {
   const tinyMod = <Mods />;
 
   resizeWindowChecker();
-  const classesDragDrop = [];
+  const classesDragDrop = ['navigation-tiny-base'];
   if (sidebarTransition) classesDragDrop.push('use-transition-sidebar');
   if (isHoverSidebar) classesDragDrop.push('use-hover-sidebar');
 

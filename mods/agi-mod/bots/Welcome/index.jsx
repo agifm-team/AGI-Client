@@ -7,6 +7,8 @@ import { insertAgiAvatar } from '@mods/agi-mod/lib';
 import { objType } from 'for-promise/utils/lib.mjs';
 import { selectRoomMode } from '@src/client/action/navigation';
 import Button from '@src/app/atoms/button/Button';
+import { rca } from '@src/util/libs/rainbowText';
+import { shuffleArray } from '@src/util/tools';
 // import { ChatRoomFrame } from '@src/app/embed/ChatRoom';
 
 import { serverDomain } from '../../socket';
@@ -320,6 +322,9 @@ function Welcome({ isGuest }) {
         </div>
   */
 
+  const rainbowData = shuffleArray(rca(24, 'hex'));
+  let color = 1;
+
   // Result
   return (
     <div className={`tiny-welcome border-0 h-100 noselect${isGuest ? ' is-guest' : ''}`}>
@@ -475,22 +480,36 @@ function Welcome({ isGuest }) {
           {list && (
             <>
               <button
-                className={`btn taggyButton btn-bg very-small border${dataTag === null ? ' active' : ''} text-lowercase`}
+                className={`btn taggyButton very-small ${dataTag === null ? ' active' : ''} text-lowercase`}
                 key="CLEAR_ALL"
+                style={{
+                  color: `#${rainbowData[0].hex}`,
+                  border: `var(--bs-border-width) var(--bs-border-style) #${rainbowData[0].hex}`,
+                }}
                 onClick={() => setSelectedTag(null)}
               >
                 all
               </button>
 
-              {list.map((tag) => (
-                <button
-                  className={`btn taggyButton btn-bg very-small border${typeof dataTag === 'string' && dataTag === tag ? ' active' : ''} text-lowercase`}
-                  key={tag}
-                  onClick={() => setSelectedTag(tag)}
-                >
-                  {tag}
-                </button>
-              ))}
+              {list.map((tag) => {
+                if (!rainbowData[color]) color = 0;
+                const tinyColor = rainbowData[color].hex;
+                color++;
+
+                return (
+                  <button
+                    className={`btn taggyButton very-small ${typeof dataTag === 'string' && dataTag === tag ? ' active' : ''} text-lowercase`}
+                    style={{
+                      color: `#${tinyColor}`,
+                      borderColor: `var(--bs-border-width) var(--bs-border-style) #${tinyColor}`,
+                    }}
+                    key={tag}
+                    onClick={() => setSelectedTag(tag)}
+                  >
+                    {tag}
+                  </button>
+                );
+              })}
             </>
           )}
         </center>

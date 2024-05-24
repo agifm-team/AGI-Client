@@ -169,10 +169,16 @@ export default defineConfig(({ command, mode }) => {
     USE_CUSTOM_EMOJIS: !!(env.USE_CUSTOM_EMOJIS === true || env.USE_CUSTOM_EMOJIS === 'true'),
     USE_ANIM_PARAMS: !!(env.USE_ANIM_PARAMS === true || env.USE_ANIM_PARAMS === 'true'),
 
+    PEOPLE_DRAWER_HIDDEN: !!(env.PEOPLE_DRAWER_HIDDEN === true || env.PEOPLE_DRAWER_HIDDEN === 'true'),
+    NAVIGATION_SIDEBAR_HIDDEN: !!(env.NAVIGATION_SIDEBAR_HIDDEN === true || env.NAVIGATION_SIDEBAR_HIDDEN === 'true'),
+
     EMBED_PARALLEL_LOAD: !!(env.EMBED_PARALLEL_LOAD === true || env.EMBED_PARALLEL_LOAD === 'true'),
 
     AUTO_ENCRYPT_CREATE_DM: !!(env.AUTO_ENCRYPT_CREATE_DM === true || env.AUTO_ENCRYPT_CREATE_DM === 'true'),
     DISABLE_ENCRYPT_SETTINGS: !!(env.DISABLE_ENCRYPT_SETTINGS === true || env.DISABLE_ENCRYPT_SETTINGS === 'true'),
+
+    HOVER_SIDEBAR: !!(env.HOVER_SIDEBAR === true || env.HOVER_SIDEBAR === 'true'),
+    SIDEBAR_TRANSITION: !!(env.SIDEBAR_TRANSITION === true || env.SIDEBAR_TRANSITION === 'true'),
 
     LOGIN: {
       DEFAULT_HOMESERVER: Number(env.DEFAULT_HOMESERVER),

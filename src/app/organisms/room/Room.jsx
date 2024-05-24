@@ -3,6 +3,7 @@ import clone from 'clone';
 import { objType } from 'for-promise/utils/lib.mjs';
 
 import blobUrlManager from '@src/util/libs/blobUrlManager';
+import matrixAppearance from '@src/util/libs/appearance';
 
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
@@ -34,6 +35,11 @@ function Room() {
 
   const [roomInfo, setRoomInfo] = useState(defaultRoomInfo);
   tinyAPI.emit('setRoomInfo', defaultRoomInfo);
+
+  const [isHoverSidebar, setIsHoverSidebar] = useState(matrixAppearance.get('hoverSidebar'));
+  const [sidebarTransition, setSidebarTransition] = useState(
+    matrixAppearance.get('sidebarTransition'),
+  );
 
   const [isDrawer, setIsDrawer] = useState(settings.isPeopleDrawer);
   const [isUserList, setIsUserList] = useState(true);
@@ -139,8 +145,14 @@ function Room() {
 
   useEffect(() => {
     const handleDrawerToggling = (visiblity) => setIsDrawer(visiblity);
+    const handleHoverSidebar = (visiblity) => setIsHoverSidebar(visiblity);
+    const handleHoverSidebarEffect = (visiblity) => setSidebarTransition(visiblity);
+    matrixAppearance.on('sidebarTransition', handleHoverSidebarEffect);
+    matrixAppearance.on('hoverSidebar', handleHoverSidebar);
     settings.on(cons.events.settings.PEOPLE_DRAWER_TOGGLED, handleDrawerToggling);
     return () => {
+      matrixAppearance.off('hoverSidebar', handleHoverSidebar);
+      matrixAppearance.off('sidebarTransition', handleHoverSidebarEffect);
       settings.removeListener(cons.events.settings.PEOPLE_DRAWER_TOGGLED, handleDrawerToggling);
     };
   }, []);
@@ -154,8 +166,11 @@ function Room() {
 
   // Checker is User List
   const cloneIsUserList = clone(isUserList);
-  const peopleDrawer = isDrawer && (
+  const peopleDrawer = (isDrawer || isHoverSidebar || sidebarTransition) && (
     <PeopleDrawer
+      isDrawer={isDrawer}
+      sidebarTransition={sidebarTransition}
+      isHoverSidebar={isHoverSidebar}
       isUserList={isUserList}
       setIsUserList={setIsUserList}
       roomId={roomTimeline.roomId}

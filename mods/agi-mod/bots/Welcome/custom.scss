@@ -77,7 +77,7 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
   }
   .taggy {
     .taggyButton {
-      color: var(--button-text-color);
+      font-family: 'slkscr';
       background-color: var(--button-background-color);
 
       border-radius: 50px;

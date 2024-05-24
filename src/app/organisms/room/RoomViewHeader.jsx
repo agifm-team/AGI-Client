@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+
+import settings from '@src/client/state/settings';
+
 import * as linkify from 'linkifyjs';
 
 import { objType } from 'for-promise/utils/lib.mjs';
@@ -19,7 +22,10 @@ import {
   openNavigation,
   selectRoomMode,
 } from '../../../client/action/navigation';
-import { togglePeopleDrawer /* , startVoiceChat */ } from '../../../client/action/settings';
+import {
+  toggleNavigationSidebarHidden,
+  togglePeopleDrawer /* , startVoiceChat */,
+} from '../../../client/action/settings';
 import { colorMXID } from '../../../util/colorMXID';
 import { getEventCords } from '../../../util/common';
 
@@ -106,15 +112,12 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
   //       <IconButton className="room-header__drawer-btn" onClick={startVoiceChat} tooltip="Start VC" fa="fa-solid fa-phone" />
 
   setTimeout(forceUnloadedAvatars, 200);
-
   const navigationSidebarCallback = () => {
     if (window.matchMedia('screen and (max-width: 768px)').matches) {
       selectRoomMode('navigation');
       openNavigation();
-    } else if ($('body').hasClass('disable-navigation-wrapper')) {
-      $('body').removeClass('disable-navigation-wrapper');
     } else {
-      $('body').addClass('disable-navigation-wrapper');
+      toggleNavigationSidebarHidden();
     }
   };
 

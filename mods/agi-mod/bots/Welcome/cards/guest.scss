@@ -1,4 +1,5 @@
-.is-guest .welcome-card.guest {
+.is-guest .welcome-card.guest,
+body:not(.navigation-wrapper-hover) .welcome-card {
   .citem {
     .card-img-overlay {
       height: 200px;

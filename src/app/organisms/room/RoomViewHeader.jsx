@@ -156,23 +156,24 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
     <>
       <Header>
         <ul className="navbar-nav mr-auto">
-          {!disableActions ? (<li className="nav-item back-navigation">
-            <IconButton
-              className="nav-link nav-sidebar-1"
-              fa="fa-solid fa-chevron-left"
-              tooltip="Navigation sidebar"
-              tooltipPlacement="bottom"
-              onClick={navigationSidebarCallback}
-            />
+          {!disableActions ? (
+            <li className="nav-item back-navigation">
+              <IconButton
+                className="nav-link nav-sidebar-1"
+                fa="fa-solid fa-chevron-left"
+                tooltip="Navigation sidebar"
+                tooltipPlacement="bottom"
+                onClick={navigationSidebarCallback}
+              />
 
-            <IconButton
-              className="nav-link nav-sidebar-2"
-              fa="fa-solid fa-chevron-right"
-              tooltip="Navigation sidebar"
-              tooltipPlacement="bottom"
-              onClick={navigationSidebarCallback}
-            />
-          </li>
+              <IconButton
+                className="nav-link nav-sidebar-2"
+                fa="fa-solid fa-chevron-right"
+                tooltip="Navigation sidebar"
+                tooltipPlacement="bottom"
+                onClick={navigationSidebarCallback}
+              />
+            </li>
           ) : null}
 
           <li className="nav-item avatar-base">
@@ -183,7 +184,7 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                 type="button"
               >
                 <Avatar
-                  className="d-inline-block me-2"
+                  className="d-inline-block me-2 profile-image-container"
                   imageSrc={avatarSrc}
                   text={roomName}
                   bgColor={colorMXID(roomId)}
@@ -207,7 +208,7 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                 type="button"
               >
                 <Avatar
-                  className="d-inline-block me-2"
+                  className="d-inline-block me-2 profile-image-container"
                   imageSrc={avatarSrc}
                   text={roomName}
                   bgColor={colorMXID(roomId)}
@@ -241,12 +242,13 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                   mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', agiSettings);
                 }}
                 tooltipPlacement="bottom"
-                tooltip={`${objType(pixxEmbeds.data, 'object') &&
-                    pixxEmbeds.roomId === roomId &&
-                    pixxEmbeds.data.visible
+                tooltip={`${
+                  objType(pixxEmbeds.data, 'object') &&
+                  pixxEmbeds.roomId === roomId &&
+                  pixxEmbeds.data.visible
                     ? 'Hide'
                     : 'Show'
-                  } Embed`}
+                } Embed`}
                 fa={`fa-solid fa-${pixxEmbedVisible ? 'window-minimize' : 'window-restore'}`}
               />
             </li>

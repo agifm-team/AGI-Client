@@ -1,4 +1,5 @@
-.navigation-wrapper-hover .welcome-card:not(.guest) {
+.navigation-wrapper-hover .welcome-card:not(.guest),
+.navigation-wrapper-auto-visible .welcome-card:not(.guest) {
   .citem {
     .card-img-overlay {
       height: 200px;

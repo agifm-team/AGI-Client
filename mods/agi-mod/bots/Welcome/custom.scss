@@ -194,6 +194,10 @@ body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):no
         overflow-y: auto;
       }
 
+      .card-img {
+        border-radius: 50%;
+      }
+
       &:hover {
         .card-img {
           opacity: 0.6;

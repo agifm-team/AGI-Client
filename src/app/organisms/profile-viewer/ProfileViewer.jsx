@@ -842,6 +842,7 @@ function ProfileViewer() {
               onKeyDown={toggleLightbox}
             >
               <Avatar
+                className="profile-image-container"
                 ref={profileAvatar}
                 imageSrc={avatarUrl}
                 text={username}

@@ -107,4 +107,6 @@ Nope. But you can install mods from third-party creators that code this type of 
 
 ### What is my guarantee about using crypto resources on client?
 
-Client's crypto resources are developed to be as secure as possible from trusted sources. Normally limited to personal uses between users only. (This is a CHAT SOFTWARE, not a crypto marketplace)
+Pony House's crypto resources are developed to be as secure as possible from trusted sources. Normally limited to personal uses between users only. (This is a CHAT SOFTWARE, not a crypto marketplace)
+
+When installing third-party mods involving web3, you are assuming that everything is at your own risk between you and the third-party developer. (including any accident of loss of funds due to lack of care on the part of both the user and the third-party developer)

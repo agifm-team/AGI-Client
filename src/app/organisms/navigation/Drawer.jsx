@@ -149,7 +149,7 @@ function Drawer() {
             <center className="small text-start d-grid w-100">
               <IconButton
                 ref={homeClickRef}
-                fa="fa-solid fa-house"
+                fa="fa-solid fa-compass"
                 id="space-drawer-home-button"
                 className={`text-start mt-3 mx-3 space-drawer-menu-item${!getSelectRoom() && !getSelectSpace() ? ' active' : ''}`}
                 onClick={() => {
@@ -158,7 +158,7 @@ function Drawer() {
                   $(homeClickRef.current).addClass('active');
                 }}
               >
-                <span className="ms-3">Home</span>
+                <span className="ms-3">Explore</span>
               </IconButton>
             </center>
           ) : null}

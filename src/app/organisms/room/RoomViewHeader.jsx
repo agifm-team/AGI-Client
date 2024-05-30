@@ -169,7 +169,7 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
             <li className="nav-item back-navigation">
               <IconButton
                 className="nav-link nav-sidebar-1"
-                fa="fa-solid fa-chevron-left"
+                fa={`fa-solid ${!threadId ? 'fa-chevron-left' : 'fa-door-openfa-arrow-right-from-bracket'}`}
                 tooltip={!threadId ? 'Navigation sidebar' : 'Back to Room'}
                 tooltipPlacement="bottom"
                 onClick={navigationSidebarCallback}
@@ -177,7 +177,7 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
 
               <IconButton
                 className="nav-link nav-sidebar-2"
-                fa="fa-solid fa-chevron-right"
+                fa={`fa-solid ${!threadId ? 'fa-chevron-right' : 'fa-door-openfa-arrow-right-from-bracket'}`}
                 tooltip={!threadId ? 'Navigation sidebar' : 'Back to Room'}
                 tooltipPlacement="bottom"
                 onClick={navigationSidebarCallback}
@@ -256,13 +256,12 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                   mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', agiSettings);
                 }}
                 tooltipPlacement="bottom"
-                tooltip={`${
-                  objType(pixxEmbeds.data, 'object') &&
-                  pixxEmbeds.roomId === roomId &&
-                  pixxEmbeds.data.visible
+                tooltip={`${objType(pixxEmbeds.data, 'object') &&
+                    pixxEmbeds.roomId === roomId &&
+                    pixxEmbeds.data.visible
                     ? 'Hide'
                     : 'Show'
-                } Embed`}
+                  } Embed`}
                 fa={`fa-solid fa-${pixxEmbedVisible ? 'window-minimize' : 'window-restore'}`}
               />
             </li>

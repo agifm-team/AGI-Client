@@ -158,6 +158,9 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
     linkify.test(pixxEmbeds.data.value) &&
     (pixxEmbeds.data.value.startsWith('http://') || pixxEmbeds.data.value.startsWith('https://'));
 
+  const thread = threadId ? getRoomInfo().roomTimeline.room.getThread(threadId) : null;
+  const contentThread = thread && thread.rootEvent ? thread.rootEvent.getContent() : null;
+
   return (
     <>
       <Header>

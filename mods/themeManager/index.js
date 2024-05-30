@@ -3,12 +3,21 @@ import tinyAPI from '../../src/util/mods';
 
 export default function startTheme() {
   tinyAPI.on('loadThemes', (data, insertTheme, removeTheme, getThemeById, getThemeNameById) => {
-    removeTheme('black-theme');
-
+    const blackTheme = getThemeById('black-theme');
     const darkTheme = getThemeById('dark-theme');
-    if (darkTheme) darkTheme.type = 'dark-solid';
+    if (darkTheme) {
+      darkTheme.data = blackTheme.data;
+      darkTheme.text = blackTheme.text;
+      darkTheme.type = blackTheme.type;
+    }
 
     const darkThemeName = getThemeNameById('dark-theme');
-    if (darkThemeName) darkThemeName.text = 'Black';
+    if (darkThemeName) {
+      darkThemeName.data = blackTheme.data;
+      darkThemeName.text = blackTheme.text;
+      darkThemeName.type = blackTheme.type;
+    }
+
+    removeTheme('black-theme');
   });
 }

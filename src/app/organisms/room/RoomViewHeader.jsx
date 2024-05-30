@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import { objType } from 'for-promise/utils/lib.mjs';
 
 import settings from '@src/client/state/settings';
 
@@ -21,6 +22,7 @@ import {
   openReusableContextMenu,
   openNavigation,
   selectRoomMode,
+  selectRoom,
 } from '../../../client/action/navigation';
 import {
   toggleNavigationSidebarHidden,
@@ -41,6 +43,7 @@ import copyText from '../profile-viewer/copyText';
 
 import { openPinMessageModal } from '../../../util/libs/pinMessage';
 import { openThreadsMessageModal } from '../../../util/libs/thread';
+import { getRoomInfo } from './Room';
 
 function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions = false }) {
   const [, forceUpdate] = useForceUpdate();
@@ -113,11 +116,15 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
 
   setTimeout(forceUnloadedAvatars, 200);
   const navigationSidebarCallback = () => {
-    if (window.matchMedia('screen and (max-width: 768px)').matches) {
-      selectRoomMode('navigation');
-      openNavigation();
+    if (!threadId) {
+      if (window.matchMedia('screen and (max-width: 768px)').matches) {
+        selectRoomMode('navigation');
+        openNavigation();
+      } else {
+        toggleNavigationSidebarHidden();
+      }
     } else {
-      toggleNavigationSidebarHidden();
+      selectRoom(roomId);
     }
   };
 
@@ -155,195 +162,200 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
   return (
     <>
       <Header>
-        <ul className="navbar-nav mr-auto">
-          {!disableActions ? (
-            <li className="nav-item back-navigation">
-              <IconButton
-                className="nav-link nav-sidebar-1"
-                fa="fa-solid fa-chevron-left"
-                tooltip="Navigation sidebar"
-                tooltipPlacement="bottom"
-                onClick={navigationSidebarCallback}
-              />
+        <ul className="navbar-nav mr-auto"></ul>
+        {!disableActions ? (
+          <li className="nav-item back-navigation">
+            <IconButton
+              className="nav-link nav-sidebar-1"
+              fa="fa-solid fa-chevron-left"
+              tooltip={!threadId ? 'Navigation sidebar' : 'Back to Room'}
+              tooltipPlacement="bottom"
+              onClick={navigationSidebarCallback}
+            />
 
+            <IconButton
+              className="nav-link nav-sidebar-2"
+              fa="fa-solid fa-chevron-right"
+              tooltip={!threadId ? 'Navigation sidebar' : 'Back to Room'}
+              tooltipPlacement="bottom"
+              onClick={navigationSidebarCallback}
+            />
+          </li>
+        ) : null}
+
+        <li className="nav-item avatar-base">
+          {!disableActions ? (
+            <button
+              className="nav-link btn btn-bg border-0 p-1"
+              onClick={() => toggleRoomSettings()}
+              type="button"
+            >
+              <Avatar
+                className="d-inline-block me-2 profile-image-container"
+                imageSrc={avatarSrc}
+                text={roomName}
+                bgColor={colorMXID(roomId)}
+                size="small"
+                isDefaultImage
+              />
+              <span className="me-2 text-truncate d-inline-block room-name">
+                {twemojifyReact(roomName)}
+                {objType(contentThread, 'object') ? (
+                  <strong className="ms-2">
+                    {twemojifyReact(` -- ${contentThread.pain || contentThread.body}`)}
+                  </strong>
+                ) : null}
+              </span>
+              <RawIcon fa="fa-solid fa-chevron-down room-icon" />
+            </button>
+          ) : (
+            <button
+              className="nav-link btn btn-bg border-0 p-1"
+              onClick={(event) =>
+                roomAlias
+                  ? copyText(event, 'Room alias successfully copied to the clipboard.')
+                  : null
+              }
+              style={{ pointerEvents: !roomAlias ? 'none' : null }}
+              type="button"
+            >
+              <Avatar
+                className="d-inline-block me-2 profile-image-container"
+                imageSrc={avatarSrc}
+                text={roomName}
+                bgColor={colorMXID(roomId)}
+                size="small"
+                isDefaultImage
+              />
+              <span className="me-2 text-truncate d-inline-block room-name">
+                {twemojifyReact(roomName)}
+              </span>
+            </button>
+          )}
+        </li>
+      </ul>
+
+      {!disableActions ? (
+        <ul className="navbar-nav ms-auto mb-0 small" id="room-options">
+          <li className="nav-item">
+            <IconButton
+              className="nav-link btn btn-bg border-0"
+              onClick={() => {
+                const agiSettings =
+                  getCurrentState(room)
+                    .getStateEvents('pixx.co.settings.embeds')[0]
+                    ?.getContent() ?? {};
+
+                agiSettings.visible =
+                  typeof agiSettings.visible !== 'boolean' || agiSettings.visible === false
+                    ? true
+                    : false;
+                setPixxEmbeds({ data: agiSettings, roomId });
+                mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', agiSettings);
+              }}
+              tooltipPlacement="bottom"
+              tooltip={`${objType(pixxEmbeds.data, 'object') &&
+                pixxEmbeds.roomId === roomId &&
+                pixxEmbeds.data.visible
+                ? 'Hide'
+                : 'Show'
+                } Embed`}
+              fa={`fa-solid fa-${pixxEmbedVisible ? 'window-minimize' : 'window-restore'}`}
+            />
+          </li>
+          {getCurrentState(room).maySendStateEvent('pixx.co.settings.embeds', mx.getUserId()) ? (
+            <li className="nav-item">
               <IconButton
-                className="nav-link nav-sidebar-2"
-                fa="fa-solid fa-chevron-right"
-                tooltip="Navigation sidebar"
+                className="nav-link btn btn-bg border-0"
+                onClick={async () => {
+                  const agiSettings = getCurrentState(room)
+                    .getStateEvents('pixx.co.settings.embeds')[0]
+                    ?.getContent();
+
+                  const value = await tinyPrompt('Enter the embed url:', 'Embed Url', {
+                    value: objType(agiSettings, 'object') ? agiSettings.value : null,
+                  });
+                  if (value !== null) {
+                    const newEvent = { value };
+                    setPixxEmbeds({ data: newEvent, roomId });
+                    mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', newEvent);
+                  }
+                }}
                 tooltipPlacement="bottom"
-                onClick={navigationSidebarCallback}
+                tooltip="Embed Widget"
+                fa="fa-solid fa-plus"
               />
             </li>
           ) : null}
 
-          <li className="nav-item avatar-base">
-            {!disableActions ? (
-              <button
-                className="nav-link btn btn-bg border-0 p-1"
-                onClick={() => toggleRoomSettings()}
-                type="button"
-              >
-                <Avatar
-                  className="d-inline-block me-2 profile-image-container"
-                  imageSrc={avatarSrc}
-                  text={roomName}
-                  bgColor={colorMXID(roomId)}
-                  size="small"
-                  isDefaultImage
-                />
-                <span className="me-2 text-truncate d-inline-block room-name">
-                  {twemojifyReact(roomName)}
-                </span>
-                <RawIcon fa="fa-solid fa-chevron-down room-icon" />
-              </button>
-            ) : (
-              <button
-                className="nav-link btn btn-bg border-0 p-1"
-                onClick={(event) =>
-                  roomAlias
-                    ? copyText(event, 'Room alias successfully copied to the clipboard.')
-                    : null
-                }
-                style={{ pointerEvents: !roomAlias ? 'none' : null }}
-                type="button"
-              >
-                <Avatar
-                  className="d-inline-block me-2 profile-image-container"
-                  imageSrc={avatarSrc}
-                  text={roomName}
-                  bgColor={colorMXID(roomId)}
-                  size="small"
-                  isDefaultImage
-                />
-                <span className="me-2 text-truncate d-inline-block room-name">
-                  {twemojifyReact(roomName)}
-                </span>
-              </button>
-            )}
-          </li>
-        </ul>
-
-        {!disableActions ? (
-          <ul className="navbar-nav ms-auto mb-0 small" id="room-options">
-            <li className="nav-item">
-              <IconButton
-                className="nav-link btn btn-bg border-0"
-                onClick={() => {
-                  const agiSettings =
-                    getCurrentState(room)
-                      .getStateEvents('pixx.co.settings.embeds')[0]
-                      ?.getContent() ?? {};
-
-                  agiSettings.visible =
-                    typeof agiSettings.visible !== 'boolean' || agiSettings.visible === false
-                      ? true
-                      : false;
-                  setPixxEmbeds({ data: agiSettings, roomId });
-                  mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', agiSettings);
-                }}
-                tooltipPlacement="bottom"
-                tooltip={`${
-                  objType(pixxEmbeds.data, 'object') &&
-                  pixxEmbeds.roomId === roomId &&
-                  pixxEmbeds.data.visible
-                    ? 'Hide'
-                    : 'Show'
-                } Embed`}
-                fa={`fa-solid fa-${pixxEmbedVisible ? 'window-minimize' : 'window-restore'}`}
-              />
-            </li>
-            {getCurrentState(room).maySendStateEvent('pixx.co.settings.embeds', mx.getUserId()) ? (
+          {mx.isRoomEncrypted(roomId) === false && (
+            <>
               <li className="nav-item">
                 <IconButton
                   className="nav-link btn btn-bg border-0"
-                  onClick={async () => {
-                    const agiSettings = getCurrentState(room)
-                      .getStateEvents('pixx.co.settings.embeds')[0]
-                      ?.getContent();
-
-                    const value = await tinyPrompt('Enter the embed url:', 'Embed Url', {
-                      value: objType(agiSettings, 'object') ? agiSettings.value : null,
-                    });
-                    if (value !== null) {
-                      const newEvent = { value };
-                      setPixxEmbeds({ data: newEvent, roomId });
-                      mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', newEvent);
-                    }
-                  }}
+                  onClick={() => toggleRoomSettings(tabText.SEARCH)}
                   tooltipPlacement="bottom"
-                  tooltip="Embed Widget"
-                  fa="fa-solid fa-plus"
+                  tooltip="Search"
+                  fa="fa-solid fa-magnifying-glass"
                 />
               </li>
-            ) : null}
 
-            {mx.isRoomEncrypted(roomId) === false && (
-              <>
-                <li className="nav-item">
-                  <IconButton
-                    className="nav-link btn btn-bg border-0"
-                    onClick={() => toggleRoomSettings(tabText.SEARCH)}
-                    tooltipPlacement="bottom"
-                    tooltip="Search"
-                    fa="fa-solid fa-magnifying-glass"
-                  />
-                </li>
+              <li className="nav-item">
+                <IconButton
+                  className="nav-link border-0 d-none d-sm-block"
+                  onClick={() => openThreadsMessageModal(room)}
+                  tooltipPlacement="bottom"
+                  tooltip="Threads"
+                  fa="bi bi-layers"
+                />
+              </li>
 
-                <li className="nav-item">
-                  <IconButton
-                    className="nav-link border-0 d-none d-sm-block"
-                    onClick={() => openThreadsMessageModal(room)}
-                    tooltipPlacement="bottom"
-                    tooltip="Threads"
-                    fa="bi bi-layers"
-                  />
-                </li>
+              <li className="nav-item">
+                <IconButton
+                  className="nav-link border-0 d-none d-sm-block"
+                  onClick={() => openPinMessageModal(room)}
+                  tooltipPlacement="bottom"
+                  tooltip="Pinned Messages"
+                  fa="bi bi-pin-angle-fill"
+                />
+              </li>
+            </>
+          )}
 
-                <li className="nav-item">
-                  <IconButton
-                    className="nav-link border-0 d-none d-sm-block"
-                    onClick={() => openPinMessageModal(room)}
-                    tooltipPlacement="bottom"
-                    tooltip="Pinned Messages"
-                    fa="bi bi-pin-angle-fill"
-                  />
-                </li>
-              </>
-            )}
+          <li className="nav-item">
+            <IconButton
+              className="nav-link border-0 d-none d-sm-block"
+              onClick={togglePeopleDrawer}
+              tooltipPlacement="bottom"
+              tooltip="People"
+              fa="fa-solid fa-user"
+            />
+          </li>
+          <li className="nav-item">
+            <IconButton
+              className="nav-link border-0 d-none d-sm-block"
+              onClick={() => toggleRoomSettings(tabText.MEMBERS)}
+              tooltipPlacement="bottom"
+              tooltip="Members"
+              fa="fa-solid fa-users"
+            />
+          </li>
 
-            <li className="nav-item">
-              <IconButton
-                className="nav-link border-0 d-none d-sm-block"
-                onClick={togglePeopleDrawer}
-                tooltipPlacement="bottom"
-                tooltip="People"
-                fa="fa-solid fa-user"
-              />
-            </li>
-            <li className="nav-item">
-              <IconButton
-                className="nav-link border-0 d-none d-sm-block"
-                onClick={() => toggleRoomSettings(tabText.MEMBERS)}
-                tooltipPlacement="bottom"
-                tooltip="Members"
-                fa="fa-solid fa-users"
-              />
-            </li>
+          <li className="nav-item">
+            <IconButton
+              tooltipPlacement="bottom"
+              className="nav-link border-0"
+              onClick={openRoomOptions}
+              tooltip="Options"
+              fa="bi bi-three-dots-vertical"
+            />
+          </li>
+        </ul>
+      ) : null}
+    </Header >
 
-            <li className="nav-item">
-              <IconButton
-                tooltipPlacement="bottom"
-                className="nav-link border-0"
-                onClick={openRoomOptions}
-                tooltip="Options"
-                fa="bi bi-three-dots-vertical"
-              />
-            </li>
-          </ul>
-        ) : null}
-      </Header>
-
-      {pixxEmbedVisible ? (
+    {
+      pixxEmbedVisible?(
         <>
           <div className="pixx-embed-expand">
             <Button
@@ -359,7 +371,8 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
             src={pixxEmbeds.data.value}
           />
         </>
-      ) : null}
+      ) : null
+}
     </>
   );
 }

@@ -6,7 +6,6 @@ import settings from '@src/client/state/settings';
 
 import * as linkify from 'linkifyjs';
 
-import { objType } from 'for-promise/utils/lib.mjs';
 import { tinyPrompt } from '@src/util/tools';
 import { getCurrentState } from '@src/util/matrixUtil';
 import Button from '@src/app/atoms/button/Button';

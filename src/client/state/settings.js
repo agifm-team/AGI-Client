@@ -4,6 +4,7 @@ import EventEmitter from 'events';
 import { objType } from 'for-promise/utils/lib.mjs';
 
 import { isMobile, notificationStatus } from '@src/util/libs/mobile';
+import { eventMaxListeners } from '@src/util/matrixUtil';
 
 import appDispatcher from '../dispatcher';
 
@@ -72,6 +73,11 @@ class Settings extends EventEmitter {
       { text: 'Butter (No Gradients)' },
       { text: 'Black (Beta)' },
     ];
+
+    this.defaultSystemThemeType = {
+      light: 'theme-type-light',
+      dark: 'theme-type-dark',
+    };
   }
 
   insertTheme(data, type = 'push') {
@@ -102,6 +108,11 @@ class Settings extends EventEmitter {
       (id) => this.removeTheme(id),
       (id) => this.getThemeById(id),
       (id) => this.getThemeNameById(id),
+      (id, value) => {
+        if (typeof this.defaultSystemThemeType[id] === 'string' && typeof value === 'string') {
+          this.defaultSystemThemeType[id] = value;
+        }
+      },
     );
 
     this.useSystemTheme = this.getUseSystemTheme();
@@ -239,9 +250,9 @@ class Settings extends EventEmitter {
       body.addClass('system-theme');
 
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        body.addClass(`theme-type-dark`);
+        body.addClass(this.defaultSystemThemeType.dark);
       } else {
-        body.addClass(`theme-type-light`);
+        body.addClass(this.defaultSystemThemeType.light);
       }
 
       this.emit(cons.events.settings.THEME_APPLIED, null, null);
@@ -424,7 +435,7 @@ class Settings extends EventEmitter {
 }
 
 const settings = new Settings();
-settings.setMaxListeners(Infinity);
+settings.setMaxListeners(eventMaxListeners);
 export function startSettings() {
   settings.startData();
   settings.applyTheme();

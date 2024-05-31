@@ -41,7 +41,7 @@ const createButton = (id, title, icon) =>
       id={`agi-${id}`}
       type="button"
     >
-      <div className="avatar-container avatar-container__normal  noselect">
+      <div className="avatar-container avatar-container__normal profile-image-container noselect">
         <span style={{ backgroundColor: 'transparent' }} className="avatar__border--active">
           <RawIcon fa={icon} />
         </span>

@@ -521,7 +521,7 @@ function Welcome({ isGuest }) {
                 isGuest={isGuest}
                 setSelectedTag={setSelectedTag}
                 type="bots"
-                title="Bots"
+                title="Pixxels"
                 citem={users}
               />
             ) : null}

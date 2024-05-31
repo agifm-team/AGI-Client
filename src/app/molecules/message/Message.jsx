@@ -28,6 +28,7 @@ import {
   parseReply,
   trimHTMLReply,
   getCurrentState,
+  eventMaxListeners,
 } from '../../../util/matrixUtil';
 
 import { colorMXID, backgroundColorMXID } from '../../../util/colorMXID';
@@ -1096,19 +1097,31 @@ const MessageThreadSummary = React.memo(({ thread }) => {
   // can't have empty threads
   if (thread.length === 0) return null;
 
-  const lastSender = lastReply?.sender;
+  // Matrix
+  const mx = initMatrix.matrixClient;
+
+  // Sender
+  const lastSender =
+    typeof lastReply?.sender === 'string' ? mx.getUser(lastReply?.sender) : lastReply?.sender;
+
+  // Color
   const color =
-    lastSender && typeof lastSender?.name === 'string' ? colorMXID(lastSender?.name) : null;
-  const lastSenderAvatarSrc =
-    lastSender?.getAvatarUrl(initMatrix.matrixClient.baseUrl, 36, 36, 'crop', true, false) ??
-    typeof color === 'string'
+    lastSender && typeof lastSender?.userId === 'string' ? colorMXID(lastSender?.userId) : null;
+
+  // Avatar
+  const newAvatar = lastSender?.getAvatarUrl(mx.baseUrl, 36, 36, 'crop', true, false);
+  const lastSenderAvatarSrc = newAvatar
+    ? newAvatar
+    : typeof color === 'string'
       ? avatarDefaultColor(color)
       : defaultAvatar(0);
 
+  // Select Thread
   function selectThread() {
     selectRoom(thread.roomId, undefined, thread.rootEvent?.getId());
   }
 
+  // Stuff
   useEffect(() => {
     const threadTimelineUpdate = () => setLastReply(thread.lastReply());
     thread.on(RoomEvent.Timeline, threadTimelineUpdate);
@@ -1117,6 +1130,7 @@ const MessageThreadSummary = React.memo(({ thread }) => {
     };
   });
 
+  // Complete
   return (
     <button className="message__threadSummary p-2 small" onClick={selectThread} type="button">
       <div className="message__threadSummary-count">
@@ -1397,6 +1411,7 @@ function Message({
   // make the message transparent while sending and red if it failed sending
   const [messageStatus, setMessageStatus] = useState(mEvent.status);
 
+  mEvent.setMaxListeners(eventMaxListeners);
   mEvent.once(MatrixEventEvent.Status, (e) => {
     setMessageStatus(e.status);
   });

@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import { objType } from 'for-promise/utils/lib.mjs';
 
 import settings from '@src/client/state/settings';
 
 import * as linkify from 'linkifyjs';
 
-import { objType } from 'for-promise/utils/lib.mjs';
 import { tinyPrompt } from '@src/util/tools';
 import { getCurrentState } from '@src/util/matrixUtil';
 import Button from '@src/app/atoms/button/Button';
@@ -21,6 +21,7 @@ import {
   openReusableContextMenu,
   openNavigation,
   selectRoomMode,
+  selectRoom,
 } from '../../../client/action/navigation';
 import {
   toggleNavigationSidebarHidden,
@@ -41,6 +42,7 @@ import copyText from '../profile-viewer/copyText';
 
 import { openPinMessageModal } from '../../../util/libs/pinMessage';
 import { openThreadsMessageModal } from '../../../util/libs/thread';
+import { getRoomInfo } from './Room';
 
 function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions = false }) {
   const [, forceUpdate] = useForceUpdate();
@@ -113,11 +115,15 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
 
   setTimeout(forceUnloadedAvatars, 200);
   const navigationSidebarCallback = () => {
-    if (window.matchMedia('screen and (max-width: 768px)').matches) {
-      selectRoomMode('navigation');
-      openNavigation();
+    if (!threadId) {
+      if (window.matchMedia('screen and (max-width: 768px)').matches) {
+        selectRoomMode('navigation');
+        openNavigation();
+      } else {
+        toggleNavigationSidebarHidden();
+      }
     } else {
-      toggleNavigationSidebarHidden();
+      selectRoom(roomId);
     }
   };
 
@@ -152,6 +158,9 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
     linkify.test(pixxEmbeds.data.value) &&
     (pixxEmbeds.data.value.startsWith('http://') || pixxEmbeds.data.value.startsWith('https://'));
 
+  const thread = threadId ? getRoomInfo().roomTimeline.room.getThread(threadId) : null;
+  const contentThread = thread && thread.rootEvent ? thread.rootEvent.getContent() : null;
+
   return (
     <>
       <Header>
@@ -160,16 +169,16 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
             <li className="nav-item back-navigation">
               <IconButton
                 className="nav-link nav-sidebar-1"
-                fa="fa-solid fa-chevron-left"
-                tooltip="Navigation sidebar"
+                fa={`fa-solid ${!threadId ? 'fa-chevron-left' : 'fa-door-openfa-arrow-right-from-bracket'}`}
+                tooltip={!threadId ? 'Navigation sidebar' : 'Back to Room'}
                 tooltipPlacement="bottom"
                 onClick={navigationSidebarCallback}
               />
 
               <IconButton
                 className="nav-link nav-sidebar-2"
-                fa="fa-solid fa-chevron-right"
-                tooltip="Navigation sidebar"
+                fa={`fa-solid ${!threadId ? 'fa-chevron-right' : 'fa-door-openfa-arrow-right-from-bracket'}`}
+                tooltip={!threadId ? 'Navigation sidebar' : 'Back to Room'}
                 tooltipPlacement="bottom"
                 onClick={navigationSidebarCallback}
               />
@@ -193,6 +202,11 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                 />
                 <span className="me-2 text-truncate d-inline-block room-name">
                   {twemojifyReact(roomName)}
+                  {objType(contentThread, 'object') ? (
+                    <strong className="ms-2">
+                      {twemojifyReact(` -- ${contentThread.pain || contentThread.body}`)}
+                    </strong>
+                  ) : null}
                 </span>
                 <RawIcon fa="fa-solid fa-chevron-down room-icon" />
               </button>
@@ -242,13 +256,12 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                   mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', agiSettings);
                 }}
                 tooltipPlacement="bottom"
-                tooltip={`${
-                  objType(pixxEmbeds.data, 'object') &&
-                  pixxEmbeds.roomId === roomId &&
-                  pixxEmbeds.data.visible
+                tooltip={`${objType(pixxEmbeds.data, 'object') &&
+                    pixxEmbeds.roomId === roomId &&
+                    pixxEmbeds.data.visible
                     ? 'Hide'
                     : 'Show'
-                } Embed`}
+                  } Embed`}
                 fa={`fa-solid fa-${pixxEmbedVisible ? 'window-minimize' : 'window-restore'}`}
               />
             </li>

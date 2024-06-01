@@ -6,6 +6,7 @@ import { serverDomain } from '@mods/agi-mod/socket';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
 import { duplicatorAgent, reconnectAgent } from '@mods/agi-mod/bots/PeopleSelector/lib';
 import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
+import YamlEditor from '@mods/agi-mod/components/YamlEditor';
 
 import { twemojifyReact } from '../../../util/twemojify';
 import { getPresence, getUserStatus, updateUserStatusIcon } from '../../../util/onlineStatus';
@@ -919,40 +920,71 @@ function ProfileViewer() {
                 <div id="tiny-bio" className="emoji-size-fix small text-freedom" />
               </div>
 
-              {agentData.data &&
-              typeof agentData.data.id === 'string' &&
-              (typeof agentData.data.llmModel === 'string' ||
-                typeof agentData.data.prompt === 'string') ? (
+              {agentData.data && typeof agentData.data.id === 'string' ? (
                 <>
-                  <hr />
+                  {typeof agentData.data.llmModel === 'string' ||
+                  typeof agentData.data.prompt === 'string' ? (
+                    <>
+                      <hr />
 
-                  <div className="mt-2">
-                    {typeof agentData.data.llmModel === 'string' && (
-                      <div className="very-small mb-2">
-                        <span className="fw-bold">LLM Model: </span> {agentData.data.llmModel} test
-                      </div>
-                    )}
+                      <div className="mt-2">
+                        {typeof agentData.data.llmModel === 'string' && (
+                          <div className="very-small mb-2">
+                            <span className="fw-bold">LLM Model: </span> {agentData.data.llmModel}{' '}
+                            test
+                          </div>
+                        )}
 
-                    {typeof agentData.data.prompt === 'string' && (
-                      <div className="very-small mb-2">
-                        <span className="fw-bold">Prompt: </span>{' '}
-                        {agentData.data.prompt.length < 100 || agentFullPrompt ? (
-                          agentData.data.prompt
-                        ) : (
-                          <a
-                            href="#"
-                            className="text-white"
-                            onClick={(event) => {
-                              event.preventDefault();
-                              setAgentFullPrompt(true);
-                            }}
-                          >
-                            {`${agentData.data.prompt.substring(0, 100)}...`}
-                          </a>
+                        {typeof agentData.data.prompt === 'string' && (
+                          <div className="very-small mb-2">
+                            <span className="fw-bold">Prompt: </span>{' '}
+                            {agentData.data.prompt.length < 100 || agentFullPrompt ? (
+                              agentData.data.prompt
+                            ) : (
+                              <a
+                                href="#"
+                                className="text-white"
+                                onClick={(event) => {
+                                  event.preventDefault();
+                                  setAgentFullPrompt(true);
+                                }}
+                              >
+                                {`${agentData.data.prompt.substring(0, 100)}...`}
+                              </a>
+                            )}
+                          </div>
                         )}
                       </div>
-                    )}
-                  </div>
+                    </>
+                  ) : null}
+
+                  {__ENV_APP__.MODE === 'development' ? (
+                    <>
+                      <hr />
+
+                      <YamlEditor
+                        isOpen={isOpen}
+                        value={` doe: "a deer, a female deer"
+ ray: "a drop of golden sun"
+ pi: 3.14159
+ xmas: true
+ french-hens: 3
+ calling-birds:
+   - huey
+   - dewey
+   - louie
+   - fred
+ xmas-fifth-day:
+   calling-birds: four
+   french-hens: 3
+   golden-rings: 5
+   partridges:
+     count: 1
+     location: "a pear tree"
+   turtle-doves: two`}
+                      />
+                    </>
+                  ) : null}
                 </>
               ) : null}
 

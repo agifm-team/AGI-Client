@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import CodeMirror from 'codemirror';
 
 import 'codemirror/lib/codemirror.css';
+import 'codemirror/theme/material-darker.css';
+import 'codemirror/theme/material.css';
 
 import 'codemirror/addon/lint/lint.css';
 import 'codemirror/addon/lint/lint.js';
@@ -117,16 +119,21 @@ function CodeEditor({
         code.toTextArea();
         setCode(null);
       } else if (isOpen && !code) {
+        // https://codemirror.net/5/theme/
         const themeId = settings.getThemeType();
+        const systemTheme = settings.getSystemTheme();
+        const theme =
+          (systemTheme.enabled && systemTheme.isDark) ||
+          themeId === 'theme-type-dark' ||
+          themeId === 'theme-type-dark-solid' ||
+          themeId === 'theme-type-dark2' ||
+          themeId === 'theme-type-dark2-solid'
+            ? 'material-darker'
+            : 'material';
+
         setCode(
           CodeMirror.fromTextArea(codeBase.current, {
-            theme:
-              themeId === 'theme-type-dark' ||
-              themeId === 'theme-type-dark-solid' ||
-              themeId === 'theme-type-dark2' ||
-              themeId === 'theme-type-dark2-solid'
-                ? 'material-darker'
-                : 'material',
+            theme,
             mode,
             lineNumbers,
             gutters,

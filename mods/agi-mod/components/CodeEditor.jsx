@@ -6,6 +6,7 @@ import 'codemirror/lib/codemirror.css';
 
 import 'codemirror/addon/lint/lint.css';
 import 'codemirror/addon/lint/lint.js';
+import settings from '@src/client/state/settings';
 
 function CodeEditor({
   value,
@@ -116,8 +117,16 @@ function CodeEditor({
         code.toTextArea();
         setCode(null);
       } else if (isOpen && !code) {
+        const themeId = settings.getThemeType();
         setCode(
           CodeMirror.fromTextArea(codeBase.current, {
+            theme:
+              themeId === 'theme-type-dark' ||
+              themeId === 'theme-type-dark-solid' ||
+              themeId === 'theme-type-dark2' ||
+              themeId === 'theme-type-dark2-solid'
+                ? 'material-darker'
+                : 'material',
             mode,
             lineNumbers,
             gutters,

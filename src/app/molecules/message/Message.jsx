@@ -1138,7 +1138,7 @@ const MessageThreadSummary = React.memo(({ thread }) => {
           {thread.length} message{thread.length > 1 ? 's' : ''} ›
         </Text>
       </div>
-      <div className="message__threadSummary-lastReply text-truncate text-white">
+      <div className="message__threadSummary-lastReply text-truncate text-bg">
         {lastReply ? (
           <>
             {lastSender ? (

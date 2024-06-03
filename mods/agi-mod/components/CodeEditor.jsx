@@ -117,6 +117,7 @@ function CodeEditor({
       if (!isOpen && code) {
         code.setOption('mode', 'text/x-csrc');
         code.toTextArea();
+        $(code.display.wrapper).remove();
         setCode(null);
       } else if (isOpen && !code) {
         // https://codemirror.net/5/theme/

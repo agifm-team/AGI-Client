@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
-import CodeMirror from '@uiw/react-codemirror';
-import { yaml as yamlLang } from '@codemirror/lang-yaml';
+// import CodeMirror from '@uiw/react-codemirror';
+// import { yaml as yamlLang } from '@codemirror/lang-yaml';
 import settings from '@src/client/state/settings';
-import yaml from 'js-yaml';
+// import yaml from 'js-yaml';
 
 /*
 {__ENV_APP__.MODE === 'development' ? (
@@ -66,7 +66,7 @@ function YamlEditor({ value = '', isOpen = true }) {
   });
 
   // https://uiwjs.github.io/react-codemirror/
-  return (
+  /* return (
     <CodeMirror
       value={tvalue}
       theme={theme}
@@ -74,7 +74,7 @@ function YamlEditor({ value = '', isOpen = true }) {
       extensions={[yamlLang()]}
       onChange={onChange}
     />
-  );
+  ); */
 }
 
 // Props

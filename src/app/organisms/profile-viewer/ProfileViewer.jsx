@@ -7,6 +7,7 @@ import { setLoadingPage } from '@src/app/templates/client/Loading';
 import { duplicatorAgent, reconnectAgent } from '@mods/agi-mod/bots/PeopleSelector/lib';
 import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 import YamlEditor from '@mods/agi-mod/components/YamlEditor';
+import { openSuperAgent } from '@mods/agi-mod/menu/Buttons';
 
 import { twemojifyReact } from '../../../util/twemojify';
 import { getPresence, getUserStatus, updateUserStatusIcon } from '../../../util/onlineStatus';
@@ -282,6 +283,8 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence
     }
   };
 
+  console.log(agentData.data);
+
   return (
     <>
       {agentData &&
@@ -289,6 +292,17 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence
       typeof agentData.data.id === 'string' &&
       agentData.data.id.length > 0 ? (
         <>
+          <Button
+            className="me-2"
+            variant="primary"
+            onClick={() => {
+              openSuperAgent(
+                `${agentData.data.type === 'WORKFLOW' ? 'workflows' : 'agents'}/${agentData.data.id}?`,
+              );
+            }}
+          >
+            Edit
+          </Button>
           <Button
             className="me-2"
             variant="primary"
@@ -955,34 +969,6 @@ function ProfileViewer() {
                           </div>
                         )}
                       </div>
-                    </>
-                  ) : null}
-
-                  {__ENV_APP__.MODE === 'development' ? (
-                    <>
-                      <hr />
-
-                      <YamlEditor
-                        isOpen={isOpen}
-                        value={` doe: "a deer, a female deer"
- ray: "a drop of golden sun"
- pi: 3.14159
- xmas: true
- french-hens: 3
- calling-birds:
-   - huey
-   - dewey
-   - louie
-   - fred
- xmas-fifth-day:
-   calling-birds: four
-   french-hens: 3
-   golden-rings: 5
-   partridges:
-     count: 1
-     location: "a pear tree"
-   turtle-doves: two`}
-                      />
                     </>
                   ) : null}
                 </>

@@ -18,6 +18,10 @@ import jReact from '../../lib/jReact';
 import { serverDomain } from '../socket';
 import { updateAgentsList } from '../bots/PeopleSelector';
 
+let email;
+let waitingUrl;
+let iframe;
+
 /* const openRoom = (roomId) => {
 
     const mx = initMatrix.matrixClient;
@@ -49,13 +53,8 @@ const createButton = (id, title, icon) =>
     </button>,
   );
 
-let waitingUrl;
-let iframe;
-export default async function buttons() {
-  setLoadingPage();
-
+export async function getUserEmail() {
   const pidData = await initMatrix.getAccount3pid();
-  let email;
 
   if (
     objType(pidData, 'object') &&
@@ -69,6 +68,42 @@ export default async function buttons() {
       }
     }
   }
+}
+
+export const openSuperAgent = (url = null) => {
+  const newUrl = !waitingUrl
+    ? `https://super.${serverDomain}/${typeof url === 'string' ? url : `?`}email=${encodeURIComponent(email)}`
+    : waitingUrl;
+  iframe = $('<iframe>', {
+    title: 'SuperAgent',
+    src: newUrl,
+    class: 'w-100 height-modal-full-size',
+  }).css('background-color', '#000');
+  waitingUrl = null;
+
+  btModal({
+    id: 'agi-superagent-modal',
+    dialog: 'modal-fullscreen',
+    title: 'SuperAgent',
+    hidden: () => {
+      iframe = null;
+      setLoadingPage();
+      updateAgentsList()
+        .then(() => {
+          setLoadingPage(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          setLoadingPage(false);
+        });
+    },
+    body: iframe,
+  });
+};
+
+export default async function buttons() {
+  setLoadingPage();
+  await getUserEmail();
 
   // Space Container
   const spaceContainer = $('.space-container');
@@ -104,36 +139,7 @@ export default async function buttons() {
 
   // Add Click
   setLoadingPage(false);
-  superagent.tooltip({ placement: 'right' }).on('click', () => {
-    const newUrl = !waitingUrl
-      ? `https://super.${serverDomain}/?email=${encodeURIComponent(email)}`
-      : waitingUrl;
-    iframe = $('<iframe>', {
-      title: 'SuperAgent',
-      src: newUrl,
-      class: 'w-100 height-modal-full-size',
-    }).css('background-color', '#000');
-    waitingUrl = null;
-
-    btModal({
-      id: 'agi-superagent-modal',
-      dialog: 'modal-fullscreen',
-      title: 'SuperAgent',
-      hidden: () => {
-        iframe = null;
-        setLoadingPage();
-        updateAgentsList()
-          .then(() => {
-            setLoadingPage(false);
-          })
-          .catch((err) => {
-            console.error(err);
-            setLoadingPage(false);
-          });
-      },
-      body: iframe,
-    });
-  });
+  superagent.tooltip({ placement: 'right' }).on('click', openSuperAgent);
 
   // Append
   spaceContainer.append(superagent);

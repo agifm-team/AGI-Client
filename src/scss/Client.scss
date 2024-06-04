@@ -62,6 +62,13 @@
   }
 }
 
+.nav-sidebar-1,
+.nav-sidebar-2 {
+  .ic-base {
+    margin-top: 4px;
+  }
+}
+
 @media (max-width: 768px) {
   .room-mode .navigation-wrapper,
   .navigation-mode .back-navigation,

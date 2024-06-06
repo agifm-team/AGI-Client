@@ -143,7 +143,12 @@ export default function FeaturedTab() {
           selectTab(cons.tabs.DIRECTS);
         }}
         avatar={
-          <Avatar faSrc="fa-solid fa-user" className="profile-image-container" iconColor={!isIconsColored ? null : 'rgb(0 159 255)'} size="normal" />
+          <Avatar
+            faSrc="fa-solid fa-user"
+            className="profile-image-container"
+            iconColor={!isIconsColored ? null : 'rgb(0 159 255)'}
+            size="normal"
+          />
         }
         notificationBadge={
           dmsNoti ? (
@@ -202,10 +207,10 @@ export default function FeaturedTab() {
                     !appearanceSettings.enableAnimParams
                       ? room.getAvatarFallbackMember()?.getAvatarUrl(mx.baseUrl)
                       : getAnimatedImageUrl(
-                        room
-                          .getAvatarFallbackMember()
-                          ?.getAvatarUrl(mx.baseUrl, 42, 42, 'crop'),
-                      ) || !appearanceSettings.enableAnimParams
+                            room
+                              .getAvatarFallbackMember()
+                              ?.getAvatarUrl(mx.baseUrl, 42, 42, 'crop'),
+                          ) || !appearanceSettings.enableAnimParams
                         ? room.getAvatarUrl(mx.baseUrl)
                         : getAnimatedImageUrl(room.getAvatarUrl(mx.baseUrl, 42, 42, 'crop')) || null
                   }

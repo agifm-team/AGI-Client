@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { checkRoomAgents } from '@mods/agi-mod/bots/PeopleSelector/lib'
+import { checkRoomAgents } from '@mods/agi-mod/bots/PeopleSelector/lib';
 import settings from '@src/client/state/settings';
 
 import initMatrix from '../../../client/initMatrix';
@@ -226,15 +226,15 @@ function PeopleDrawer({
         onMouseEnter={
           isHoverSidebar
             ? () => {
-              if (isHoverSidebar) $('body').addClass('people-drawer-hover');
-            }
+                if (isHoverSidebar) $('body').addClass('people-drawer-hover');
+              }
             : null
         }
         onMouseLeave={
           isHoverSidebar
             ? () => {
-              if (isHoverSidebar) $('body').removeClass('people-drawer-hover');
-            }
+                if (isHoverSidebar) $('body').removeClass('people-drawer-hover');
+              }
             : null
         }
       >
@@ -397,15 +397,15 @@ function PeopleDrawer({
         onMouseEnter={
           isHoverSidebar
             ? () => {
-              if (isHoverSidebar) $('body').addClass('people-drawer-hover');
-            }
+                if (isHoverSidebar) $('body').addClass('people-drawer-hover');
+              }
             : null
         }
         onMouseLeave={
           isHoverSidebar
             ? () => {
-              if (isHoverSidebar) $('body').removeClass('people-drawer-hover');
-            }
+                if (isHoverSidebar) $('body').removeClass('people-drawer-hover');
+              }
             : null
         }
       >

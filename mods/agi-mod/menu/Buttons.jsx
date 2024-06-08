@@ -109,13 +109,13 @@ export default async function buttons() {
   const spaceContainer = $('.space-container');
 
   // Superagent
-  let superagent = spaceContainer.find('#agi-superagent');
-  if (superagent.length > 0) {
-    superagent.remove();
-  }
+  // let superagent = spaceContainer.find('#agi-superagent');
+  // if (superagent.length > 0) {
+  // superagent.remove();
+  // }
 
   // Prepare Button
-  superagent = createButton('superagent', 'SuperAgent', 'fa-solid fa-user-ninja');
+  // superagent = createButton('superagent', 'SuperAgent', 'fa-solid fa-user-ninja');
 
   // Timeline validator to get the magic lick
   const roomTimelineValidator = (data, event) => {

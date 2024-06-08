@@ -145,6 +145,7 @@ export default function FeaturedTab() {
         }}
         avatar={
           <Avatar
+            neonColor
             faSrc="fa-solid fa-user"
             className="profile-image-container"
             iconColor={!isIconsColored ? null : 'rgb(0 159 255)'}

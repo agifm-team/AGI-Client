@@ -274,7 +274,7 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
               <li className="nav-item">
                 <IconButton
                   neonColor
-                  iconColor={!isIconsColored ? null : 'rgb(164, 42, 212)'}
+                  iconColor={!isIconsColored ? null : 'rgb(41, 220, 131)'}
                   className="nav-link btn btn-bg border-0"
                   onClick={async () => {
                     const agiSettings = getCurrentState(room)

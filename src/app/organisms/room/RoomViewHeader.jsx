@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import { objType } from 'for-promise/utils/lib.mjs';
 import settings from '@src/client/state/settings';
 
-import settings from '@src/client/state/settings';
-
 import * as linkify from 'linkifyjs';
 
 import { tinyPrompt } from '@src/util/tools';

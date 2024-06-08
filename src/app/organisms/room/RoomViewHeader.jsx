@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { objType } from 'for-promise/utils/lib.mjs';
+import settings from '@src/client/state/settings';
 
 import settings from '@src/client/state/settings';
 
@@ -49,6 +50,9 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
   const mx = initMatrix.matrixClient;
   const isDM = initMatrix.roomList && initMatrix.roomList.directs.has(roomId);
   const room = !roomItem ? mx.getRoom(roomId) : roomItem;
+
+  const [isIconsColored, setIsIconsColored] = useState(settings.isSelectedThemeColored());
+  settings.isThemeColoredDetector(useEffect, setIsIconsColored);
 
   const getAvatarUrl = () =>
     isDM
@@ -241,6 +245,8 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
           <ul className="navbar-nav ms-auto mb-0 small" id="room-options">
             <li className="nav-item">
               <IconButton
+                neonColor
+                iconColor={!isIconsColored ? null : 'rgb(220, 215, 41)'}
                 className="nav-link btn btn-bg border-0"
                 onClick={() => {
                   const agiSettings =
@@ -256,19 +262,20 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                   mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', agiSettings);
                 }}
                 tooltipPlacement="bottom"
-                tooltip={`${
-                  objType(pixxEmbeds.data, 'object') &&
+                tooltip={`${objType(pixxEmbeds.data, 'object') &&
                   pixxEmbeds.roomId === roomId &&
                   pixxEmbeds.data.visible
-                    ? 'Hide'
-                    : 'Show'
-                } Embed`}
+                  ? 'Hide'
+                  : 'Show'
+                  } Embed`}
                 fa={`fa-solid fa-${pixxEmbedVisible ? 'window-minimize' : 'window-restore'}`}
               />
             </li>
             {getCurrentState(room).maySendStateEvent('pixx.co.settings.embeds', mx.getUserId()) ? (
               <li className="nav-item">
                 <IconButton
+                  neonColor
+                  iconColor={!isIconsColored ? null : 'rgb(164, 42, 212)'}
                   className="nav-link btn btn-bg border-0"
                   onClick={async () => {
                     const agiSettings = getCurrentState(room)
@@ -295,6 +302,8 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
               <>
                 <li className="nav-item">
                   <IconButton
+                    neonColor
+                    iconColor={!isIconsColored ? null : 'rgb(164, 42, 212)'}
                     className="nav-link btn btn-bg border-0"
                     onClick={() => toggleRoomSettings(tabText.SEARCH)}
                     tooltipPlacement="bottom"
@@ -305,6 +314,8 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
 
                 <li className="nav-item">
                   <IconButton
+                    neonColor
+                    iconColor={!isIconsColored ? null : 'rgb(41, 220, 131)'}
                     className="nav-link border-0 d-none d-sm-block"
                     onClick={() => openThreadsMessageModal(room)}
                     tooltipPlacement="bottom"
@@ -315,6 +326,8 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
 
                 <li className="nav-item">
                   <IconButton
+                    neonColor
+                    iconColor={!isIconsColored ? null : 'rgb(220, 215, 41)'}
                     className="nav-link border-0 d-none d-sm-block"
                     onClick={() => openPinMessageModal(room)}
                     tooltipPlacement="bottom"
@@ -327,6 +340,8 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
 
             <li className="nav-item">
               <IconButton
+                neonColor
+                iconColor={!isIconsColored ? null : 'rgb(0 159 255)'}
                 className="nav-link border-0 d-none d-sm-block"
                 onClick={togglePeopleDrawer}
                 tooltipPlacement="bottom"
@@ -336,6 +351,8 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
             </li>
             <li className="nav-item">
               <IconButton
+                neonColor
+                iconColor={!isIconsColored ? null : 'rgb(255	235	127)'}
                 className="nav-link border-0 d-none d-sm-block"
                 onClick={() => toggleRoomSettings(tabText.MEMBERS)}
                 tooltipPlacement="bottom"

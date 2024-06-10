@@ -17,7 +17,7 @@ import FeaturedTab from './FeaturedTab';
 import InviteSidebar from './InviteSidebar';
 
 // Cross Sigin Alert
-function CrossSigninAlert() {
+function CrossSigninAlert({ isIconsColored }) {
   const deviceList = useDeviceList();
   const unverified = deviceList?.filter((device) => isCrossVerified(device.device_id) === false);
 
@@ -30,6 +30,8 @@ function CrossSigninAlert() {
       onClick={() => openSettings(settingTabText.SECURITY)}
       avatar={
         <Avatar
+          neonColor
+          iconColor={!isIconsColored ? null : 'var(--bs-danger)'}
           faSrc="bi bi-shield-lock-fill btn-text-danger"
           className="profile-image-container"
           size="normal"
@@ -52,7 +54,7 @@ function SideBar() {
             <div id="space-feature" className="featured-container">
               <FeaturedTab />
               <InviteSidebar />
-              <CrossSigninAlert />
+              <CrossSigninAlert isIconsColored={isIconsColored} />
             </div>
 
             <div className="sidebar-divider" />

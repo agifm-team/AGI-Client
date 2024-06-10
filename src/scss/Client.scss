@@ -1,5 +1,16 @@
 @use './partials/screen';
 
+::-moz-selection {
+  /* Code for Firefox */
+  color: var(--selection-color);
+  background: var(--selection-background);
+}
+
+::selection {
+  color: var(--selection-color);
+  background: var(--selection-background);
+}
+
 .profile-image-container {
   &,
   img,
@@ -59,6 +70,13 @@
   cursor: pointer;
   .context-menu__item .text {
     margin: 0 !important;
+  }
+}
+
+.nav-sidebar-1,
+.nav-sidebar-2 {
+  .ic-base {
+    margin-top: 4px;
   }
 }
 

@@ -8,6 +8,8 @@ import { arrayItems as bsColorsArray } from '../../../util/styles-bootstrap';
 const IconButton = React.forwardRef(
   (
     {
+      neonColor = false,
+      iconColor = null,
       variant = 'link btn-bg',
       size = 'normal',
       type = 'button',
@@ -63,7 +65,14 @@ const IconButton = React.forwardRef(
         tabIndex={tabIndex}
         disabled={disabled}
       >
-        <RawIcon fa={fa} size={size} src={src} isImage={isImage} />
+        <RawIcon
+          fa={fa}
+          neonColor={neonColor}
+          size={size}
+          src={src}
+          color={iconColor}
+          isImage={isImage}
+        />
         {children}
       </button>
     );
@@ -79,6 +88,8 @@ const IconButton = React.forwardRef(
 );
 
 IconButton.propTypes = {
+  neonColor: PropTypes.bool,
+  iconColor: PropTypes.string,
   id: PropTypes.string,
   children: PropTypes.node,
   style: PropTypes.object,

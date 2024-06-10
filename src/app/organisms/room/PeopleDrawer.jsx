@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { checkRoomAgents } from '@mods/agi-mod/bots/PeopleSelector/lib';
+import settings from '@src/client/state/settings';
 
 import initMatrix from '../../../client/initMatrix';
 import {
@@ -56,6 +57,9 @@ function PeopleDrawer({
   const PER_PAGE_MEMBER = 50;
   const mx = initMatrix.matrixClient;
   const { directs } = initMatrix.roomList;
+
+  const [isIconsColored, setIsIconsColored] = useState(settings.isSelectedThemeColored());
+  settings.isThemeColoredDetector(useEffect, setIsIconsColored);
 
   const room = mx.getRoom(roomId);
   const canInvite = room?.canInvite(mx.getUserId());
@@ -252,6 +256,8 @@ function PeopleDrawer({
           <ul className="navbar-nav ms-auto mb-0 small">
             <li className="nav-item">
               <IconButton
+                neonColor
+                iconColor={!isIconsColored ? null : 'rgb(164, 42, 212)'}
                 onClick={() => openInviteUser(roomId)}
                 tooltipPlacement="bottom"
                 tooltip="Invite"

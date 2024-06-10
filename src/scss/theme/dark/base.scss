@@ -10,6 +10,11 @@
     rgb(30 30 30) 100%
   );
 
+  --bg-electron-border: #2c2c2c;
+
+  --selection-color: #fff;
+  --selection-background: rgb(19, 160, 196);
+
   /* background color | --bg-[background type]: value */
 
   --bg-loadingoverlay: rgba(0, 0, 0, 0.6);
@@ -332,10 +337,6 @@
     --bs-btn-disabled-bg: transparent;
     --bs-btn-disabled-border-color: transparent;
     --bs-gradient: none;
-  }
-
-  .message__threadSummary {
-    background-color: var(--bg-surface-active);
   }
 
   --bg-profile-banner: #1b1b1b;

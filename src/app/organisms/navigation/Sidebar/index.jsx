@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import settings from '@src/client/state/settings';
+import { openSuperAgent } from '@mods/agi-mod/menu/Buttons';
 
 import { openShortcutSpaces, openSearch, openSettings } from '../../../../client/action/navigation';
 
@@ -15,7 +17,7 @@ import FeaturedTab from './FeaturedTab';
 import InviteSidebar from './InviteSidebar';
 
 // Cross Sigin Alert
-function CrossSigninAlert() {
+function CrossSigninAlert({ isIconsColored }) {
   const deviceList = useDeviceList();
   const unverified = deviceList?.filter((device) => isCrossVerified(device.device_id) === false);
 
@@ -28,6 +30,8 @@ function CrossSigninAlert() {
       onClick={() => openSettings(settingTabText.SECURITY)}
       avatar={
         <Avatar
+          neonColor
+          iconColor={!isIconsColored ? null : 'var(--bs-danger)'}
           faSrc="bi bi-shield-lock-fill btn-text-danger"
           className="profile-image-container"
           size="normal"
@@ -39,6 +43,9 @@ function CrossSigninAlert() {
 
 // Sidebar
 function SideBar() {
+  const [isIconsColored, setIsIconsColored] = useState(settings.isSelectedThemeColored());
+  settings.isThemeColoredDetector(useEffect, setIsIconsColored);
+
   return (
     <>
       <center className="sidebar-item-1 h-100">
@@ -47,7 +54,7 @@ function SideBar() {
             <div id="space-feature" className="featured-container">
               <FeaturedTab />
               <InviteSidebar />
-              <CrossSigninAlert />
+              <CrossSigninAlert isIconsColored={isIconsColored} />
             </div>
 
             <div className="sidebar-divider" />
@@ -59,7 +66,23 @@ function SideBar() {
                 onClick={() => openShortcutSpaces()}
                 avatar={
                   <Avatar
+                    neonColor
+                    iconColor={!isIconsColored ? null : 'rgb(84, 101, 232)'}
                     faSrc="bi bi-bookmark-plus-fill"
+                    className="profile-image-container"
+                    size="normal"
+                  />
+                }
+              />
+              <SidebarAvatar
+                id="agi-superagent"
+                tooltip="SuperAgent"
+                onClick={() => openSuperAgent()}
+                avatar={
+                  <Avatar
+                    neonColor
+                    iconColor={!isIconsColored ? null : 'rgb(41, 220, 131)'}
+                    faSrc="fa-solid fa-user-ninja"
                     className="profile-image-container"
                     size="normal"
                   />
@@ -78,6 +101,8 @@ function SideBar() {
             onClick={() => openSearch()}
             avatar={
               <Avatar
+                neonColor
+                iconColor={!isIconsColored ? null : 'rgb(164, 42, 212)'}
                 faSrc="fa-solid fa-magnifying-glass"
                 className="profile-image-container"
                 size="normal"

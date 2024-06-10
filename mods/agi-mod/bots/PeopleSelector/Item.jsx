@@ -15,7 +15,7 @@ import { getRoomInfo } from '@src/app/organisms/room/Room';
 import { openProfileViewer } from '@src/client/action/navigation';
 import { twemojifyReact } from '@src/util/twemojify';
 
-function PeopleSelector({ avatarSrc, name, user, peopleRole /* , customData */ }) {
+function PeopleSelector({ avatarSrc = null, name, user, peopleRole = null /* , customData */ }) {
   // Refs
   const buttonRef = useRef(null);
   const profileButtonRef = useRef(null);
@@ -92,11 +92,6 @@ function PeopleSelector({ avatarSrc, name, user, peopleRole /* , customData */ }
     <h5>{name}</h5>
   );
 }
-
-PeopleSelector.defaultProps = {
-  avatarSrc: null,
-  peopleRole: null,
-};
 
 PeopleSelector.propTypes = {
   avatarSrc: PropTypes.string,

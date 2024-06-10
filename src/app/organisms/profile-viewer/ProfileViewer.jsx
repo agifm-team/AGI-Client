@@ -6,6 +6,8 @@ import { serverDomain } from '@mods/agi-mod/socket';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
 import { duplicatorAgent, reconnectAgent } from '@mods/agi-mod/bots/PeopleSelector/lib';
 import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
+import YamlEditor from '@mods/agi-mod/components/YamlEditor';
+import { openSuperAgent } from '@mods/agi-mod/menu/Buttons';
 
 import { twemojifyReact } from '../../../util/twemojify';
 import { getPresence, getUserStatus, updateUserStatusIcon } from '../../../util/onlineStatus';
@@ -281,6 +283,8 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence
     }
   };
 
+  console.log(agentData.data);
+
   return (
     <>
       {agentData &&
@@ -288,6 +292,17 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence
       typeof agentData.data.id === 'string' &&
       agentData.data.id.length > 0 ? (
         <>
+          <Button
+            className="me-2"
+            variant="primary"
+            onClick={() => {
+              openSuperAgent(
+                `${agentData.data.type === 'WORKFLOW' ? 'workflows' : 'agents'}/${agentData.data.id}?`,
+              );
+            }}
+          >
+            Edit
+          </Button>
           <Button
             className="me-2"
             variant="primary"
@@ -919,40 +934,43 @@ function ProfileViewer() {
                 <div id="tiny-bio" className="emoji-size-fix small text-freedom" />
               </div>
 
-              {agentData.data &&
-              typeof agentData.data.id === 'string' &&
-              (typeof agentData.data.llmModel === 'string' ||
-                typeof agentData.data.prompt === 'string') ? (
+              {agentData.data && typeof agentData.data.id === 'string' ? (
                 <>
-                  <hr />
+                  {typeof agentData.data.llmModel === 'string' ||
+                  typeof agentData.data.prompt === 'string' ? (
+                    <>
+                      <hr />
 
-                  <div className="mt-2">
-                    {typeof agentData.data.llmModel === 'string' && (
-                      <div className="very-small mb-2">
-                        <span className="fw-bold">LLM Model: </span> {agentData.data.llmModel} test
-                      </div>
-                    )}
+                      <div className="mt-2">
+                        {typeof agentData.data.llmModel === 'string' && (
+                          <div className="very-small mb-2">
+                            <span className="fw-bold">LLM Model: </span> {agentData.data.llmModel}{' '}
+                            test
+                          </div>
+                        )}
 
-                    {typeof agentData.data.prompt === 'string' && (
-                      <div className="very-small mb-2">
-                        <span className="fw-bold">Prompt: </span>{' '}
-                        {agentData.data.prompt.length < 100 || agentFullPrompt ? (
-                          agentData.data.prompt
-                        ) : (
-                          <a
-                            href="#"
-                            className="text-white"
-                            onClick={(event) => {
-                              event.preventDefault();
-                              setAgentFullPrompt(true);
-                            }}
-                          >
-                            {`${agentData.data.prompt.substring(0, 100)}...`}
-                          </a>
+                        {typeof agentData.data.prompt === 'string' && (
+                          <div className="very-small mb-2">
+                            <span className="fw-bold">Prompt: </span>{' '}
+                            {agentData.data.prompt.length < 100 || agentFullPrompt ? (
+                              agentData.data.prompt
+                            ) : (
+                              <a
+                                href="#"
+                                className="text-white"
+                                onClick={(event) => {
+                                  event.preventDefault();
+                                  setAgentFullPrompt(true);
+                                }}
+                              >
+                                {`${agentData.data.prompt.substring(0, 100)}...`}
+                              </a>
+                            )}
+                          </div>
                         )}
                       </div>
-                    )}
-                  </div>
+                    </>
+                  ) : null}
                 </>
               ) : null}
 

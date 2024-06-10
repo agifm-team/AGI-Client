@@ -16,9 +16,15 @@ import { isMobile } from '@src/util/libs/mobile';
 import { readImageUrl } from '@src/util/libs/mediaCache';
 import muteUserManager from '@src/util/libs/muteUserManager';
 import attemptDecryption from '@src/util/libs/attemptDecryption';
+import {
+  ReactionImgReact,
+  getCustomEmojiUrl,
+  getEventReactions,
+  reactionImgjQuery,
+} from '@src/util/libs/reactions';
 
 import Text from '../../atoms/text/Text';
-import { hljsFixer, resizeWindowChecker, toast } from '../../../util/tools';
+import { btModal, hljsFixer, resizeWindowChecker, toast } from '../../../util/tools';
 import { twemojify, twemojifyReact } from '../../../util/twemojify';
 import initMatrix from '../../../client/initMatrix';
 
@@ -646,16 +652,11 @@ function genReactionMsg(userIds, reaction, shortcode, customEmojiUrl) {
     <>
       <div className="img">
         <center>
-          {customEmojiUrl ? (
-            <img
-              className="react-emoji"
-              draggable="false"
-              alt={shortcode ?? reaction}
-              src={readImageUrl(customEmojiUrl)}
-            />
-          ) : (
-            twemojifyReact(reaction, { className: 'react-emoji' })
-          )}
+          <ReactionImgReact
+            reaction={reaction}
+            shortcode={shortcode}
+            customEmojiUrl={customEmojiUrl}
+          />
         </center>
       </div>
       <div className="info">
@@ -687,10 +688,7 @@ function genReactionMsg(userIds, reaction, shortcode, customEmojiUrl) {
 
 // Reaction Manager
 function MessageReaction({ reaction, shortcode, count, users, isActive, onClick }) {
-  let customEmojiUrl = null;
-  if (reaction.match(/^mxc:\/\/\S+$/)) {
-    customEmojiUrl = initMatrix.matrixClient.mxcUrlToHttp(reaction);
-  }
+  const customEmojiUrl = getCustomEmojiUrl(reaction);
   return (
     <Tooltip
       className="msg__reaction-tooltip"
@@ -707,16 +705,11 @@ function MessageReaction({ reaction, shortcode, count, users, isActive, onClick 
         type="button"
         className={`msg__reaction${isActive ? ' msg__reaction--active' : ''}${customEmojiUrl ? ' custom-emoji' : ' default-emoji'}`}
       >
-        {customEmojiUrl ? (
-          <img
-            className="react-emoji"
-            draggable="false"
-            alt={shortcode ?? reaction}
-            src={readImageUrl(customEmojiUrl)}
-          />
-        ) : (
-          twemojifyReact(reaction, { className: 'react-emoji' })
-        )}
+        <ReactionImgReact
+          reaction={reaction}
+          shortcode={shortcode}
+          customEmojiUrl={customEmojiUrl}
+        />
         <div className="very-small text-gray msg__reaction-count">{count}</div>
       </button>
     </Tooltip>
@@ -739,7 +732,6 @@ function MessageReactionGroup({ roomTimeline, mEvent }) {
 
   const { roomId, room, reactionTimeline } = roomTimeline;
   const mx = initMatrix.matrixClient;
-  const reactions = {};
   const canSendReaction = getCurrentState(room).maySendEvent('m.reaction', mx.getUserId());
 
   const eventReactions = reactionTimeline.get(mEvent.getId());
@@ -751,79 +743,24 @@ function MessageReactionGroup({ roomTimeline, mEvent }) {
       muteUserManager.off('muteReaction', tinyUpdate);
     };
   });
-  const addReaction = (key, shortcode, count, senderId, isActive, index) => {
-    let isNewReaction = false;
-    let reaction = reactions[key];
-    if (reaction === undefined) {
-      reaction = {
-        index,
-        count: 0,
-        users: [],
-        isActive: false,
-      };
-      isNewReaction = true;
-    }
-
-    if (shortcode) reaction.shortcode = shortcode;
-    if (count) {
-      reaction.count = count;
-    } else {
-      reaction.users.push(senderId);
-      reaction.count = reaction.users.length;
-      if (isActive) reaction.isActive = isActive;
-    }
-
-    reactions[key] = reaction;
-    return isNewReaction;
-  };
-
-  if (eventReactions) {
-    let tinyIndex = 0;
-    eventReactions.forEach((rEvent) => {
-      if (rEvent.getRelation() === null) return;
-
-      const reaction = rEvent.getRelation();
-      const senderId = rEvent.getSender();
-      const { shortcode } = rEvent.getContent();
-      const isActive = senderId === mx.getUserId();
-
-      if (
-        !muteUserManager.isReactionMuted(senderId) &&
-        addReaction(reaction.key, shortcode, undefined, senderId, isActive, tinyIndex)
-      ) {
-        tinyIndex++;
-      }
-    });
-  } else {
-    // Use aggregated reactions
-    const aggregatedReaction = mEvent.getServerAggregatedRelation('m.annotation')?.chunk;
-    if (!aggregatedReaction) return null;
-
-    aggregatedReaction.forEach((reaction) => {
-      if (reaction.type !== 'm.reaction') return;
-      addReaction(reaction.key, undefined, reaction.count, undefined, false);
-    });
-  }
 
   // Create reaction list and limit the amount to 20
-  const reacts = Object.keys(reactions)
-    .sort((a, b) => reactions[a].index - reactions[b].index)
-    .slice(0, reactionLimit);
+  const reacts = getEventReactions(eventReactions, false, reactionLimit);
 
   useEffect(() => mediaFix(itemEmbed, embedHeight, setEmbedHeight));
 
   return (
     <div className="noselect">
-      {reacts.map((key) => (
+      {reacts.order.map((key) => (
         <MessageReaction
           key={key}
           reaction={key}
-          shortcode={reactions[key].shortcode}
-          count={reactions[key].count}
-          users={reactions[key].users}
-          isActive={reactions[key].isActive}
+          shortcode={reacts.data[key].shortcode}
+          count={reacts.data[key].count}
+          users={reacts.data[key].users}
+          isActive={reacts.data[key].isActive}
           onClick={() => {
-            toggleEmoji(roomId, mEvent.getId(), key, reactions[key].shortcode, roomTimeline);
+            toggleEmoji(roomId, mEvent.getId(), key, reacts.data[key].shortcode, roomTimeline);
           }}
         />
       ))}
@@ -832,7 +769,7 @@ function MessageReactionGroup({ roomTimeline, mEvent }) {
         <IconButton
           className="ms-2 btn-sm reaction-message"
           onClick={(e) => {
-            if (reacts.length < reactionLimit) {
+            if (reacts.order.length < reactionLimit) {
               pickEmoji(e, roomId, mEvent.getId(), roomTimeline, -430, 0, reacts);
             } else {
               toast(
@@ -889,6 +826,7 @@ function handleOpenViewSource(mEvent, roomTimeline) {
 
 const MessageOptions = React.memo(
   ({
+    haveReactions = false,
     refRoomInput,
     roomTimeline,
     mEvent,
@@ -987,6 +925,125 @@ const MessageOptions = React.memo(
             <>
               <MenuHeader>Options</MenuHeader>
 
+              {haveReactions ? (
+                <MenuItem
+                  className="text-start"
+                  faSrc="fa-solid fa-face-smile"
+                  onClick={() => {
+                    const body = $('<div>', { class: 'd-flex' });
+                    const ul = $('<ul>', { class: 'nav nav-pills nav flex-column react-list' });
+                    const content = $('<div>', { class: 'tab-content react-content' });
+
+                    const { reactionTimeline } = roomTimeline;
+                    const eventReactions = reactionTimeline.get(mEvent.getId());
+                    const reacts = getEventReactions(eventReactions);
+                    const appearanceSettings = getAppearance();
+                    let modal;
+
+                    let i = 0;
+                    for (const key in reacts.data) {
+                      const id = `reactions_${eventId}_${i}`;
+
+                      const users = [];
+                      for (const item in reacts.data[key].users) {
+                        const userId = reacts.data[key].users[item];
+                        const user = mx.getUser(userId);
+                        const color = colorMXID(userId);
+
+                        const username = user ? muteUserManager.getSelectorName(user) : userId;
+                        const avatarAnimSrc = user
+                          ? !appearanceSettings.enableAnimParams
+                            ? mx.mxcUrlToHttp(user.avatarUrl)
+                            : getAnimatedImageUrl(
+                                mx.mxcUrlToHttp(user.avatarUrl, 36, 36, 'crop'),
+                              ) ?? avatarDefaultColor(color)
+                          : avatarDefaultColor(color);
+
+                        const ct = $('<div>', {
+                          class:
+                            'align-top text-center chat-base avatar-container profile-image-container d-inline-block',
+                        });
+
+                        users.push(
+                          $('<div>', { class: 'my-2 user-react rounded p-1' })
+                            .append(
+                              ct.append(
+                                $('<img>', {
+                                  class: 'avatar-react',
+                                  draggable: false,
+                                  src: readImageUrl(avatarAnimSrc),
+                                  alt: 'avatar',
+                                })
+                                  .on('load', (event) => {
+                                    ct.addClass('avatar-react-loaded');
+                                  })
+                                  .on('error', (event) => {
+                                    const e = event.originalEvent;
+                                    e.target.src = ImageBrokenSVG;
+                                  }),
+                              ),
+
+                              $('<span>', { class: 'small react-username' }).text(username),
+                            )
+                            .on('click', () => {
+                              modal.hide();
+                              openProfileViewer(userId, roomId);
+                            }),
+                        );
+                      }
+
+                      content.append(
+                        $('<div>', {
+                          class: `tab-pane container ${i !== 0 ? 'fade' : 'active'}`,
+                          id,
+                        }).append(users),
+                      );
+
+                      ul.append(
+                        $('<li>', { class: 'nav-item' }).append(
+                          $('<a>', {
+                            class: `nav-link${i !== 0 ? '' : ' active'}`,
+                            'data-bs-toggle': 'tab',
+                            href: `#${id}`,
+                          }).append(
+                            reactionImgjQuery(
+                              key,
+                              reacts.data[key].shortcode,
+                              getCustomEmojiUrl(key),
+                            ),
+                            $('<span>', { class: 'react-count' }).text(reacts.data[key].count),
+                          ),
+                        ),
+                      );
+                      i++;
+                    }
+
+                    // Empty List
+                    if (i < 1) {
+                      body.append(
+                        $('<center>', {
+                          class: 'p-0 pe-3 py-1 small',
+                        }).text("This message doesn't have any reactions... yet."),
+                      );
+                    } else {
+                      body.append(ul);
+                      body.append(content);
+                    }
+
+                    modal = btModal({
+                      title: 'Reactions',
+
+                      id: 'message-reactions',
+                      dialog: 'modal-lg modal-dialog-scrollable modal-dialog-centered',
+                      body,
+                    });
+                    hideMenu();
+                  }}
+                >
+                  View reactions
+                </MenuItem>
+              ) : null}
+
               <MenuItem
                 className="text-start"
                 faSrc="fa-solid fa-copy"
@@ -1002,15 +1059,17 @@ const MessageOptions = React.memo(
                         : plain(body, roomId, threadId, { kind: 'edit', onlyPlain: true }).plain,
                     );
                     toast('Text successfully copied to the clipboard.');
+                    hideMenu();
                   } else {
                     toast('No text was found in this message.');
+                    hideMenu();
                   }
                 }}
               >
                 Copy text
               </MenuItem>
 
-              {!mx.isRoomEncrypted(roomId) && canPinMessage(room, myUserId) ? (
+              {!room.hasEncryptionStateEvent() && canPinMessage(room, myUserId) ? (
                 <MenuItem
                   className="text-start"
                   faSrc={`bi bi-pin-angle${!isPinnedMessage(room, eventid) ? '-fill' : ''}`}
@@ -1079,6 +1138,7 @@ const MessageOptions = React.memo(
 
 // Options Default
 MessageOptions.propTypes = {
+  haveReactions: PropTypes.bool,
   roomid: PropTypes.string,
   threadId: PropTypes.string,
   senderid: PropTypes.string,
@@ -1138,7 +1198,7 @@ const MessageThreadSummary = React.memo(({ thread }) => {
           {thread.length} message{thread.length > 1 ? 's' : ''} ›
         </Text>
       </div>
-      <div className="message__threadSummary-lastReply text-truncate text-white">
+      <div className="message__threadSummary-lastReply text-truncate text-bg">
         {lastReply ? (
           <>
             {lastSender ? (
@@ -1735,6 +1795,7 @@ function Message({
           <td className="p-0 pe-3 py-1" colSpan={!children ? '2' : ''}>
             {!isGuest && !disableActions && roomTimeline && !isEdit && (
               <MessageOptions
+                haveReactions={haveReactions}
                 refRoomInput={refRoomInput}
                 customHTML={customHTML}
                 body={body}
@@ -1875,6 +1936,7 @@ function Message({
       <td className="p-0 pe-3 py-1">
         {!isGuest && !disableActions && roomTimeline && !isEdit && (
           <MessageOptions
+            haveReactions={haveReactions}
             refRoomInput={refRoomInput}
             roomid={roomId}
             threadId={threadId}

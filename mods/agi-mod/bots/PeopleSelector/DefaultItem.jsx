@@ -12,15 +12,15 @@ import { colorMXID } from '@src/util/colorMXID';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
 
 function PeopleSelector({
-  avatarSrc,
-  avatarAnimSrc,
+  avatarSrc = null,
+  avatarAnimSrc = null,
   name,
   color,
-  peopleRole,
+  peopleRole = null,
   onClick,
-  user,
-  disableStatus,
-  avatarSize,
+  user = null,
+  disableStatus = false,
+  avatarSize = 32,
   contextMenu,
   agents,
 }) {
@@ -98,6 +98,7 @@ function PeopleSelector({
     user && agents && typeof agents[user.userId] === 'boolean' && agents[user.userId]
       ? true
       : false; */
+  console.log(agents);
   const isAgent = true;
   let newName = typeof name === 'string' ? name.split(':')[0] : '';
   if (newName.startsWith('@')) newName = newName.substring(1);
@@ -148,15 +149,6 @@ function PeopleSelector({
     </div>
   );
 }
-
-PeopleSelector.defaultProps = {
-  avatarSize: 32,
-  avatarAnimSrc: null,
-  avatarSrc: null,
-  peopleRole: null,
-  user: null,
-  disableStatus: false,
-};
 
 PeopleSelector.propTypes = {
   avatarSize: PropTypes.number,

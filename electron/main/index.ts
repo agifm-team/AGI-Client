@@ -99,11 +99,13 @@ async function createWindow() {
     win = new BrowserWindow({
       title,
       icon,
+      frame: false,
+      transparent: true,
+      titleBarStyle: 'hidden',
       show: true,
       autoHideMenuBar: true,
       width: bounds.width,
       height: bounds.height,
-      backgroundColor: '#282c34',
       minWidth: 700,
       minHeight: 400,
       webPreferences: {
@@ -123,6 +125,54 @@ async function createWindow() {
         relaunchDisplayName: title,
       });
     }
+
+    win.on('maximize', () => {
+      if (win && win.webContents) win.webContents.send('window-is-maximized', true);
+    });
+
+    win.on('unmaximize', () => {
+      if (win && win.webContents) win.webContents.send('window-is-maximized', false);
+    });
+
+    win.on('will-resize', () => {
+      if (win && win.webContents) {
+        win.webContents.send('window-is-maximized', win.isMaximized());
+      }
+    });
+
+    win.on('resize', () => {
+      if (win && win.webContents) {
+        win.webContents.send('window-is-maximized', win.isMaximized());
+      }
+    });
+
+    win.on('resized', () => {
+      if (win && win.webContents) {
+        win.webContents.send('window-is-maximized', win.isMaximized());
+      }
+    });
+
+    ipcMain.on('window-is-maximized', () => {
+      if (win && win.webContents) {
+        win.webContents.send('window-is-maximized', win.isMaximized());
+      }
+    });
+
+    ipcMain.on('window-maximize', () => {
+      if (win) win.maximize();
+    });
+
+    ipcMain.on('window-unmaximize', () => {
+      if (win) win.unmaximize();
+    });
+
+    ipcMain.on('window-minimize', () => {
+      if (win) win.minimize();
+    });
+
+    ipcMain.on('window-close', () => {
+      if (win) win.hide();
+    });
 
     ipcMain.on('change-app-icon', (event, img) => {
       try {

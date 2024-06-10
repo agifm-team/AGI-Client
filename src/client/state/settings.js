@@ -19,19 +19,45 @@ import silverTheme from '../../scss/theme/silver';
 import whiteTheme from '../../scss/theme/white';
 
 const themes = {
-  black: { data: blackTheme, id: 'black-theme', type: 'dark-solid' },
+  black: { data: blackTheme, id: 'black-theme', type: 'dark-solid', coloredIcons: false },
+  black_colors: {
+    data: blackTheme,
+    id: 'black-colors-theme',
+    type: 'dark-solid',
+    coloredIcons: true,
+  },
 
-  butter: { data: butterTheme, id: 'butter-theme', type: 'dark2' },
-  butter_no_gradient: { data: butterTheme, id: 'butter-theme-no-gradient', type: 'dark2-solid' },
+  butter: { data: butterTheme, id: 'butter-theme', type: 'dark2', coloredIcons: false },
+  butter_no_gradient: {
+    data: butterTheme,
+    id: 'butter-theme-no-gradient',
+    type: 'dark2-solid',
+    coloredIcons: false,
+  },
 
-  dark: { data: darkTheme, id: 'dark-theme', type: 'dark' },
-  dark_no_gradient: { data: darkTheme, id: 'dark-theme-no-gradient', type: 'dark-solid' },
+  dark: { data: darkTheme, id: 'dark-theme', type: 'dark', coloredIcons: false },
+  dark_no_gradient: {
+    data: darkTheme,
+    id: 'dark-theme-no-gradient',
+    type: 'dark-solid',
+    coloredIcons: false,
+  },
 
-  silver: { data: silverTheme, id: 'silver-theme', type: 'silver' },
-  silver_no_gradient: { data: silverTheme, id: 'silver-theme-no-gradient', type: 'silver-solid' },
+  silver: { data: silverTheme, id: 'silver-theme', type: 'silver', coloredIcons: false },
+  silver_no_gradient: {
+    data: silverTheme,
+    id: 'silver-theme-no-gradient',
+    type: 'silver-solid',
+    coloredIcons: false,
+  },
 
-  white: { data: whiteTheme, id: '', type: 'light' },
-  white_no_gradient: { data: whiteTheme, id: 'white-theme-no-gradient', type: 'light-solid' },
+  white: { data: whiteTheme, id: '', type: 'light', coloredIcons: false },
+  white_no_gradient: {
+    data: whiteTheme,
+    id: 'white-theme-no-gradient',
+    type: 'light-solid',
+    coloredIcons: false,
+  },
 };
 
 function getSettings() {
@@ -60,6 +86,7 @@ class Settings extends EventEmitter {
       themes.butter,
       themes.butter_no_gradient,
       themes.black,
+      themes.black_colors,
     ];
 
     this.themesName = [
@@ -72,6 +99,7 @@ class Settings extends EventEmitter {
       { text: 'Butter' },
       { text: 'Butter (No Gradients)' },
       { text: 'Black (Beta)' },
+      { text: 'Black Colors (Beta)' },
     ];
 
     this.defaultSystemThemeType = {
@@ -115,6 +143,7 @@ class Settings extends EventEmitter {
       },
     );
 
+    this.systemIsDark = null;
     this.useSystemTheme = this.getUseSystemTheme();
     this.isMarkdown = this.getIsMarkdown();
     this.isPeopleDrawer = this.getIsPeopleDrawer();
@@ -126,6 +155,13 @@ class Settings extends EventEmitter {
 
     this.isTouchScreenDevice =
       'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
+  }
+
+  getSystemTheme() {
+    return {
+      enabled: this.useSystemTheme,
+      isDark: this.systemIsDark,
+    };
   }
 
   getThemeIndex() {
@@ -192,6 +228,32 @@ class Settings extends EventEmitter {
     return this.themes[this.themeIndex].type;
   }
 
+  _checkThemeIsColored(theme) {
+    return theme && typeof theme.coloredIcons === 'boolean' && theme.coloredIcons ? true : false;
+  }
+
+  isSelectedThemeColored() {
+    return this._checkThemeIsColored(this.themes[this.themeIndex]);
+  }
+
+  isThemeColored(id) {
+    return this._checkThemeIsColored(this.getThemeById(id));
+  }
+
+  isThemeColoredDetector(useEffect, setIsColored) {
+    const tinyThis = this;
+    useEffect(() => {
+      const isColoredDetector = (index, theme) => {
+        setIsColored(tinyThis._checkThemeIsColored(theme));
+      };
+
+      tinyThis.on(cons.events.settings.THEME_APPLIED, isColoredDetector);
+      return () => {
+        tinyThis.off(cons.events.settings.THEME_APPLIED, isColoredDetector);
+      };
+    });
+  }
+
   changeMobileBackground(value = 'default') {
     const data = this.themes[this.themeIndex]?.data;
     return new Promise((resolve, reject) => {
@@ -246,10 +308,12 @@ class Settings extends EventEmitter {
       body.addClass('discord-style');
     }
 
+    this.systemIsDark =
+      window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     if (useSystemTheme) {
       body.addClass('system-theme');
 
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      if (this.systemIsDark) {
         body.addClass(this.defaultSystemThemeType.dark);
       } else {
         body.addClass(this.defaultSystemThemeType.light);

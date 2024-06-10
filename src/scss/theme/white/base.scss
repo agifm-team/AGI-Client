@@ -4,6 +4,11 @@
   --font-primary: 'Atkinson Hyperlegible', sans-serif;
   --font-secondary: 'Atkinson Hyperlegible', sans-serif;
 
+  --selection-color: #fff;
+  --selection-background: rgb(19, 160, 196);
+
+  --bg-electron-border: #a1a1a1;
+
   --bg-auth-normal: rgb(196, 196, 196);
   --bg-auth-gradient: linear-gradient(
     0deg,
@@ -416,6 +421,7 @@
 
 body.discord-style {
   font-family: 'gg sans Normal Regular';
+
   #chatbox {
     .username-base {
       font-family: 'gg sans SemiBold Regular';
@@ -448,5 +454,11 @@ body.discord-style {
 
   .badge:not(.notification-badge) {
     font-size: 0.8em;
+  }
+
+  strong,
+  b {
+    font-family: 'gg sans SemiBold Regular';
+    font-weight: normal;
   }
 }

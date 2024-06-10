@@ -10,6 +10,7 @@ import { blurOnBubbling } from '../../atoms/button/script';
 const SidebarAvatar = React.forwardRef(
   (
     {
+      id = null,
       className = null,
       tooltip,
       active = false,
@@ -27,6 +28,7 @@ const SidebarAvatar = React.forwardRef(
     return (
       <Tooltip content={<Text variant="b1">{twemojifyReact(tooltip)}</Text>} placement="right">
         <button
+          id={id}
           ref={ref}
           className={classes.join(' ')}
           type="button"

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { objType } from 'for-promise/utils/lib.mjs';
 
 import envAPI from '@src/util/libs/env';
+import settings from '@src/client/state/settings';
 
 import initMatrix from '../../../../client/initMatrix';
 import cons from '../../../../client/state/cons';
@@ -36,6 +37,9 @@ export default function FeaturedTab() {
   const { roomList, accountData, notifications } = initMatrix;
   const [selectedTab] = useSelectedTab();
   useNotificationUpdate();
+
+  const [isIconsColored, setIsIconsColored] = useState(settings.isSelectedThemeColored());
+  settings.isThemeColoredDetector(useEffect, setIsIconsColored);
 
   const mx = initMatrix.matrixClient;
   const appearanceSettings = getAppearance();
@@ -113,7 +117,13 @@ export default function FeaturedTab() {
           selectTab(cons.tabs.HOME);
         }}
         avatar={
-          <Avatar faSrc="fa-solid fa-house" size="normal" className="profile-image-container" />
+          <Avatar
+            neonColor
+            faSrc="fa-solid fa-house"
+            size="normal"
+            iconColor={!isIconsColored ? null : 'rgb(118, 232, 84)'}
+            className="profile-image-container"
+          />
         }
         notificationBadge={
           homeNoti ? (
@@ -134,7 +144,13 @@ export default function FeaturedTab() {
           selectTab(cons.tabs.DIRECTS);
         }}
         avatar={
-          <Avatar faSrc="fa-solid fa-user" className="profile-image-container" size="normal" />
+          <Avatar
+            neonColor
+            faSrc="fa-solid fa-user"
+            className="profile-image-container"
+            iconColor={!isIconsColored ? null : 'rgb(0 159 255)'}
+            size="normal"
+          />
         }
         notificationBadge={
           dmsNoti ? (
@@ -156,6 +172,8 @@ export default function FeaturedTab() {
           onClick={() => openSettings(settingTabText.WEB3)}
           avatar={
             <Avatar
+              neonColor
+              iconColor={!isIconsColored ? null : 'rgb(121, 231, 231)'}
               faSrc="fa-brands fa-ethereum"
               size="normal"
               className="profile-image-container"

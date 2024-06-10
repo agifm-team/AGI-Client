@@ -176,7 +176,6 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                 tooltipPlacement="bottom"
                 onClick={navigationSidebarCallback}
               />
-
               <IconButton
                 className="nav-link nav-sidebar-2"
                 fa={`fa-solid ${!threadId ? 'fa-chevron-right' : 'fa-arrow-right-from-bracket'}`}
@@ -260,13 +259,12 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                   mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', agiSettings);
                 }}
                 tooltipPlacement="bottom"
-                tooltip={`${
-                  objType(pixxEmbeds.data, 'object') &&
+                tooltip={`${objType(pixxEmbeds.data, 'object') &&
                   pixxEmbeds.roomId === roomId &&
                   pixxEmbeds.data.visible
-                    ? 'Hide'
-                    : 'Show'
-                } Embed`}
+                  ? 'Hide'
+                  : 'Show'
+                  } Embed`}
                 fa={`fa-solid fa-${pixxEmbedVisible ? 'window-minimize' : 'window-restore'}`}
               />
             </li>
@@ -297,7 +295,7 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
               </li>
             ) : null}
 
-            {mx.isRoomEncrypted(roomId) === false && (
+            {room.hasEncryptionStateEvent() === false && (
               <>
                 <li className="nav-item">
                   <IconButton

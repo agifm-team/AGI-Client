@@ -39,7 +39,7 @@ function ExportE2ERoomKeys() {
       type: cons.status.IN_FLIGHT,
     });
     try {
-      const keys = await initMatrix.matrixClient.exportRoomKeys();
+      const keys = await initMatrix.matrixClient.getCrypto().exportRoomKeys();
       if (isMountStore.getItem()) {
         setStatus({
           isOngoing: true,
@@ -51,7 +51,7 @@ function ExportE2ERoomKeys() {
       const blob = new Blob([encKeys], {
         type: 'text/plain;charset=us-ascii',
       });
-      FileSaver.saveAs(blob, 'cinny-keys.txt');
+      FileSaver.saveAs(blob, 'pony-house-keys.txt');
       if (isMountStore.getItem()) {
         setStatus({
           isOngoing: false,

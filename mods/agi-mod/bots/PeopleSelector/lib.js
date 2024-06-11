@@ -40,7 +40,7 @@ export const checkRoomAgents = (roomId, info) =>
     fetch(`https://bots.${serverDomain}/bots/${roomId}/check`, {
       method: 'POST',
       headers: {
-        Accept: 'application/json',
+        'content-type': 'application/json',
       },
       body: JSON.stringify(info),
     })

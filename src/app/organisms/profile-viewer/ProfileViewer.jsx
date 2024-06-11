@@ -6,7 +6,7 @@ import { serverDomain } from '@mods/agi-mod/socket';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
 import { duplicatorAgent, reconnectAgent } from '@mods/agi-mod/bots/PeopleSelector/lib';
 import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
-import YamlEditor from '@mods/agi-mod/components/YamlEditor';
+// import YamlEditor from '@mods/agi-mod/components/YamlEditor';
 import { openSuperAgent } from '@mods/agi-mod/menu/Buttons';
 
 import { twemojifyReact } from '../../../util/twemojify';

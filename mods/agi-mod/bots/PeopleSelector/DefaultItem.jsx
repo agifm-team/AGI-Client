@@ -94,12 +94,10 @@ function PeopleSelector({
   */
 
   const defaultAvatar = avatarDefaultColor(colorMXID(user ? user.userId : 0));
-  /* const isAgent =
+  const isAgent =
     user && agents && typeof agents[user.userId] === 'boolean' && agents[user.userId]
       ? true
-      : false; */
-  console.log(agents);
-  const isAgent = true;
+      : false;
   let newName = typeof name === 'string' ? name.split(':')[0] : '';
   if (newName.startsWith('@')) newName = newName.substring(1);
 

@@ -153,7 +153,11 @@ function PeopleDrawer({
           }
         }
 
-        checkRoomAgents(roomId, { bots })
+        const botData = {
+          "bots" : bots
+        }
+
+        checkRoomAgents(roomId, botData)
           .then((data) => {
             setAgents(data);
             setMemberList(simplyfiMembers(membersData));

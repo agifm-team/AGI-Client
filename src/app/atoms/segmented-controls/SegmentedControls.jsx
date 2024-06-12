@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import RawIcon from '../system-icons/RawIcon';
 
 function SegmentedControls({
+  disabled = false,
   selected,
   segments,
   onSelect,
@@ -11,12 +12,13 @@ function SegmentedControls({
   className,
   type = 'buttons',
   iconSrc,
+  chooseText = 'Choose...',
 }) {
   const [select, setSelect] = useState(selected);
 
-  function selectSegment(segmentIndex) {
+  function selectSegment(segmentIndex, segValue) {
     setSelect(segmentIndex);
-    onSelect(segmentIndex);
+    onSelect(segmentIndex, segValue);
   }
 
   useEffect(() => {
@@ -27,10 +29,12 @@ function SegmentedControls({
     <div className={`btn-group noselect ${className}`} role="group">
       {segments.map((segment, index) => (
         <button
+          seg_value={segment.value}
           key={Math.random().toString(20).substring(2, 6)}
-          className={`btn btn-theme ${select === index ? ' active' : ''}`}
+          className={`btn btn-theme ${select === index ? ' active' : ''}${disabled ? ' disabled' : ''}`}
           type="button"
           onClick={() => selectSegment(index)}
+          disabled={disabled}
         >
           {segment.iconSrc && <RawIcon size="small" src={segment.iconSrc} />}
           {segment.text && <small>{segment.text}</small>}
@@ -39,13 +43,17 @@ function SegmentedControls({
     </div>
   ) : type === 'select' ? (
     <select
-      className="form-select form-control-bg"
+      disabled={disabled}
+      value={select}
+      className={`form-select form-control-bg${disabled ? ' disabled' : ''}`}
       onChange={(event) => {
+        const el = $(event.target);
         const value = $(event.target).val();
+        const segValue = $(event.target).attr('seg_value');
         if (typeof value === 'string' && value.length > 0) {
           const index = Number(value);
           if (!Number.isNaN(index) && Number.isFinite(index) && index > -1) {
-            selectSegment(index);
+            selectSegment(index, segValue);
           } else if (typeof onEmpty === 'function') {
             onEmpty();
           }
@@ -56,15 +64,11 @@ function SegmentedControls({
     >
       <option>
         {iconSrc && <RawIcon size="small" src={iconSrc} />}
-        <small>Choose...</small>
+        <small>{chooseText}</small>
       </option>
 
       {segments.map((segment, index) => (
-        <option
-          value={index}
-          selected={select === index}
-          key={Math.random().toString(20).substring(2, 6)}
-        >
+        <option value={index} key={Math.random().toString(20).substring(2, 6)}>
           {segment.iconSrc && <RawIcon size="small" src={segment.iconSrc} />}
           {segment.text && <small>{segment.text}</small>}
         </option>
@@ -74,6 +78,7 @@ function SegmentedControls({
 }
 
 SegmentedControls.propTypes = {
+  disabled: PropTypes.bool,
   iconSrc: PropTypes.string,
   type: PropTypes.string,
   className: PropTypes.string,

@@ -243,7 +243,7 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence
       if (isMountedRef.current === false) return;
       setIsCreatingDM(false);
       console.error(err);
-      alert(err.message);
+      alert(err.message, 'Creating DM Error');
     }
   };
 
@@ -784,7 +784,7 @@ function ProfileViewer() {
         })
         .catch((err) => {
           console.error(err);
-          alert(err.message);
+          alert(err.message, 'Get Profile Error');
         });
 
       return () => {

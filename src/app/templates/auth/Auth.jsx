@@ -36,14 +36,25 @@ function Auth() {
 
   return (
     <>
-      <ElectronSidebar />
-      <section className="vh-100 auth-base">
-        <div className="container py-5 h-100">
-          <div className="row d-flex justify-content-center align-items-center h-100">
-            <div className="col col-xl-10 tiny-box">
-              <div className="card">
-                <div className="row g-0">
-                  <div className="col-md-6 col-lg-5 d-none d-md-block banner" />
+      {loginToken && <LoadingScreen message="Redirecting..." />}
+      {!loginToken && (
+        <>
+          <AuthCard />
+          <Welcome isGuest />
+        </>
+      )}
+    </>
+  );
+
+  /*
+  return (
+    <section className="vh-100 auth-base">
+      <div className="container py-5 h-100">
+        <div className="row d-flex justify-content-center align-items-center h-100">
+          <div className="col col-xl-10 tiny-box">
+            <div className="card">
+              <div className="row g-0">
+                <div className="col-md-6 col-lg-5 d-none d-md-block banner" />
 
                   <div className="col-md-6 col-lg-7 d-flex align-items-center card-fullscren-base">
                     <div className="card-body p-lg-4 px-lg-5">
@@ -92,18 +103,43 @@ function Auth() {
                             </a>
                           </div>
                         </div>
-                      </section>
-                    </div>
-                  </div >
-                </div >
-              </div >
-            </div >
-          </div >
-        </div >
-      </section >
+
+                        <AuthCard />
+                      </>
+                    )}
+
+                    <section className="border-top border-bg py-4 footer">
+                      <div className="row text-center d-flex justify-content-center">
+                        <div className="col-md-4 small">
+                          <a href="https://github.com/pixxels-team/Pixxels-App/releases" rel="noreferrer" className="text-bg-force" target="_blank">{`Version ${cons.version}`}</a>
+                        </div>
+
+                        <div className="col-md-4 small">
+                          <a href="https://twitter.com/seshubon" target="_blank" rel="noreferrer" className="text-bg-force">Twitter</a>
+                        </div>
+
+                        <div className="col-md-4 small">
+                          <a
+                            href="https://matrix.org"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-bg-force"
+                          >
+                            Powered by Matrix
+                          </a>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </>
   );
-  * /
+  */
 }
 
 export default Auth;

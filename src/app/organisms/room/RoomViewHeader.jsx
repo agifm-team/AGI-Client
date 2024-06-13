@@ -259,12 +259,13 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                   mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', agiSettings);
                 }}
                 tooltipPlacement="bottom"
-                tooltip={`${objType(pixxEmbeds.data, 'object') &&
+                tooltip={`${
+                  objType(pixxEmbeds.data, 'object') &&
                   pixxEmbeds.roomId === roomId &&
                   pixxEmbeds.data.visible
-                  ? 'Hide'
-                  : 'Show'
-                  } Embed`}
+                    ? 'Hide'
+                    : 'Show'
+                } Embed`}
                 fa={`fa-solid fa-${pixxEmbedVisible ? 'window-minimize' : 'window-restore'}`}
               />
             </li>

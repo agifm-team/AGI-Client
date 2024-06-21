@@ -193,14 +193,16 @@ export function genRoomVia(room) {
   return via.concat(mostPop3.slice(0, 2));
 }
 
-export function isCrossVerified(deviceId) {
+export async function isCrossVerified(deviceId) {
   try {
     const mx = initMatrix.matrixClient;
-    const crossSignInfo = mx.getStoredCrossSigningForUser(mx.getUserId());
-    const deviceInfo = mx.getStoredDevice(mx.getUserId(), deviceId);
-    const deviceTrust = crossSignInfo.checkDeviceTrust(crossSignInfo, deviceInfo, false, true);
-    return deviceTrust.isCrossSigningVerified();
-  } catch {
+    const crypto = mx.getCrypto();
+    const deviceTrust = await crypto.getDeviceVerificationStatus(mx.getUserId(), deviceId);
+    return (
+      deviceTrust.crossSigningVerified || deviceTrust.signedByOwner || deviceTrust.localVerified
+    );
+  } catch (err) {
+    console.error(err);
     // device does not support encryption
     return null;
   }
@@ -230,11 +232,22 @@ export function getSSKeyInfo(key) {
   }
 }
 
-export async function hasDevices(userId) {
+export async function getDevices(userId) {
   const mx = initMatrix.matrixClient;
   const Crypto = initMatrix.matrixClient.getCrypto();
+  const mainUserId = mx.getUserId();
+  if (userId !== mainUserId) {
+    const usersDeviceMap = await Crypto.getUserDeviceInfo([userId, mainUserId]);
+    return usersDeviceMap;
+  } else {
+    const usersDeviceMap = await Crypto.getUserDeviceInfo([userId]);
+    return usersDeviceMap;
+  }
+}
+
+export async function hasDevices(userId) {
   try {
-    const usersDeviceMap = await Crypto.getUserDeviceInfo([userId, mx.getUserId()]);
+    const usersDeviceMap = await getDevices(userId);
     return Object.values(usersDeviceMap).every(
       (userDevices) => Object.keys(userDevices).length > 0,
     );
@@ -242,4 +255,42 @@ export async function hasDevices(userId) {
     console.error(`[matrix] Error determining if it's possible to encrypt to all users: `, e);
     return false;
   }
+}
+
+export async function hasDevice(userId, deviceId) {
+  try {
+    const usersDeviceMap = await getDevices(userId);
+    if (typeof deviceId !== 'undefined') return usersDeviceMap.get(userId).get(deviceId);
+    else return usersDeviceMap.get(userId);
+  } catch (e) {
+    console.error(`[matrix] Error determining if it's possible to encrypt to all users: `, e);
+    return null;
+  }
+}
+
+if (__ENV_APP__.MODE === 'development') {
+  global.matrixUtil = {
+    eventMaxListeners,
+    getBaseUrl,
+    getUsername,
+    getUsernameOfRoomMember,
+    isRoomAliasAvailable,
+    getPowerLabel,
+    parseReply,
+    trimHTMLReply,
+    hasDMWith,
+    getCurrentState,
+    joinRuleToIconSrc,
+    getHighestPowerUserId,
+    getIdServer,
+    getServerToPopulation,
+    genRoomVia,
+    isCrossVerified,
+    hasCrossSigningAccountData,
+    getDefaultSSKey,
+    getSSKeyInfo,
+    getDevices,
+    hasDevices,
+    hasDevice,
+  };
 }

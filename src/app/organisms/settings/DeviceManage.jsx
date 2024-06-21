@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import moment, { momentFormat } from '@src/util/libs/momentjs';
 
 import initMatrix from '../../../client/initMatrix';
-import { isCrossVerified } from '../../../util/matrixUtil';
+import { eventMaxListeners, isCrossVerified } from '../../../util/matrixUtil';
 import { openReusableDialog, openEmojiVerification } from '../../../client/action/navigation';
 
 import Text from '../../atoms/text/Text';
@@ -69,9 +69,81 @@ function DeviceManage() {
   const { deviceList, deviceKeys } = useDeviceList();
   const [processing, setProcessing] = useState([]);
   const [truncated, setTruncated] = useState(true);
+
+  const [devicesChecked, setDevicesChecked] = useState(false);
+  const [unverified, setUnverified] = useState([]);
+  const [verified, setVerified] = useState([]);
+  const [noEncryption, setNotEncryption] = useState([]);
+
   const mountStore = useStore();
   mountStore.setItem(true);
-  const isMeVerified = isCrossVerified(mx.deviceId);
+  const [isMeVerified, setIsMeVerified] = useState(null);
+
+  useEffect(() => {
+    if (isMeVerified === null) {
+      isCrossVerified(mx.deviceId)
+        .then((isVerified) => {
+          setIsMeVerified(isVerified);
+        })
+        .catch((err) => {
+          console.error(err);
+          alert(err.message);
+        });
+    }
+
+    if (!devicesChecked && deviceList) {
+      setDevicesChecked(true);
+      const checkDevices = async () => {
+        const tinyVerified = [];
+        const tinyUnverified = [];
+        const tinyNoEncryption = [];
+
+        for (const item in deviceList) {
+          const device = deviceList[item];
+          try {
+            const isVerified = await isCrossVerified(device.device_id);
+            if (isVerified === true) {
+              tinyVerified.push(device);
+            } else if (isVerified === false) {
+              tinyUnverified.push(device);
+            } else {
+              tinyNoEncryption.push(device);
+            }
+          } catch {
+            tinyNoEncryption.push(device);
+          }
+        }
+
+        setUnverified(tinyUnverified);
+        setVerified(tinyVerified);
+        setNotEncryption(tinyNoEncryption);
+      };
+
+      checkDevices();
+    }
+
+    try {
+      const updateList = () => setDevicesChecked(false);
+      const crypto = mx.getCrypto();
+      crypto.setMaxListeners(eventMaxListeners);
+      crypto.on('deviceVerificationChanged', updateList);
+      crypto.on('userCrossSigningUpdated', updateList);
+      crypto.on('userTrustStatusChanged', updateList);
+      crypto.on('crypto.devicesUpdated', updateList);
+      crypto.on('crypto.verificationRequestReceived', updateList);
+      crypto.on('crypto.willUpdateDevices', updateList);
+      return () => {
+        crypto.off('deviceVerificationChanged', updateList);
+        crypto.off('userCrossSigningUpdated', updateList);
+        crypto.off('userTrustStatusChanged', updateList);
+        crypto.off('crypto.devicesUpdated', updateList);
+        crypto.off('crypto.verificationRequestReceived', updateList);
+        crypto.off('crypto.willUpdateDevices', updateList);
+      };
+    } catch (err) {
+      console.error(err);
+    }
+  });
 
   useEffect(() => {
     setProcessing([]);
@@ -225,21 +297,7 @@ function DeviceManage() {
     );
   };
 
-  const unverified = [];
-  const verified = [];
-  const noEncryption = [];
-  deviceList
-    .sort((a, b) => b.last_seen_ts - a.last_seen_ts)
-    .forEach((device) => {
-      const isVerified = isCrossVerified(device.device_id);
-      if (isVerified === true) {
-        verified.push(device);
-      } else if (isVerified === false) {
-        unverified.push(device);
-      } else {
-        noEncryption.push(device);
-      }
-    });
+  deviceList.sort((a, b) => b.last_seen_ts - a.last_seen_ts);
   return (
     <div className="card noselect">
       <ul className="list-group list-group-flush">

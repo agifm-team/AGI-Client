@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import settings from '@src/client/state/settings';
 import { openSuperAgent } from '@mods/agi-mod/menu/Buttons';
+import initMatrix from '@src/client/initMatrix';
 
 import { openShortcutSpaces, openSearch, openSettings } from '../../../../client/action/navigation';
 
-import { isCrossVerified } from '../../../../util/matrixUtil';
+import { eventMaxListeners, isCrossVerified } from '../../../../util/matrixUtil';
 
 import Avatar from '../../../atoms/avatar/Avatar';
 import ScrollView from '../../../atoms/scroll/ScrollView';
@@ -19,7 +20,54 @@ import InviteSidebar from './InviteSidebar';
 // Cross Sigin Alert
 function CrossSigninAlert({ isIconsColored }) {
   const { deviceList } = useDeviceList();
-  const unverified = deviceList?.filter((device) => isCrossVerified(device.device_id) === false);
+  const [unverified, setUnverified] = useState([]);
+  const [devicesChecked, setDevicesChecked] = useState(false);
+
+  useEffect(() => {
+    const mx = initMatrix.matrixClient;
+    if (!devicesChecked && deviceList) {
+      setDevicesChecked(true);
+      const checkDevices = async () => {
+        const tinyUnverified = [];
+
+        for (const item in deviceList) {
+          const device = deviceList[item];
+          try {
+            const isVerified = await isCrossVerified(device.device_id);
+            if (isVerified === false) {
+              tinyUnverified.push(device);
+            }
+          } catch { }
+        }
+
+        setUnverified(tinyUnverified);
+      };
+
+      checkDevices();
+    }
+
+    try {
+      const updateList = () => setDevicesChecked(false);
+      const crypto = mx.getCrypto();
+      crypto.setMaxListeners(eventMaxListeners);
+      crypto.on('deviceVerificationChanged', updateList);
+      crypto.on('userCrossSigningUpdated', updateList);
+      crypto.on('userTrustStatusChanged', updateList);
+      crypto.on('crypto.devicesUpdated', updateList);
+      crypto.on('crypto.verificationRequestReceived', updateList);
+      crypto.on('crypto.willUpdateDevices', updateList);
+      return () => {
+        crypto.off('deviceVerificationChanged', updateList);
+        crypto.off('userCrossSigningUpdated', updateList);
+        crypto.off('userTrustStatusChanged', updateList);
+        crypto.off('crypto.devicesUpdated', updateList);
+        crypto.off('crypto.verificationRequestReceived', updateList);
+        crypto.off('crypto.willUpdateDevices', updateList);
+      };
+    } catch (err) {
+      console.error(err);
+    }
+  });
 
   if (!unverified?.length) return null;
 

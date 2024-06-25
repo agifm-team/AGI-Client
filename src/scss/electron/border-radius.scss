@@ -2,11 +2,10 @@ body.electron-mode:not(.electron-maximized) {
   --electron-body-radius: 10px;
   border-radius: var(--electron-body-radius) !important;
 
-  #setting-close {
-    right: 1px !important;
-  }
-
-  #dropzone {
+  #dropzone,
+  .app-loading-wrap,
+  .loaders-css__square-spin,
+  .container__loaders-css {
     border-bottom-left-radius: var(--electron-body-radius) !important;
     border-bottom-right-radius: var(--electron-body-radius) !important;
   }
@@ -24,8 +23,7 @@ body.electron-mode:not(.electron-maximized) {
   }
 
   #root {
-    border-bottom-right-radius: var(--electron-body-radius) !important;
-    border-bottom-left-radius: var(--electron-body-radius) !important;
+    border-radius: var(--electron-body-radius) !important;
 
     > .client-container {
       border-bottom-right-radius: var(--electron-body-radius) !important;
@@ -60,10 +58,13 @@ body.electron-mode:not(.electron-maximized) {
 
   .modal-backdrop,
   .modal {
-    border-radius: var(--electron-body-radius) !important;
+    border-bottom-right-radius: var(--electron-body-radius) !important;
+    border-bottom-left-radius: var(--electron-body-radius) !important;
   }
 
   .pswp.pswp--open {
+    border-bottom-right-radius: var(--electron-body-radius) !important;
+    border-bottom-left-radius: var(--electron-body-radius) !important;
     .pswp__bg {
       border-bottom-right-radius: var(--electron-body-radius) !important;
       border-bottom-left-radius: var(--electron-body-radius) !important;
@@ -71,6 +72,15 @@ body.electron-mode:not(.electron-maximized) {
   }
 
   --electron-body-border: 1px solid var(--bg-electron-border);
+
+  .pswp.pswp--open {
+    .pswp__scroll-wrap {
+      border-left: var(--electron-body-border) !important;
+      border-right: var(--electron-body-border) !important;
+      border-bottom: var(--electron-body-border) !important;
+    }
+  }
+
   #root {
     > *:not(#electron-titlebar) {
       border-left: var(--electron-body-border) !important;

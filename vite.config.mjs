@@ -87,11 +87,6 @@ const copyFiles = {
     },
 
     {
-      src: 'node_modules/@matrix-org/olm/olm.wasm',
-      dest: '',
-    },
-
-    {
       src: 'config/config.json',
       dest: '',
     },
@@ -126,6 +121,13 @@ export default defineConfig(({ command, mode }) => {
   const addBooleanToEnv = (valueName) =>
     !!(env[valueName] === true || env[valueName] === 'true');
 
+  if (!addBooleanToEnv('RUST_CRYPTO_MODE')) {
+    copyFiles.targets.push({
+      src: 'node_modules/@matrix-org/olm/olm.wasm',
+      dest: '',
+    });
+  }
+
   const envData = {
 
     MODE: mode,
@@ -158,6 +160,13 @@ export default defineConfig(({ command, mode }) => {
       author: pkg.author,
       license: pkg.license,
       welcome: String(env.APP_WELCOME)
+    },
+
+    CONSOLE: {
+      OPEN_WARNING: [
+        `%cThis is a developer console! Putting weird things can result in theft of accounts or crashing your machine! Do not trust strange people asking you to paste things here!\n\nIf you are sending an error report to some developer, make sure that you are sending the data in a private chat. This data can be used to track which rooms/spaces/users you are interacting with.\n\n\nIf you are using crypto/web3 in your client, READ THIS WARNING 10000x BEFORE YOU'RE DOING SILLY STUFF HERE! YOU'RE RESPONSIBLE FOR YOUR OWN CUSTODY WALLET!`,
+        'color:red; font-size: 12pt; font-weight: 700;',
+      ]
     },
 
     WEB3: addBooleanToEnv('WEB3'),
@@ -260,7 +269,7 @@ export default defineConfig(({ command, mode }) => {
     ],
 
     optimizeDeps: {
-      exclude: ['rust-crypto'],
+      exclude: ['rust-crypto', 'vite'],
       esbuildOptions: {
 
         define: {

@@ -63,20 +63,9 @@ body.electron-mode {
     }
   }
 
-  .modal.show,
   #dropzone,
   .auth-base {
     padding-top: 29px !important;
-  }
-
-  .pswp.pswp--open {
-    .pswp__bg {
-      margin-top: 29px !important;
-    }
-    .pswp__container,
-    .pswp__top-bar {
-      padding-top: 29px;
-    }
   }
 
   .root-electron-style {
@@ -84,13 +73,11 @@ body.electron-mode {
     top: 29px !important;
   }
 
-  .loading-display {
-    .loading__menu {
-      margin-top: 29px !important;
-    }
+  .modal.root-electron-style {
+    position: fixed !important;
   }
 
-  [data-tippy-root] {
-    z-index: 999999999 !important;
+  .electron-full-screen-mode {
+    overflow-y: hidden;
   }
 }

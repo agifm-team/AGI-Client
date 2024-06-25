@@ -86,7 +86,7 @@ body.electron-mode .app-loading-wrap {
   oStyle.id = 'app-loading-style';
   oStyle.innerHTML = styleContent;
   oDiv.className = 'app-loading-wrap root-electron-style-solo';
-  oDiv.innerHTML = `<div class="${className}"><div class="${containerClass}"><div></div></div></div>`;
+  oDiv.innerHTML = `<div class="${className} root-electron-style-solo"><div class="${containerClass} root-electron-style-solo"><div></div></div></div>`;
 
   return {
     appendLoading() {
@@ -102,8 +102,8 @@ body.electron-mode .app-loading-wrap {
 
 // ----------------------------------------------------------------------
 
-startAutoLaunch();
 const { appendLoading, removeLoading } = useLoading();
+startAutoLaunch({ appendLoading, removeLoading });
 contextBridge.exposeInMainWorld('useLoadingElectron', { appendLoading, removeLoading });
 domReady().then(appendLoading);
 
@@ -146,13 +146,23 @@ contextBridge.exposeInMainWorld('setElectronResize', (callback: Function) => {
 });
 
 contextBridge.exposeInMainWorld('changeTrayIcon', (img: string) => {
-  if (img === 'cinny.png' || img === 'cinny-unread-red.png') {
+  if (
+    img === 'cinny.ico' ||
+    img === 'cinny-unread-red.ico' ||
+    img === 'cinny.png' ||
+    img === 'cinny-unread-red.png'
+  ) {
     ipcRenderer.send('change-tray-icon', img);
   }
 });
 
 contextBridge.exposeInMainWorld('changeAppIcon', (img: string) => {
-  if (img === 'cinny.png' || img === 'cinny-unread-red.png') {
+  if (
+    img === 'cinny.ico' ||
+    img === 'cinny-unread-red.ico' ||
+    img === 'cinny.png' ||
+    img === 'cinny-unread-red.png'
+  ) {
     ipcRenderer.send('change-app-icon', img);
   }
 });

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { objType } from 'for-promise/utils/lib.mjs';
 import settings from '@src/client/state/settings';
+import { canSupport } from '@src/util/matrixUtil';
 
 import * as linkify from 'linkifyjs';
 
@@ -259,13 +260,12 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                   mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', agiSettings);
                 }}
                 tooltipPlacement="bottom"
-                tooltip={`${
-                  objType(pixxEmbeds.data, 'object') &&
-                  pixxEmbeds.roomId === roomId &&
-                  pixxEmbeds.data.visible
+                tooltip={`${objType(pixxEmbeds.data, 'object') &&
+                    pixxEmbeds.roomId === roomId &&
+                    pixxEmbeds.data.visible
                     ? 'Hide'
                     : 'Show'
-                } Embed`}
+                  } Embed`}
                 fa={`fa-solid fa-${pixxEmbedVisible ? 'window-minimize' : 'window-restore'}`}
               />
             </li>
@@ -310,17 +310,19 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                   />
                 </li>
 
-                <li className="nav-item">
-                  <IconButton
-                    neonColor
-                    iconColor={!isIconsColored ? null : 'rgb(41, 220, 131)'}
-                    className="nav-link border-0 d-none d-sm-block"
-                    onClick={() => openThreadsMessageModal(room)}
-                    tooltipPlacement="bottom"
-                    tooltip="Threads"
-                    fa="bi bi-layers"
-                  />
-                </li>
+                {canSupport('Thread') ? (
+                  <li className="nav-item">
+                    <IconButton
+                      neonColor
+                      iconColor={!isIconsColored ? null : 'rgb(41, 220, 131)'}
+                      className="nav-link border-0 d-none d-sm-block"
+                      onClick={() => openThreadsMessageModal(room)}
+                      tooltipPlacement="bottom"
+                      tooltip="Threads"
+                      fa="bi bi-layers"
+                    />
+                  </li>
+                ) : null}
 
                 <li className="nav-item">
                   <IconButton

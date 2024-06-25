@@ -532,7 +532,7 @@ export function base64ToArrayBuffer(base64_string) {
 // https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repository-tags
 export const checkVersions = () =>
   new Promise((resolve, reject) => {
-    fetchFn(`https://api.github.com/repos/Pony-House/Client/tags`, {
+    fetchFn(`https://api.github.com/repos/pixxels-team/Pixxels-App/tags`, {
       method: 'GET',
       cache: 'no-cache',
       credentials: 'same-origin',

@@ -38,14 +38,12 @@ function Auth({ isDevToolsOpen = false }) {
   return (
     <>
       {loginToken && <LoadingScreen message="Redirecting..." />}
-      {
-        !loginToken && (
-          <>
-            <AuthCard />
-            <Welcome isGuest />
-          </>
-        )
-      }
+      {!loginToken && (
+        <>
+          <AuthCard />
+          <Welcome isGuest />
+        </>
+      )}
     </>
   );
 }

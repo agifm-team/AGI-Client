@@ -313,15 +313,15 @@ function Client({ isDevToolsOpen = false }) {
             onMouseEnter={
               isHoverSidebar
                 ? () => {
-                  if (isHoverSidebar) $('body').addClass('navigation-wrapper-hover');
-                }
+                    if (isHoverSidebar) $('body').addClass('navigation-wrapper-hover');
+                  }
                 : null
             }
             onMouseLeave={
               isHoverSidebar
                 ? () => {
-                  if (isHoverSidebar) $('body').removeClass('navigation-wrapper-hover');
-                }
+                    if (isHoverSidebar) $('body').removeClass('navigation-wrapper-hover');
+                  }
                 : null
             }
           >

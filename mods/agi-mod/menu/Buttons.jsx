@@ -3,6 +3,7 @@ import * as linkify from 'linkifyjs';
 import { objType } from 'for-promise/utils/lib.mjs';
 
 import { btModal } from '@src/util/tools';
+import userPid from '@src/util/libs/userPid';
 
 import initMatrix from '@src/client/initMatrix';
 import RawIcon from '@src/app/atoms/system-icons/RawIcon';
@@ -54,20 +55,7 @@ const createButton = (id, title, icon) =>
   );
 
 export async function getUserEmail() {
-  const pidData = await initMatrix.getAccount3pid();
-
-  if (
-    objType(pidData, 'object') &&
-    Array.isArray(pidData.threepids) &&
-    pidData.threepids.length > 0
-  ) {
-    for (const item in pidData.threepids) {
-      if (pidData.threepids[item].medium === 'email') {
-        email = pidData.threepids[item].address;
-        break;
-      }
-    }
-  }
+  email = await userPid.get('email');
 }
 
 export const openSuperAgent = (url = null) => {

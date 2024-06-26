@@ -6,10 +6,13 @@ import { registerValidator } from '@src/util/register';
 
 import SettingTile from '@src/app/molecules/setting-tile/SettingTile';
 import SettingsText from '@src/app/molecules/settings-text/SettingsText';
-import Button from '@src/app/atoms/button/Button';
+
 import moment, { momentFormat } from '@src/util/libs/momentjs';
-import IconButton from '@src/app/atoms/button/IconButton';
 import { btModal, tinyConfirm } from '@src/util/tools';
+
+import Checkbox from '@src/app/atoms/button/Checkbox';
+import Button from '@src/app/atoms/button/Button';
+import IconButton from '@src/app/atoms/button/IconButton';
 
 import SettingLoading from '@src/app/molecules/setting-loading/SettingLoading';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
@@ -24,6 +27,8 @@ function AccountSection() {
   const [newPassword2, setNewPassword2] = useState('');
   const [newEmail, setNewEmail] = useState(null);
   const [newPhone, setNewPhone] = useState(null);
+
+  const [logoutDevices, setLogoutDevices] = useState(false);
   const [bind] = useState(false);
 
   // Items list
@@ -338,12 +343,14 @@ function AccountSection() {
       <center className="very-small p-3 border-bottom border-bg"> No {title} found.</center>
     );
 
-  const updateValue = (callback, refItem) => (value, target, el, method) => {
-    callback(value);
-    if (method.isEnter) {
-      $(refItem.current).focus();
-    }
-  };
+  const updateValue =
+    (callback, refItem, err = null) =>
+    (value, target, el, method) => {
+      callback(value);
+      if (method.isEnter && !err) {
+        $(refItem.current).focus();
+      }
+    };
 
   // Complete
   return (
@@ -392,24 +399,40 @@ function AccountSection() {
                   maxLength={100}
                   isPassword
                   content={
-                    accountValidation.password || accountValidation.confirmPassword ? (
-                      <div className="very-small text-danger">
-                        {!accountValidation.confirmPassword && accountValidation.password && (
-                          <div className="password">{accountValidation.password}</div>
-                        )}
-                        {accountValidation.confirmPassword && (
-                          <div className="confirmPassword">{accountValidation.confirmPassword}</div>
-                        )}
+                    <>
+                      <div className="d-flex mb-1">
+                        <Checkbox isActive={logoutDevices} onToggle={setLogoutDevices} />
+                        <div className="small ms-2">Disconnect all other devices.</div>
                       </div>
-                    ) : (
+                      {accountValidation.password || accountValidation.confirmPassword ? (
+                        <div className="very-small text-danger">
+                          {!accountValidation.confirmPassword && accountValidation.password && (
+                            <div className="password">
+                              <i class="fa-solid fa-triangle-exclamation me-1" />
+                              {accountValidation.password}
+                            </div>
+                          )}
+                          {accountValidation.confirmPassword && (
+                            <div className="confirmPassword">
+                              <i class="fa-solid fa-triangle-exclamation me-1" />
+                              {accountValidation.confirmPassword}
+                            </div>
+                          )}
+                        </div>
+                      ) : null}
                       <Button
                         variant="primary"
-                        disabled={newPassword.length < 1}
+                        disabled={
+                          newPassword.length < 1 ||
+                          newPassword2.length < 1 ||
+                          accountValidation.password ||
+                          accountValidation.confirmPassword
+                        }
                         onClick={() => {}}
                       >
                         Change Password
                       </Button>
-                    )
+                    </>
                   }
                 />
               </>
@@ -434,18 +457,27 @@ function AccountSection() {
               <SettingsText
                 placeHolder="Email address"
                 value={newEmail}
-                onChange={updateValue(setNewEmail, submitEmail)}
+                onChange={updateValue(setNewEmail, submitEmail, accountValidation.email)}
                 maxLength={100}
                 isEmail
                 content={
-                  accountValidation.email ? (
-                    <div className="very-small text-danger">
-                      <span className="email">{accountValidation.email}</span>
-                    </div>
-                  ) : (
+                  <>
+                    {accountValidation.email ? (
+                      <div className="very-small text-danger mb-1">
+                        <span className="email">
+                          <i class="fa-solid fa-triangle-exclamation me-1" />
+                          {accountValidation.email}
+                        </span>
+                      </div>
+                    ) : null}
                     <Button
                       ref={submitEmail}
                       variant="primary"
+                      disabled={
+                        typeof newEmail !== 'string' ||
+                        newEmail.length < 1 ||
+                        accountValidation.email
+                      }
                       onClick={requestTokenProgress(
                         // Text
                         'email address',
@@ -464,7 +496,7 @@ function AccountSection() {
                     >
                       Add Email
                     </Button>
-                  )
+                  </>
                 }
               />
             }
@@ -488,16 +520,17 @@ function AccountSection() {
               <SettingsText
                 placeHolder="Phone number"
                 value={newPhone}
-                onChange={updateValue(setNewPhone, submitPhone)}
+                onChange={updateValue(setNewPhone, submitPhone, accountValidation.phone)}
                 maxLength={100}
                 isPhone
                 disabled
                 content={
-                  accountValidation.phone ? (
-                    <div className="very-small text-danger">
-                      <span className="phone">{accountValidation.phone}</span>
-                    </div>
-                  ) : (
+                  <>
+                    {accountValidation.phone ? (
+                      <div className="very-small text-danger mb-1">
+                        <span className="phone">{accountValidation.phone}</span>
+                      </div>
+                    ) : null}
                     <Button
                       ref={submitPhone}
                       variant="primary"
@@ -508,7 +541,7 @@ function AccountSection() {
                     >
                       Add phone
                     </Button>
-                  )
+                  </>
                 }
               />
             }

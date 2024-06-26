@@ -27,18 +27,44 @@ class UserPid extends EventEmitter {
       }
 
       if (typeof type !== 'string') return this.vanilla;
-      else return this.getData(type);
+      else return this.getList(type);
     }
     return [];
   }
 
-  getData(type) {
-    if (this.firstCheck) return this.vanilla.find((item) => item.medium === type);
+  getList(type) {
+    if (this.firstCheck) {
+      if (typeof type === 'string') {
+        const items = [];
+        for (const item in this.vanilla) {
+          if (this.vanilla[item].medium === type) {
+            items.push(this.vanilla[item]);
+          }
+        }
+
+        return items;
+      }
+      return this.vanilla;
+    }
     throw new Error('You didn\'t do the first data check using "this.fetch()"!');
   }
 
-  get(type) {
-    if (this.firstCheck) return this.getData(type)?.address;
+  getData(type, index = 0) {
+    if (this.firstCheck) {
+      let tinyIndex = -1;
+      for (const item in this.vanilla) {
+        if (this.vanilla[item].medium === type) {
+          tinyIndex++;
+          if (tinyIndex === index) return this.vanilla[item];
+        }
+      }
+      return null;
+    }
+    throw new Error('You didn\'t do the first data check using "this.fetch()"!');
+  }
+
+  get(type, index = 0) {
+    if (this.firstCheck) return this.getData(type, index)?.address;
     throw new Error('You didn\'t do the first data check using "this.fetch()"!');
   }
 }

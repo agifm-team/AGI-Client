@@ -1,7 +1,16 @@
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-function SettingsText({ value = '', maxLength = null, onChange = null, content = null }) {
+function SettingsText({
+  value = '',
+  placeHolder = null,
+  maxLength = null,
+  onChange = null,
+  content = null,
+  isPassword = false,
+  isEmail = false,
+  disabled = false,
+}) {
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -44,10 +53,12 @@ function SettingsText({ value = '', maxLength = null, onChange = null, content =
   return (
     <>
       <input
+        disabled={disabled}
         ref={inputRef}
-        type="text"
+        type={!isPassword ? (!isEmail ? 'text' : 'email') : 'password'}
         maxLength={maxLength}
-        className="form-control form-control-bg mt-2 mb-1"
+        placeholder={placeHolder}
+        className={`form-control form-control-bg mt-2 mb-1${disabled ? ' disabled' : ''}`}
       />
       {content}
     </>
@@ -55,6 +66,10 @@ function SettingsText({ value = '', maxLength = null, onChange = null, content =
 }
 
 SettingsText.propTypes = {
+  disabled: PropTypes.bool,
+  isEmail: PropTypes.bool,
+  isPassword: PropTypes.bool,
+  placeHolder: PropTypes.string,
   maxLength: PropTypes.number,
   onChange: PropTypes.func,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),

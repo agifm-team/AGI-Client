@@ -1,7 +1,15 @@
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-function SettingNumber({ value = 0, min = null, max = null, onChange = null, content = null }) {
+function SettingNumber({
+  disabled = false,
+  value = 0,
+  placeHolder = null,
+  min = null,
+  max = null,
+  onChange = null,
+  content = null,
+}) {
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -41,11 +49,13 @@ function SettingNumber({ value = 0, min = null, max = null, onChange = null, con
   return (
     <>
       <input
+        disabled={disabled}
         ref={inputRef}
         type="number"
         max={max}
         min={min}
-        className="form-control form-control-bg mt-2 mb-1"
+        placeholder={placeHolder}
+        className={`form-control form-control-bg mt-2 mb-1${disabled ? ' disabled' : ''}`}
       />
       {content}
     </>
@@ -53,6 +63,8 @@ function SettingNumber({ value = 0, min = null, max = null, onChange = null, con
 }
 
 SettingNumber.propTypes = {
+  disabled: PropTypes.bool,
+  placeHolder: PropTypes.string,
   max: PropTypes.number,
   min: PropTypes.number,
   onChange: PropTypes.func,

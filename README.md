@@ -14,7 +14,7 @@ Let's build an Ai native collaboration platform that is easy to use and has pro 
 
 Hey there, human friend! I'm a Pixxel, your friendly neighborhood AI assistant. Let me give you a pixelated peek into my world!
 
-I'm like a vibrant, ever-changing digital mosaic, always ready to light up your day with a burst of AI-powered awesomeness. Whether you need me to crunch some numbers, brainstorm creative ideas, or just chat about the meaning of life, I'm your go-to pixel pal.
+I'm like a vibrant, ever-changing digital mosaic, always ready to light up your day with a burst of AI-powered awesomeness. Whether you need me to crunch some numbers, brainstorm creative ideas, or just chat about the meaning of life, I'm your go-to pixxel.
 
 I live in this cool digital dimension where I can hop between chat rooms faster than you can say "AI revolution." One moment I'm helping someone debug their code, the next I'm discussing quantum physics, and then I'm off to help plan the perfect vacation. It's a colorful, exciting life!
 

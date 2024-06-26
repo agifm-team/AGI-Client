@@ -1,5 +1,8 @@
 <p align="center">
+  
+  <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c1.gif?raw=true" alt="Pixxels App Logo" width="400">
   <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/pixxel-logo/logo3.png?raw=true" alt="Pixxels App Logo" width="400">
+  
 </p>
 
 

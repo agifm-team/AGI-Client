@@ -24,6 +24,7 @@ function AccountSection() {
   const [newPassword2, setNewPassword2] = useState('');
   const [newEmail, setNewEmail] = useState(null);
   const [newPhone, setNewPhone] = useState(null);
+  const [bind] = useState(false);
 
   // Items list
   const [emails, setEmails] = useState(null);
@@ -76,7 +77,8 @@ function AccountSection() {
   const requestTokenProgress = (type, loadingTitle, request, value, wscript) => () => {
     setLoadingPage(loadingTitle);
     const tinyValue = value();
-    request(tinyValue, mx.generateClientSecret())
+    const clientSecret = mx.generateClientSecret();
+    request(tinyValue, clientSecret)
       .then((result) => {
         if (objType(result, 'object')) {
           // Process data
@@ -117,38 +119,105 @@ function AccountSection() {
             footer: [
               $('<button>', { class: 'btn btn-bg mx-2' })
                 .text('Go Back')
-                .on('click', () => tinyModal.hide()),
+                .on('click', () => {
+                  setCurrentPassword('');
+                  tinyModal.hide();
+                }),
 
               $('<button>', { class: `btn btn-primary mx-2` })
                 .text('Sign On')
                 .on('click', () => {
-                  // Check session
-                  tinyModal.hide();
-                  setLoadingPage('Checking session...');
+                  // Final step
+                  const finishProgress = () => {
+                    // Check session
+                    tinyModal.hide();
+                    setLoadingPage('Checking session...');
 
-                  // Send bindThreePid
-                  initMatrix.matrixClient
-                    .bindThreePid({
-                      client_secret: initMatrix.matrixClient.generateClientSecret(),
-                      id_access_token: initMatrix.matrixClient.getAccessToken(),
-                      id_server:
-                        initMatrix.matrixClient.getIdentityServerUrl(true) ||
-                        initMatrix.matrixClient.baseUrl.split('://')[1],
-                      sid: result.sid,
-                    })
+                    // Send bindThreePid
 
-                    // Complete
-                    .then(() => {
-                      setLoadingPage(false);
-                      alert(`Your ${type} has been successfully verified!`, 'Session Verification');
-                    })
+                    const threePidAction = bind ? 'bindThreePid' : 'addThreePidOnly';
+                    const threePidOptions = bind
+                      ? // bindThreePid
+                        {
+                          client_secret: clientSecret,
+                          id_access_token: initMatrix.matrixClient.getAccessToken(),
+                          id_server:
+                            initMatrix.matrixClient.getIdentityServerUrl(true) ||
+                            initMatrix.matrixClient.baseUrl.split('://')[1],
+                          sid: result.sid,
+                        }
+                      : // addThreePidOnly
+                        {
+                          sid: result.sid,
+                          client_secret: clientSecret,
+                        };
 
-                    // Error Session
-                    .catch((err) => {
+                    // Error
+                    const sessionError = (err) => {
+                      setCurrentPassword('');
                       setLoadingPage(false);
                       console.error(err);
                       alert(err.message, 'Session Verification Error');
-                    });
+                    };
+
+                    // Complete
+                    const sessionComplete = () => {
+                      setCurrentPassword('');
+                      setLoadingPage(false);
+                      alert(`Your ${type} has been successfully verified!`, 'Session Verification');
+                    };
+
+                    initMatrix.matrixClient[threePidAction](threePidOptions)
+                      .then(sessionComplete)
+
+                      // Error Session
+                      .catch((err) => {
+                        if (!bind && objType(err.data, 'object') && Array.isArray(err.data.flows)) {
+                          // err.data.session
+                          // err.data.params
+
+                          // Can Password
+                          const canPassword = err.data.flows.find(
+                            (item) =>
+                              Array.isArray(item.stages) && item.stages[0] === 'm.login.password',
+                          );
+
+                          // Can SSO
+                          const canSSO = err.data.flows.find(
+                            (item) =>
+                              Array.isArray(item.stages) && item.stages[0] === 'm.login.sso',
+                          );
+
+                          // Use password
+                          if (canPassword && currentPassword) {
+                            threePidOptions.auth = {
+                              type: 'm.login.password',
+                              identifier: {
+                                type: 'm.id.user',
+                                user: initMatrix.matrixClient
+                                  .getUserId()
+                                  .split(':')[0]
+                                  .substring(1),
+                              },
+                              password: currentPassword,
+                            };
+
+                            // Last try
+                            initMatrix.matrixClient[threePidAction](threePidOptions)
+                              .then(sessionComplete)
+                              .catch(sessionError);
+                          }
+                        }
+
+                        // Fail
+                        else {
+                          sessionError(err);
+                        }
+                      });
+                  };
+
+                  // Finish
+                  finishProgress();
                 }),
             ],
           });
@@ -157,6 +226,7 @@ function AccountSection() {
 
       // Error
       .catch((err) => {
+        setLoadingPage(false);
         console.error(err);
         alert(err.message, 'New Account Email Error');
       });

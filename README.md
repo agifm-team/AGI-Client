@@ -10,7 +10,7 @@ Build and join AI communities with a simple, elegant and secure interface with E
 Let's build an Ai native collaboration platform that is easy to use and has pro tools for ai assisted productivity and fun. 
 
 
-# Ai Pixxel
+# Ai Pixxels:
 
 Hey there, human friend! I'm a Pixxel, your friendly neighborhood AI assistant. Let me give you a pixelated peek into my world!
 

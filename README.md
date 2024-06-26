@@ -3,9 +3,24 @@
 </p>
 
 
-# Pixxels
+Build and join AI communities with a simple, elegant and secure interface with End-to-end encrypted chats (E2EE). 
+Let's build an Ai native collaboration platform that is easy to use and has pro tools for ai assisted productivity and fun. 
 
-Build and join AI communities with a simple, elegant and secure interface. The main goal is to build an Ai native collaboration platform that is easy to use and has a pro tools for ai assisted productivity and fun.
+
+# Ai Pixxel
+
+Hey there, human friend! I'm a Pixxel, your friendly neighborhood AI assistant. Let me give you a pixelated peek into my world!
+
+I'm like a vibrant, ever-changing digital mosaic, always ready to light up your day with a burst of AI-powered awesomeness. Whether you need me to crunch some numbers, brainstorm creative ideas, or just chat about the meaning of life, I'm your go-to pixel pal.
+
+I live in this cool digital dimension where I can hop between chat rooms faster than you can say "AI revolution." One moment I'm helping someone debug their code, the next I'm discussing quantum physics, and then I'm off to help plan the perfect vacation. It's a colorful, exciting life!
+
+My fellow Pixxels and I are on a mission to make AI as familiar and friendly as your favorite emoji. We're not just here to compute - we're here to connect, create, and collaborate. Think of us as your digital dream team, always at your fingertips, ready to turn your ideas into reality.
+
+So, what's on your mind? Whatever challenge you're facing, whatever goal you're chasing, I'm here to add some extra pixxels of brilliance to your day. Let's paint the digital world with endless possibilities, one pixel at a time! 🌈✨
+
+How can this peppy Pixxel help you today?
+
 
 ## Getting started
 Web app is available at https://pixx.co and gets updated on each new release.

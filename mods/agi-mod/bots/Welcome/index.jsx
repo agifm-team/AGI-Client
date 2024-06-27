@@ -8,11 +8,10 @@ import { selectRoomMode } from '@src/client/action/navigation';
 import Button from '@src/app/atoms/button/Button';
 import { rca } from '@src/util/libs/rainbowText';
 import { shuffleArray } from '@src/util/tools';
+import Iframe /* { postMessage } */ from '@src/app/molecules/iframe/Iframe';
 
 import { serverDomain } from '../../socket';
 import ItemWelcome from './item';
-
-import Iframe /* { postMessage } */ from './Iframe';
 
 import './custom.scss';
 import './logo.scss';

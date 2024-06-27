@@ -3,19 +3,24 @@ import React, { useEffect, useRef, useState } from 'react';
 import clone from 'clone';
 
 import { insertAgiAvatar } from '@mods/agi-mod/lib';
+// import initMatrix from '@src/client/initMatrix';
 import { objType } from 'for-promise/utils/lib.mjs';
 import { selectRoomMode } from '@src/client/action/navigation';
 import Button from '@src/app/atoms/button/Button';
 import { rca } from '@src/util/libs/rainbowText';
 import { shuffleArray } from '@src/util/tools';
+// import { ChatRoomFrame } from '@src/app/embed/ChatRoom';
 
 import { serverDomain } from '../../socket';
 import ItemWelcome from './item';
-
-import Iframe /* { postMessage } */ from './Iframe';
-
+// import AgentCard from './AgentCard/AgentCard.jsx';
 import './custom.scss';
 import './logo.scss';
+
+/*
+    <ChatRoomFrame roomId=`#imagegen:${serverDomain}` hsUrl={isGuest && `https://matrix.${serverDomain}`} className='m-3 border border-bg' refreshTime={1} />
+    This is the component that embeds the chat room.
+*/
 
 let connectionTestTimeout = false;
 
@@ -92,8 +97,6 @@ function Welcome({ isGuest }) {
   const [data, setRoomData] = useState(null); // room data
   const [dataTag, setSelectedTag] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('fun');
-
-  const framerRef = useRef(null);
 
   // handleSearch
   const handleSearchChange = (event) => {
@@ -322,26 +325,110 @@ function Welcome({ isGuest }) {
   const rainbowData = shuffleArray(rca(24, 'hex'));
   let color = 1;
 
-  /* useEffect(() => {
-    if (framerRef.current) {
-      console.log('Tiny test to frameRef sent.');
-      postMessage(framerRef.current, 'Tiny Test');
-    }
-  }); */
-
   // Result
   return (
     <div className={`tiny-welcome border-0 h-100 noselect${isGuest ? ' is-guest' : ''}`}>
-      <Iframe
-        ref={framerRef}
-        style={{ height: 700 }}
-        src="https://spinning-principles-551717.framer.app/"
-        alt="framer"
-        onMessage={(event) => {
-          // console.log('[framer test]', event)
-        }}
-      />
+      {
+        <center className="w-100">
+          <div
+            id="welcome-carousel"
+            className="py-4 mx-4 carousel slide rounded-carousel"
+            data-bs-ride="true"
+          >
+            <div className="carousel-indicators">
+              <button
+                type="button"
+                data-bs-target="#welcome-carousel"
+                data-bs-slide-to="0"
+                className="active"
+                aria-current="true"
+                aria-label="Slide 1"
+              />
+              <button
+                type="button"
+                data-bs-target="#welcome-carousel"
+                data-bs-slide-to="1"
+                aria-label="Slide 2"
+              />
+              <button
+                type="button"
+                data-bs-target="#welcome-carousel"
+                data-bs-slide-to="2"
+                aria-label="Slide 3"
+              />
+            </div>
 
+            <div className="carousel-inner">
+              <div className="carousel-item active">
+                <img
+                  src="./img/homepage-slider/c1.gif"
+                  className="d-block w-100"
+                  draggable="false"
+                  alt="..."
+                />
+                <div className="carousel-caption">
+                  <h5>Pixxel Forge</h5>
+                  <p>
+                    Create Ai Pixxels, customizing their personality, appearance, and knowledge
+                    domains
+                  </p>
+                </div>
+              </div>
+
+              <div className="carousel-item">
+                <img
+                  src="./img/homepage-slider/c2.gif"
+                  className="d-block w-100"
+                  draggable="false"
+                  alt="..."
+                />
+                <div className="carousel-caption">
+                  <h5>Fantastical Tools</h5>
+                  <p>
+                    Embed specialized AI tools for visuals, sound, coding, writing – the limit is
+                    the imagination of the Pixxels community
+                  </p>
+                </div>
+              </div>
+
+              <div className="carousel-item">
+                <img
+                  src="./img/homepage-slider/c3.gif"
+                  className="d-block w-100"
+                  draggable="false"
+                  alt="..."
+                />
+                <div className="carousel-caption">
+                  <h5>Pixxel Spaces</h5>
+                  <p>
+                    Whimsical virtual spaces where users collaborate with both human teams and their
+                    individual Pixxels
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <button
+              className="carousel-control-prev d-none"
+              type="button"
+              data-bs-target="#welcome-carousel"
+              data-bs-slide="prev"
+            >
+              <span className="carousel-control-prev-icon" aria-hidden="true" />
+              <span className="visually-hidden">Previous</span>
+            </button>
+            <button
+              className="carousel-control-next d-none"
+              type="button"
+              data-bs-target="#welcome-carousel"
+              data-bs-slide="next"
+            >
+              <span className="carousel-control-next-icon" aria-hidden="true" />
+              <span className="visually-hidden">Next</span>
+            </button>
+          </div>
+        </center>
+      }
       <center className={`py-4 px-4 w-100${isGuest ? ' mb-5' : ''}`}>
         <div id="menu" className={`text-start${isGuest ? ' is-guest' : ''}`}>
           {!isGuest ? (

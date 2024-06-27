@@ -126,8 +126,8 @@ export default async function buttons() {
 
   // Add Click
   setLoadingPage(false);
-  superagent.tooltip({ placement: 'right' }).on('click', openSuperAgent);
+  // superagent.tooltip({ placement: 'right' }).on('click', openSuperAgent);
 
   // Append
-  spaceContainer.append(superagent);
+  // spaceContainer.append(superagent);
 }

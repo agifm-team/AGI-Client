@@ -337,7 +337,7 @@ function Welcome({ isGuest }) {
         src="https://spinning-principles-551717.framer.app/"
         alt="framer"
         onMessage={(event) => {
-          // console.log('[framer test]', event)
+          console.log('[framer test]', event);
         }}
       />
 

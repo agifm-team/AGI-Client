@@ -55,7 +55,8 @@ const createButton = (id, title, icon) =>
   );
 
 export async function getUserEmail() {
-  email = await userPid.get('email');
+  await userPid.fetch('email');
+  email = userPid.get('email');
 }
 
 export const openSuperAgent = (url = null) => {

@@ -19,7 +19,6 @@ import jReact from '../../lib/jReact';
 import { serverDomain } from '../socket';
 import { updateAgentsList } from '../bots/PeopleSelector';
 
-let email;
 let waitingUrl;
 let iframe;
 
@@ -56,12 +55,11 @@ const createButton = (id, title, icon) =>
 
 export async function getUserEmail() {
   await userPid.fetch('email');
-  email = userPid.get('email');
 }
 
 export const openSuperAgent = (url = null) => {
   const newUrl = !waitingUrl
-    ? `https://super.${serverDomain}/${typeof url === 'string' ? url : `?`}email=${encodeURIComponent(email)}`
+    ? `https://super.${serverDomain}/${typeof url === 'string' ? url : `?`}email=${encodeURIComponent(userPid.get('email'))}`
     : waitingUrl;
   iframe = $('<iframe>', {
     title: 'SuperAgent',

@@ -334,7 +334,7 @@ function Welcome({ isGuest }) {
       <Iframe
         ref={framerRef}
         style={{ height: 700 }}
-        src="https://spinning-principles-551717.framer.app/"
+        src="https://pixx.framer.website/"
         alt="framer"
         onMessage={(event) => {
           console.log('[framer-test]', event);

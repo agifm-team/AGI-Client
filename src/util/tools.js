@@ -1,6 +1,10 @@
 // import { Toast } from '@capacitor/toast';
 import { objType } from 'for-promise/utils/lib.mjs';
+import { compareVersions } from 'compare-versions';
+
 import moment from '@src/util/libs/momentjs';
+import { fetchFn } from '@src/client/initMatrix';
+import cons from '@src/client/state/cons';
 
 import tinyAPI from './mods';
 import { twemojify } from './twemojify';
@@ -250,7 +254,7 @@ export function btModal(data) {
   }
 
   const modal = $('<div>', {
-    class: 'fade modal',
+    class: `fade modal${__ENV_APP__.ELECTRON_MODE ? ' root-electron-style' : ''}`,
     id: data.id,
     tabindex: -1,
     role: 'dialog',
@@ -287,6 +291,9 @@ export function btModal(data) {
   } else {
     modalControl = new bootstrap.Modal(modal.get(0));
   }
+
+  if (__ENV_APP__.ELECTRON_MODE)
+    setTimeout(() => $(modalControl._backdrop._element).addClass('root-electron-style'), 1);
 
   modal.get(0).addEventListener('hidden.bs.modal', () => {
     $('body > .modal-temp-hide').removeClass('modal-temp-hide').fadeIn();
@@ -521,6 +528,42 @@ export function base64ToArrayBuffer(base64_string) {
   return Uint8Array.from(atob(base64_string), (c) => c.charCodeAt(0));
 }
 
+// https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-repository-tags
+export const checkVersions = () =>
+  new Promise((resolve, reject) => {
+    fetchFn(`https://api.github.com/repos/pixxels-team/Pixxels-App/tags`, {
+      method: 'GET',
+      cache: 'no-cache',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+    })
+      .then((response) => {
+        response
+          .json()
+          .then((data) => {
+            console.log('[version-data]', data);
+            if (Array.isArray(data) && data.length > 0) {
+              resolve({
+                data, // Data Viewer
+                value: data[0], // Data selected
+                result: compareVersions(data[0].name, cons.version), // Version Compare
+              });
+            } else {
+              resolve({
+                data: null,
+                comparation: null,
+              });
+            }
+          })
+          .catch(reject);
+      })
+      .catch(reject);
+  });
+
 export function cyrb128(str) {
   let h1 = 1779033703;
   let h2 = 3144134277;
@@ -540,6 +583,14 @@ export function cyrb128(str) {
   // eslint-disable-next-line no-unused-expressions, no-sequences
   (h1 ^= h2 ^ h3 ^ h4), (h2 ^= h1), (h3 ^= h1), (h4 ^= h1);
   return [h1 >>> 0, h2 >>> 0, h3 >>> 0, h4 >>> 0];
+}
+
+export function getFlagEmoji(countryCode) {
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map((char) => 127397 + char.charCodeAt());
+  return String.fromCodePoint(...codePoints);
 }
 
 // eslint-disable-next-line no-extend-native

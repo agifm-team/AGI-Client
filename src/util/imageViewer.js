@@ -1,7 +1,10 @@
 import FileSaver from 'file-saver';
 import PhotoSwipeLightbox from 'photoswipe';
+import ExifReader from 'exifreader';
+import { fetchFn } from '@src/client/initMatrix';
+
 import { getFileContentType } from './fileMime';
-import { toast } from './tools';
+import { btModal, toast } from './tools';
 
 export default function imageViewer(data) {
   return new Promise(async (resolve, reject) => {
@@ -45,7 +48,7 @@ export default function imageViewer(data) {
         }
 
         // Create Lightbox
-        const pswp = new PhotoSwipeLightbox({
+        const options = {
           dataSource: [
             {
               src: data.url,
@@ -55,7 +58,14 @@ export default function imageViewer(data) {
             },
           ],
           padding: { top: 40, bottom: 40, left: 100, right: 100 },
-        });
+        };
+
+        if (__ENV_APP__.ELECTRON_MODE) {
+          options.mainClass = 'root-electron-style';
+          options.padding.bottom += 29;
+        }
+
+        const pswp = new PhotoSwipeLightbox(options);
 
         // Register Buttons
         pswp.on('uiRegister', () => {
@@ -82,6 +92,93 @@ export default function imageViewer(data) {
               FileSaver.saveAs(data.url, filename);
             },
           });
+
+          pswp.ui.registerElement({
+            name: 'information-button',
+            ariaLabel: 'Image Metadata',
+            order: 10,
+            isButton: true,
+            html: '<i class="fa-solid fa-circle-info pswp__icn" height="32" width="32"></i>',
+            onClick: () => {
+              fetchFn(data.url)
+                .then((res) => res.arrayBuffer())
+                .then(async (body) => {
+                  const newTags = await ExifReader.load(body, {
+                    async: true,
+                    includeUnknown: true,
+                  });
+                  const table = $('<table>', {
+                    class: 'table border-bg table-hover align-middle m-0',
+                  });
+                  const thead = $('<thead>').append(
+                    $('<tr>').append(
+                      $('<th>', { scope: 'col' }).text('Name'),
+                      $('<th>', { scope: 'col' }).text('Description'),
+                      $('<th>', { scope: 'col' }).text('Value'),
+                    ),
+                  );
+                  table.append(thead);
+                  const tbody = $('<tbody>');
+
+                  console.log('[image] [metadata]', newTags);
+                  const addTags = (tags, oldTile = '') => {
+                    for (const item in tags) {
+                      if (
+                        tags[item] &&
+                        (typeof tags[item].description === 'string' ||
+                          typeof tags[item].description === 'number') &&
+                        (typeof tags[item].value === 'string' ||
+                          typeof tags[item].value === 'number' ||
+                          Array.isArray(tags[item].value))
+                      ) {
+                        const tr = $('<tr>');
+
+                        tr.append($('<td>').text(`${oldTile}${item}`));
+                        if (tags[item].description !== tags[item].value) {
+                          tr.append($('<td>').text(tags[item].description));
+
+                          if (!Array.isArray(tags[item].value)) {
+                            tr.append($('<td>', { colspan: 2 }).text(tags[item].value));
+                          } else {
+                            for (const item2 in tags[item].value) {
+                              addTags(tags[item].value[item2], `${item} - ${oldTile}`);
+                            }
+                          }
+                        } else {
+                          tr.append($('<td>', { colspan: 2 }).text(tags[item].description));
+                        }
+
+                        tbody.append(tr);
+                      }
+                    }
+                  };
+
+                  addTags(newTags);
+                  table.append(tbody);
+                  btModal({
+                    title: 'Image Metadata',
+                    id: 'image-metadata',
+                    dialog: 'modal-lg modal-dialog-centered',
+                    body: table,
+                  });
+                })
+                .catch((err) => {
+                  console.error(err);
+                  alert(err.message, 'Image Metadata Error');
+                });
+            },
+          });
+        });
+
+        pswp.on('close', () => {
+          if (typeof data.onClose === 'function') data.onClose();
+          setTimeout(() => {
+            pswp.destroy();
+          }, 5000);
+        });
+
+        pswp.on('destroy', () => {
+          if (typeof data.onDestroyonDestroy === 'function') data.onDestroy();
         });
 
         // Init lightbox now

@@ -1,5 +1,6 @@
 import EventEmitter from 'events';
 import * as sdk from 'matrix-js-sdk';
+
 import Olm from '@matrix-org/olm';
 
 import envAPI from '@src/util/libs/env';

@@ -219,9 +219,10 @@ function SpaceSettings() {
 
   return (
     <PopupWindow
+      isFullscreen={!window.matchMedia('screen and (max-width: 768px)').matches}
       id="settings-base"
       isOpen={isOpen}
-      className="modal-dialog-scrollable noselect"
+      className="noselect"
       title={
         window.matchMedia('screen and (max-width: 768px)').matches ? (
           <>
@@ -230,16 +231,17 @@ function SpaceSettings() {
           </>
         ) : null
       }
-      size={
-        window.matchMedia('screen and (max-width: 768px)').matches ? 'modal-xl' : 'modal-fullscreen'
-      }
+      size={'modal-xl'}
       onRequestClose={requestClose}
     >
       {isOpen &&
         roomId &&
         (!window.matchMedia('screen and (max-width: 768px)').matches ? (
           <div className="my-0 py-0">
-            <div id="setting-tab" className="py-3 h-100 border-bg">
+            <div
+              id="setting-tab"
+              className={`py-3 border-bg${__ENV_APP__.ELECTRON_MODE ? ' root-electron-style-solo' : ''}`}
+            >
               <Tabs
                 requestClose={requestClose}
                 className="border-bottom border-bg"

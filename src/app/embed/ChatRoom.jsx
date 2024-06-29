@@ -2,8 +2,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import * as sdk from 'matrix-js-sdk';
-import Olm from '@matrix-org/olm';
 import { objType } from 'for-promise/utils/lib.mjs';
+
+import Olm from '@matrix-org/olm';
+
 import { eventMaxListeners } from '@src/util/matrixUtil';
 
 import { isAuthenticated } from '../../client/state/auth';

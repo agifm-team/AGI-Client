@@ -37,7 +37,7 @@ function CrossSigninAlert({ isIconsColored }) {
             if (isVerified === false) {
               tinyUnverified.push(device);
             }
-          } catch { }
+          } catch {}
         }
 
         setUnverified(tinyUnverified);

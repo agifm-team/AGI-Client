@@ -21,6 +21,7 @@ import {
   selectRoom,
   openReusableContextMenu,
   selectRoomMode,
+  openProfileViewer,
 } from '../../../client/action/navigation';
 import * as roomActions from '../../../client/action/room';
 
@@ -523,6 +524,10 @@ function ProfileViewer() {
   });
 
   useEffect(() => {
+    const reopenProfile = () => {
+      if (userId) openProfileViewer(userId, roomId);
+    };
+
     if (user) {
       const avatarMxc = roomMember
         ? roomMember?.getMxcAvatarUrl?.()
@@ -543,6 +548,7 @@ function ProfileViewer() {
         if (newAvatar) {
           imageViewer({
             lightbox,
+            onClose: reopenProfile,
             imgQuery: $(profileAvatar.current).find('> img'),
             name: username,
             url: newAvatar,
@@ -760,6 +766,7 @@ function ProfileViewer() {
       const tinyAvatarPreview = () => {
         if (newAvatar) {
           imageViewer({
+            onClose: reopenProfile,
             lightbox,
             imgQuery: $(profileAvatar.current).find('> img'),
             name: userId,
@@ -839,6 +846,7 @@ function ProfileViewer() {
     };
 
     const toggleLightbox = () => {
+      closeDialog();
       if (!avatarUrl) return;
       setLightbox(!lightbox);
     };
@@ -1004,7 +1012,7 @@ function ProfileViewer() {
   return (
     <Dialog
       bodyClass="bg-bg2 p-0"
-      className="modal-dialog-scrollable modal-dialog-centered modal-lg noselect modal-dialog-user-profile"
+      className="modal-dialog-centered modal-lg noselect modal-dialog-user-profile"
       isOpen={isOpen}
       title="User Profile"
       onAfterClose={handleAfterClose}

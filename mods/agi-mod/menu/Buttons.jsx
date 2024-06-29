@@ -3,6 +3,7 @@ import * as linkify from 'linkifyjs';
 import { objType } from 'for-promise/utils/lib.mjs';
 
 import { btModal } from '@src/util/tools';
+import userPid from '@src/util/libs/userPid';
 
 import initMatrix from '@src/client/initMatrix';
 import RawIcon from '@src/app/atoms/system-icons/RawIcon';
@@ -18,7 +19,6 @@ import jReact from '../../lib/jReact';
 import { serverDomain } from '../socket';
 import { updateAgentsList } from '../bots/PeopleSelector';
 
-let email;
 let waitingUrl;
 let iframe;
 
@@ -54,25 +54,12 @@ const createButton = (id, title, icon) =>
   );
 
 export async function getUserEmail() {
-  const pidData = await initMatrix.getAccount3pid();
-
-  if (
-    objType(pidData, 'object') &&
-    Array.isArray(pidData.threepids) &&
-    pidData.threepids.length > 0
-  ) {
-    for (const item in pidData.threepids) {
-      if (pidData.threepids[item].medium === 'email') {
-        email = pidData.threepids[item].address;
-        break;
-      }
-    }
-  }
+  await userPid.fetch('email');
 }
 
 export const openSuperAgent = (url = null) => {
   const newUrl = !waitingUrl
-    ? `https://super.${serverDomain}/${typeof url === 'string' ? url : `?`}email=${encodeURIComponent(email)}`
+    ? `https://super.${serverDomain}/${typeof url === 'string' ? url : `?`}email=${encodeURIComponent(userPid.get('email'))}`
     : waitingUrl;
   iframe = $('<iframe>', {
     title: 'SuperAgent',
@@ -139,8 +126,8 @@ export default async function buttons() {
 
   // Add Click
   setLoadingPage(false);
-  superagent.tooltip({ placement: 'right' }).on('click', openSuperAgent);
+  // superagent.tooltip({ placement: 'right' }).on('click', openSuperAgent);
 
   // Append
-  spaceContainer.append(superagent);
+  // spaceContainer.append(superagent);
 }

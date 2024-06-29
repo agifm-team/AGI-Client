@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
+
 import appLoadMsg from '@mods/appLoadMsg';
+import { canSupport } from '@src/util/matrixUtil';
 
 import settings from '@src/client/state/settings';
 import matrixAppearance from '@src/util/libs/appearance';
@@ -23,6 +26,7 @@ import cons from '../../../client/state/cons';
 import DragDrop from './DragDrop';
 import {
   btModal,
+  checkVersions,
   dice,
   resizeWindowChecker,
   scrollFixer,
@@ -46,7 +50,43 @@ if (__ENV_APP__.ELECTRON_MODE) {
   window.setElectronResize(() => resizeWindowChecker());
 }
 
-function Client() {
+export const versionChecker = () =>
+  new Promise((resolve, reject) => {
+    checkVersions()
+      .then((versionData) => {
+        if (versionData && typeof versionData.value.name === 'string' && versionData.result === 1) {
+          const tinyUrl = `https://github.com/pixxels-team/Pixxels-App/releases/tag/${versionData.value.name}`;
+          const tinyModal = btModal({
+            id: 'tiny-update-warn',
+            title: `New version available!`,
+
+            dialog: 'modal-dialog-centered modal-lg',
+            body: [
+              $('<p>', { class: 'small' }).text(
+                `Version ${versionData.value.name} of the app is now available for download! Click the button below to be sent to the update page.`,
+              ),
+              $('<center>').append(
+                $('<a>', { href: tinyUrl, class: 'btn btn-primary text-bg-force' })
+                  .on('click', () => {
+                    global.open(tinyUrl, '_target');
+                    tinyModal.hide();
+                    return false;
+                  })
+                  .text('Open download page'),
+              ),
+            ],
+          });
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        alert(err.message, 'Check Versions Error');
+      });
+  });
+
+global.versionChecker = versionChecker;
+
+function Client({ isDevToolsOpen = false }) {
   const [startWorked, setStartWorked] = useState(true);
   const [errorMessage, setErrorMessage] = useState('Unknown');
   const [isLoading, changeLoading] = useState(true);
@@ -159,7 +199,9 @@ function Client() {
           selectRoom(
             roomId,
             typeof eventId === 'string' && eventId.length > 0 ? eventId : null,
-            typeof threadId === 'string' && threadId.length > 0 ? threadId : null,
+            canSupport('Thread') && typeof threadId === 'string' && threadId.length > 0
+              ? threadId
+              : null,
           );
         }
       }, 100);
@@ -200,9 +242,9 @@ function Client() {
     if (isLoading) {
       return (
         <>
-          <ElectronSidebar />
+          <ElectronSidebar isDevToolsOpen={isDevToolsOpen} />
           <div
-            className={`loading-display${__ENV_APP__.ELECTRON_MODE ? ' root-electron-style' : ''}`}
+            className={`loading-display${__ENV_APP__.ELECTRON_MODE ? ' root-electron-style' : ''}${isDevToolsOpen ? ' devtools-open' : ''}`}
           >
             <div className="loading__menu">
               <ContextMenu
@@ -236,41 +278,7 @@ function Client() {
 
     if (__ENV_APP__.ELECTRON_MODE && !versionChecked && global.checkVersions) {
       versionChecked = true;
-      global
-        .checkVersions()
-        .then((versionData) => {
-          if (
-            versionData &&
-            typeof versionData.value.name === 'string' &&
-            versionData.result === 1
-          ) {
-            const tinyUrl = `https://github.com/pixxels-team/Pixxels-App/releases/tag/${versionData.value.name}`;
-            const tinyModal = btModal({
-              id: 'tiny-update-warn',
-              title: `New version available!`,
-
-              dialog: 'modal-dialog-centered modal-lg',
-              body: [
-                $('<p>', { class: 'small' }).text(
-                  `Version ${versionData.value.name} of the app is now available for download! Click the button below to be sent to the update page.`,
-                ),
-                $('<center>').append(
-                  $('<a>', { href: tinyUrl, class: 'btn btn-primary text-bg-force' })
-                    .on('click', () => {
-                      global.open(tinyUrl, '_target');
-                      tinyModal.hide();
-                      return false;
-                    })
-                    .text('Open download page'),
-                ),
-              ],
-            });
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-          alert(err.message, 'Check Versions Error');
-        });
+      versionChecker();
     }
 
     $('body').css(
@@ -292,13 +300,14 @@ function Client() {
 
     return (
       <>
-        <ElectronSidebar />
+        <ElectronSidebar isDevToolsOpen={isDevToolsOpen} />
         <LoadingPage />
         {tinyMod}
         <DragDrop
-          className={`${classesDragDrop.join(' ')}${navigationSidebarHidden ? ' disable-navigation-wrapper' : ''}`}
+          className={`${classesDragDrop.join(' ')}${navigationSidebarHidden ? ' disable-navigation-wrapper' : ''}${isDevToolsOpen ? ' devtools-open' : ''}`}
           navWrapperRef={navWrapperRef}
         >
+          <EmojiBoardOpener />
           <div
             className="navigation-wrapper"
             onMouseEnter={
@@ -323,7 +332,6 @@ function Client() {
           </div>
           <Windows />
           <Dialogs />
-          <EmojiBoardOpener />
           <ReusableContextMenu />
         </DragDrop>
       </>
@@ -331,9 +339,9 @@ function Client() {
   } else {
     return (
       <>
-        <ElectronSidebar />
+        <ElectronSidebar isDevToolsOpen={isDevToolsOpen} />
         <div
-          className={`loading-display${__ENV_APP__.ELECTRON_MODE ? ' root-electron-style' : ''}`}
+          className={`loading-display${__ENV_APP__.ELECTRON_MODE ? ' root-electron-style' : ''}${isDevToolsOpen ? ' devtools-open' : ''}`}
         >
           <div className="loading__menu">
             <ContextMenu
@@ -367,5 +375,9 @@ function Client() {
     );
   }
 }
+
+Client.propTypes = {
+  isDevToolsOpen: PropTypes.bool,
+};
 
 export default Client;

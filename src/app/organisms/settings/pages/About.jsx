@@ -51,7 +51,7 @@ function AboutSection() {
                 <div className="mt-3">
                   <Button
                     className="me-1"
-                    onClick={() => window.open('https://github.com/Pony-House/Client')}
+                    onClick={() => window.open('https://github.com/pixxels-team/Pixxels-App')}
                   >
                     Source code
                   </Button>

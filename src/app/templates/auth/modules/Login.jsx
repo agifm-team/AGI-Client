@@ -4,6 +4,9 @@ import { Formik } from 'formik';
 
 import PropTypes from 'prop-types';
 
+import { EMAIL_REGEX, BAD_EMAIL_ERROR } from '@src/util/register/regex';
+import { normalizeUsername, isValidInput } from '@src/util/register/validator';
+
 import Text from '../../../atoms/text/Text';
 import * as auth from '../../../../client/action/auth';
 import { getBaseUrl } from '../../../../util/matrixUtil';
@@ -13,9 +16,6 @@ import Input from '../../../atoms/input/Input';
 import ContextMenu, { MenuItem } from '../../../atoms/context-menu/ContextMenu';
 
 import LoadingScreen from './LoadingScreen';
-
-import { EMAIL_REGEX, BAD_EMAIL_ERROR } from './regex';
-import { normalizeUsername, isValidInput } from './validator';
 import Register from './Register';
 
 import SSOButtons from '../../../molecules/sso-buttons/SSOButtons';

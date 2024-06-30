@@ -15,6 +15,7 @@ import ItemWelcome from './item';
 
 import './custom.scss';
 import './logo.scss';
+import { joinAiBot, joinAiRoom, joinAiSpace } from './execute';
 
 let connectionTestTimeout = false;
 
@@ -336,9 +337,16 @@ function Welcome({ isGuest }) {
         style={{ height: 700 }}
         src="https://pixx.framer.website/"
         alt="framer"
-        onMessage={(event) => {
-          console.log('[framer-test]', event);
-          console.log('[framer-test] [data]', event.data);
+        onMessage={(event, data) => {
+          if (objType(data, 'object')) {
+            if (data.type === 'open_dm') {
+              joinAiBot(data.value);
+            } else if (data.type === 'open_room') {
+              joinAiRoom(data.value);
+            } else if (data.type === 'open_space') {
+              joinAiSpace(data.value);
+            }
+          }
         }}
       />
 

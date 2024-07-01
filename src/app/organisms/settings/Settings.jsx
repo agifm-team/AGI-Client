@@ -60,6 +60,7 @@ const buildTabItems = () => {
   if (tabItems.length < 1) {
     tabItems.push({
       text: tabText.PROFILE,
+      key: 'profile',
       faSrc: 'fa-solid fa-id-card',
       disabled: false,
       render: () => <ProfileSection />,
@@ -67,6 +68,7 @@ const buildTabItems = () => {
 
     tabItems.push({
       text: tabText.ACCOUNT,
+      key: 'account',
       faSrc: 'fa-solid fa-user',
       disabled: false,
       render: () => <AccountSection />,
@@ -74,6 +76,7 @@ const buildTabItems = () => {
 
     tabItems.push({
       text: tabText.APPEARANCE,
+      key: 'appearance',
       faSrc: 'fa-solid fa-sun',
       disabled: false,
       render: () => <AppearanceSection />,
@@ -81,6 +84,7 @@ const buildTabItems = () => {
 
     tabItems.push({
       text: tabText.VOICEVIDEO,
+      key: 'voicevideo',
       faSrc: 'bi bi-optical-audio-fill',
       disabled: false,
       render: () => <VoiceVideoSection />,
@@ -88,15 +92,17 @@ const buildTabItems = () => {
 
     tabItems.push({
       text: tabText.EMOJI,
+      key: 'emoji',
       faSrc: 'fa-solid fa-face-smile',
       disabled: false,
       render: () => <EmojiSection />,
     });
 
-    tabItems.push({ type: 'divider' });
+    tabItems.push({ type: 'divider', key: '1' });
 
     tabItems.push({
       text: tabText.NOTIFICATIONS,
+      key: 'notificaitons',
       faSrc: 'fa-solid fa-bell',
       disabled: false,
       render: () => <NotificationsSection />,
@@ -104,6 +110,7 @@ const buildTabItems = () => {
 
     tabItems.push({
       text: tabText.SECURITY,
+      key: 'security',
       faSrc: 'fa-solid fa-lock',
       disabled: false,
       render: () => <SecuritySection />,
@@ -111,6 +118,7 @@ const buildTabItems = () => {
 
     tabItems.push({
       text: tabText.PRIVACY,
+      key: 'privacy',
       faSrc: 'bi bi-eye-fill',
       disabled: false,
       render: () => <PrivacySection />,
@@ -128,6 +136,7 @@ const buildTabItems = () => {
                 ? 'Mac'
                 : 'OS',
         ),
+        key: 'os',
 
         faSrc:
           __ENV_APP__.PLATFORM === 'win32'
@@ -143,10 +152,11 @@ const buildTabItems = () => {
       });
     }
 
-    tabItems.push({ type: 'divider' });
+    tabItems.push({ type: 'divider', key: '2' });
     tabItems.push({
       badge: { text: 'Beta', color: 'secondary' },
       text: tabText.LIBRETRANSLATE,
+      key: 'libretranslate',
       faSrc: 'fa-solid fa-globe',
       disabled: false,
       render: () => <LibreTranslateSection />,
@@ -156,6 +166,7 @@ const buildTabItems = () => {
       if (envAPI.get('IPFS')) {
         tabItems.push({
           text: tabText.IPFS,
+          key: 'ipfs',
           faSrc: 'fa-solid fa-cube',
           disabled: false,
           render: () => <IpfsSection />,
@@ -165,6 +176,7 @@ const buildTabItems = () => {
       if (envAPI.get('WEB3')) {
         tabItems.push({
           text: tabText.WEB3,
+          key: 'web3',
           faSrc: 'fa-brands fa-ethereum',
           disabled: false,
           render: () => <Web3Section />,
@@ -172,19 +184,21 @@ const buildTabItems = () => {
       }
     }
 
-    tabItems.push({ type: 'divider' });
+    tabItems.push({ type: 'divider', key: '3' });
 
     tabItems.push({
       text: tabText.ABOUT,
+      key: 'about',
       faSrc: 'fa-solid fa-circle-info',
       disabled: false,
       render: () => <AboutSection />,
     });
 
-    tabItems.push({ type: 'divider' });
+    tabItems.push({ type: 'divider', key: '4' });
 
     tabItems.push({
       text: tabText.ADVANCED,
+      key: 'advanced',
       faSrc: 'fa-solid fa-toolbox',
       disabled: false,
       render: () => <AdvancedUserSection />,
@@ -192,15 +206,17 @@ const buildTabItems = () => {
 
     tabItems.push({
       text: tabText.EXPERIMENTAL,
+      key: 'experimental',
       faSrc: 'fa-solid fa-flask',
       disabled: false,
       render: () => <ExperimentalSection />,
     });
 
-    tabItems.push({ type: 'divider' });
+    tabItems.push({ type: 'divider', key: '5' });
 
     tabItems.push({
       text: tabText.LOGOUT,
+      key: 'logout',
       faSrc: 'fa-solid fa-power-off',
       className: 'btn-text-danger logout',
       disabled: false,

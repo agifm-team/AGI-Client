@@ -84,7 +84,9 @@ function PeopleDrawer({
   const searchRef = useRef(null);
 
   const newIsUserList = !isDM || usersCount !== 2 || membership.value !== 'join';
-  if (isUserList !== newIsUserList) setIsUserList(newIsUserList);
+  useEffect(() => {
+    if (isUserList !== newIsUserList) setIsUserList(newIsUserList);
+  });
 
   const getMembersWithMembership = useCallback(
     (mship) => room.getMembersWithMembership(mship),

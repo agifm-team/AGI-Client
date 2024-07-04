@@ -36,7 +36,7 @@ function AuthCard() {
                   alt="Logo"
                   width="24"
                   height="24"
-                  class="d-inline-block align-text-top me-2"
+                  className="d-inline-block align-text-top me-2"
                 />
                 {__ENV_APP__.INFO.name}
               </a>

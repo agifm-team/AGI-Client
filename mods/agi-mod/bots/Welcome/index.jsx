@@ -22,7 +22,7 @@ function Welcome({ isGuest }) {
         src="https://pixx.framer.website/"
         alt="framer"
         onMessage={(event, data) => {
-          if (objType(data, 'object')) {
+          if (objType(data, 'object') && !isGuest) {
             if (data.type === 'open_dm') {
               joinAiBot(data.value);
             } else if (data.type === 'open_room') {

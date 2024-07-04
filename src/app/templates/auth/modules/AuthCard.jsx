@@ -18,7 +18,7 @@ function AuthCard() {
       <Homeserver onChange={handleHsChange} />
 
       {hsConfig !== null && (
-        <nav className="navbar navbar-expand-lg bg-bg border-bottom border-bg">
+        <nav className="navbar navbar-expand-lg bg-bg border-bottom border-bg fixed-top">
           <div className="container-fluid">
             <a className="navbar-brand text-bg-force">
               {' '}

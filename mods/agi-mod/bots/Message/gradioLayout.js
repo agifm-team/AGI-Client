@@ -17,7 +17,6 @@ import isBase64 from 'is-base64';
 import { objType } from 'for-promise/utils/lib.mjs';
 
 import { blobCreator, hljsFixer, toast } from '@src/util/tools';
-import { copyToClipboard } from '@src/util/common';
 import initMatrix from '@src/client/initMatrix';
 import openTinyURL from '@src/util/message/urlProtection';
 import { bootstrapItems } from '@src/util/styles-bootstrap';
@@ -25,6 +24,7 @@ import { twemojify } from '@src/util/twemojify';
 import { selectButton as selectTheme } from '@src/util/checkTheme';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
 import imageViewer from '@src/util/imageViewer';
+import tinyClipboard from '@src/util/libs/Clipboard';
 
 // Label and display to components.
 const labelCreator = (icon, props, id) =>
@@ -1843,7 +1843,7 @@ const components = {
               const data = textarea.val().trim();
 
               if (data.length > 0) {
-                copyToClipboard(data);
+                tinyClipboard.copyText(data);
                 toast('Text successfully copied to the clipboard.');
               }
             } catch (err) {

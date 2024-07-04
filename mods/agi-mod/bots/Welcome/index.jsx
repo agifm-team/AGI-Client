@@ -10,22 +10,24 @@ import { joinAiBot, joinAiRoom, joinAiSpace } from './execute';
 function Welcome({ isGuest }) {
   // Result
   return (
-    <Iframe
-      style={{ height: '100%' }}
-      src="https://pixx.framer.website/"
-      alt="framer"
-      onMessage={(event, data) => {
-        if (objType(data, 'object')) {
-          if (data.type === 'open_dm') {
-            joinAiBot(data.value);
-          } else if (data.type === 'open_room') {
-            joinAiRoom(data.value);
-          } else if (data.type === 'open_space') {
-            joinAiSpace(data.value);
+    <div className={`tiny-welcome border-0 h-100 noselect${isGuest ? ' is-guest' : ''}`}>
+      <Iframe
+        style={{ height: '100%' }}
+        src="https://pixx.framer.website/"
+        alt="framer"
+        onMessage={(event, data) => {
+          if (objType(data, 'object')) {
+            if (data.type === 'open_dm') {
+              joinAiBot(data.value);
+            } else if (data.type === 'open_room') {
+              joinAiRoom(data.value);
+            } else if (data.type === 'open_space') {
+              joinAiSpace(data.value);
+            }
           }
-        }
-      }}
-    />
+        }}
+      />
+    </div>
   );
 }
 

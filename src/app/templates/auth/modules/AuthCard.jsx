@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { objType } from 'for-promise/utils/lib.mjs';
 
-import ssoProvider from '@src/util/libs/SsoProvider';
+import hsWellKnown from '@src/util/libs/HsWellKnown';
 import Homeserver from './Homeserver';
 import Login from './Login';
 
@@ -11,9 +11,9 @@ function AuthCard() {
 
   useEffect(() => {
     const handleHsChange = (info) => setHsConfig(info);
-    ssoProvider.on('changeData', handleHsChange);
+    hsWellKnown.on('changeData', handleHsChange);
     return () => {
-      ssoProvider.off('changeData', handleHsChange);
+      hsWellKnown.off('changeData', handleHsChange);
     };
   });
 

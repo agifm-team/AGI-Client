@@ -18,16 +18,20 @@ import LoadingScreen from './LoadingScreen';
 import Recaptcha from './Recaptcha';
 import Terms from './Terms';
 import EmailVerify from './EmailVerify';
+import hsWellKnown from '@src/util/libs/HsWellKnown';
 
 let sid;
 let clientSecret;
-function Register({ registerInfo, loginFlow, baseUrl }) {
+function Register() {
   const [process, setProcess] = useState({});
   const [passVisible, setPassVisible] = useState(false);
   const [cPassVisible, setCPassVisible] = useState(false);
   const formRef = useRef();
 
-  const ssoProviders = loginFlow?.filter((flow) => flow.type === 'm.login.sso')[0];
+  const ssoProviders = hsWellKnown.getSsoProviders();
+  const registerInfo = hsWellKnown.getRegister();
+  const baseUrl = hsWellKnown.getBaseUrl();
+
   const isDisabled = registerInfo.errcode !== undefined;
   const { flows, params, session } = registerInfo;
 
@@ -287,20 +291,11 @@ function Register({ registerInfo, loginFlow, baseUrl }) {
         </Formik>
       )}
 
-      {isDisabled && ssoProviders && (
-        <SSOButtons
-          type="sso"
-          identityProviders={ssoProviders.identity_providers}
-          baseUrl={baseUrl}
-        />
+      {isDisabled && ssoProviders.length > 0 && (
+        <SSOButtons type="sso" identityProviders={ssoProviders} baseUrl={baseUrl} />
       )}
     </>
   );
 }
-Register.propTypes = {
-  registerInfo: PropTypes.shape({}).isRequired,
-  loginFlow: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  baseUrl: PropTypes.string.isRequired,
-};
 
 export default Register;

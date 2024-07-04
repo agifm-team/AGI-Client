@@ -3,6 +3,7 @@ import { Modal } from 'react-bootstrap';
 import { Formik } from 'formik';
 
 import PropTypes from 'prop-types';
+import hsWellKnown from '@src/util/libs/HsWellKnown';
 
 import { EMAIL_REGEX, BAD_EMAIL_ERROR } from '@src/util/register/regex';
 import { normalizeUsername, isValidInput } from '@src/util/register/validator';

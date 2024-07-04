@@ -1,23 +1,29 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { objType } from 'for-promise/utils/lib.mjs';
 
+import ssoProvider from '@src/util/libs/SsoProvider';
 import Homeserver from './Homeserver';
 import Login from './Login';
 
-global.authPublicData = {};
+if (__ENV_APP__.MODE === 'development') global.authPublicData = {};
 function AuthCard() {
   const [hsConfig, setHsConfig] = useState(null);
 
-  const handleHsChange = (info) => {
-    setHsConfig(info);
-  };
+  useEffect(() => {
+    const handleHsChange = (info) => setHsConfig(info);
+    ssoProvider.on('changeData', handleHsChange);
+    return () => {
+      ssoProvider.off('changeData', handleHsChange);
+    };
+  });
 
-  global.authPublicData.register = { params: hsConfig?.register?.params };
-
+  if (__ENV_APP__.MODE === 'development')
+    global.authPublicData.register = { params: hsConfig?.register?.params };
   return (
     <>
-      <Homeserver onChange={handleHsChange} />
+      <Homeserver />
 
-      {hsConfig !== null && (
+      {objType(hsConfig, 'object') && objType(hsConfig.login, 'object') && Array.isArray(hsConfig.login.flows) && hsConfig.baseUrl && (
         <nav className="navbar navbar-expand-lg bg-bg border-bottom border-bg fixed-top">
           <div className="container-fluid">
             <a className="navbar-brand text-bg-force">

@@ -34,8 +34,8 @@ function Welcome({ isGuest }) {
         }}
       />
       {!isGuest ? (
-        <center id="menu" className={`py-4 px-4 w-100${isGuest ? ' mb-5' : ''}`}>
-          <div className={`text-start w-100${isGuest ? ' is-guest' : ''}`}>
+        <center id="menu" className={`py-4 px-4 w-100 mb-5 d-md-none`}>
+          <div className={`text-start w-100`}>
             <button
               type="button"
               className="me-3 btn btn-primary"

@@ -24,15 +24,17 @@
         color: var(--tc-surface-normal) !important;
 
         &:hover {
-          background-color: var(--bg-surface-extra-low-transparent);
+          color: var(--tc-surface-low) !important;
         }
 
         &:active {
           background-color: var(--bg-surface);
+          color: var(--tc-surface-normal-low) !important;
         }
 
         &.active {
           background-color: var(--bg-surface);
+          color: var(--tc-surface-normal-low) !important;
         }
       }
     }

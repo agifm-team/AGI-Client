@@ -1,17 +1,23 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { objType } from 'for-promise/utils/lib.mjs';
 import Iframe /* { postMessage } */ from '@src/app/molecules/iframe/Iframe';
+import { selectRoomMode } from '@src/client/action/navigation';
 
 import './custom.scss';
-import './logo.scss';
 import { joinAiBot, joinAiRoom, joinAiSpace } from './execute';
 
 function Welcome({ isGuest }) {
+  const framerRef = useRef(null);
+
+  useEffect(() => {});
+
   // Result
   return (
     <div className={`tiny-welcome border-0 h-100 noselect${isGuest ? ' is-guest' : ''}`}>
       <Iframe
+        ref={framerRef}
+        id="pixx-framer"
         style={{ height: '100%' }}
         src="https://pixx.framer.website/"
         alt="framer"
@@ -27,6 +33,20 @@ function Welcome({ isGuest }) {
           }
         }}
       />
+      {!isGuest ? (
+        <center id="menu" className={`py-4 px-4 w-100${isGuest ? ' mb-5' : ''}`}>
+          <div className={`text-start w-100${isGuest ? ' is-guest' : ''}`}>
+            <button
+              type="button"
+              className="me-3 btn btn-primary"
+              id="leave-welcome"
+              onClick={() => selectRoomMode('navigation')}
+            >
+              <i className="fa-solid fa-left-long" />
+            </button>
+          </div>
+        </center>
+      ) : null}
     </div>
   );
 }

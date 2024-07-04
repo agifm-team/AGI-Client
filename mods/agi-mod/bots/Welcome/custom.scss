@@ -1,246 +1,40 @@
 /* Welcome Page */
-/* carousel hover updated */
-body:not(.theme-type-dark):not(.theme-type-dark-solid):not(.theme-type-dark2):not(
-    .theme-type-dark2-solid
-  )
-  .tiny-welcome {
-  .category {
-    .row {
-      .citem {
-        .avatar {
-          &.avatar-bg {
-            display: none !important;
+.tiny-welcome {
+  #menu {
+    position: fixed;
+    top: 0;
+    > div {
+      &:not(.is-guest) {
+        .title-place {
+          padding-left: 42px;
+          margin-top: -30px;
+        }
+
+        @media (min-width: 768px) {
+          .title-place {
+            padding-left: 0px;
+            margin-top: -0px;
           }
         }
       }
-    }
-  }
-}
 
-.tiny-welcome {
-  #welcome-carousel {
-    max-width: 1920px;
-    .carousel-indicators {
-      margin: 0px;
-      bottom: 50px;
-      left: 49px;
-      text-align: left;
-      display: block;
-    }
+      .btn {
+        background-color: var(--bg-surface-extra-low);
+        border-color: --bg-surface-border;
+        color: var(--tc-surface-normal) !important;
 
-    .carousel-item {
-      background-color: var(--bg-surface-extra-low);
-      .carousel-caption {
-        width: 100%;
-        left: 0;
-        padding-bottom: 35px;
-        text-align: left;
-        padding-left: 50px;
-      }
-
-      & > img {
-        height: 250px;
-        width: 100%;
-        object-fit: cover;
-        opacity: 1;
-      }
-
-      &:hover {
-        transform: scale(1.02);
-        transition: transform 0.2s ease-in-out;
-      }
-    }
-    &.rounded-carousel {
-      border-radius: 10px;
-      overflow: hidden;
-
-      .carousel-inner {
-        border-radius: 10px;
-      }
-
-      .carousel-item img {
-        border-radius: 10px;
-      }
-    }
-  }
-
-  .Formy {
-    input {
-      color: var(--button-text-color);
-      text-align: left;
-      border-radius: 50px;
-      font-size: 14px;
-      margin-top: 20px;
-      margin-right: 10px;
-      margin-bottom: 10px;
-    }
-  }
-  .taggy {
-    .taggyButton {
-      font-family: 'slkscr';
-      background-color: var(--button-background-color);
-
-      border-radius: 50px;
-      margin-right: 10px;
-      margin-bottom: 10px;
-
-      cursor: pointer;
-
-      &:hover {
-        background-color: var(--bg-surface-border) !important;
-      }
-
-      &.active {
-        background-color: var(--bg-surface-border) !important;
-      }
-    }
-  }
-
-  .taggy3 {
-    .btn {
-      font-family: 'slkscr';
-      color: yellow !important;
-      text-shadow:
-        2px 0 #000,
-        -2px 0 #000,
-        0 2px #000,
-        0 -2px #000,
-        1px 1px #000,
-        -1px -1px #000,
-        1px -1px #000,
-        -1px 1px #000;
-    }
-  }
-
-  .title {
-    font-family: 'slkscr';
-    color: yellow !important;
-    text-shadow:
-      2px 0 #000,
-      -2px 0 #000,
-      0 2px #000,
-      0 -2px #000,
-      1px 1px #000,
-      -1px -1px #000,
-      1px -1px #000,
-      -1px 1px #000;
-  }
-
-  .bots {
-    display: flex;
-    flex-wrap: wrap;
-    &.room {
-      margin-bottom: 10px;
-    }
-  }
-
-  overflow-y: auto;
-  align-items: center;
-
-  .title {
-    text-align: left;
-  }
-
-  #menu {
-    &:not(.is-guest) {
-      .title-place {
-        padding-left: 42px;
-        margin-top: -30px;
-      }
-
-      @media (min-width: 768px) {
-        .title-place {
-          padding-left: 0px;
-          margin-top: -0px;
+        &:hover {
+          background-color: var(--bg-surface-extra-low-transparent);
         }
-      }
-    }
 
-    .btn {
-      background-color: var(--bg-surface-extra-low);
-      border-color: --bg-surface-border;
-      color: var(--tc-surface-normal) !important;
-
-      &:hover {
-        background-color: var(--bg-surface-extra-low-transparent);
-      }
-
-      &:active {
-        background-color: var(--bg-surface);
-      }
-
-      &.active {
-        background-color: var(--bg-surface);
-      }
-    }
-  }
-
-  .welcome-card {
-    .citem {
-      cursor: pointer;
-      .card-title {
-        padding: 7px;
-      }
-      .card-img-overlay {
-        opacity: 0;
-        position: relative;
-        align-items: center;
-        display: inline-flex;
-        justify-content: center;
-        flex-direction: column;
-      }
-
-      .card-text {
-        overflow-y: auto;
-      }
-
-      .card-img {
-        border-radius: 50%;
-      }
-
-      &:hover {
-        .card-img {
-          opacity: 0.6;
+        &:active {
+          background-color: var(--bg-surface);
         }
-        .card-img-overlay {
-          opacity: 1;
-        }
-      }
-    }
-  }
 
-  @media (max-width: 768px) {
-    #leave-welcome {
-      display: inline-block !important;
-    }
-
-    & {
-      padding: 0px !important;
-    }
-  }
-
-  .chatroom {
-    border-radius: 25px !important;
-    height: 300px;
-    border-width: 1px !important;
-    border-style: solid !important;
-    border-color: unset !important;
-  }
-
-  #search-title {
-    .search-info {
-      max-width: 1920px;
-      .search-form {
-        .search-input {
-          border-color: var(--bg-surface-border) !important;
+        &.active {
           background-color: var(--bg-surface);
         }
       }
-    }
-
-    .taggy {
-      width: auto !important;
-      max-width: 1700px !important;
     }
   }
 }

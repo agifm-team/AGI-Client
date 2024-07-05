@@ -1,8 +1,8 @@
 {
-  "name": "pixxels-matrix",
+  "name": "spaceship-matrix",
   "version": "1.0.0",
-  "short_name": "Pixxels",
-  "description": "Pixxels: Collaborative AI",
+  "short_name": "SpaceShip",
+  "description": "SpaceShip: Collaborative AI",
   "main": "dist-electron/main/index.js",
   "engines": {
     "node": ">=20.0.0"
@@ -31,8 +31,7 @@
     "website",
     "matrix",
     "matrix-client",
-    "Pixxels",
-    "Pixxels-App"
+    "SpaceShip"
   ],
   "author": {
     "name": "seshu.bonam",

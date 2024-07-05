@@ -377,7 +377,7 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
 
       {pixxEmbedVisible ? (
         <>
-          <div className="pixx-embed-expand">
+          <div className="spaceship-embed-expand">
             <Button
               variant="primary"
               type="button"
@@ -386,8 +386,8 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
             />
           </div>
           <iframe
-            className={`pixx-embed${!expandPixxIframe ? '' : ' expand-embed'}`}
-            alt="pixx embed"
+            className={`spaceship-embed${!expandPixxIframe ? '' : ' expand-embed'}`}
+            alt="spaceship embed"
             src={pixxEmbeds.data.value}
           />
         </>

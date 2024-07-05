@@ -369,7 +369,7 @@ function Welcome({ isGuest }) {
                 <div className="carousel-caption">
                   <h5>Pixxel Forge</h5>
                   <p>
-                    Create Ai Pixxels, customizing their personality, appearance, and knowledge
+                    Create Ai SpaceShip, customizing their personality, appearance, and knowledge
                     domains
                   </p>
                 </div>
@@ -386,7 +386,7 @@ function Welcome({ isGuest }) {
                   <h5>Fantastical Tools</h5>
                   <p>
                     Embed specialized AI tools for visuals, sound, coding, writing – the limit is
-                    the imagination of the Pixxels community
+                    the imagination of the SpaceShip community
                   </p>
                 </div>
               </div>
@@ -402,7 +402,7 @@ function Welcome({ isGuest }) {
                   <h5>Pixxel Spaces</h5>
                   <p>
                     Whimsical virtual spaces where users collaborate with both human teams and their
-                    individual Pixxels
+                    individual SpaceShip
                   </p>
                 </div>
               </div>
@@ -442,7 +442,7 @@ function Welcome({ isGuest }) {
             </button>
           ) : null}
 
-          <center className="logo-page">AI Pixxels</center>
+          <center className="logo-page">AI SpaceShip</center>
         </div>
 
         <center className="taggy taggy2 taggy3">
@@ -470,7 +470,7 @@ function Welcome({ isGuest }) {
                 value={tempSearch}
                 onChange={handleSearchChange}
                 onSubmit={handleSearchSubmit}
-                placeholder="Search or Create custom AI-Pixxels ..."
+                placeholder="Search or Create custom AI-SpaceShip ..."
               />
             </form>
           </div>
@@ -521,7 +521,7 @@ function Welcome({ isGuest }) {
                 isGuest={isGuest}
                 setSelectedTag={setSelectedTag}
                 type="bots"
-                title="Pixxels"
+                title="SpaceShip"
                 citem={users}
               />
             ) : null}

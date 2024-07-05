@@ -17,7 +17,7 @@ function Welcome({ isGuest }) {
     <div className={`tiny-welcome border-0 h-100 noselect${isGuest ? ' is-guest' : ''}`}>
       <Iframe
         ref={framerRef}
-        id="pixx-framer"
+        id="spaceship-framer"
         style={{ height: '100%' }}
         src={`https://pixx.framer.website/${isGuest ? '?is_guest=true' : ''}`}
         alt="framer"

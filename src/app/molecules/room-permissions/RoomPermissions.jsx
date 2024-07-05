@@ -193,7 +193,7 @@ const permissionsInfo = {
   'pixx.co.settings.embeds': {
     parent: 'events',
     name: 'Pixx.co Settings',
-    description: 'Set minimum power level to modify the pixx embed url.',
+    description: 'Set minimum power level to modify the spaceship embed url.',
     default: 50,
   },
 };

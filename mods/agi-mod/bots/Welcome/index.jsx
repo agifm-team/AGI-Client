@@ -19,7 +19,7 @@ function Welcome({ isGuest }) {
         ref={framerRef}
         id="pixx-framer"
         style={{ height: '100%' }}
-        src={`https://pixx.framer.website/${isGuest ? '?isGuest=true' : ''}`}
+        src={`https://pixx.framer.website/${isGuest ? '?is_guest=true' : ''}`}
         alt="framer"
         onMessage={(event, data) => {
           if (objType(data, 'object') && !isGuest) {

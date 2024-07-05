@@ -167,6 +167,9 @@ function Register() {
 
   return (
     <>
+      {!isDisabled && ssoProviders.length > 0 && (
+        <SSOButtons isRegister type="sso" identityProviders={ssoProviders} baseUrl={baseUrl} />
+      )}
       {process.type === 'processing' && <LoadingScreen message={process.message} />}
       {process.type === 'm.login.recaptcha' && (
         <Recaptcha
@@ -289,10 +292,6 @@ function Register() {
             </>
           )}
         </Formik>
-      )}
-
-      {!isDisabled && ssoProviders.length > 0 && (
-        <SSOButtons type="sso" identityProviders={ssoProviders} baseUrl={baseUrl} />
       )}
     </>
   );

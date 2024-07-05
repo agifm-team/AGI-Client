@@ -6,7 +6,7 @@ import { createTemporaryClient, startSsoLogin } from '../../../client/action/aut
 
 import Button from '../../atoms/button/Button';
 
-function SSOButtons({ type, identityProviders, baseUrl }) {
+function SSOButtons({ type, identityProviders, baseUrl, isRegister = false }) {
   const tempClient = createTemporaryClient(baseUrl);
   function handleClick(id) {
     startSsoLogin(baseUrl, type, id);
@@ -37,7 +37,7 @@ function SSOButtons({ type, identityProviders, baseUrl }) {
               key={idp.id}
               className="sso-btn__text-only border border-bg mb-2"
               onClick={() => handleClick(idp.id)}
-            >{`Login with ${idp.name}`}</Button>
+            >{`${!isRegister ? 'Login' : 'Register'} with ${idp.name}`}</Button>
           ),
         )}
     </center>
@@ -45,6 +45,7 @@ function SSOButtons({ type, identityProviders, baseUrl }) {
 }
 
 SSOButtons.propTypes = {
+  isRegister: PropTypes.bool,
   identityProviders: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   baseUrl: PropTypes.string.isRequired,
   type: PropTypes.oneOf(['sso', 'cas']).isRequired,

@@ -190,9 +190,9 @@ const permissionsInfo = {
     default: 50,
   },
 
-  'pixx.co.settings.embeds': {
+  'spaceship.im.settings.embeds': {
     parent: 'events',
-    name: 'Pixx.co Settings',
+    name: 'spaceship.im Settings',
     description: 'Set minimum power level to modify the pixx embed url.',
     default: 50,
   },
@@ -223,7 +223,7 @@ const roomPermsGroups = {
     'm.room.pinned_events',
     'm.room.server_acl',
     'im.vector.modular.widgets',
-    'pixx.co.settings.embeds',
+    'spaceship.im.settings.embeds',
   ],
 };
 

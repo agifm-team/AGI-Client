@@ -47,7 +47,7 @@ if (process.platform === 'win32') app.setAppUserModelId(app.getName());
 // Read more on https://www.electronjs.org/docs/latest/tutorial/security
 // process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
-const title = 'pixx.co';
+const title = 'spaceship.im';
 const electronCache: {
   isQuiting: boolean;
   appStarted: boolean;

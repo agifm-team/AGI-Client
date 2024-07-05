@@ -1,6 +1,6 @@
 // import socketIOClient from 'socket.io-client';
 
-const serverDomain = 'pixx.co';
+const serverDomain = 'spaceship.im';
 const serverAddress = `https://bots.${serverDomain}/`;
 
 export { serverAddress, serverDomain };

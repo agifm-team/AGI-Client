@@ -130,19 +130,19 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
     }
   };
 
-  // pixx.co.settings.embeds
+  // spaceship.im.settings.embeds
   const [pixxEmbeds, setPixxEmbeds] = useState({});
   const [expandPixxIframe, setExpandPixxIframe] = useState(false);
   useEffect(() => {
     const handleEvent = (event) => {
-      if (event.getType() !== 'pixx.co.settings.embeds') return;
+      if (event.getType() !== 'spaceship.im.settings.embeds') return;
       setPixxEmbeds({ data: newEvent.getContent() ?? {}, roomId });
     };
 
     if (pixxEmbeds.roomId !== roomId) {
       setPixxEmbeds({
         data:
-          getCurrentState(room).getStateEvents('pixx.co.settings.embeds')[0]?.getContent() ?? {},
+          getCurrentState(room).getStateEvents('spaceship.im.settings.embeds')[0]?.getContent() ?? {},
         roomId,
       });
     }
@@ -249,7 +249,7 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                 onClick={() => {
                   const agiSettings =
                     getCurrentState(room)
-                      .getStateEvents('pixx.co.settings.embeds')[0]
+                      .getStateEvents('spaceship.im.settings.embeds')[0]
                       ?.getContent() ?? {};
 
                   agiSettings.visible =
@@ -257,7 +257,7 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                       ? true
                       : false;
                   setPixxEmbeds({ data: agiSettings, roomId });
-                  mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', agiSettings);
+                  mx.sendStateEvent(roomId, 'spaceship.im.settings.embeds', agiSettings);
                 }}
                 tooltipPlacement="bottom"
                 tooltip={`${
@@ -270,7 +270,7 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                 fa={`fa-solid fa-${pixxEmbedVisible ? 'window-minimize' : 'window-restore'}`}
               />
             </li>
-            {getCurrentState(room).maySendStateEvent('pixx.co.settings.embeds', mx.getUserId()) ? (
+            {getCurrentState(room).maySendStateEvent('spaceship.im.settings.embeds', mx.getUserId()) ? (
               <li className="nav-item">
                 <IconButton
                   neonColor
@@ -278,7 +278,7 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                   className="nav-link btn btn-bg border-0"
                   onClick={async () => {
                     const agiSettings = getCurrentState(room)
-                      .getStateEvents('pixx.co.settings.embeds')[0]
+                      .getStateEvents('spaceship.im.settings.embeds')[0]
                       ?.getContent();
 
                     const value = await tinyPrompt('Enter the embed url:', 'Embed Url', {
@@ -287,7 +287,7 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
                     if (value !== null) {
                       const newEvent = { value };
                       setPixxEmbeds({ data: newEvent, roomId });
-                      mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', newEvent);
+                      mx.sendStateEvent(roomId, 'spaceship.im.settings.embeds', newEvent);
                     }
                   }}
                   tooltipPlacement="bottom"

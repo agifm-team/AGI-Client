@@ -26,7 +26,7 @@ How can this peppy Pixxel help you today?
 
 
 ## Getting started
-Web app is available at https://pixx.co and gets updated on each new release.
+Web app is available at https://spaceship.im and gets updated on each new release.
 
 To host Pixxels-App on your own, download tarball of the app from [GitHub release](https://github.com/pixxels-team/Pixxels-App/releases/latest).
 You can serve the application with a webserver of your choice by simply copying `dist/` directory to the webroot. 

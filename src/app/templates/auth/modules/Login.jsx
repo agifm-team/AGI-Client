@@ -220,7 +220,10 @@ function Login({ hsConfig }) {
                 <center>
                   <a
                     className="very-small"
-                    onClick={() => setType(type === 'reset-password' ? 'login' : 'reset-password')}
+                    onClick={(e) => {
+                      setType(type === 'reset-password' ? 'login' : 'reset-password');
+                      e.preventDefault();
+                    }}
                     href="#!"
                   >
                     Forgot password?
@@ -231,7 +234,13 @@ function Login({ hsConfig }) {
               <center>
                 <p className="small">
                   {`${type === 'login' ? "Don't have" : 'Already have'} an account?`}{' '}
-                  <a href="#!" onClick={() => setType(type === 'login' ? 'register' : 'login')}>
+                  <a
+                    href="#!"
+                    onClick={(e) => {
+                      setType(type === 'login' ? 'register' : 'login');
+                      e.preventDefault();
+                    }}
+                  >
                     {type === 'login' ? 'Register here' : 'Login here'}
                   </a>
                 </p>

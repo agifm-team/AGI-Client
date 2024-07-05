@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { readImageUrl } from '@src/util/libs/mediaCache';
+import Tooltip from '@src/app/atoms/tooltip/Tooltip';
 
 import { createTemporaryClient, startSsoLogin } from '../../../client/action/auth';
 
@@ -20,18 +21,20 @@ function SSOButtons({ type, identityProviders, baseUrl, isRegister = false }) {
         })
         .map((idp) =>
           idp.icon ? (
-            <button
-              key={idp.id}
-              type="button"
-              className="sso-btn"
-              onClick={() => handleClick(idp.id)}
-            >
-              <img
-                className="sso-btn__img rounded-circle border border-bg mb-2"
-                src={readImageUrl(tempClient.mxcUrlToHttp(idp.icon))}
-                alt={idp.name}
-              />
-            </button>
+            <Tooltip placement="top" content={<div className="small">{idp.name}</div>}>
+              <button
+                key={idp.id}
+                type="button"
+                className="sso-btn"
+                onClick={() => handleClick(idp.id)}
+              >
+                <img
+                  className="sso-btn__img rounded-circle border border-bg mb-2"
+                  src={readImageUrl(tempClient.mxcUrlToHttp(idp.icon))}
+                  alt={idp.name}
+                />
+              </button>
+            </Tooltip>
           ) : (
             <Button
               key={idp.id}

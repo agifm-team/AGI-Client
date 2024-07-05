@@ -40,7 +40,6 @@ function AuthCard() {
                 />
                 {__ENV_APP__.INFO.name}
               </a>
-
               <div className="navbar-nav small">
                 <Login
                   hsConfig={hsConfig}

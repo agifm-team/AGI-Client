@@ -164,6 +164,9 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
   const thread = threadId ? getRoomInfo().roomTimeline.room.getThread(threadId) : null;
   const contentThread = thread && thread.rootEvent ? thread.rootEvent.getContent() : null;
 
+  if (expandPixxIframe) $('body').addClass('spaceship-iframe-expand-enabled');
+  else $('body').removeClass('spaceship-iframe-expand-enabled');
+
   return (
     <>
       <Header>
@@ -377,7 +380,7 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
 
       {pixxEmbedVisible ? (
         <>
-          <div className="spaceship-embed-expand">
+          <div className={`spaceship-embed-expand${expandPixxIframe ? ' clicked' : ''}`}>
             <Button
               variant="primary"
               type="button"

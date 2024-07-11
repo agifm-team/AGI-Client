@@ -1,5 +1,6 @@
 import { EventTimeline } from 'matrix-js-sdk';
 import initMatrix, { fetchFn } from '../client/initMatrix';
+import matrixAppearance from './libs/appearance';
 
 const HashIC = './img/ic/outlined/hash.svg';
 const HashGlobeIC = './img/ic/outlined/hash-globe.svg';
@@ -9,8 +10,6 @@ const SpaceGlobeIC = './img/ic/outlined/space-globe.svg';
 const SpaceLockIC = './img/ic/outlined/space-lock.svg';
 
 const WELL_KNOWN_URI = '/.well-known/matrix/client';
-
-export const eventMaxListeners = __ENV_APP__.MAX_LISTENERS;
 
 export const canSupport = (where) => {
   const mx = initMatrix.matrixClient;
@@ -67,7 +66,7 @@ export function getUsername(userId) {
 }
 
 export function getUsernameOfRoomMember(roomMember) {
-  return roomMember.name || roomMember.userId;
+  return roomMember.name || convertUserId(roomMember.userId);
 }
 
 export async function isRoomAliasAvailable(alias) {
@@ -297,9 +296,56 @@ export async function hasDevice(userId, deviceId) {
   }
 }
 
+export function getHomeServer(yourUserId) {
+  return yourUserId.slice(yourUserId.indexOf(':') + 1);
+}
+
+export function convertUserId(id = null, forceMode = false) {
+  const mx = initMatrix.matrixClient;
+  const userId = id || mx.getUserId();
+  const homeserver = getHomeServer(mx.getUserId());
+
+  if (typeof userId === 'string') {
+    if (userId.startsWith('@')) {
+      const newUserId = userId.split(':');
+      if (
+        newUserId.length > 1 &&
+        homeserver === newUserId[1] &&
+        (matrixAppearance.get('simplerHashtagSameHomeServer') || forceMode)
+      ) {
+        return newUserId[0];
+      }
+      return newUserId.join(':');
+    }
+    return userId;
+  }
+  return '';
+}
+
+export function convertUserIdReverse(id = null, forceMode = false) {
+  const mx = initMatrix.matrixClient;
+  const userId = id || mx.getUserId();
+  if (typeof userId === 'string') {
+    if (userId.startsWith('@')) {
+      const newUserId = userId.split(':');
+      if (
+        newUserId.length < 2 &&
+        (matrixAppearance.get('simplerHashtagSameHomeServer') || forceMode)
+      ) {
+        const yourUserId = mx.getUserId();
+        return `${newUserId[0]}:${getHomeServer(yourUserId)}`;
+      }
+      return newUserId.join(':');
+    }
+    return userId;
+  }
+  return '';
+}
+
 if (__ENV_APP__.MODE === 'development') {
   global.matrixUtil = {
-    eventMaxListeners,
+    convertUserId,
+    convertUserIdReverse,
     getBaseUrl,
     getUsername,
     getUsernameOfRoomMember,

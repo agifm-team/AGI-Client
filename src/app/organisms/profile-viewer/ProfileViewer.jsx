@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useReducer } from 'react';
 import PropTypes from 'prop-types';
 import clone from 'clone';
 import envAPI from '@src/util/libs/env';
@@ -8,6 +8,7 @@ import { duplicatorAgent, reconnectAgent } from '@mods/agi-mod/bots/PeopleSelect
 import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 // import YamlEditor from '@mods/agi-mod/components/YamlEditor';
 import { openSuperAgent } from '@mods/agi-mod/menu/Buttons';
+import matrixAppearance from '@src/util/libs/appearance';
 
 import { twemojifyReact } from '../../../util/twemojify';
 import { getPresence, getUserStatus, updateUserStatusIcon } from '../../../util/onlineStatus';
@@ -32,6 +33,7 @@ import {
   hasDMWith,
   hasDevices,
   getCurrentState,
+  convertUserId,
 } from '../../../util/matrixUtil';
 import { getEventCords } from '../../../util/common';
 import { colorMXID, cssColorMXID } from '../../../util/colorMXID';
@@ -57,6 +59,7 @@ import copyText from './copyText';
 import tinyAPI from '../../../util/mods';
 
 function ModerationTools({ roomId, userId }) {
+  const [, forceUpdate] = useReducer((count) => count + 1, 0);
   const mx = initMatrix.matrixClient;
   const room = mx.getRoom(roomId);
   const roomMember = room.getMember(userId);
@@ -83,6 +86,14 @@ function ModerationTools({ roomId, userId }) {
     const banReason = e.target.elements['ban-reason']?.value.trim();
     roomActions.ban(roomId, userId, banReason !== '' ? banReason : undefined);
   };
+
+  useEffect(() => {
+    const tinyUpdate = () => forceUpdate();
+    matrixAppearance.off('simplerHashtagSameHomeServer', tinyUpdate);
+    return () => {
+      matrixAppearance.off('simplerHashtagSameHomeServer', tinyUpdate);
+    };
+  });
 
   return (
     (canIKick || canIBan) && (
@@ -289,9 +300,9 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence
   return (
     <>
       {agentData &&
-      agentData.data &&
-      typeof agentData.data.id === 'string' &&
-      agentData.data.id.length > 0 ? (
+        agentData.data &&
+        typeof agentData.data.id === 'string' &&
+        agentData.data.id.length > 0 ? (
         <>
           <Button
             className="me-2"
@@ -781,8 +792,8 @@ function ProfileViewer() {
         .then((userProfile) => {
           newAvatar =
             userProfile.avatar_url &&
-            userProfile.avatar_url !== 'null' &&
-            userProfile.avatar_url !== null
+              userProfile.avatar_url !== 'null' &&
+              userProfile.avatar_url !== null
               ? mx.mxcUrlToHttp(userProfile.avatar_url)
               : null;
 
@@ -910,7 +921,7 @@ function ProfileViewer() {
                 <span className="button">{twemojifyReact(username)}</span>
               </h6>
               <small ref={userNameRef} className="text-gray emoji-size-fix username">
-                <span className="button">{twemojifyReact(userId)}</span>
+                <span className="button">{twemojifyReact(convertUserId(userId))}</span>
               </small>
               <div
                 ref={userPronounsRef}
@@ -945,7 +956,7 @@ function ProfileViewer() {
               {agentData.data && typeof agentData.data.id === 'string' ? (
                 <>
                   {typeof agentData.data.llmModel === 'string' ||
-                  typeof agentData.data.prompt === 'string' ? (
+                    typeof agentData.data.prompt === 'string' ? (
                     <>
                       <hr />
 

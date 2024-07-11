@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useReducer } from 'react';
 
 import clone from 'clone';
 import jReact from '@mods/lib/jReact';
 import { readImageUrl } from '@src/util/libs/mediaCache';
 import soundFiles from '@src/util/soundFiles';
+import { convertUserId } from '@src/util/matrixUtil';
 
 import IconButton from '../../atoms/button/IconButton';
 import { twemojifyReact } from '../../../util/twemojify';
@@ -22,7 +23,10 @@ import tinyAPI from '../../../util/mods';
 import { enableAfkSystem } from '../../../util/userStatusEffects';
 import { getUserWeb3Account } from '../../../util/web3';
 
-import { getAppearance, getAnimatedImageUrl } from '../../../util/libs/appearance';
+import matrixAppearance, {
+  getAppearance,
+  getAnimatedImageUrl,
+} from '../../../util/libs/appearance';
 
 // Account Status
 const accountStatus = { status: null, data: null };
@@ -48,6 +52,7 @@ function ProfileAvatarMenu() {
   const customStatusRef = useRef(null);
   const statusRef = useRef(null);
 
+  const [, forceUpdate] = useReducer((count) => count + 1, 0);
   const [microphoneMuted, setMicrophoneMuted] = useState(voiceChat.getMicrophoneMute());
   const [audioMuted, setAudioMuted] = useState(voiceChat.getAudioMute());
 
@@ -221,6 +226,14 @@ function ProfileAvatarMenu() {
 
   const appearanceSettings = getAppearance();
 
+  useEffect(() => {
+    const tinyUpdate = () => forceUpdate();
+    matrixAppearance.off('simplerHashtagSameHomeServer', tinyUpdate);
+    return () => {
+      matrixAppearance.off('simplerHashtagSameHomeServer', tinyUpdate);
+    };
+  });
+
   // Complete
   return (
     <table className="table table-borderless align-middle m-0" id="user-menu">
@@ -260,10 +273,10 @@ function ProfileAvatarMenu() {
                 className="very-small ps-2 text-truncate emoji-size-fix-2 user-custom-status"
                 id="user-presence"
               >
-                {profile.userId}
+                {convertUserId(profile.userId)}
               </div>
               <div className="very-small ps-2 text-truncate emoji-size-fix-2" id="user-id">
-                {profile.userId}
+                {convertUserId(profile.userId)}
               </div>
             </button>
           </td>

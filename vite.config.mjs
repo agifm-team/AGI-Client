@@ -167,6 +167,8 @@ export default defineConfig(({ command, mode }) => {
       ]
     },
 
+    SHARE_URL: typeof env.SHARE_URL === 'string' && env.SHARE_URL.length > 0 ? env.SHARE_URL : null,
+
     WEB3: addBooleanToEnv('WEB3'),
     IPFS: addBooleanToEnv('IPFS'),
 
@@ -174,6 +176,8 @@ export default defineConfig(({ command, mode }) => {
 
     SAVE_ROOM_DB: addBooleanToEnv('SAVE_ROOM_DB'),
     DISCORD_STYLE: addBooleanToEnv('DISCORD_STYLE'),
+    SIMPLER_HASHTAG_SAME_HOMESERVER: addBooleanToEnv('SIMPLER_HASHTAG_SAME_HOMESERVER'),
+    FORCE_SIMPLER_SAME_HASHTAG: addBooleanToEnv('FORCE_SIMPLER_SAME_HASHTAG'),
     SHOW_STICKERS: addBooleanToEnv('SHOW_STICKERS'),
     USE_CUSTOM_EMOJIS: addBooleanToEnv('USE_CUSTOM_EMOJIS'),
     USE_ANIM_PARAMS: addBooleanToEnv('USE_ANIM_PARAMS'),
@@ -201,6 +205,7 @@ export default defineConfig(({ command, mode }) => {
       API_KEY: typeof env.LIBRE_TRANSLATE_API_KEY === 'string' && env.LIBRE_TRANSLATE_API_KEY.length > 0 ?
         env.LIBRE_TRANSLATE_API_KEY : '',
       ENABLED: addBooleanToEnv('LIBRE_TRANSLATE_ENABLED'),
+      VISIBLE: addBooleanToEnv('LIBRE_TRANSLATE_VISIBLE'),
     },
 
     EMOJIBOARD: {
@@ -216,6 +221,16 @@ export default defineConfig(({ command, mode }) => {
           RECENT: Number(env.RECENT_STICKER_ROWS_LIMIT),
         }
 
+      }
+    },
+
+    ACCOUNT_MANAGER: {
+      SUPPORT: {
+        PHONE_NUMBER: addBooleanToEnv('PHONE_NUMBER_SUPPORT'),
+        EMAIL_ADDRESS: addBooleanToEnv('EMAIL_ADDRESS_SUPPORT'),
+        DEACTIVATE_ACCOUNT: addBooleanToEnv('DEACTIVATE_ACCOUNT_SUPPORT'),
+        ERASE_ACCOUNT: addBooleanToEnv('ERASE_ACCOUNT_SUPPORT'),
+        OTHER_AUTH_LIST: addBooleanToEnv('OTHER_AUTH_LIST_SUPPORT'),
       }
     },
 

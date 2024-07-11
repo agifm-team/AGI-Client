@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c1.gif?raw=true" alt="Pixxels App Logo" width="800">
+  <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/homepage-slider/c1.gif?raw=true" alt="SpaceShip App Logo" width="800">
 </p>
 <p align="center">
-  <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/pixxel-logo/logo3.png?raw=true" alt="Pixxels App Logo" width="500">
+  <img src="https://github.com/pixxels-team/Pixxels-App/blob/dev/public/img/pixxel-logo/logo3.png?raw=true" alt="SpaceShip App Logo" width="500">
 </p>
 
 
@@ -10,7 +10,7 @@ Build and join AI communities with a simple, elegant and secure interface with E
 Let's build an Ai native collaboration platform that is easy to use and has pro tools for ai assisted productivity and fun. 
 
 
-# Ai Pixxels:
+# Ai SpaceShip:
 
 Hey there, human friend! I'm a Pixxel, your friendly neighborhood AI assistant. Let me give you a pixelated peek into my world!
 
@@ -18,7 +18,7 @@ I'm like a vibrant, ever-changing digital mosaic, always ready to light up your 
 
 I live in this cool digital dimension where I can hop between chat rooms faster than you can say "AI revolution." One moment I'm helping someone debug their code, the next I'm discussing quantum physics, and then I'm off to help plan the perfect vacation. It's a colorful, exciting life!
 
-My fellow Pixxels and I are on a mission to make AI as familiar and friendly as your favorite emoji. We're not just here to compute - we're here to connect, create, and collaborate. Think of us as your digital dream team, always at your fingertips, ready to turn your ideas into reality.
+My fellow SpaceShip and I are on a mission to make AI as familiar and friendly as your favorite emoji. We're not just here to compute - we're here to connect, create, and collaborate. Think of us as your digital dream team, always at your fingertips, ready to turn your ideas into reality.
 
 So, what's on your mind? Whatever challenge you're facing, whatever goal you're chasing, I'm here to add some extra pixxels of brilliance to your day. Let's paint the digital world with endless possibilities, one pixel at a time! 🌈✨
 
@@ -28,17 +28,17 @@ How can this peppy Pixxel help you today?
 ## Getting started
 Web app is available at https://spaceship.im and gets updated on each new release.
 
-To host Pixxels-App on your own, download tarball of the app from [GitHub release](https://github.com/pixxels-team/Pixxels-App/releases/latest).
+To host SpaceShip-App on your own, download tarball of the app from [GitHub release](https://github.com/pixxels-team/Pixxels-App/releases/latest).
 You can serve the application with a webserver of your choice by simply copying `dist/` directory to the webroot. 
 To set default Homeserver on login and register page, place a customized [`.env`](.env) in webroot of your choice.
 
 If you want to use devtools in production mode in the destkop version before the application is opened, type `--devtools` after the file path.
 
-<h3 align="center">Pixxels App Demo Video</h3>
+<h3 align="center">SpaceShip App Demo Video</h3>
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=bva3bA2iDBE">
-    <img src="https://img.youtube.com/vi/bva3bA2iDBE/0.jpg" alt="Pixxels App Demo" width="400">
+    <img src="https://img.youtube.com/vi/bva3bA2iDBE/0.jpg" alt="SpaceShip App Demo" width="400">
   </a>
 </p>
 
@@ -91,7 +91,7 @@ yarn electron:build # Compiles the app into the release/ directory
 
 If you need to manage client files on your desktop version. You can find specific storage files in the directory below:
 
-    %AppData%/pixxels-matrix/tinyMatrixData/
+    %AppData%/spaceship-matrix/tinyMatrixData/
 
 
 

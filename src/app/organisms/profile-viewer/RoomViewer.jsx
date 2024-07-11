@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { objType } from 'for-promise/utils/lib.mjs';
+import tinyClipboard from '@src/util/libs/Clipboard';
+import { getShareUrl } from '@src/util/tools';
 
 import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
@@ -23,7 +25,7 @@ import Dialog from '../../molecules/dialog/Dialog';
 import copyText from './copyText';
 import tinyAPI from '../../../util/mods';
 
-function RoomFooter({ roomId, publicData, onRequestClose }) {
+function RoomFooter({ roomId, originalRoomId, publicData, onRequestClose }) {
   const mx = initMatrix.matrixClient;
 
   const onCreated = (dmRoomId) => {
@@ -68,6 +70,18 @@ function RoomFooter({ roomId, publicData, onRequestClose }) {
 
   return roomId ? (
     <>
+      {__ENV_APP__.SHARE_URL && originalRoomId ? (
+        <Button
+          onClick={() => {
+            tinyClipboard.copyText(getShareUrl(originalRoomId));
+            alert('The share link was successfully copied!', 'Room Viewer');
+          }}
+          variant="secondary"
+          className="me-2"
+        >
+          Share Url
+        </Button>
+      ) : null}
       {isJoined && (
         <Button onClick={handleViewRoom} variant="secondary">
           Open
@@ -325,6 +339,7 @@ function RoomViewer() {
                 <RoomFooter
                   publicData={publicData}
                   roomId={aliasId}
+                  originalRoomId={originalRoomId}
                   room={room}
                   isSpace={isSpace}
                   onRequestClose={closeDialog}

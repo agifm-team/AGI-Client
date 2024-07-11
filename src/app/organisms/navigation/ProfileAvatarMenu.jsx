@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useReducer } from 'react';
 
 import clone from 'clone';
 import jReact from '@mods/lib/jReact';
 import { readImageUrl } from '@src/util/libs/mediaCache';
+import soundFiles from '@src/util/soundFiles';
+import { convertUserId } from '@src/util/matrixUtil';
 
 import IconButton from '../../atoms/button/IconButton';
 import { twemojifyReact } from '../../../util/twemojify';
@@ -20,9 +22,11 @@ import { openSettings } from '../../../client/action/navigation';
 import tinyAPI from '../../../util/mods';
 import { enableAfkSystem } from '../../../util/userStatusEffects';
 import { getUserWeb3Account } from '../../../util/web3';
-import { getSound } from '../../../client/state/Notifications';
 
-import { getAppearance, getAnimatedImageUrl } from '../../../util/libs/appearance';
+import matrixAppearance, {
+  getAppearance,
+  getAnimatedImageUrl,
+} from '../../../util/libs/appearance';
 
 // Account Status
 const accountStatus = { status: null, data: null };
@@ -48,6 +52,7 @@ function ProfileAvatarMenu() {
   const customStatusRef = useRef(null);
   const statusRef = useRef(null);
 
+  const [, forceUpdate] = useReducer((count) => count + 1, 0);
   const [microphoneMuted, setMicrophoneMuted] = useState(voiceChat.getMicrophoneMute());
   const [audioMuted, setAudioMuted] = useState(voiceChat.getAudioMute());
 
@@ -148,7 +153,7 @@ function ProfileAvatarMenu() {
 
         // Nope
         else {
-          $(customStatusRef.current).html(jReact(twemojifyReact(user2.userId)));
+          $(customStatusRef.current).html(jReact(twemojifyReact(convertUserId(user2.userId))));
           accountStatus.data = null;
           accountStatus.status = null;
         }
@@ -187,25 +192,7 @@ function ProfileAvatarMenu() {
       setNewProfile(info.avatar_url, info.displayname, info.userId);
     });
 
-    const playMuteSound = (muted) => {
-      let sound;
-
-      try {
-        sound = getSound(muted ? 'micro_off' : 'micro_on');
-      } catch {
-        sound = null;
-      }
-
-      try {
-        if (sound) {
-          sound.pause();
-          sound.currentTime = 0;
-          sound.play();
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
+    const playMuteSound = (muted) => soundFiles.playNow(muted ? 'micro_off' : 'micro_on');
 
     const updateAudioMute = (muted) => {
       playMuteSound(muted);
@@ -238,6 +225,14 @@ function ProfileAvatarMenu() {
   const newStatus = `user-status-icon ${getUserStatus(user)}`;
 
   const appearanceSettings = getAppearance();
+
+  useEffect(() => {
+    const tinyUpdate = () => forceUpdate();
+    matrixAppearance.off('simplerHashtagSameHomeServer', tinyUpdate);
+    return () => {
+      matrixAppearance.off('simplerHashtagSameHomeServer', tinyUpdate);
+    };
+  });
 
   // Complete
   return (
@@ -278,10 +273,10 @@ function ProfileAvatarMenu() {
                 className="very-small ps-2 text-truncate emoji-size-fix-2 user-custom-status"
                 id="user-presence"
               >
-                {profile.userId}
+                {convertUserId(profile.userId)}
               </div>
               <div className="very-small ps-2 text-truncate emoji-size-fix-2" id="user-id">
-                {profile.userId}
+                {convertUserId(profile.userId)}
               </div>
             </button>
           </td>

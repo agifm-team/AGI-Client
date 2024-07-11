@@ -26,6 +26,7 @@ import {
   getEventReactions,
   reactionImgjQuery,
 } from '@src/util/libs/reactions';
+import tinyClipboard from '@src/util/libs/Clipboard';
 
 import Text from '../../atoms/text/Text';
 import { btModal, hljsFixer, resizeWindowChecker, toast } from '../../../util/tools';
@@ -38,12 +39,11 @@ import {
   parseReply,
   trimHTMLReply,
   getCurrentState,
-  eventMaxListeners,
   canSupport,
 } from '../../../util/matrixUtil';
 
 import { colorMXID, backgroundColorMXID } from '../../../util/colorMXID';
-import { getEventCords, copyToClipboard } from '../../../util/common';
+import { getEventCords } from '../../../util/common';
 import { redactEvent, sendReaction } from '../../../client/action/roomTimeline';
 import {
   openEmojiBoard,
@@ -989,22 +989,24 @@ const MessageOptions = React.memo(
           />
         )}
 
-        {allowTranslate ? (
-          <IconButton
-            className="need-shift"
-            onClick={translateMessage()}
-            fa="fa-solid fa-language btn-text-info"
-            size="normal"
-            tooltip="Translate message"
-          />
-        ) : typeof translateText === 'string' ? (
-          <IconButton
-            className="need-shift"
-            onClick={removeTranslateMessage()}
-            fa="fa-solid fa-language btn-text-warning"
-            size="normal"
-            tooltip="Original message"
-          />
+        {libreTranslate.get('visible') ? (
+          allowTranslate ? (
+            <IconButton
+              className="need-shift"
+              onClick={translateMessage()}
+              fa="fa-solid fa-language btn-text-info"
+              size="normal"
+              tooltip="Translate message"
+            />
+          ) : typeof translateText === 'string' ? (
+            <IconButton
+              className="need-shift"
+              onClick={removeTranslateMessage()}
+              fa="fa-solid fa-language btn-text-warning"
+              size="normal"
+              tooltip="Original message"
+            />
+          ) : null
         ) : null}
 
         <ContextMenu
@@ -1139,7 +1141,7 @@ const MessageOptions = React.memo(
                     `[roomid='${roomid}'][senderid='${senderid}'][eventid='${eventid}'][msgtype='${msgtype}'] .message-body`,
                   );
                   if (messageBody.length > 0) {
-                    copyToClipboard(
+                    tinyClipboard.copyText(
                       customHTML
                         ? html(customHTML, roomId, threadId, { kind: 'edit', onlyPlain: true })
                             .plain
@@ -1263,7 +1265,7 @@ const MessageThreadSummary = React.memo(({ thread, useManualCheck = false }) => 
   const [lastReply, setLastReply] = useState(thread.lastReply());
   const [manualCheck, setManualCheck] = useState(false);
   const [show, setShow] = useState(false);
-  thread.setMaxListeners(eventMaxListeners);
+  thread.setMaxListeners(__ENV_APP__.MAX_LISTENERS);
 
   // can't have empty threads
   if (thread.length === 0) return null;
@@ -1627,7 +1629,7 @@ function Message({
   // make the message transparent while sending and red if it failed sending
   const [messageStatus, setMessageStatus] = useState(mEvent.status);
 
-  mEvent.setMaxListeners(eventMaxListeners);
+  mEvent.setMaxListeners(__ENV_APP__.MAX_LISTENERS);
   mEvent.once(MatrixEventEvent.Status, (e) => {
     setMessageStatus(e.status);
   });

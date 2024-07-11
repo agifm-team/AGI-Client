@@ -3,6 +3,7 @@ import { Modal } from 'react-bootstrap';
 import { Formik } from 'formik';
 
 import PropTypes from 'prop-types';
+import hsWellKnown from '@src/util/libs/HsWellKnown';
 
 import { EMAIL_REGEX, BAD_EMAIL_ERROR } from '@src/util/register/regex';
 import { normalizeUsername, isValidInput } from '@src/util/register/validator';
@@ -21,12 +22,14 @@ import Register from './Register';
 import SSOButtons from '../../../molecules/sso-buttons/SSOButtons';
 import ResetPassword from './ResetPassword';
 
-function Login({ hsConfig, loginFlow, baseUrl }) {
-  const ssoProviders = loginFlow?.filter((flow) => flow.type === 'm.login.sso')[0];
+function Login({ hsConfig }) {
   const [typeIndex, setTypeIndex] = useState(0);
   const [passVisible, setPassVisible] = useState(false);
   const loginTypes = ['Username', 'Email'];
-  const isPassword = loginFlow?.filter((flow) => flow.type === 'm.login.password')[0];
+
+  const isPassword = hsWellKnown.getIsPassword();
+  const ssoProviders = hsWellKnown.getSsoProviders();
+  const baseUrl = hsWellKnown.getBaseUrl();
 
   const [isVisible, setIsVisible] = useState(false);
   const requestClose = () => setIsVisible(false);
@@ -97,11 +100,7 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
           {type === 'login' ? (
             <>
               <div>
-                <SSOButtons
-                  type="sso"
-                  identityProviders={ssoProviders.identity_providers}
-                  baseUrl={baseUrl}
-                />
+                <SSOButtons type="sso" identityProviders={ssoProviders} baseUrl={baseUrl} />
               </div>
               <div className="auth-form__heading m-0 mt-1">
                 {isPassword && (
@@ -210,13 +209,9 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
               )}
             </>
           ) : type === 'register' ? (
-            <Register
-              registerInfo={hsConfig.register}
-              loginFlow={hsConfig.login.flows}
-              baseUrl={hsConfig.baseUrl}
-            />
+            <Register />
           ) : (
-            <ResetPassword serverName={hsConfig.serverName} baseUrl={hsConfig.baseUrl} />
+            <ResetPassword />
           )}
 
           {hsConfig !== null && (
@@ -225,7 +220,10 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
                 <center>
                   <a
                     className="very-small"
-                    onClick={() => setType(type === 'reset-password' ? 'login' : 'reset-password')}
+                    onClick={(e) => {
+                      setType(type === 'reset-password' ? 'login' : 'reset-password');
+                      e.preventDefault();
+                    }}
                     href="#!"
                   >
                     Forgot password?
@@ -236,7 +234,13 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
               <center>
                 <p className="small">
                   {`${type === 'login' ? "Don't have" : 'Already have'} an account?`}{' '}
-                  <a href="#!" onClick={() => setType(type === 'login' ? 'register' : 'login')}>
+                  <a
+                    href="#!"
+                    onClick={(e) => {
+                      setType(type === 'login' ? 'register' : 'login');
+                      e.preventDefault();
+                    }}
+                  >
                     {type === 'login' ? 'Register here' : 'Login here'}
                   </a>
                 </p>
@@ -258,10 +262,5 @@ function Login({ hsConfig, loginFlow, baseUrl }) {
     </>
   );
 }
-
-Login.propTypes = {
-  loginFlow: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  baseUrl: PropTypes.string.isRequired,
-};
 
 export default Login;

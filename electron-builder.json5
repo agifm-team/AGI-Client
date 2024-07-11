@@ -2,8 +2,8 @@
  * @see https://www.electron.build/configuration/configuration
  */
 {
-  appId: 'Pixxels',
-  productName: 'Pixxels',
+  appId: 'SpaceShip',
+  productName: 'SpaceShip',
   copyright: 'Copyright © 2023 ${author}',
   asar: true,
   directories: {
@@ -15,8 +15,8 @@
     target: ['AppImage', 'deb'],
     category: 'Network;Chat;InstantMessaging;',
     desktop: {
-      Comment: 'Pixxels matrix client',
-      Keywords: 'chat;pixxels;messaging;messenger;matrix;matrix-client;brony',
+      Comment: 'SpaceShip matrix client',
+      Keywords: 'chat;spaceship;messaging;messenger;matrix;matrix-client;brony',
     },
   },
   mac: {

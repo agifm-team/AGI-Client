@@ -1,4 +1,5 @@
 // import { Toast } from '@capacitor/toast';
+// import { Capacitor } from '@capacitor/core';
 import { objType } from 'for-promise/utils/lib.mjs';
 import { compareVersions } from 'compare-versions';
 
@@ -9,6 +10,7 @@ import cons from '@src/client/state/cons';
 import tinyAPI from './mods';
 import { twemojify } from './twemojify';
 import mobileEvents, { isMobile } from './libs/mobile';
+import { convertRoomId } from './matrixUtil';
 
 let resizePlace = null;
 let resizeTimeout = null;
@@ -583,6 +585,14 @@ export function cyrb128(str) {
   // eslint-disable-next-line no-unused-expressions, no-sequences
   (h1 ^= h2 ^ h3 ^ h4), (h2 ^= h1), (h3 ^= h1), (h4 ^= h1);
   return [h1 >>> 0, h2 >>> 0, h3 >>> 0, h4 >>> 0];
+}
+
+export function isBrowser() {
+  return !__ENV_APP__.ELECTRON_MODE; // && !Capacitor.isNativePlatform()
+}
+
+export function getShareUrl(aliasId) {
+  return `${__ENV_APP__.SHARE_URL.endsWith('/') ? __ENV_APP__.SHARE_URL : `${__ENV_APP__.SHARE_URL}/`}?room_id=${encodeURIComponent(!__ENV_APP__.FORCE_SIMPLER_SAME_HASHTAG ? aliasId : convertRoomId(aliasId))}`;
 }
 
 export function getFlagEmoji(countryCode) {

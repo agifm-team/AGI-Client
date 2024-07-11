@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
+import { convertUserId } from '@src/util/matrixUtil';
+import matrixAppearance from '@src/util/libs/appearance';
 
 import { twemojifyReact } from '../../../util/twemojify';
 
@@ -18,6 +20,16 @@ function RoomTile({
   desc = null,
   options = null,
 }) {
+  const [, forceUpdate] = useReducer((count) => count + 1, 0);
+
+  useEffect(() => {
+    const tinyUpdate = () => forceUpdate();
+    matrixAppearance.off('simplerHashtagSameHomeServer', tinyUpdate);
+    return () => {
+      matrixAppearance.off('simplerHashtagSameHomeServer', tinyUpdate);
+    };
+  });
+
   return (
     <div className="room-tile">
       <div className="room-tile__avatar">
@@ -35,7 +47,7 @@ function RoomTile({
         <div className="very-small text-gray">
           {inviterName !== null
             ? `Invited by ${inviterName} to ${id}${memberCount === null ? '' : ` • ${memberCount} members`}`
-            : id + (memberCount === null ? '' : ` • ${memberCount} members`)}
+            : convertUserId(id) + (memberCount === null ? '' : ` • ${memberCount} members`)}
         </div>
         {desc !== null && typeof desc === 'string' ? (
           <Text className="room-tile__content__desc emoji-size-fix" variant="b2">

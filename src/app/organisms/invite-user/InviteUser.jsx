@@ -1,11 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useReducer } from 'react';
 import PropTypes from 'prop-types';
+import matrixAppearance from '@src/util/libs/appearance';
 
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import * as roomActions from '../../../client/action/room';
 import { selectRoom } from '../../../client/action/navigation';
-import { hasDMWith, hasDevices } from '../../../util/matrixUtil';
+import {
+  convertUserId,
+  convertUserIdReverse,
+  hasDMWith,
+  hasDevices,
+} from '../../../util/matrixUtil';
 
 import Text from '../../atoms/text/Text';
 import Button from '../../atoms/button/Button';
@@ -15,6 +21,7 @@ import PopupWindow from '../../molecules/popup-window/PopupWindow';
 import RoomTile from '../../molecules/room-tile/RoomTile';
 
 function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
+  const [, forceUpdate] = useReducer((count) => count + 1, 0);
   const [isSearching, updateIsSearching] = useState(false);
   const [searchQuery, updateSearchQuery] = useState({});
   const [users, updateUsers] = useState([]);
@@ -250,6 +257,14 @@ function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
     }
   }, [isOpen, procUsers, createdDM, roomIdToUserId]);
 
+  useEffect(() => {
+    const tinyUpdate = () => forceUpdate();
+    matrixAppearance.off('simplerHashtagSameHomeServer', tinyUpdate);
+    return () => {
+      matrixAppearance.off('simplerHashtagSameHomeServer', tinyUpdate);
+    };
+  });
+
   return (
     <PopupWindow
       className="modal-lg noselect"
@@ -262,7 +277,7 @@ function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
           className="invite-user__form noselect"
           onSubmit={(e) => {
             e.preventDefault();
-            searchUser(usernameRef.current.value);
+            searchUser(convertUserIdReverse(usernameRef.current.value));
           }}
         >
           <div>
@@ -276,11 +291,11 @@ function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
           {typeof searchQuery.username !== 'undefined' && isSearching && (
             <div className="flex--center">
               <Spinner size="small" />
-              <small className="ms-3">{`Searching for user "${searchQuery.username}"...`}</small>
+              <small className="ms-3">{`Searching for user "${__ENV_APP__.FORCE_SIMPLER_SAME_HASHTAG ? convertUserId(searchQuery.username) : searchQuery.username}"...`}</small>
             </div>
           )}
           {typeof searchQuery.username !== 'undefined' && !isSearching && (
-            <small>{`Search result for user "${searchQuery.username}"`}</small>
+            <small>{`Search result for user "${__ENV_APP__.FORCE_SIMPLER_SAME_HASHTAG ? convertUserId(searchQuery.username) : searchQuery.username}"`}</small>
           )}
           {searchQuery.error && (
             <Text className="invite-user__search-error" variant="b2">

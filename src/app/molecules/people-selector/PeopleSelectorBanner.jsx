@@ -7,7 +7,9 @@ import envAPI from '@src/util/libs/env';
 import { readImageUrl } from '@src/util/libs/mediaCache';
 import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 import { openProfileViewer } from '@src/client/action/navigation';
+import { convertUserId } from '@src/util/matrixUtil';
 
+import tinyClipboard from '@src/util/libs/Clipboard';
 import { twemojifyReact, twemojify } from '../../../util/twemojify';
 
 import Avatar from '../../atoms/avatar/Avatar';
@@ -16,7 +18,6 @@ import initMatrix from '../../../client/initMatrix';
 import { colorMXID, cssColorMXID } from '../../../util/colorMXID';
 import { addToDataFolder, getDataList } from '../../../util/selectedRoom';
 import { toast } from '../../../util/tools';
-import { copyToClipboard } from '../../../util/common';
 import copyText from '../../organisms/profile-viewer/copyText';
 import matrixAppearance, {
   getAppearance,
@@ -86,7 +87,7 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
           ethereumIcon
             .on('click', () => {
               try {
-                copyToClipboard(presence.ethereum.address);
+                tinyClipboard.copyText(presence.ethereum.address);
                 toast('Ethereum address successfully copied to the clipboard.');
               } catch (err) {
                 console.error(err);
@@ -285,10 +286,12 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
     const updateClock = () => forceUpdate();
     matrixAppearance.on('is24hours', updateClock);
     matrixAppearance.on('calendarFormat', updateClock);
+    matrixAppearance.on('simplerHashtagSameHomeServer', updateClock);
 
     return () => {
       matrixAppearance.off('is24hours', updateClock);
       matrixAppearance.off('calendarFormat', updateClock);
+      matrixAppearance.off('simplerHashtagSameHomeServer', updateClock);
     };
   });
 
@@ -329,7 +332,7 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
               <span className="button">{twemojifyReact(name)}</span>
             </h6>
             <small ref={userNameRef} className="text-gray emoji-size-fix username">
-              <span className="button">{twemojifyReact(user.userId)}</span>
+              <span className="button">{twemojifyReact(convertUserId(user.userId))}</span>
             </small>
             <div ref={userPronounsRef} className="text-gray emoji-size-fix pronouns small d-none" />
 

@@ -7,6 +7,7 @@ import { cyrb128 } from '@src/util/tools';
 import tinyAPI from '@src/util/mods';
 import { getAppearance } from '@src/util/libs/appearance';
 import attemptDecryption from '@src/util/libs/attemptDecryption';
+import soundFiles from '@src/util/soundFiles';
 // import { insertIntoRoomEventsDB } from '@src/util/libs/roomEventsDB';
 
 import renderAvatar from '../../../app/atoms/avatar/render';
@@ -24,13 +25,6 @@ import favIconManager from '../../../util/libs/favicon';
 import { getPrivacyRefuseRoom } from '../../../app/organisms/navigation/Sidebar/InviteSidebar';
 import { canSupport } from '@src/util/matrixUtil';
 // import { insertEvent } from '../eventsDelay';
-
-const soundFiles = {
-  notification: new Audio('./sound/notification.ogg'),
-  invite: new Audio('./sound/invite.ogg'),
-  micro_on: new Audio('./sound/micro_on.ogg'),
-  micro_off: new Audio('./sound/micro_off.ogg'),
-};
 
 function isNotifEvent(mEvent) {
   const eType = mEvent.getType();
@@ -516,19 +510,11 @@ class Notifications extends EventEmitter {
   }
 
   _playNotiSound() {
-    if (!this._notiAudio) {
-      this._notiAudio = soundFiles.notification;
-    }
-
-    this._notiAudio.play();
+    soundFiles.play('notification');
   }
 
   _playInviteSound() {
-    if (!this._inviteAudio) {
-      this._inviteAudio = soundFiles.invite;
-    }
-
-    this._inviteAudio.play();
+    soundFiles.play('invite');
   }
 
   _listenEvents() {
@@ -712,12 +698,6 @@ class Notifications extends EventEmitter {
         this._playInviteSound();
       }
     });
-  }
-}
-
-export function getSound(file) {
-  if (soundFiles && soundFiles[file]) {
-    return soundFiles[file];
   }
 }
 

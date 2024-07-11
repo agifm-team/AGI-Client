@@ -140,7 +140,7 @@ async function createWindow() {
     // await tinyDB(path.join(appDataPrivate, `database${tinyUrl ? '_dev' : ''}.db`), ipcMain, electronCache.win);
     if (process.platform === 'win32') {
       electronCache.win.setAppDetails({
-        appId: 'Pixxels',
+        appId: 'SpaceShip',
         appIconPath: icon,
         relaunchDisplayName: title,
       });

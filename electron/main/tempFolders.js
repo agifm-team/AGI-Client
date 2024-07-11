@@ -12,7 +12,7 @@ const createDirName = (where) => {
 };
 
 // Validate Folders
-const tempFolder = path.join(app.getPath('temp'), './Pixxels');
+const tempFolder = path.join(app.getPath('temp'), './SpaceShip-Matrix');
 if (!fs.existsSync(tempFolder)) {
   fs.mkdirSync(tempFolder);
 }

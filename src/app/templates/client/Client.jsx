@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import appLoadMsg from '@mods/appLoadMsg';
-import { canSupport } from '@src/util/matrixUtil';
+import { canSupport, convertRoomIdReverse } from '@src/util/matrixUtil';
 
 import settings from '@src/client/state/settings';
 import matrixAppearance from '@src/util/libs/appearance';
+import soundFiles from '@src/util/soundFiles';
+
 import { initHotkeys } from '../../../client/event/hotkeys';
 import { initRoomListListener } from '../../../client/event/roomList';
 
@@ -37,6 +39,7 @@ import Mods from './Mods';
 import LoadingPage from './Loading';
 import urlParams from '../../../util/libs/urlParams';
 import {
+  openRoomViewer,
   selectRoom,
   selectRoomMode,
   selectSpace,
@@ -123,6 +126,7 @@ function Client({ isDevToolsOpen = false }) {
   const roomId = urlParams.get('room_id');
   const eventId = urlParams.get('event_id');
   const threadId = urlParams.get('thread_id');
+  const playFatalBeep = () => soundFiles.playNow('fatal_beep');
 
   useEffect(() => {
     startUserAfk();
@@ -194,15 +198,24 @@ function Client({ isDevToolsOpen = false }) {
         selectRoomMode(roomType);
 
       setTimeout(() => {
+        if (!startWorked) playFatalBeep();
         if (typeof roomId === 'string' && roomId.length > 0) {
-          if (typeof roomType !== 'string') selectRoomMode('room');
-          selectRoom(
-            roomId,
-            typeof eventId === 'string' && eventId.length > 0 ? eventId : null,
-            canSupport('Thread') && typeof threadId === 'string' && threadId.length > 0
-              ? threadId
-              : null,
-          );
+          const room = initMatrix.matrixClient.getRoom(roomId);
+          if (room) {
+            if (typeof roomType !== 'string') selectRoomMode('room');
+            selectRoom(
+              roomId,
+              typeof eventId === 'string' && eventId.length > 0 ? eventId : null,
+              canSupport('Thread') && typeof threadId === 'string' && threadId.length > 0
+                ? threadId
+                : null,
+            );
+          } else {
+            const openRoomId = !__ENV_APP__.FORCE_SIMPLER_SAME_HASHTAG
+              ? roomId
+              : convertRoomIdReverse(roomId);
+            openRoomViewer(openRoomId, openRoomId, true);
+          }
         }
       }, 100);
     });
@@ -210,13 +223,18 @@ function Client({ isDevToolsOpen = false }) {
     initMatrix
       .init()
       .then((tinyResult) => {
-        if (tinyResult.err && typeof tinyResult.err.message === 'string')
+        if (tinyResult.err && typeof tinyResult.err.message === 'string') {
           setErrorMessage(tinyResult.err.message);
+          playFatalBeep();
+        }
         setStartWorked(tinyResult.userId !== null);
       })
       .catch((err) => {
         console.error(err);
-        if (typeof err.message === 'string') setErrorMessage(err.message);
+        if (typeof err.message === 'string')
+          setErrorMessage(`${err.message}${err.code ? ` CODE: ${err.code}` : ''}`);
+        else setErrorMessage(`Unknown Error ${err.code ? err.code : '???'}`);
+        playFatalBeep();
         setStartWorked(null);
       });
   }, []);
@@ -336,44 +354,44 @@ function Client({ isDevToolsOpen = false }) {
         </DragDrop>
       </>
     );
-  } else {
-    return (
-      <>
-        <ElectronSidebar isDevToolsOpen={isDevToolsOpen} />
-        <div
-          className={`loading-display${__ENV_APP__.ELECTRON_MODE ? ' root-electron-style' : ''}${isDevToolsOpen ? ' devtools-open' : ''}`}
-        >
-          <div className="loading__menu">
-            <ContextMenu
-              placement="bottom"
-              content={
-                <>
-                  <MenuItem onClick={() => initMatrix.clearCacheAndReload()}>
-                    Clear cache & reload
-                  </MenuItem>
-                  <MenuItem onClick={() => initMatrix.logout()}>Logout</MenuItem>
-                </>
-              }
-              render={(toggle) => (
-                <IconButton size="extra-small" onClick={toggle} fa="bi bi-three-dots-vertical" />
-              )}
-            />
-          </div>
-          <p className="loading__message h2 text-danger">
-            <i class="fa-solid fa-triangle-exclamation" />
-          </p>
-          <div className="small fw-bold text-uppercase mt-3 text-danger">CLIENT ERROR</div>
-          <div className="very-small fw-bold text-uppercase mt-3">{errorMessage}</div>
-
-          <div className="loading__appname">
-            <Text variant="h2" weight="medium">
-              {__ENV_APP__.INFO.name}
-            </Text>
-          </div>
-        </div>
-      </>
-    );
   }
+
+  return (
+    <>
+      <ElectronSidebar isDevToolsOpen={isDevToolsOpen} />
+      <div
+        className={`loading-display${__ENV_APP__.ELECTRON_MODE ? ' root-electron-style' : ''}${isDevToolsOpen ? ' devtools-open' : ''}`}
+      >
+        <div className="loading__menu">
+          <ContextMenu
+            placement="bottom"
+            content={
+              <>
+                <MenuItem onClick={() => initMatrix.clearCacheAndReload()}>
+                  Clear cache & reload
+                </MenuItem>
+                <MenuItem onClick={() => initMatrix.logout()}>Logout</MenuItem>
+              </>
+            }
+            render={(toggle) => (
+              <IconButton size="extra-small" onClick={toggle} fa="bi bi-three-dots-vertical" />
+            )}
+          />
+        </div>
+        <p className="loading__message h2 text-danger">
+          <i className="fa-solid fa-triangle-exclamation" />
+        </p>
+        <div className="small fw-bold text-uppercase mt-3 text-danger">CLIENT ERROR</div>
+        <div className="very-small fw-bold text-uppercase mt-3">{errorMessage}</div>
+
+        <div className="loading__appname">
+          <Text variant="h2" weight="medium">
+            {__ENV_APP__.INFO.name}
+          </Text>
+        </div>
+      </div>
+    </>
+  );
 }
 
 Client.propTypes = {

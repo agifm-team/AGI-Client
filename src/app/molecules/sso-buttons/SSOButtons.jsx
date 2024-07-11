@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { readImageUrl } from '@src/util/libs/mediaCache';
+import Tooltip from '@src/app/atoms/tooltip/Tooltip';
 
 import { createTemporaryClient, startSsoLogin } from '../../../client/action/auth';
 
 import Button from '../../atoms/button/Button';
 
-function SSOButtons({ type, identityProviders, baseUrl }) {
+function SSOButtons({ type, identityProviders, baseUrl, isRegister = false }) {
   const tempClient = createTemporaryClient(baseUrl);
   function handleClick(id) {
     startSsoLogin(baseUrl, type, id);
@@ -20,24 +21,26 @@ function SSOButtons({ type, identityProviders, baseUrl }) {
         })
         .map((idp) =>
           idp.icon ? (
-            <button
-              key={idp.id}
-              type="button"
-              className="sso-btn"
-              onClick={() => handleClick(idp.id)}
-            >
-              <img
-                className="sso-btn__img rounded-circle border border-bg mb-2"
-                src={readImageUrl(tempClient.mxcUrlToHttp(idp.icon))}
-                alt={idp.name}
-              />
-            </button>
+            <Tooltip placement="top" content={<div className="small">{idp.name}</div>}>
+              <button
+                key={idp.id}
+                type="button"
+                className="sso-btn"
+                onClick={() => handleClick(idp.id)}
+              >
+                <img
+                  className="sso-btn__img rounded-circle border border-bg mb-2"
+                  src={readImageUrl(tempClient.mxcUrlToHttp(idp.icon))}
+                  alt={idp.name}
+                />
+              </button>
+            </Tooltip>
           ) : (
             <Button
               key={idp.id}
               className="sso-btn__text-only border border-bg mb-2"
               onClick={() => handleClick(idp.id)}
-            >{`Login with ${idp.name}`}</Button>
+            >{`${!isRegister ? 'Login' : 'Register'} with ${idp.name}`}</Button>
           ),
         )}
     </center>
@@ -45,6 +48,7 @@ function SSOButtons({ type, identityProviders, baseUrl }) {
 }
 
 SSOButtons.propTypes = {
+  isRegister: PropTypes.bool,
   identityProviders: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   baseUrl: PropTypes.string.isRequired,
   type: PropTypes.oneOf(['sso', 'cas']).isRequired,

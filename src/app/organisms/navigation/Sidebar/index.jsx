@@ -5,7 +5,7 @@ import initMatrix from '@src/client/initMatrix';
 
 import { openShortcutSpaces, openSearch, openSettings } from '../../../../client/action/navigation';
 
-import { eventMaxListeners, isCrossVerified } from '../../../../util/matrixUtil';
+import { isCrossVerified } from '../../../../util/matrixUtil';
 
 import Avatar from '../../../atoms/avatar/Avatar';
 import ScrollView from '../../../atoms/scroll/ScrollView';
@@ -49,7 +49,7 @@ function CrossSigninAlert({ isIconsColored }) {
     try {
       const updateList = () => setDevicesChecked(false);
       const crypto = mx.getCrypto();
-      crypto.setMaxListeners(eventMaxListeners);
+      crypto.setMaxListeners(__ENV_APP__.MAX_LISTENERS);
       crypto.on('deviceVerificationChanged', updateList);
       crypto.on('userCrossSigningUpdated', updateList);
       crypto.on('userTrustStatusChanged', updateList);

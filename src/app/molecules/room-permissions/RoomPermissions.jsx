@@ -193,7 +193,7 @@ const permissionsInfo = {
   'spaceship.im.settings.embeds': {
     parent: 'events',
     name: 'spaceship.im Settings',
-    description: 'Set minimum power level to modify the pixx embed url.',
+    description: 'Set minimum power level to modify the spaceship embed url.',
     default: 50,
   },
 };

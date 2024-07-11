@@ -2,7 +2,6 @@ import EventEmitter from 'events';
 import { objType } from 'for-promise/utils/lib.mjs';
 
 import favIconManager from '@src/util/libs/favicon';
-import { eventMaxListeners } from '@src/util/matrixUtil';
 import appDispatcher from '../dispatcher';
 import cons from './cons';
 import tinyAPI from '../../util/mods';
@@ -556,8 +555,13 @@ class Navigation extends EventEmitter {
       },
 
       [cons.actions.navigation.OPEN_ROOM_VIEWER]: () => {
-        tinyAPI.emit('roomViewerOpened', action.roomId, action.oId);
-        this.emit(cons.events.navigation.ROOM_VIEWER_OPENED, action.roomId, action.oId);
+        tinyAPI.emit('roomViewerOpened', action.roomId, action.oId, action.isId);
+        this.emit(
+          cons.events.navigation.ROOM_VIEWER_OPENED,
+          action.roomId,
+          action.oId,
+          action.isId,
+        );
       },
 
       [cons.actions.navigation.OPEN_SETTINGS]: () => {
@@ -686,7 +690,7 @@ class Navigation extends EventEmitter {
 }
 
 const navigation = new Navigation();
-navigation.setMaxListeners(eventMaxListeners);
+navigation.setMaxListeners(__ENV_APP__.MAX_LISTENERS);
 appDispatcher.register(navigation.navigate.bind(navigation));
 
 export default navigation;

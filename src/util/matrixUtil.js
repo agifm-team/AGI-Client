@@ -1,4 +1,5 @@
 import { EventTimeline } from 'matrix-js-sdk';
+import { openProfileViewer, openRoomViewer } from '@src/client/action/navigation';
 import initMatrix, { fetchFn } from '../client/initMatrix';
 import matrixAppearance from './libs/appearance';
 
@@ -313,7 +314,9 @@ const convertBaseId =
         if (
           newUserId.length > 1 &&
           homeserver === newUserId[1] &&
-          (matrixAppearance.get('simplerHashtagSameHomeServer') || forceMode)
+          (matrixAppearance.get('simplerHashtagSameHomeServer') ||
+            forceMode ||
+            __ENV_APP__.FORCE_SIMPLER_SAME_HASHTAG)
         ) {
           return newUserId[0];
         }
@@ -337,7 +340,9 @@ const convertBaseIdReverse =
         const newUserId = userId.split(':');
         if (
           newUserId.length < 2 &&
-          (matrixAppearance.get('simplerHashtagSameHomeServer') || forceMode)
+          (matrixAppearance.get('simplerHashtagSameHomeServer') ||
+            forceMode ||
+            __ENV_APP__.FORCE_SIMPLER_SAME_HASHTAG)
         ) {
           const yourUserId = mx.getUserId();
           return `${newUserId[0]}:${getHomeServer(yourUserId)}`;
@@ -351,6 +356,20 @@ const convertBaseIdReverse =
 
 export const convertUserIdReverse = convertBaseIdReverse('@');
 export const convertRoomIdReverse = convertBaseIdReverse('#');
+
+export function appearRoomProfile(roomId) {
+  const openRoomId = !__ENV_APP__.FORCE_SIMPLER_SAME_HASHTAG
+    ? roomId
+    : convertRoomIdReverse(roomId);
+  openRoomViewer(openRoomId, openRoomId, true);
+}
+
+export function appearUserProfile(userId) {
+  const openUserId = !__ENV_APP__.FORCE_SIMPLER_SAME_HASHTAG
+    ? userId
+    : convertUserIdReverse(userId);
+  openProfileViewer(openUserId);
+}
 
 if (__ENV_APP__.MODE === 'development') {
   global.matrixUtil = {

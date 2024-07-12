@@ -201,17 +201,19 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence
 
   const isMountedRef = useRef(true);
   const mx = initMatrix.matrixClient;
-  const room = mx.getRoom(roomId);
-  const member = room.getMember(userId);
+  const room = mx.getRoom(roomId) || {};
+  const member = (room && room.getMember && room.getMember(userId)) || {};
   const isInvitable = member?.membership !== 'join' && member?.membership !== 'ban';
 
   const [isInviting, setIsInviting] = useState(false);
   const [isInvited, setIsInvited] = useState(member?.membership === 'invite');
 
-  const myPowerlevel = room.getMember(mx.getUserId())?.powerLevel || 0;
-  const userPL = room.getMember(userId)?.powerLevel || 0;
+  const myPowerlevel = (room && room.getMember && room.getMember(mx.getUserId())?.powerLevel) || 0;
+  const userPL = (room && room.getMember && room.getMember(userId)?.powerLevel) || 0;
   const canIKick =
-    getCurrentState(room).hasSufficientPowerLevelFor('kick', myPowerlevel) && userPL < myPowerlevel;
+    room?.getLiveTimeline &&
+    getCurrentState(room)?.hasSufficientPowerLevelFor('kick', myPowerlevel) &&
+    userPL < myPowerlevel;
 
   const isBanned = member?.membership === 'ban';
 
@@ -300,9 +302,9 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence
   return (
     <>
       {agentData &&
-        agentData.data &&
-        typeof agentData.data.id === 'string' &&
-        agentData.data.id.length > 0 ? (
+      agentData.data &&
+      typeof agentData.data.id === 'string' &&
+      agentData.data.id.length > 0 ? (
         <>
           <Button
             className="me-2"
@@ -366,13 +368,14 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence
         </Button>
       )}
 
-      {(isInvited ? canIKick : room.canInvite(mx.getUserId())) && isInvitable && (
-        <Button className="mx-2" variant="secondary" onClick={toggleInvite} disabled={isInviting}>
-          {isInvited
-            ? `${isInviting ? 'Disinviting...' : 'Disinvite'}`
-            : `${isInviting ? 'Inviting...' : 'Invite'}`}
-        </Button>
-      )}
+      {(isInvited ? canIKick : room && room.canInvite && room.canInvite(mx.getUserId())) &&
+        isInvitable && (
+          <Button className="mx-2" variant="secondary" onClick={toggleInvite} disabled={isInviting}>
+            {isInvited
+              ? `${isInviting ? 'Disinviting...' : 'Disinvite'}`
+              : `${isInviting ? 'Inviting...' : 'Invite'}`}
+          </Button>
+        )}
 
       <Button
         className="ms-2"
@@ -477,8 +480,8 @@ function ProfileViewer() {
   const mx = initMatrix.matrixClient;
 
   const user = mx.getUser(userId);
-  const room = mx.getRoom(roomId);
-  const roomMember = room ? room.getMember(userId) : null;
+  const room = mx.getRoom(roomId) || {};
+  const roomMember = room && room.getMember ? room.getMember(userId) : null;
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [username, setUsername] = useState(null);
 
@@ -752,7 +755,7 @@ function ProfileViewer() {
         .on('keypress keyup keydown', tinyNoteSpacing)
         .val(tinyNote);
 
-      tinyNoteSpacing({ target: noteRef.current });
+      if (noteRef.current) tinyNoteSpacing({ target: noteRef.current });
       if (user) updateProfileStatus(null, user);
 
       return () => {
@@ -792,8 +795,8 @@ function ProfileViewer() {
         .then((userProfile) => {
           newAvatar =
             userProfile.avatar_url &&
-              userProfile.avatar_url !== 'null' &&
-              userProfile.avatar_url !== null
+            userProfile.avatar_url !== 'null' &&
+            userProfile.avatar_url !== null
               ? mx.mxcUrlToHttp(userProfile.avatar_url)
               : null;
 
@@ -814,10 +817,11 @@ function ProfileViewer() {
   // Render Profile
   const renderProfile = () => {
     const powerLevel = roomMember?.powerLevel || 0;
-    const myPowerLevel = room.getMember(mx.getUserId())?.powerLevel || 0;
+    const myPowerLevel = (room.getMember && room.getMember(mx.getUserId())?.powerLevel) || 0;
 
     const canChangeRole =
-      getCurrentState(room).maySendEvent('m.room.power_levels', mx.getUserId()) &&
+      room.getLiveTimeline &&
+      getCurrentState(room)?.maySendEvent('m.room.power_levels', mx.getUserId()) &&
       (powerLevel < myPowerLevel || userId === mx.getUserId());
 
     const handleChangePowerLevel = async (newPowerLevel) => {
@@ -907,15 +911,17 @@ function ProfileViewer() {
 
           <div className="card bg-bg">
             <div className="card-body">
-              <div className="profile-viewer__user__role float-end noselect">
-                <div className="very-small text-gray">Role</div>
-                <Button
-                  onClick={canChangeRole ? handlePowerSelector : null}
-                  faSrc={canChangeRole ? 'fa-solid fa-check' : null}
-                >
-                  {`${getPowerLabel(powerLevel) || 'Member'} - ${powerLevel}`}
-                </Button>
-              </div>
+              {roomId ? (
+                <div className="profile-viewer__user__role float-end noselect">
+                  <div className="very-small text-gray">Role</div>
+                  <Button
+                    onClick={canChangeRole ? handlePowerSelector : null}
+                    faSrc={canChangeRole ? 'fa-solid fa-check' : null}
+                  >
+                    {`${getPowerLabel(powerLevel) || 'Member'} - ${powerLevel}`}
+                  </Button>
+                </div>
+              ) : null}
 
               <h6 ref={displayNameRef} className="emoji-size-fix m-0 mb-1 fw-bold display-name">
                 <span className="button">{twemojifyReact(username)}</span>
@@ -956,7 +962,7 @@ function ProfileViewer() {
               {agentData.data && typeof agentData.data.id === 'string' ? (
                 <>
                   {typeof agentData.data.llmModel === 'string' ||
-                    typeof agentData.data.prompt === 'string' ? (
+                  typeof agentData.data.prompt === 'string' ? (
                     <>
                       <hr />
 
@@ -1010,7 +1016,7 @@ function ProfileViewer() {
               />
             </div>
 
-            <ModerationTools roomId={roomId} userId={userId} />
+            {roomId ? <ModerationTools roomId={roomId} userId={userId} /> : null}
           </div>
 
           <SessionInfo userId={userId} />
@@ -1029,7 +1035,7 @@ function ProfileViewer() {
       onAfterClose={handleAfterClose}
       onRequestClose={closeDialog}
     >
-      {roomId ? renderProfile() : <div />}
+      {userId ? renderProfile() : null}
     </Dialog>
   );
 }

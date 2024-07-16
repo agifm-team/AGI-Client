@@ -66,8 +66,11 @@
   }
 }
 
-.spaceship-iframe-expand-enabled .people-drawer-hidden {
-  display: none !important;
+.spaceship-iframe-expand-enabled {
+  .people-drawer-hidden,
+  .room-view__STB {
+    display: none !important;
+  }
 }
 
 .spaceship-embed-expand {

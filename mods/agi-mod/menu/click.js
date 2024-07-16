@@ -117,7 +117,7 @@ const clickAIButton = () => {
                     data[item].id,
                     user.displayName
                       ? user.displayName
-                      : user.userId ?? data[item].agent_name
+                      : (user.userId ?? data[item].agent_name)
                         ? data[item].agent_name
                         : user.userId,
                     user.avatarUrl ? mx.mxcUrlToHttp(user.avatarUrl, 42, 42, 'crop') : newPhoto,

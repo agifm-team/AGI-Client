@@ -10,6 +10,11 @@ class StorageManager extends EventEmitter {
     this.content = this.getJson('ponyHouse-storage-manager', 'obj');
     this.content.isPersistedLocal =
       typeof this.content.isPersistedLocal === 'boolean' ? this.content.isPersistedLocal : true;
+
+    const tinyThis = this;
+    window.addEventListener('storage', function (e) {
+      tinyThis.emit('storage', e);
+    });
   }
 
   getLocalStorage() {
@@ -36,10 +41,17 @@ class StorageManager extends EventEmitter {
     }
   }
 
+  async estimate() {
+    if (navigator.storage && navigator.storage.estimate) {
+      return navigator.storage.estimate();
+    }
+    return null;
+  }
+
   async checkStoragePersisted() {
     // Check if site's storage has been marked as persistent
     if (navigator.storage && navigator.storage.persist) {
-      this.isPersisted = await navigator.storage.persisted();
+      await navigator.storage.persisted();
     } else this.isPersisted = null;
     return this.isPersisted;
   }

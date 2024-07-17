@@ -67,16 +67,25 @@ function Homeserver() {
   useEffect(() => {
     if (!checkLocalStorage) {
       setCheckLocalStorage(1);
+      const errorStorage = (err) => {
+        alert(err.message, 'Error Storage Persisted');
+        console.error(err);
+        setCheckLocalStorage(2);
+      };
+
       storageManager
-        .requestStoragePersisted()
-        .then(() => {
-          setCheckLocalStorage(2);
+        .checkStoragePersisted()
+        .then((isPersisted) => {
+          if (!isPersisted) {
+            storageManager
+              .requestStoragePersisted()
+              .then(() => {
+                setCheckLocalStorage(2);
+              })
+              .catch(errorStorage);
+          } else setCheckLocalStorage(2);
         })
-        .catch((err) => {
-          alert(err.message, 'Error Storage Persisted');
-          console.error(err);
-          setCheckLocalStorage(2);
-        });
+        .catch(errorStorage);
     }
   });
 

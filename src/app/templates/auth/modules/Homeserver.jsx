@@ -3,12 +3,15 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import envAPI from '@src/util/libs/env';
 import hsWellKnown from '@src/util/libs/HsWellKnown';
+import storageManager from '@src/util/libs/Localstorage';
 
 import Text from '../../../atoms/text/Text';
 import Spinner from '../../../atoms/spinner/Spinner';
 
 function Homeserver() {
   const [hs, setHs] = useState(null);
+  const [checkLocalStorage, setCheckLocalStorage] = useState(0);
+  const [debounce] = useState(new Debounce());
   const [process, setProcess] = useState({
     isLoading: true,
     message: 'Loading homeserver list...',

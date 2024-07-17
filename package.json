@@ -83,6 +83,7 @@
     "marked": "12.0.0",
     "matrix-encrypt-attachment": "1.0.3",
     "matrix-js-sdk": "34.0.0",
+    "matrix-widget-api": "1.7.0",
     "md5": "2.3.0",
     "moment-timezone": "0.5.45",
     "native-node-dns": "0.7.6",

@@ -11,7 +11,6 @@ import Spinner from '../../../atoms/spinner/Spinner';
 function Homeserver() {
   const [hs, setHs] = useState(null);
   const [checkLocalStorage, setCheckLocalStorage] = useState(0);
-  const [debounce] = useState(new Debounce());
   const [process, setProcess] = useState({
     isLoading: true,
     message: 'Loading homeserver list...',
@@ -65,6 +64,22 @@ function Homeserver() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!checkLocalStorage) {
+      setCheckLocalStorage(1);
+      storageManager
+        .requestStoragePersisted()
+        .then(() => {
+          setCheckLocalStorage(2);
+        })
+        .catch((err) => {
+          alert(err.message, 'Error Storage Persisted');
+          console.error(err);
+          setCheckLocalStorage(2);
+        });
+    }
+  });
+
   return (
     <>
       {process.error !== undefined && (
@@ -72,10 +87,17 @@ function Homeserver() {
           {process.error}
         </Text>
       )}
-      {process.isLoading && (
+      {checkLocalStorage > 1 ? (
+        process.isLoading && (
+          <div className="homeserver-form__status flex--center">
+            <Spinner size="small" />
+            <Text variant="b2">{process.message}</Text>
+          </div>
+        )
+      ) : (
         <div className="homeserver-form__status flex--center">
           <Spinner size="small" />
-          <Text variant="b2">{process.message}</Text>
+          <Text variant="b2">Checking storage settings...</Text>
         </div>
       )}
     </>

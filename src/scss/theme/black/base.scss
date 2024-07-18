@@ -65,9 +65,12 @@
   #settings-base #setting-tab .nav-link:hover {
     background-color: #121212 !important;
   }
-}
 
-.black-colors-theme {
+  & {
+    /* Grow Animation */
+    --avatar-grow-animation-1: #787878;
+    --avatar-grow-animation-2: #303030;
+  }
 }
 
 .theme-type-dark-solid,
@@ -86,9 +89,6 @@
     border-right-style: solid;
     border-right-width: 1px;
     width: 80px;
-    .sidebar-avatar::before {
-      margin-left: -4px;
-    }
   }
   .sidebar-2 {
     padding-left: 80px;

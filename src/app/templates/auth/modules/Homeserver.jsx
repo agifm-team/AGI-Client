@@ -3,12 +3,14 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import envAPI from '@src/util/libs/env';
 import hsWellKnown from '@src/util/libs/HsWellKnown';
+import storageManager from '@src/util/libs/Localstorage';
 
 import Text from '../../../atoms/text/Text';
 import Spinner from '../../../atoms/spinner/Spinner';
 
 function Homeserver() {
   const [hs, setHs] = useState(null);
+  const [checkLocalStorage, setCheckLocalStorage] = useState(0);
   const [process, setProcess] = useState({
     isLoading: true,
     message: 'Loading homeserver list...',
@@ -62,6 +64,31 @@ function Homeserver() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!checkLocalStorage) {
+      setCheckLocalStorage(1);
+      const errorStorage = (err) => {
+        alert(err.message, 'Error Storage Persisted');
+        console.error(err);
+        setCheckLocalStorage(2);
+      };
+
+      storageManager
+        .checkStoragePersisted()
+        .then((isPersisted) => {
+          if (!isPersisted) {
+            storageManager
+              .requestStoragePersisted()
+              .then(() => {
+                setCheckLocalStorage(2);
+              })
+              .catch(errorStorage);
+          } else setCheckLocalStorage(2);
+        })
+        .catch(errorStorage);
+    }
+  });
+
   return (
     <>
       {process.error !== undefined && (
@@ -69,10 +96,17 @@ function Homeserver() {
           {process.error}
         </Text>
       )}
-      {process.isLoading && (
+      {checkLocalStorage > 1 ? (
+        process.isLoading && (
+          <div className="homeserver-form__status flex--center">
+            <Spinner size="small" />
+            <Text variant="b2">{process.message}</Text>
+          </div>
+        )
+      ) : (
         <div className="homeserver-form__status flex--center">
           <Spinner size="small" />
-          <Text variant="b2">{process.message}</Text>
+          <Text variant="b2">Checking storage settings...</Text>
         </div>
       )}
     </>

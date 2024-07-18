@@ -44,7 +44,14 @@ import { openPinMessageModal } from '../../../util/libs/pinMessage';
 import { openThreadsMessageModal } from '../../../util/libs/thread';
 import { getRoomInfo } from './Room';
 
-function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions = false }) {
+function RoomViewHeader({
+  roomId,
+  threadId,
+  roomAlias,
+  roomItem,
+  disableActions = false,
+  setSideIframe = null,
+}) {
   const [, forceUpdate] = useForceUpdate();
   const mx = initMatrix.matrixClient;
   const isDM = initMatrix.roomList && initMatrix.roomList.directs.has(roomId);
@@ -145,6 +152,8 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
           getCurrentState(room).getStateEvents('pixx.co.settings.embeds')[0]?.getContent() ?? {},
         roomId,
       });
+    } else if (typeof setSideIframe === 'function') {
+      setSideIframe({ enabled: false, url: null });
     }
 
     mx.on('RoomState.events', handleEvent);
@@ -163,9 +172,6 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
 
   const thread = threadId ? getRoomInfo().roomTimeline.room.getThread(threadId) : null;
   const contentThread = thread && thread.rootEvent ? thread.rootEvent.getContent() : null;
-
-  if (expandPixxIframe) $('body').addClass('spaceship-iframe-expand-enabled');
-  else $('body').removeClass('spaceship-iframe-expand-enabled');
 
   return (
     <>
@@ -244,35 +250,38 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
 
         {!disableActions ? (
           <ul className="navbar-nav ms-auto mb-0 small" id="room-options">
-            <li className="nav-item">
-              <IconButton
-                neonColor
-                iconColor={!isIconsColored ? null : 'rgb(220, 215, 41)'}
-                className="nav-link btn btn-bg border-0"
-                onClick={() => {
-                  const agiSettings =
-                    getCurrentState(room)
-                      .getStateEvents('pixx.co.settings.embeds')[0]
-                      ?.getContent() ?? {};
+            {typeof setSideIframe === 'function' ? ( // pixx.co.settings.embeds
+              <li className="nav-item">
+                <IconButton
+                  neonColor
+                  iconColor={!isIconsColored ? null : 'rgb(220, 215, 41)'}
+                  className="nav-link btn btn-bg border-0"
+                  onClick={() => {
+                    const agiSettings =
+                      getCurrentState(room)
+                        .getStateEvents('pixx.co.settings.embeds')[0]
+                        ?.getContent() ?? {};
 
-                  agiSettings.visible =
-                    typeof agiSettings.visible !== 'boolean' || agiSettings.visible === false
-                      ? true
-                      : false;
-                  setPixxEmbeds({ data: agiSettings, roomId });
-                  mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', agiSettings);
-                }}
-                tooltipPlacement="bottom"
-                tooltip={`${
-                  objType(pixxEmbeds.data, 'object') &&
-                  pixxEmbeds.roomId === roomId &&
-                  pixxEmbeds.data.visible
-                    ? 'Hide'
-                    : 'Show'
-                } Embed`}
-                fa={`fa-solid fa-${pixxEmbedVisible ? 'window-minimize' : 'window-restore'}`}
-              />
-            </li>
+                    agiSettings.visible =
+                      typeof agiSettings.visible !== 'boolean' || agiSettings.visible === false
+                        ? true
+                        : false;
+                    setPixxEmbeds({ data: agiSettings, roomId });
+                    mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', agiSettings);
+                  }}
+                  tooltipPlacement="bottom"
+                  tooltip={`${
+                    objType(pixxEmbeds.data, 'object') &&
+                    pixxEmbeds.roomId === roomId &&
+                    pixxEmbeds.data.visible
+                      ? 'Hide'
+                      : 'Show'
+                  } Embed`}
+                  fa={`fa-solid fa-${pixxEmbedVisible ? 'window-minimize' : 'window-restore'}`}
+                />
+              </li>
+            ) : null}
+
             {getCurrentState(room).maySendStateEvent('pixx.co.settings.embeds', mx.getUserId()) ? (
               <li className="nav-item">
                 <IconButton
@@ -377,24 +386,6 @@ function RoomViewHeader({ roomId, threadId, roomAlias, roomItem, disableActions 
           </ul>
         ) : null}
       </Header>
-
-      {pixxEmbedVisible ? (
-        <>
-          <div className={`spaceship-embed-expand${expandPixxIframe ? ' clicked' : ''}`}>
-            <Button
-              variant="primary"
-              type="button"
-              faSrc="fa-solid fa-expand"
-              onClick={() => setExpandPixxIframe(!expandPixxIframe)}
-            />
-          </div>
-          <iframe
-            className={`spaceship-embed${!expandPixxIframe ? '' : ' expand-embed'}`}
-            alt="spaceship embed"
-            src={pixxEmbeds.data.value}
-          />
-        </>
-      ) : null}
     </>
   );
 }

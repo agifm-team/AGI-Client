@@ -54,33 +54,5 @@
   }
 }
 
-.spaceship-embed {
-  border-left: none;
-  border-right: none;
-  border-top: none;
-  border-bottom: 1px solid var(--bg-surface-border);
-  width: 100%;
-  height: 350px;
-  &.expand-embed {
-    height: 100%;
-  }
-}
-
-.spaceship-iframe-expand-enabled {
-  .people-drawer-hidden,
-  .room-view__STB {
-    display: none !important;
-  }
-}
-
-.spaceship-embed-expand {
-  position: relative;
-  display: inline-block;
-  text-align: end;
-  margin-top: -31px;
-  top: 37px;
-  right: 6px;
-}
-
 @import './cards/login.scss';
 @import './cards/guest.scss';

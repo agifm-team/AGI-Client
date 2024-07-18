@@ -194,6 +194,7 @@ function Room() {
           <RoomSettings roomId={roomTimeline.roomId} />
           <RoomView
             setSideIframe={setSideIframe}
+            sideIframe={sideIframe}
             isUserList={isUserList}
             roomTimeline={roomTimeline}
             eventId={eventId}

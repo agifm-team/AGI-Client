@@ -23,6 +23,7 @@ function RoomView({
   isGuest = false,
   isLoading,
   setSideIframe = null,
+  sideIframe,
 }) {
   const refcmdInput = useRef(null);
   const refRoomInput = useRef(null);
@@ -56,6 +57,7 @@ function RoomView({
     <div className="room-view" ref={roomViewRef}>
       <RoomViewHeader
         setSideIframe={setSideIframe}
+        sideIframe={sideIframe}
         roomId={roomId}
         threadId={threadId}
         roomItem={roomItem}

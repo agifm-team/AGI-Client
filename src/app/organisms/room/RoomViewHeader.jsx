@@ -51,6 +51,7 @@ function RoomViewHeader({
   roomItem,
   disableActions = false,
   setSideIframe = null,
+  sideIframe = {},
 }) {
   const [, forceUpdate] = useForceUpdate();
   const mx = initMatrix.matrixClient;
@@ -152,7 +153,10 @@ function RoomViewHeader({
           getCurrentState(room).getStateEvents('pixx.co.settings.embeds')[0]?.getContent() ?? {},
         roomId,
       });
-    } else if (typeof setSideIframe === 'function') {
+    } else if (
+      typeof setSideIframe === 'function' &&
+      (sideIframe.enabled !== false || sideIframe.url !== null)
+    ) {
       setSideIframe({ enabled: false, url: null });
     }
 

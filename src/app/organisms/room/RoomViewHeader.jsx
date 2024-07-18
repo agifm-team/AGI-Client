@@ -140,7 +140,6 @@ function RoomViewHeader({
 
   // pixx.co.settings.embeds
   const [pixxEmbeds, setPixxEmbeds] = useState({});
-  const [expandPixxIframe, setExpandPixxIframe] = useState(false);
   useEffect(() => {
     const handleEvent = (event) => {
       if (event.getType() !== 'pixx.co.settings.embeds') return;

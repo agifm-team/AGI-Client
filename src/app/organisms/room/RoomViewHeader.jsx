@@ -152,11 +152,17 @@ function RoomViewHeader({
           getCurrentState(room).getStateEvents('pixx.co.settings.embeds')[0]?.getContent() ?? {},
         roomId,
       });
-    } else if (
-      typeof setSideIframe === 'function' &&
-      (sideIframe.enabled !== false || sideIframe.url !== null)
-    ) {
-      setSideIframe({ enabled: false, url: null });
+    } else if (typeof setSideIframe === 'function') {
+      let enabled = false;
+      let url = null;
+      if (pixxEmbeds && pixxEmbeds.data) {
+        url = pixxEmbeds.data.value;
+        enabled = pixxEmbeds.data.visible;
+      }
+
+      if (sideIframe.enabled !== enabled || sideIframe.url !== url) {
+        setSideIframe({ enabled, url });
+      }
     }
 
     mx.on('RoomState.events', handleEvent);

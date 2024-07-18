@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Button from '@src/app/atoms/button/Button';
 
 export default function LeftEmbed({ sideIframe = {} }) {
   const [expandPixxIframe, setExpandPixxIframe] = useState(false);

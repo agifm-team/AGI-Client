@@ -47,7 +47,7 @@ export const checkRoomAgents = (roomId, info) =>
       .then(async (res) => {
         try {
           const data = await res.json();
-          resolve(objType(data, 'object') ? data : {});
+          resolve(objType(data, 'object') ? [data] : Array.isArray(data) ? data : []);
         } catch (err) {
           reject(err);
         }

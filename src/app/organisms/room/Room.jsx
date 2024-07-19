@@ -5,6 +5,7 @@ import { objType } from 'for-promise/utils/lib.mjs';
 import { isMobile } from '@src/util/libs/mobile';
 import blobUrlManager from '@src/util/libs/blobUrlManager';
 import matrixAppearance from '@src/util/libs/appearance';
+import LeftEmbed from '@mods/agi-mod/bots/LeftEmbed';
 
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
@@ -46,6 +47,9 @@ function Room() {
   const [isDrawer, setIsDrawer] = useState(settings.isPeopleDrawer);
   const [isUserList, setIsUserList] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+
+  // pixx.co.settings.embeds
+  const [sideIframe, setSideIframe] = useState({ enabled: false, url: null });
 
   const sendRoomInfo = (newData) => {
     setRoomInfo(newData);
@@ -189,21 +193,27 @@ function Room() {
         <div className="room__content">
           <RoomSettings roomId={roomTimeline.roomId} />
           <RoomView
+            setSideIframe={setSideIframe}
+            sideIframe={sideIframe}
             isUserList={isUserList}
             roomTimeline={roomTimeline}
             eventId={eventId}
             isLoading={isLoading}
           />
         </div>
-        {(isDrawer || isHoverSidebar || sidebarTransition) && (
-          <PeopleDrawer
-            isDrawer={isDrawer}
-            sidebarTransition={sidebarTransition}
-            isHoverSidebar={isHoverSidebar}
-            isUserList={isUserList}
-            setIsUserList={setIsUserList}
-            roomId={roomTimeline.roomId}
-          />
+        {!sideIframe.enabled || !sideIframe.url ? (
+          (isDrawer || isHoverSidebar || sidebarTransition) && (
+            <PeopleDrawer
+              isDrawer={isDrawer}
+              sidebarTransition={sidebarTransition}
+              isHoverSidebar={isHoverSidebar}
+              isUserList={isUserList}
+              setIsUserList={setIsUserList}
+              roomId={roomTimeline.roomId}
+            />
+          )
+        ) : (
+          <LeftEmbed roomId={roomTimeline.roomId} sideIframe={sideIframe} />
         )}
       </div>
     );

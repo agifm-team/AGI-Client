@@ -142,6 +142,7 @@ function RoomViewHeader({
 
   // pixx.co.settings.embeds
   const [pixxEmbeds, setPixxEmbeds] = useState({});
+  const [pixxEmbedsVisible, setPixxEmbedsVisible] = useState(false);
   useEffect(() => {
     const handleEvent = (event) => {
       if (event.getType() !== 'pixx.co.settings.embeds') return;
@@ -159,7 +160,7 @@ function RoomViewHeader({
       let url = null;
       if (pixxEmbeds && pixxEmbeds.data) {
         url = pixxEmbeds.data.value;
-        enabled = pixxEmbeds.data.visible;
+        enabled = pixxEmbedsVisible;
       }
 
       if (sideIframe.enabled !== enabled || sideIframe.url !== url) {
@@ -176,7 +177,7 @@ function RoomViewHeader({
   const pixxEmbedVisible =
     objType(pixxEmbeds.data, 'object') &&
     pixxEmbeds.roomId === roomId &&
-    pixxEmbeds.data.visible &&
+    pixxEmbedsVisible &&
     typeof pixxEmbeds.data.value === 'string' &&
     linkify.test(pixxEmbeds.data.value) &&
     (pixxEmbeds.data.value.startsWith('http://') || pixxEmbeds.data.value.startsWith('https://'));
@@ -267,24 +268,12 @@ function RoomViewHeader({
                   neonColor
                   iconColor={!isIconsColored ? null : 'rgb(220, 215, 41)'}
                   className="nav-link btn btn-bg border-0"
-                  onClick={() => {
-                    const agiSettings =
-                      getCurrentState(room)
-                        .getStateEvents('pixx.co.settings.embeds')[0]
-                        ?.getContent() ?? {};
-
-                    agiSettings.visible =
-                      typeof agiSettings.visible !== 'boolean' || agiSettings.visible === false
-                        ? true
-                        : false;
-                    setPixxEmbeds({ data: agiSettings, roomId });
-                    mx.sendStateEvent(roomId, 'pixx.co.settings.embeds', agiSettings);
-                  }}
+                  onClick={() => setPixxEmbedsVisible(!pixxEmbedsVisible)}
                   tooltipPlacement="bottom"
                   tooltip={`${
                     objType(pixxEmbeds.data, 'object') &&
                     pixxEmbeds.roomId === roomId &&
-                    pixxEmbeds.data.visible
+                    pixxEmbedsVisible
                       ? 'Hide'
                       : 'Show'
                   } Embed`}

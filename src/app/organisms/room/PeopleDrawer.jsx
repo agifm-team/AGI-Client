@@ -226,15 +226,15 @@ function PeopleDrawer({
         onMouseEnter={
           isHoverSidebar
             ? () => {
-              if (isHoverSidebar) $('body').addClass('people-drawer-hover');
-            }
+                if (isHoverSidebar) $('body').addClass('people-drawer-hover');
+              }
             : null
         }
         onMouseLeave={
           isHoverSidebar
             ? () => {
-              if (isHoverSidebar) $('body').removeClass('people-drawer-hover');
-            }
+                if (isHoverSidebar) $('body').removeClass('people-drawer-hover');
+              }
             : null
         }
         contentLeft={
@@ -393,15 +393,15 @@ function PeopleDrawer({
         onMouseEnter={
           isHoverSidebar
             ? () => {
-              if (isHoverSidebar) $('body').addClass('people-drawer-hover');
-            }
+                if (isHoverSidebar) $('body').addClass('people-drawer-hover');
+              }
             : null
         }
         onMouseLeave={
           isHoverSidebar
             ? () => {
-              if (isHoverSidebar) $('body').removeClass('people-drawer-hover');
-            }
+                if (isHoverSidebar) $('body').removeClass('people-drawer-hover');
+              }
             : null
         }
       >

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Button from '@src/app/atoms/button/Button';
+import PeopleDrawerBase from '@src/app/organisms/room/PeopleDrawerBase';
 
 export default function LeftEmbed({ sideIframe = {} }) {
   const [expandPixxIframe, setExpandPixxIframe] = useState(false);
@@ -7,9 +8,16 @@ export default function LeftEmbed({ sideIframe = {} }) {
   if (expandPixxIframe) $('body').addClass('roomviewer-top-iframe-expand-enabled');
   else $('body').removeClass('roomviewer-top-iframe-expand-enabled');
 
-  return sideIframe.enabled ? (
-    <>
-      <div className={`chatbox-top-embed-expand${expandPixxIframe ? ' clicked' : ''}`}>
+  return (
+    <PeopleDrawerBase
+      contentLeft={
+        <li className="nav-item ps-2">
+          Embed
+          <div className="very-small text-gray">Message Data</div>
+        </li>
+      }
+    >
+      <div className={`spaceship-embed-expand${expandPixxIframe ? ' clicked' : ''}`}>
         <Button
           variant="primary"
           type="button"
@@ -18,10 +26,10 @@ export default function LeftEmbed({ sideIframe = {} }) {
         />
       </div>
       <iframe
-        className={`chatbox-top-embed${!expandPixxIframe ? '' : ' expand-embed'}`}
+        className={`h-100 spaceship-embed${!expandPixxIframe ? '' : ' expand-embed'}`}
         alt="spaceship embed"
         src={sideIframe.url}
       />
-    </>
-  ) : null;
+    </PeopleDrawerBase>
+  );
 }

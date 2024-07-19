@@ -40,14 +40,24 @@ export const checkRoomAgents = (roomId, info) =>
     fetch(`https://bots.${serverDomain}/bots/${roomId}/check`, {
       method: 'POST',
       headers: {
-        Accept: 'application/json',
+        'content-type': 'application/json',
       },
       body: JSON.stringify(info),
     })
       .then(async (res) => {
         try {
           const data = await res.json();
-          resolve(objType(data, 'object') ? [data] : Array.isArray(data) ? data : []);
+          if (objType(data, 'object')) {
+            const result = [];
+            for (const item in data) {
+              if (typeof data[item] === 'boolean' && data[item]) {
+                result.push(item);
+              }
+            }
+            return result;
+          } else {
+            resolve([]);
+          }
         } catch (err) {
           reject(err);
         }

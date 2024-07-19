@@ -43,6 +43,7 @@ import copyText from '../profile-viewer/copyText';
 import { openPinMessageModal } from '../../../util/libs/pinMessage';
 import { openThreadsMessageModal } from '../../../util/libs/thread';
 import { getRoomInfo } from './Room';
+import RoomWidget from './RoomWidget';
 
 function RoomViewHeader({
   roomId,
@@ -60,6 +61,7 @@ function RoomViewHeader({
 
   const [isIconsColored, setIsIconsColored] = useState(settings.isSelectedThemeColored());
   settings.isThemeColoredDetector(useEffect, setIsIconsColored);
+  const [topEmbedVisible, setTopEmbedVisible] = useState(false);
 
   const getAvatarUrl = () =>
     isDM
@@ -301,7 +303,6 @@ function RoomViewHeader({
                     const agiSettings = getCurrentState(room)
                       .getStateEvents('pixx.co.settings.embeds')[0]
                       ?.getContent();
-
                     const value = await tinyPrompt('Enter the embed url:', 'Embed Url', {
                       value: objType(agiSettings, 'object') ? agiSettings.value : null,
                     });
@@ -394,6 +395,7 @@ function RoomViewHeader({
             </li>
           </ul>
         ) : null}
+        {topEmbedVisible ? <RoomWidget /> : null}
       </Header>
     </>
   );

@@ -213,7 +213,7 @@ function Room() {
             />
           )
         ) : (
-          <LeftEmbed sideIframe={sideIframe} />
+          <LeftEmbed roomId={roomTimeline.roomId} sideIframe={sideIframe} />
         )}
       </div>
     );

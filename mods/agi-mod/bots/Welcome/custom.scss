@@ -63,10 +63,21 @@
     position: relative;
     right: 6px;
   }
+
+  &.clicked > button {
+    top: 20px;
+    right: 20px;
+  }
 }
 
 .spaceship-embed {
   padding-top: 31px;
+}
+
+.spaceship-iframe-expand-enabled {
+  .room__content {
+    display: none;
+  }
 }
 
 @import './cards/login.scss';

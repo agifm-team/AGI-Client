@@ -10,9 +10,12 @@ export default function LeftEmbed({ sideIframe = {}, roomId }) {
   if (expandPixxIframe) $('body').addClass('spaceship-iframe-expand-enabled');
   else $('body').removeClass('spaceship-iframe-expand-enabled');
 
+  if (sideIframe.enabled && sideIframe.url) $('body').addClass('spaceship-iframe-enabled');
+  else $('body').removeClass('spaceship-iframe-enabled');
+
   return (
     <PeopleDrawerBase
-      className={expandPixxIframe ? 'w-100' : null}
+      className={`spaceship-embed-drawer${expandPixxIframe ? ' w-100' : ''}`}
       contentLeft={
         <li className="nav-item ps-2">
           Embed

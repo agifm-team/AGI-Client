@@ -262,7 +262,7 @@ function RoomViewHeader({
         {!disableActions ? (
           <ul className="navbar-nav ms-auto mb-0 small" id="room-options">
             {typeof setSideIframe === 'function' ? ( // pixx.co.settings.embeds
-              <li className="nav-item">
+              <li className="nav-item spaceship-embed-option">
                 <IconButton
                   neonColor
                   iconColor={!isIconsColored ? null : 'rgb(220, 215, 41)'}

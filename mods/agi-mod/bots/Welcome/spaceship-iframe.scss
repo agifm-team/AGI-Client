@@ -1,0 +1,51 @@
+.spaceship-embed-expand {
+  margin-top: -62px;
+  align-self: end;
+
+  > button {
+    top: 67px;
+    position: relative;
+    right: 6px;
+  }
+
+  &.clicked > button {
+    top: 20px;
+    right: 20px;
+  }
+}
+
+.spaceship-embed {
+  padding-top: 31px;
+}
+
+.spaceship-iframe-expand-enabled {
+  .room__content {
+    display: none;
+  }
+}
+
+@media (max-width: 1124px) {
+  .spaceship-embed-option {
+    display: none;
+  }
+  /*
+  .spaceship-iframe-enabled {
+    .room__content {
+      display: none;
+    }
+
+    .people-drawer {
+      display: block;
+      width: 100%;
+      .spaceship-embed {
+        width: 100%;
+      }
+
+      .spaceship-embed-expand {
+        opacity: 0;
+        pointer-events: none;
+      }
+    }
+  }
+  */
+}

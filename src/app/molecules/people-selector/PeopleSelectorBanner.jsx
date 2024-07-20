@@ -62,6 +62,7 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
   );
 
   const mx = initMatrix.matrixClient;
+  const mxcUrl = initMatrix.mxcUrl;
 
   const getCustomStatus = (content) => {
     // Get Status
@@ -310,11 +311,11 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
           <Avatar
             className="profile-image-container"
             ref={profileAvatar}
-            imageSrc={mx.mxcUrlToHttp(avatarUrl, 100, 100, 'crop')}
+            imageSrc={mxcUrl.toHttp(avatarUrl, 100, 100, 'crop')}
             imageAnimSrc={
               !appearanceSettings.enableAnimParams
-                ? mx.mxcUrlToHttp(avatarUrl)
-                : getAnimatedImageUrl(mx.mxcUrlToHttp(avatarUrl, 100, 100, 'crop'))
+                ? mxcUrl.toHttp(avatarUrl)
+                : getAnimatedImageUrl(mxcUrl.toHttp(avatarUrl, 100, 100, 'crop'))
             }
             text={name}
             bgColor={color}

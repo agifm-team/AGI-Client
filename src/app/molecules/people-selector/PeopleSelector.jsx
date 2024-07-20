@@ -43,6 +43,7 @@ function PeopleSelector({
   useEffect(() => {
     if (user) {
       const mx = initMatrix.matrixClient;
+      const mxcUrl = initMatrix.mxcUrl;
 
       // Update Status Profile
       const updateProfileStatus = (mEvent, tinyData) => {
@@ -54,16 +55,16 @@ function PeopleSelector({
         // Image
         const newImageSrc =
           tinyUser && tinyUser.avatarUrl
-            ? mx.mxcUrlToHttp(tinyUser.avatarUrl, avatarSize, avatarSize, 'crop')
+            ? mxcUrl.toHttp(tinyUser.avatarUrl, avatarSize, avatarSize, 'crop')
             : null;
         setImageSrc(newImageSrc);
 
         const newImageAnimSrc =
           tinyUser && tinyUser.avatarUrl
             ? !appearanceSettings.enableAnimParams
-              ? mx.mxcUrlToHttp(tinyUser.avatarUrl)
+              ? mxcUrl.toHttp(tinyUser.avatarUrl)
               : getAnimatedImageUrl(
-                  mx.mxcUrlToHttp(tinyUser.avatarUrl, avatarSize, avatarSize, 'crop'),
+                  mxcUrl.toHttp(tinyUser.avatarUrl, avatarSize, avatarSize, 'crop'),
                 )
             : null;
         setImageAnimSrc(newImageAnimSrc);

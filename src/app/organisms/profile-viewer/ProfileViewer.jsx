@@ -480,6 +480,7 @@ function ProfileViewer() {
 
   // Get Data
   const mx = initMatrix.matrixClient;
+  const mxcUrl = initMatrix.mxcUrl;
 
   const user = mx.getUser(userId);
   const room = mx.getRoom(roomId) || {};
@@ -553,7 +554,7 @@ function ProfileViewer() {
 
       const newAvatar =
         avatarMxc && avatarMxc !== 'null' && avatarMxc !== null
-          ? mx.mxcUrlToHttp(avatarMxc)
+          ? mxcUrl.toHttp(avatarMxc)
           : avatarDefaultColor(colorMXID(userId));
 
       setAvatarUrl(newAvatar);
@@ -799,7 +800,7 @@ function ProfileViewer() {
             userProfile.avatar_url &&
             userProfile.avatar_url !== 'null' &&
             userProfile.avatar_url !== null
-              ? mx.mxcUrlToHttp(userProfile.avatar_url)
+              ? mxcUrl.toHttp(userProfile.avatar_url)
               : null;
 
           setUsername(userProfile.displayname);

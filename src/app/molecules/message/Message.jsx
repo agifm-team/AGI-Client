@@ -891,6 +891,7 @@ const MessageOptions = React.memo(
     );
     const { roomId, room } = roomTimeline;
     const mx = initMatrix.matrixClient;
+    const mxcUrl = initMatrix.mxcUrl;
     const senderId = mEvent.getSender();
     const eventId = mEvent.getId();
     if (!eventId) {
@@ -1065,10 +1066,9 @@ const MessageOptions = React.memo(
                         const username = user ? muteUserManager.getSelectorName(user) : userId;
                         const avatarAnimSrc = user
                           ? !appearanceSettings.enableAnimParams
-                            ? mx.mxcUrlToHttp(user.avatarUrl)
-                            : (getAnimatedImageUrl(
-                                mx.mxcUrlToHttp(user.avatarUrl, 36, 36, 'crop'),
-                              ) ?? avatarDefaultColor(color))
+                            ? mxcUrl.toHttp(user.avatarUrl)
+                            : (getAnimatedImageUrl(mxcUrl.toHttp(user.avatarUrl, 36, 36, 'crop')) ??
+                              avatarDefaultColor(color))
                           : avatarDefaultColor(color);
 
                         const ct = $('<div>', {
@@ -1295,6 +1295,7 @@ const MessageThreadSummary = React.memo(({ thread, useManualCheck = false }) => 
 
   // Matrix
   const mx = initMatrix.matrixClient;
+  const mxcUrl = initMatrix.mxcUrl;
 
   // Sender
   const lastSender =
@@ -1305,7 +1306,7 @@ const MessageThreadSummary = React.memo(({ thread, useManualCheck = false }) => 
     lastSender && typeof lastSender?.userId === 'string' ? colorMXID(lastSender?.userId) : null;
 
   // Avatar
-  const newAvatar = lastSender?.getAvatarUrl(mx.baseUrl, 36, 36, 'crop', true, false);
+  const newAvatar = mxcUrl.getAvatarUrl(lastSender, 36, 36, 'crop', true, false);
   const lastSenderAvatarSrc = newAvatar
     ? newAvatar
     : typeof color === 'string'
@@ -1414,6 +1415,7 @@ const MessageThreadSummary = React.memo(({ thread, useManualCheck = false }) => 
 function genMediaContent(mE, seeHiddenData, setSeeHiddenData) {
   // Client
   const mx = initMatrix.matrixClient;
+  const mxcUrl = initMatrix.mxcUrl;
   const mContent = mE.getContent();
   if (!mContent || !mContent.body)
     return <span style={{ color: 'var(--bg-danger)' }}>Malformed event</span>;
@@ -1455,7 +1457,7 @@ function genMediaContent(mE, seeHiddenData, setSeeHiddenData) {
           roomId={mE.getRoomId()}
           threadId={mE.getThread()?.id}
           name={mContent.body}
-          link={mx.mxcUrlToHttp(mediaMXC)}
+          link={mxcUrl.toHttp(mediaMXC)}
           type={mContent.info?.mimetype}
           file={mContent.file || null}
         />
@@ -1470,7 +1472,7 @@ function genMediaContent(mE, seeHiddenData, setSeeHiddenData) {
           name={mContent.body}
           width={typeof mContent.info?.w === 'number' ? mContent.info?.w : null}
           height={typeof mContent.info?.h === 'number' ? mContent.info?.h : null}
-          link={mx.mxcUrlToHttp(mediaMXC)}
+          link={mxcUrl.toHttp(mediaMXC)}
           file={isEncryptedFile ? mContent.file : null}
           type={mContent.info?.mimetype}
           blurhash={blurhash}
@@ -1509,8 +1511,8 @@ function genMediaContent(mE, seeHiddenData, setSeeHiddenData) {
           }
           link={
             !enableAnimParams
-              ? mx.mxcUrlToHttp(mediaMXC)
-              : getAnimatedImageUrl(mx.mxcUrlToHttp(mediaMXC, 170, 170, 'crop'))
+              ? mxcUrl.toHttp(mediaMXC)
+              : getAnimatedImageUrl(mxcUrl.toHttp(mediaMXC, 170, 170, 'crop'))
           }
           file={isEncryptedFile ? mContent.file : null}
           type={mContent.info?.mimetype}
@@ -1536,7 +1538,7 @@ function genMediaContent(mE, seeHiddenData, setSeeHiddenData) {
           roomId={mE.getRoomId()}
           threadId={mE.getThread()?.id}
           name={mContent.body}
-          link={mx.mxcUrlToHttp(mediaMXC)}
+          link={mxcUrl.toHttp(mediaMXC)}
           type={mContent.info?.mimetype}
           file={mContent.file || null}
         />
@@ -1552,8 +1554,8 @@ function genMediaContent(mE, seeHiddenData, setSeeHiddenData) {
           roomId={mE.getRoomId()}
           threadId={mE.getThread()?.id}
           name={mContent.body}
-          link={mx.mxcUrlToHttp(mediaMXC)}
-          thumbnail={thumbnailMXC === null ? null : mx.mxcUrlToHttp(thumbnailMXC)}
+          link={mxcUrl.toHttp(mediaMXC)}
+          thumbnail={thumbnailMXC === null ? null : mxcUrl.toHttp(thumbnailMXC)}
           thumbnailFile={isEncryptedFile ? mContent.info?.thumbnail_file : null}
           thumbnailType={mContent.info?.thumbnail_info?.mimetype || null}
           width={typeof mContent.info?.w === 'number' ? mContent.info?.w : null}
@@ -1620,6 +1622,7 @@ function Message({
   const appearanceSettings = getAppearance();
   $(timelineSVRef?.current).trigger('scroll');
   const mx = initMatrix.matrixClient;
+  const mxcUrl = initMatrix.mxcUrl;
   const roomId = mEvent.getRoomId();
   const threadId = mEvent.getThread()?.id;
   const { editedTimeline, reactionTimeline } = roomTimeline ?? {};
@@ -1667,11 +1670,10 @@ function Message({
 
   const color = colorMXID(senderId);
   const username = muteUserManager.getMessageName(mEvent, isDM);
-  const avatarSrc =
-    mEvent.sender?.getAvatarUrl(mx.baseUrl, 36, 36, 'crop') ?? avatarDefaultColor(color);
+  const avatarSrc = mxcUrl.getAvatarUrl(mEvent.sender, 36, 36, 'crop') ?? avatarDefaultColor(color);
   const avatarAnimSrc = !appearanceSettings.enableAnimParams
-    ? mEvent.sender?.getAvatarUrl(mx.baseUrl)
-    : (getAnimatedImageUrl(mEvent.sender?.getAvatarUrl(mx.baseUrl, 36, 36, 'crop')) ??
+    ? mxcUrl.getAvatarUrl(mEvent.sender)
+    : (getAnimatedImageUrl(mxcUrl.getAvatarUrl(mEvent.sender, 36, 36, 'crop')) ??
       avatarDefaultColor(color));
 
   // Content Data

@@ -73,6 +73,7 @@ function SpaceManageItem({
 
   const { directs } = initMatrix.roomList;
   const mx = initMatrix.matrixClient;
+  const mxcUrl = initMatrix.mxcUrl;
 
   const parentRoom = mx.getRoom(parentId);
   const isSpace = roomInfo.room_type === 'm.space';
@@ -87,25 +88,24 @@ function SpaceManageItem({
   const isJoined = !!(room?.getMyMembership() === 'join' || null);
   const name = room?.name || roomInfo.name || roomInfo.canonical_alias || roomId;
 
-  let imageSrc = mx.mxcUrlToHttp(roomInfo.avatar_url, 32, 32, 'crop') || null;
+  let imageSrc = (roomInfo.avatar_url, 32, 32, 'crop') || null;
   if (!imageSrc && room) {
-    imageSrc = room.getAvatarFallbackMember()?.getAvatarUrl(mx.baseUrl, 32, 32, 'crop') || null;
-    if (imageSrc === null) imageSrc = room.getAvatarUrl(mx.baseUrl, 32, 32, 'crop') || null;
+    imageSrc = mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 32, 32, 'crop') || null;
+    if (imageSrc === null) imageSrc = mxcUrl.getAvatarUrl(room, 32, 32, 'crop') || null;
   }
 
   let imageAnimSrc = !appearanceSettings.enableAnimParams
-    ? mx.mxcUrlToHttp(roomInfo.avatar_url)
-    : mx.mxcUrlToHttp(roomInfo.avatar_url, 32, 32, 'crop') || null;
+    ? roomInfo.avatar_url
+    : (roomInfo.avatar_url, 32, 32, 'crop') || null;
   if (!imageAnimSrc && room) {
     imageAnimSrc = !appearanceSettings.enableAnimParams
-      ? room.getAvatarFallbackMember()?.getAvatarUrl(mx.baseUrl)
-      : getAnimatedImageUrl(
-          room.getAvatarFallbackMember()?.getAvatarUrl(mx.baseUrl, 32, 32, 'crop'),
-        ) || null;
+      ? mxcUrl.getAvatarUrl(room.getAvatarFallbackMember())
+      : getAnimatedImageUrl(mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 32, 32, 'crop')) ||
+        null;
     if (imageAnimSrc === null)
       imageAnimSrc = !appearanceSettings.enableAnimParams
-        ? room.getAvatarUrl(mx.baseUrl)
-        : getAnimatedImageUrl(room.getAvatarUrl(mx.baseUrl, 32, 32, 'crop')) || null;
+        ? mxcUrl.getAvatarUrl(room)
+        : getAnimatedImageUrl(mxcUrl.getAvatarUrl(room, 32, 32, 'crop')) || null;
   }
 
   const isDM = directs.has(roomId);

@@ -126,6 +126,7 @@ function Drawer() {
   }, [selectedTab]);
 
   const mx = initMatrix.matrixClient;
+  const mxcUrl = initMatrix.mxcUrl;
   const room = mx.getRoom(spaceId);
 
   let bannerCfg;
@@ -135,7 +136,7 @@ function Drawer() {
 
   let avatarSrc = '';
   if (bannerCfg && typeof bannerCfg?.url === 'string' && bannerCfg?.url.length > 0) {
-    avatarSrc = mx.mxcUrlToHttp(bannerCfg.url, 960, 540);
+    avatarSrc = mxcUrl.toHttp(bannerCfg.url, 960, 540);
   } else {
     $('.space-drawer-body').removeClass('drawer-with-banner');
     $('#space-header > .navbar').removeClass('banner-mode').css('background-image', '');

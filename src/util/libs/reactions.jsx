@@ -8,7 +8,7 @@ import { readImageUrl } from './mediaCache';
 export const getCustomEmojiUrl = (reaction) => {
   let customEmojiUrl = null;
   if (reaction.match(/^mxc:\/\/\S+$/)) {
-    customEmojiUrl = initMatrix.matrixClient.mxcUrlToHttp(reaction);
+    customEmojiUrl = reaction;
   }
   return customEmojiUrl;
 };

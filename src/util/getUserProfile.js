@@ -27,7 +27,7 @@ export function getUserProfile(content, profileRoom) {
         let topic = '';
 
         if (bannerCfg && typeof bannerCfg?.url === 'string' && bannerCfg?.url.length > 0) {
-          bannerSrc = mx.mxcUrlToHttp(bannerCfg.url);
+          bannerSrc = bannerCfg.url;
         }
 
         if (roomTopic && typeof roomTopic?.topic === 'string' && roomTopic?.topic.length > 0) {
@@ -76,7 +76,7 @@ export async function getUserProfileAsync(content) {
       let topic = '';
 
       if (bannerCfg && typeof bannerCfg?.url === 'string' && bannerCfg?.url.length > 0) {
-        bannerSrc = mx.mxcUrlToHttp(bannerCfg.url);
+        bannerSrc = bannerCfg.url;
       }
 
       if (roomTopic && typeof roomTopic?.topic === 'string' && roomTopic?.topic.length > 0) {

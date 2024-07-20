@@ -208,7 +208,7 @@ export function openPinMessageModal(room) {
 
               const tinyUsername = twemojify(user.userId);
 
-              const imageSrc = user ? mx.mxcUrlToHttp(user.avatarUrl, 36, 36, 'crop') : null;
+              const imageSrc = user ? (user.avatarUrl, 36, 36, 'crop') : null;
 
               const content = events[item].getContent();
               const msgBody =

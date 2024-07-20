@@ -47,7 +47,17 @@ export const checkRoomAgents = (roomId, info) =>
       .then(async (res) => {
         try {
           const data = await res.json();
-          resolve(objType(data, 'object') ? [data] : Array.isArray(data) ? data : []);
+          if (objType(data, 'object')) {
+            const result = [];
+            for (const item in data) {
+              if (typeof data[item] === 'boolean' && data[item]) {
+                result.push(item);
+              }
+            }
+            resolve(result);
+          } else {
+            resolve([]);
+          }
         } catch (err) {
           reject(err);
         }

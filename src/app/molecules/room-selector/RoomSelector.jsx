@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { UserEvent } from 'matrix-js-sdk';
+
 import { objType } from 'for-promise/utils/lib.mjs';
 
 import cons from '@src/client/state/cons';
@@ -91,6 +93,7 @@ function RoomSelector({
   const customStatusRef = useRef(null);
 
   const mx = initMatrix.matrixClient;
+  const mxcUrl = initMatrix.mxcUrl;
 
   if (user && !userData) {
     const content = getPresence(user);
@@ -121,26 +124,25 @@ function RoomSelector({
         // Image
         let newImageSrc =
           tinyUser && tinyUser.avatarUrl
-            ? mx.mxcUrlToHttp(tinyUser.avatarUrl, 32, 32, 'crop')
-            : (room && room.getAvatarFallbackMember()?.getAvatarUrl(mx.baseUrl, 32, 32, 'crop')) ||
-              null;
+            ? mxcUrl.toHttp(tinyUser.avatarUrl, 32, 32, 'crop')
+            : (room && mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 32, 32, 'crop')) || null;
         if (room && newImageSrc === null)
-          newImageSrc = room.getAvatarUrl(mx.baseUrl, 32, 32, 'crop') || null;
+          newImageSrc = mxcUrl.getAvatarUrl(room, 32, 32, 'crop') || null;
         setImgSrc(newImageSrc);
 
         let newImageAnimSrc =
           tinyUser && tinyUser.avatarUrl
-            ? mx.mxcUrlToHttp(tinyUser.avatarUrl)
+            ? mxcUrl.toHttp(tinyUser.avatarUrl)
             : (room && !appearanceSettings.enableAnimParams
-                ? room.getAvatarFallbackMember()?.getAvatarUrl(mx.baseUrl)
+                ? mxcUrl.getAvatarUrl(room.getAvatarFallbackMember())
                 : getAnimatedImageUrl(
-                    room.getAvatarFallbackMember()?.getAvatarUrl(mx.baseUrl, 32, 32, 'crop'),
+                    mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 32, 32, 'crop'),
                   )) || null;
 
         if (room && newImageAnimSrc === null)
           newImageAnimSrc = !appearanceSettings.enableAnimParams
-            ? room.getAvatarUrl(mx.baseUrl)
-            : getAnimatedImageUrl(room.getAvatarUrl(mx.baseUrl, 32, 32, 'crop')) || null;
+            ? mxcUrl.getAvatarUrl(room)
+            : getAnimatedImageUrl(mxcUrl.getAvatarUrl(room, 32, 32, 'crop')) || null;
         setImgAnimSrc(newImageAnimSrc);
 
         // Room Name
@@ -158,16 +160,16 @@ function RoomSelector({
         setPresenceStatus(content);
       };
 
-      user.on('User.avatarUrl', updateProfileStatus);
-      user.on('User.currentlyActive', updateProfileStatus);
-      user.on('User.lastPresenceTs', updateProfileStatus);
-      user.on('User.presence', updateProfileStatus);
+      user.on(UserEvent.AvatarUrl, updateProfileStatus);
+      user.on(UserEvent.CurrentlyActive, updateProfileStatus);
+      user.on(UserEvent.LastPresenceTs, updateProfileStatus);
+      user.on(UserEvent.Presence, updateProfileStatus);
 
       return () => {
-        user.removeListener('User.currentlyActive', updateProfileStatus);
-        user.removeListener('User.lastPresenceTs', updateProfileStatus);
-        user.removeListener('User.presence', updateProfileStatus);
-        user.removeListener('User.avatarUrl', updateProfileStatus);
+        user.removeListener(UserEvent.CurrentlyActive, updateProfileStatus);
+        user.removeListener(UserEvent.LastPresenceTs, updateProfileStatus);
+        user.removeListener(UserEvent.Presence, updateProfileStatus);
+        user.removeListener(UserEvent.AvatarUrl, updateProfileStatus);
       };
     }
   });

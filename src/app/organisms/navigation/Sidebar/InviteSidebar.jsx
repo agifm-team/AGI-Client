@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { RoomMemberEvent } from 'matrix-js-sdk';
+
 import { otpAccept } from '@mods/agi-mod/otpAccept';
 import { objType } from 'for-promise/utils/lib.mjs';
 import settings from '@src/client/state/settings';
@@ -108,9 +110,9 @@ export default function InviteSidebar() {
       }
     };
 
-    mx.on('RoomMember.membership', roomJoinValidator);
+    mx.on(RoomMemberEvent.Membership, roomJoinValidator);
     return () => {
-      mx.removeListener('RoomMember.membership', roomJoinValidator);
+      mx.removeListener(RoomMemberEvent.Membership, roomJoinValidator);
     };
   });
 

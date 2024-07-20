@@ -2,6 +2,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useState, useEffect, useRef, useReducer } from 'react';
 import PropTypes from 'prop-types';
+import { ClientEvent } from 'matrix-js-sdk';
 
 import parse from 'html-react-parser';
 import twemoji from 'twemoji';
@@ -33,6 +34,7 @@ const EmojiGroup = React.memo(({ name, groupEmojis, className, isFav }) => {
   function getEmojiBoard() {
     const emojiBoard = [];
     const totalEmojis = groupEmojis.length;
+    const mxcUrl = initMatrix.mxcUrl;
 
     for (let r = 0; r < totalEmojis; r += ROW_COUNT) {
       const emojiRow = [];
@@ -65,7 +67,7 @@ const EmojiGroup = React.memo(({ name, groupEmojis, className, isFav }) => {
                 unicode={`:${emoji.shortcode}:`}
                 shortcodes={emoji.shortcode}
                 style={{
-                  backgroundImage: `url("${initMatrix.matrixClient.mxcUrlToHttp(emoji.mxc)}")`,
+                  backgroundImage: `url("${mxcUrl.toHttp(emoji.mxc)}")`,
                 }}
                 data-mx-emoticon={emoji.mxc}
               />
@@ -173,6 +175,7 @@ function EmojiBoard({ onSelect, searchRef, emojiBoardRef, scrollEmojisRef }) {
   const [emojiRecent, setEmojiRecent] = useState([]);
 
   const mx = initMatrix.matrixClient;
+  const mxcUrl = initMatrix.mxcUrl;
 
   ROW_COUNT = boardType !== 'sticker' ? ROW_EMOJIS_COUNT : ROW_STICKERS_COUNT;
   loadEmojiData(selectedRoomId);
@@ -402,7 +405,7 @@ function EmojiBoard({ onSelect, searchRef, emojiBoardRef, scrollEmojisRef }) {
       forceUpdate();
     };
 
-    mx.addListener('accountData', handleEvent);
+    mx.addListener(ClientEvent.AccountData, handleEvent);
     matrixAppearance.on('useCustomEmojis', handleEvent2);
     matrixAppearance.on('showStickers', handleEvent2);
     navigation.on(cons.events.navigation.UPDATED_EMOJI_LIST_DATA, handleEvent2);
@@ -411,7 +414,7 @@ function EmojiBoard({ onSelect, searchRef, emojiBoardRef, scrollEmojisRef }) {
     $(scrollEmojisRef.current).on('scroll', onScroll);
     return () => {
       $(scrollEmojisRef.current).off('scroll', onScroll);
-      mx.removeListener('accountData', handleEvent);
+      mx.removeListener(ClientEvent.AccountData, handleEvent);
       matrixAppearance.off('useCustomEmojis', handleEvent2);
       matrixAppearance.off('showStickers', handleEvent2);
       navigation.removeListener(cons.events.navigation.UPDATED_EMOJI_LIST_DATA, handleEvent2);
@@ -471,7 +474,7 @@ function EmojiBoard({ onSelect, searchRef, emojiBoardRef, scrollEmojisRef }) {
           <div className="emoji-board__nav-custom">
             {emojiData.map((pack) => {
               const packItems = pack[boardType !== 'sticker' ? 'getEmojis' : 'getStickers']();
-              const src = initMatrix.matrixClient.mxcUrlToHttp(pack.avatarUrl ?? packItems[0].mxc);
+              const src = mxcUrl.toHttp(pack.avatarUrl ?? packItems[0].mxc);
 
               return (
                 <IconButton

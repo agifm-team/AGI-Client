@@ -1,5 +1,7 @@
 import React, { useState, useReducer, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { ClientEvent } from 'matrix-js-sdk';
+
 import {
   emojiExport,
   getEmojiUsage,
@@ -159,6 +161,7 @@ function useImagePackHandles(pack, sendPackContent) {
 
 function ImagePack({ roomId, stateKey, handlePackDelete = null }) {
   const mx = initMatrix.matrixClient;
+  const mxcUrl = initMatrix.mxcUrl;
   const room = mx.getRoom(roomId);
   const [viewMore, setViewMore] = useState(false);
   const [isGlobal, setIsGlobal] = useState(isGlobalPack(roomId, stateKey));
@@ -203,7 +206,7 @@ function ImagePack({ roomId, stateKey, handlePackDelete = null }) {
   return (
     <li className="list-group-item image-pack">
       <ImagePackProfile
-        avatarUrl={pack.avatarUrl ? mx.mxcUrlToHttp(pack.avatarUrl, 42, 42, 'crop') : null}
+        avatarUrl={pack.avatarUrl ? mxcUrl.toHttp(pack.avatarUrl, 42, 42, 'crop') : null}
         displayName={pack.displayName ?? 'Unknown'}
         attribution={pack.attribution}
         usage={getEmojiUsage(pack.usage)}
@@ -223,7 +226,7 @@ function ImagePack({ roomId, stateKey, handlePackDelete = null }) {
           {images.map(([shortcode, image]) => (
             <ImagePackItem
               key={shortcode}
-              url={mx.mxcUrlToHttp(image.mxc)}
+              url={mxcUrl.toHttp(image.mxc)}
               shortcode={shortcode}
               usage={getEmojiUsage(image.usage)}
               onUsageChange={canChange ? handleUsageItem : undefined}
@@ -279,6 +282,7 @@ ImagePack.propTypes = {
 
 function ImagePackUser() {
   const mx = initMatrix.matrixClient;
+  const mxcUrl = initMatrix.mxcUrl;
   const [viewMore, setViewMore] = useState(false);
 
   const { pack, sendPackContent } = useUserImagePack();
@@ -299,7 +303,7 @@ function ImagePackUser() {
     <div className="card noselect">
       <ul className="list-group list-group-flush">
         <ImagePackProfile
-          avatarUrl={pack.avatarUrl ? mx.mxcUrlToHttp(pack.avatarUrl, 42, 42, 'crop') : null}
+          avatarUrl={pack.avatarUrl ? mxcUrl.toHttp(pack.avatarUrl, 42, 42, 'crop') : null}
           displayName={pack.displayName ?? 'Personal'}
           attribution={pack.attribution}
           usage={getEmojiUsage(pack.usage)}
@@ -320,7 +324,7 @@ function ImagePackUser() {
             {images.map(([shortcode, image]) => (
               <ImagePackItem
                 key={shortcode}
-                url={mx.mxcUrlToHttp(image.mxc)}
+                url={mxcUrl.toHttp(image.mxc)}
                 shortcode={shortcode}
                 usage={getEmojiUsage(image.usage)}
                 onUsageChange={handleUsageItem}
@@ -371,9 +375,9 @@ function useGlobalImagePack() {
     const handleEvent = (event) => {
       if (event.getType() === 'im.ponies.emote_rooms') forceUpdate();
     };
-    mx.addListener('accountData', handleEvent);
+    mx.addListener(ClientEvent.AccountData, handleEvent);
     return () => {
-      mx.removeListener('accountData', handleEvent);
+      mx.removeListener(ClientEvent.AccountData, handleEvent);
     };
   }, []);
 

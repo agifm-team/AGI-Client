@@ -1,5 +1,5 @@
 // import { LocalNotifications } from '@capacitor/local-notifications';
-import { MatrixEventEvent, NotificationCountType } from 'matrix-js-sdk';
+import { ClientEvent, MatrixEventEvent, NotificationCountType, RoomEvent } from 'matrix-js-sdk';
 import EventEmitter from 'events';
 
 import mobileEvents, { isMobile } from '@src/util/libs/mobile';
@@ -429,6 +429,7 @@ class Notifications extends EventEmitter {
 
     // Show Notification
     if (settings.showNotifications) {
+      const mxcUrl = initMatrix.mxcUrl;
       const title = getRoomTitle(room, mEvent.sender, mEvent.thread);
       updateName(room);
 
@@ -436,12 +437,7 @@ class Notifications extends EventEmitter {
       const icon = await renderAvatar({
         text: mEvent.sender.name,
         bgColor: cssColorMXID(mEvent.getSender()),
-        imageSrc: mEvent.sender?.getAvatarUrl(
-          this.matrixClient.baseUrl,
-          iconSize,
-          iconSize,
-          'crop',
-        ),
+        imageSrc: mxcUrl.getAvatarUrl(mEvent.sender, iconSize, iconSize, 'crop'),
         size: iconSize,
         borderRadius: 8,
         scale: 8,
@@ -628,14 +624,16 @@ class Notifications extends EventEmitter {
       }
     };
 
-    this.matrixClient.on('Room.timeline', (mEvent, room) => this._listenRoomTimeline(mEvent, room));
+    this.matrixClient.on(RoomEvent.Timeline, (mEvent, room) =>
+      this._listenRoomTimeline(mEvent, room),
+    );
     /* 
-    this.matrixClient.on('Room.timeline', (mEvent, room) =>
+    this.matrixClient.on(RoomEvent.Timeline, (mEvent, room) =>
       insertEvent(() => this._listenRoomTimeline(mEvent, room)),
     );
     */
 
-    this.matrixClient.on('accountData', (mEvent, oldMEvent) => {
+    this.matrixClient.on(ClientEvent.AccountData, (mEvent, oldMEvent) => {
       if (mEvent.getType() === 'm.push_rules') {
         const override = mEvent?.getContent()?.global?.override;
         const oldOverride = oldMEvent?.getContent()?.global?.override;
@@ -673,7 +671,7 @@ class Notifications extends EventEmitter {
       }
     });
 
-    this.matrixClient.on('Room.receipt', (mEvent, room) => {
+    this.matrixClient.on(RoomEvent.Receipt, (mEvent, room) => {
       if (mEvent.getType() !== 'm.receipt' || room.isSpaceRoom()) return;
       const content = mEvent.getContent();
       const userId = this.matrixClient.getUserId();
@@ -689,7 +687,7 @@ class Notifications extends EventEmitter {
       });
     });
 
-    this.matrixClient.on('Room.myMembership', (room, membership) => {
+    this.matrixClient.on(RoomEvent.MyMembership, (room, membership) => {
       if (membership === 'leave' && this.hasNoti(room.roomId)) {
         this.deleteNoti(room.roomId);
       }

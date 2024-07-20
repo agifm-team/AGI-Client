@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { RoomMemberEvent } from 'matrix-js-sdk';
+
 import { checkRoomAgents } from '@mods/agi-mod/bots/PeopleSelector/lib';
 import settings from '@src/client/state/settings';
 
@@ -29,12 +31,14 @@ import PeopleDrawerBase from './PeopleDrawerBase';
 
 function simplyfiMembers(members) {
   const mx = initMatrix.matrixClient;
+  const mxcUrl = initMatrix.mxcUrl;
+
   return members.map((member) => ({
     user: mx.getUser(member.userId),
     userId: member.userId,
     name: getUsernameOfRoomMember(member),
     username: member.userId.slice(1, member.userId.indexOf(':')),
-    avatarSrc: member.getAvatarUrl(mx.baseUrl, 72, 72, 'crop'),
+    avatarSrc: mxcUrl.getAvatarUrl(member, 72, 72, 'crop'),
     peopleRole: getPowerLabel(member.powerLevel),
     powerLevel: members.powerLevel,
   }));
@@ -177,8 +181,8 @@ function PeopleDrawer({
     });
 
     asyncSearch.on(asyncSearch.RESULT_SENT, handleSearchData);
-    mx.on('RoomMember.membership', updateMemberList);
-    mx.on('RoomMember.powerLevel', updateMemberList);
+    mx.on(RoomMemberEvent.Membership, updateMemberList);
+    mx.on(RoomMemberEvent.PowerLevel, updateMemberList);
     mx.on('RoomMember.user', updateMemberList);
 
     return () => {
@@ -187,8 +191,8 @@ function PeopleDrawer({
       setSearchedMembers(null);
       setItemCount(PER_PAGE_MEMBER);
       asyncSearch.removeListener(asyncSearch.RESULT_SENT, handleSearchData);
-      mx.removeListener('RoomMember.membership', updateMemberList);
-      mx.removeListener('RoomMember.powerLevel', updateMemberList);
+      mx.removeListener(RoomMemberEvent.Membership, updateMemberList);
+      mx.removeListener(RoomMemberEvent.PowerLevel, updateMemberList);
       mx.removeListener('RoomMember.user', updateMemberList);
     };
   }, [roomId, membership]);

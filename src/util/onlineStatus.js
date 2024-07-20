@@ -86,22 +86,15 @@ export function parsePresenceStatus(presence, userId) {
           } else {
             const appearanceSettings = getAppearance();
             tinyResult.msgIcon = !appearanceSettings.enableAnimParams
-              ? initMatrix.matrixClient.mxcUrlToHttp(tinyParse.msgIcon)
-              : getAnimatedImageUrl(
-                  initMatrix.matrixClient.mxcUrlToHttp(tinyParse.msgIcon, 50, 50, 'crop'),
-                );
-            tinyResult.msgIconThumb = initMatrix.matrixClient.mxcUrlToHttp(
-              tinyParse.msgIcon,
-              50,
-              50,
-              'crop',
-            );
+              ? tinyParse.msgIcon
+              : getAnimatedImageUrl((tinyParse.msgIcon, 50, 50, 'crop'));
+            tinyResult.msgIconThumb = (tinyParse.msgIcon, 50, 50, 'crop');
           }
         }
 
         // User Banner
         if (typeof tinyParse.banner === 'string' && tinyParse.banner.length > 0) {
-          tinyResult.banner = mx.mxcUrlToHttp(tinyParse.banner);
+          tinyResult.banner = tinyParse.banner;
         }
 
         // Pronouns

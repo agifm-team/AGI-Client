@@ -210,6 +210,7 @@ function RoomViewer() {
 
   // Get Data
   const mx = initMatrix.matrixClient;
+  const mxcUrl = initMatrix.mxcUrl;
 
   const room = mx.getRoom(aliasId);
   let isSpace = room ? room.isSpaceRoom() : null;
@@ -220,7 +221,7 @@ function RoomViewer() {
 
   useEffect(() => {
     if (room) {
-      const theAvatar = room.getAvatarUrl(initMatrix.matrixClient.baseUrl);
+      const theAvatar = mxcUrl.getAvatarUrl(room);
       const newAvatar = theAvatar ? theAvatar : avatarDefaultColor(colorMXID(roomId));
 
       setIsDefaultAvatar(!theAvatar);
@@ -270,7 +271,7 @@ function RoomViewer() {
   if (!isDefaultAvatar || publicData === null || typeof publicData.avatar_url !== 'string') {
     imageSrc = avatarUrl;
   } else {
-    imageSrc = mx.mxcUrlToHttp(publicData.avatar_url);
+    imageSrc = mxcUrl.toHttp(publicData.avatar_url);
   }
 
   // Get username

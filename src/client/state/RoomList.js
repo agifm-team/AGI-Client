@@ -1,5 +1,6 @@
 import EventEmitter from 'events';
 import clone from 'clone';
+import { ClientEvent, RoomEvent, RoomStateEvent } from 'matrix-js-sdk';
 
 import appDispatcher from '../dispatcher';
 import cons from './cons';
@@ -287,7 +288,7 @@ class RoomList extends EventEmitter {
 
   _listenEvents() {
     // Update roomList when m.direct changes
-    this.matrixClient.on('accountData', (event) => {
+    this.matrixClient.on(ClientEvent.AccountData, (event) => {
       if (event.getType() !== 'm.direct') return;
 
       const latestMDirects = this.getMDirects();
@@ -319,12 +320,12 @@ class RoomList extends EventEmitter {
       });
     });
 
-    this.matrixClient.on('Room.name', (room) => {
+    this.matrixClient.on(RoomEvent.Name, (room) => {
       this.emit(cons.events.roomList.ROOMLIST_UPDATED);
       this.emit(cons.events.roomList.ROOM_PROFILE_UPDATED, room.roomId);
     });
 
-    this.matrixClient.on('RoomState.events', (mEvent, state) => {
+    this.matrixClient.on(RoomStateEvent.Events, (mEvent, state) => {
       if (mEvent.getType() === 'm.space.child') {
         const roomId = mEvent.event.room_id;
         const childId = mEvent.event.state_key;
@@ -364,7 +365,7 @@ class RoomList extends EventEmitter {
       }
     });
 
-    this.matrixClient.on('Room.myMembership', async (room, membership, prevMembership) => {
+    this.matrixClient.on(RoomEvent.MyMembership, async (room, membership, prevMembership) => {
       // room => prevMembership = null | invite | join | leave | kick | ban | unban
       // room => membership = invite | join | leave | kick | ban | unban
       const { roomId } = room;

@@ -39,6 +39,8 @@ const Selector = React.forwardRef(
   ) => {
     // Base Script
     const mx = initMatrix.matrixClient;
+    const mxcUrl = initMatrix.mxcUrl;
+
     const noti = initMatrix.notifications;
     const appearanceSettings = getAppearance();
 
@@ -76,24 +78,24 @@ const Selector = React.forwardRef(
     // Image
     let imageSrc =
       user && user.avatarUrl
-        ? mx.mxcUrlToHttp(user.avatarUrl, 32, 32, 'crop')
-        : room.getAvatarFallbackMember()?.getAvatarUrl(mx.baseUrl, 32, 32, 'crop') || null;
-    if (imageSrc === null) imageSrc = room.getAvatarUrl(mx.baseUrl, 32, 32, 'crop') || null;
+        ? mxcUrl.toHttp(user.avatarUrl, 32, 32, 'crop')
+        : mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 32, 32, 'crop') || null;
+    if (imageSrc === null) imageSrc = mxcUrl.getAvatarUrl(room, 32, 32, 'crop') || null;
 
     let imageAnimSrc =
       user && user.avatarUrl
         ? !appearanceSettings.enableAnimParams
-          ? mx.mxcUrlToHttp(user.avatarUrl)
-          : getAnimatedImageUrl(mx.mxcUrlToHttp(user.avatarUrl, 32, 32, 'crop'))
+          ? mxcUrl.toHttp(user.avatarUrl)
+          : getAnimatedImageUrl(mxcUrl.toHttp(user.avatarUrl, 32, 32, 'crop'))
         : !appearanceSettings.enableAnimParams
-          ? room.getAvatarFallbackMember()?.getAvatarUrl(mx.baseUrl)
+          ? mxcUrl.getAvatarUrl(room.getAvatarFallbackMember())
           : getAnimatedImageUrl(
-              room.getAvatarFallbackMember()?.getAvatarUrl(mx.baseUrl, 32, 32, 'crop'),
+              mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 32, 32, 'crop'),
             ) || null;
     if (imageAnimSrc === null)
       imageAnimSrc = !appearanceSettings.enableAnimParams
-        ? room.getAvatarUrl(mx.baseUrl)
-        : getAnimatedImageUrl(room.getAvatarUrl(mx.baseUrl, 32, 32, 'crop')) || null;
+        ? mxcUrl.getAvatarUrl(room)
+        : getAnimatedImageUrl(mxcUrl.getAvatarUrl(room, 32, 32, 'crop')) || null;
 
     // Is Muted
     const isMuted = noti.getNotiType(roomId) === cons.notifs.MUTE;

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import { UserEvent } from 'matrix-js-sdk';
 
 import { twemojifyReact } from '../../../util/twemojify';
 
@@ -42,6 +43,7 @@ function PeopleSelector({
   useEffect(() => {
     if (user) {
       const mx = initMatrix.matrixClient;
+      const mxcUrl = initMatrix.mxcUrl;
 
       // Update Status Profile
       const updateProfileStatus = (mEvent, tinyData) => {
@@ -53,16 +55,16 @@ function PeopleSelector({
         // Image
         const newImageSrc =
           tinyUser && tinyUser.avatarUrl
-            ? mx.mxcUrlToHttp(tinyUser.avatarUrl, avatarSize, avatarSize, 'crop')
+            ? mxcUrl.toHttp(tinyUser.avatarUrl, avatarSize, avatarSize, 'crop')
             : null;
         setImageSrc(newImageSrc);
 
         const newImageAnimSrc =
           tinyUser && tinyUser.avatarUrl
             ? !appearanceSettings.enableAnimParams
-              ? mx.mxcUrlToHttp(tinyUser.avatarUrl)
+              ? mxcUrl.toHttp(tinyUser.avatarUrl)
               : getAnimatedImageUrl(
-                  mx.mxcUrlToHttp(tinyUser.avatarUrl, avatarSize, avatarSize, 'crop'),
+                  mxcUrl.toHttp(tinyUser.avatarUrl, avatarSize, avatarSize, 'crop'),
                 )
             : null;
         setImageAnimSrc(newImageAnimSrc);
@@ -72,15 +74,15 @@ function PeopleSelector({
       };
 
       // Read Events
-      user.on('User.avatarUrl', updateProfileStatus);
-      user.on('User.currentlyActive', updateProfileStatus);
-      user.on('User.lastPresenceTs', updateProfileStatus);
-      user.on('User.presence', updateProfileStatus);
+      user.on(UserEvent.AvatarUrl, updateProfileStatus);
+      user.on(UserEvent.CurrentlyActive, updateProfileStatus);
+      user.on(UserEvent.LastPresenceTs, updateProfileStatus);
+      user.on(UserEvent.Presence, updateProfileStatus);
       return () => {
-        user.removeListener('User.currentlyActive', updateProfileStatus);
-        user.removeListener('User.lastPresenceTs', updateProfileStatus);
-        user.removeListener('User.presence', updateProfileStatus);
-        user.removeListener('User.avatarUrl', updateProfileStatus);
+        user.removeListener(UserEvent.CurrentlyActive, updateProfileStatus);
+        user.removeListener(UserEvent.LastPresenceTs, updateProfileStatus);
+        user.removeListener(UserEvent.Presence, updateProfileStatus);
+        user.removeListener(UserEvent.AvatarUrl, updateProfileStatus);
       };
     }
   }, [user]);

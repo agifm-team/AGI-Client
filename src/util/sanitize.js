@@ -1,5 +1,7 @@
 import sanitizeHtml from 'sanitize-html';
 import clone from 'clone';
+import initMatrix from '@src/client/initMatrix';
+
 import muteUserManager from './libs/muteUserManager';
 
 const MAX_TAG_NESTING = 100;
@@ -172,7 +174,7 @@ function transformImgTag(tagName, attribs) {
     tagName,
     attribs: {
       ...attribs,
-      src: mx?.mxcUrlToHttp(src),
+      src: src,
     },
   };
 }

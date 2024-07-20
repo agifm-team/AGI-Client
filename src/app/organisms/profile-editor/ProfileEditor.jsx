@@ -18,13 +18,12 @@ function ProfileEditor({ userId = null }) {
   // Values
   const [isEditing, setIsEditing] = useState(false);
   const mx = initMatrix.matrixClient;
+  const mxcUrl = initMatrix.mxcUrl;
   const user = mx.getUser(mx.getUserId());
 
   // Config Base
   const displayNameRef = useRef(null);
-  const [avatarSrc, setAvatarSrc] = useState(
-    user.avatarUrl ? mx.mxcUrlToHttp(user.avatarUrl) : null,
-  );
+  const [avatarSrc, setAvatarSrc] = useState(user.avatarUrl ? mxcUrl.toHttp(user.avatarUrl) : null);
   const [username, setUsername] = useState(user.displayName);
   const [disabled, setDisabled] = useState(true);
 
@@ -33,7 +32,7 @@ function ProfileEditor({ userId = null }) {
     let isMounted = true;
     mx.getProfileInfo(mx.getUserId()).then((info) => {
       if (!isMounted) return;
-      setAvatarSrc(info.avatar_url ? mx.mxcUrlToHttp(info.avatar_url) : null);
+      setAvatarSrc(info.avatar_url ? mxcUrl.toHttp(info.avatar_url) : null);
       setUsername(info.displayname);
     });
 
@@ -58,7 +57,7 @@ function ProfileEditor({ userId = null }) {
       return;
     }
     mx.setAvatarUrl(url);
-    setAvatarSrc(mx.mxcUrlToHttp(url));
+    setAvatarSrc(mxcUrl.toHttp(url));
   };
 
   // Display Name

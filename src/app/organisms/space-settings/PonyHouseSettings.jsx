@@ -33,7 +33,7 @@ function PonyHouseSettings({ roomId, room }) {
   const bannerCfg =
     getCurrentState(room).getStateEvents('pony.house.settings', 'banner')?.getContent() ?? {};
   if (typeof bannerCfg?.url === 'string' && bannerCfg?.url.length > 0) {
-    avatarSrc = mx.mxcUrlToHttp(bannerCfg.url, 400, 227);
+    avatarSrc = (bannerCfg.url, 400, 227);
   }
 
   useEffect(() => {

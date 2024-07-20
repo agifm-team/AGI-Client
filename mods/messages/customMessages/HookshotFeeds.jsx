@@ -16,6 +16,7 @@ function HookshotFeeds({ feedData, roomId, threadId }) {
 
   // Matrix
   const mx = initMatrix.matrixClient;
+  const mxcUrl = initMatrix.mxcUrl;
 
   useEffect(() => {
     if (!embed && typeof feedData.link === 'string' && feedData.link.length > 0)
@@ -50,7 +51,7 @@ function HookshotFeeds({ feedData, roomId, threadId }) {
           className="card-img-top"
           width={Number(embed['og:image:width'])}
           height={Number(embed['og:image:height'])}
-          link={mx.mxcUrlToHttp(embed['og:image'], 2000, 2000)}
+          link={mxcUrl.toHttp(embed['og:image'], 2000, 2000)}
           type={String(embed['og:image:type'])}
           maxWidth={548}
           ignoreContainer

@@ -20,7 +20,12 @@ const Img = React.forwardRef(
     ref,
   ) => {
     const imgRef = ref || useRef(null);
-    const url = new URL(src || '');
+    let url = {};
+    try {
+      url = new URL(src);
+    } catch {
+      url = {};
+    }
 
     useEffect(() => {
       if (imgRef.current) {
@@ -79,6 +84,13 @@ function ImgJquery({
   onError = null,
   dataMxEmoticon = null,
 }) {
+  let url = {};
+  try {
+    url = new URL(src);
+  } catch {
+    url = {};
+  }
+
   const img = $('<img>', {
     'data-mx-emoticon': dataMxEmoticon,
     id,

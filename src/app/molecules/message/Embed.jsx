@@ -11,7 +11,7 @@ import { twemojifyReact } from '../../../util/twemojify';
 import openTinyURL from '../../../util/message/urlProtection';
 import { defaultAvatar } from '../../atoms/avatar/defaultAvatar';
 import { mediaFix } from '../media/mediaFix';
-import Iframe from '../iframe/Iframe';
+import Iframe from '../../atoms/iframe/Iframe';
 
 const tinyUrlAction = (event) => {
   const e = event.originalEvent;

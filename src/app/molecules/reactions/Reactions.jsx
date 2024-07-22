@@ -1,9 +1,9 @@
 import React from 'react';
 
 import initMatrix from '@src/client/initMatrix';
-import muteUserManager from './muteUserManager';
-import { twemojify, twemojifyReact } from '../twemojify';
-import { readImageUrl } from './mediaCache';
+import muteUserManager from '@src/util/libs/muteUserManager';
+import { twemojify, twemojifyReact } from '@src/util/twemojify';
+import Img, { ImgJquery } from '@src/app/atoms/image/Image';
 
 export const getCustomEmojiUrl = (reaction) => {
   let customEmojiUrl = null;
@@ -79,11 +79,11 @@ export const getEventReactions = (eventReactions, ignoreMute = true, rLimit = nu
 
 export const ReactionImgReact = ({ reaction, shortcode, customEmojiUrl }) => {
   return customEmojiUrl ? (
-    <img
+    <Img
       className="react-emoji"
       draggable="false"
       alt={shortcode ?? reaction}
-      src={readImageUrl(customEmojiUrl)}
+      src={customEmojiUrl}
     />
   ) : (
     twemojifyReact(reaction, { className: 'react-emoji' })
@@ -92,11 +92,11 @@ export const ReactionImgReact = ({ reaction, shortcode, customEmojiUrl }) => {
 
 export const reactionImgjQuery = (reaction, shortcode, customEmojiUrl) => {
   return customEmojiUrl
-    ? $('<img>', {
-        class: 'react-emoji',
+    ? ImgJquery({
+        className: 'react-emoji',
         draggable: false,
         alt: shortcode ?? reaction,
-        src: readImageUrl(customEmojiUrl),
+        src: customEmojiUrl,
       })
     : twemojify(reaction, { className: 'react-emoji' });
 };

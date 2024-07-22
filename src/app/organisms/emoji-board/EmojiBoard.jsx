@@ -6,8 +6,9 @@ import { ClientEvent } from 'matrix-js-sdk';
 
 import parse from 'html-react-parser';
 import twemoji from 'twemoji';
-import { readImageUrl } from '@src/util/libs/mediaCache';
 import matrixAppearance from '@src/util/libs/appearance';
+import EmojiEvents from '@src/util/libs/emoji/EmojiEvents';
+import emojiEditor from '@src/util/libs/emoji/EmojiEditor';
 
 import { emojis } from './emoji';
 import { loadEmojiData, getEmojiData, ROW_EMOJIS_COUNT, ROW_STICKERS_COUNT } from './emojiData';
@@ -383,15 +384,13 @@ function EmojiBoard({ onSelect, searchRef, emojiBoardRef, scrollEmojisRef }) {
 
   useEffect(() => {
     const handleEvent = (event) => {
-      const eventType = event.getType();
-      if (eventType === 'im.ponies.emote_rooms' || eventType === 'im.ponies.user_emotes')
-        forceUpdate();
+      if (emojiEditor.isEmojiEvent(event)) forceUpdate();
     };
 
     const handleEvent2 = () => {
       handleEvent({
         getType: () => {
-          const tinyData = { eventType: 'im.ponies.user_emotes' };
+          const tinyData = { eventType: EmojiEvents.UserEmotes };
           return tinyData;
         },
       });
@@ -480,7 +479,7 @@ function EmojiBoard({ onSelect, searchRef, emojiBoardRef, scrollEmojisRef }) {
                 <IconButton
                   className="emoji-group-button"
                   onClick={() => openGroup(recentOffset + favOffset + pack.packIndex)}
-                  src={readImageUrl(src)}
+                  src={src}
                   key={pack.packIndex}
                   tooltip={pack.displayName ?? 'Unknown'}
                   tooltipPlacement="left"

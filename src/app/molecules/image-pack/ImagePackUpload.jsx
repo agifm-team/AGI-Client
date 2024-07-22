@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 
+import emojiEditor from '@src/util/libs/emoji/EmojiEditor';
 // import { scaleDownImage } from '../../../util/common';
 
 import Text from '../../atoms/text/Text';
@@ -11,7 +12,7 @@ import { updateEmojiList } from '../../../client/action/navigation';
 import { getSelectRoom } from '../../../util/selectedRoom';
 import FileInput, { fileInputClick, fileInputValue, uploadContent } from '../file-input/FileInput';
 
-function ImagePackUpload({ onUpload, roomId }) {
+function ImagePackUpload({ onUpload, roomId, buttons = null }) {
   const inputRef = useRef(null);
   const shortcodeRef = useRef(null);
   const [imgFile, setImgFile] = useState(null);
@@ -27,7 +28,7 @@ function ImagePackUpload({ onUpload, roomId }) {
 
     setProgress(true);
     // const image = await scaleDownImage(imgFile, 512, 512);
-    // const { content_uri: url } = await uploadContent(image, true);
+    // const { content_uri: url } = await uploadContent(image, null, true);
     const { content_uri: url } = await uploadContent(imgFile);
 
     onUpload(shortcode, url);
@@ -60,7 +61,7 @@ function ImagePackUpload({ onUpload, roomId }) {
       <FileInput
         ref={inputRef}
         onChange={handleFileChange}
-        accept={['image/png', 'image/gif', 'image/jpg', 'image/jpeg', 'image/webp']}
+        accept={emojiEditor.fileMimes}
         required
       />
       {imgFile ? (
@@ -74,13 +75,20 @@ function ImagePackUpload({ onUpload, roomId }) {
       <div>
         <Input forwardRef={shortcodeRef} name="shortcodeInput" placeholder="shortcode" required />
       </div>
-      <Button disabled={progress} variant="primary" type="submit">
+      <Button
+        className={buttons ? 'm-1' : null}
+        disabled={progress}
+        variant="primary"
+        type="submit"
+      >
         {progress ? 'Uploading...' : 'Upload'}
       </Button>
+      {buttons}
     </form>
   );
 }
 ImagePackUpload.propTypes = {
+  buttons: PropTypes.node,
   roomId: PropTypes.string,
   onUpload: PropTypes.func.isRequired,
 };

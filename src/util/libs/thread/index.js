@@ -2,6 +2,7 @@ import moment from 'moment-timezone';
 import EventEmitter from 'events';
 import { objType } from 'for-promise/utils/lib.mjs';
 
+import { ImgJquery } from '@src/app/atoms/image/Image';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
 import { colorMXID } from '@src/util/colorMXID';
 import { twemojify } from '@src/util/twemojify';
@@ -22,7 +23,6 @@ import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 
 import { btModal } from '../../tools';
 import initMatrix, { fetchFn } from '../../../client/initMatrix';
-import { readImageUrl } from '../mediaCache';
 
 const ImageBrokenSVG = './img/svg/image-broken.svg';
 
@@ -246,11 +246,10 @@ export function openThreadsMessageModal(room) {
                     $('<button>')
                       .on('click', () => openProfileViewer(userId, roomId))
                       .append(
-                        $('<img>', {
-                          class: 'avatar-react',
+                        ImgJquery({
+                          className: 'avatar-react',
                           draggable: false,
-                          src:
-                            imageSrc !== null ? readImageUrl(imageSrc) : defaultAvatar(userColor),
+                          src: imageSrc !== null ? imageSrc : defaultAvatar(userColor),
                           alt: 'avatar',
                         })
                           .on('load', (event) => {

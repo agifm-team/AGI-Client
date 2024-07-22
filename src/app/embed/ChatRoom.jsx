@@ -19,7 +19,7 @@ import RoomViewHeader from '../organisms/room/RoomViewHeader';
 
 import settings from '../../client/state/settings';
 import cons from '../../client/state/cons';
-import Iframe from '../molecules/iframe/Iframe';
+import Iframe from '../atoms/iframe/Iframe';
 
 global.Olm = Olm;
 

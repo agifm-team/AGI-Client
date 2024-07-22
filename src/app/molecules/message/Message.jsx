@@ -10,10 +10,11 @@ import hljs from 'highlight.js';
 import * as linkify from 'linkifyjs';
 import forPromise from 'for-promise';
 
+import { ImgJquery } from '@src/app/atoms/image/Image';
+
 import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 import cons from '@src/client/state/cons';
 import { isMobile } from '@src/util/libs/mobile';
-import { readImageUrl } from '@src/util/libs/mediaCache';
 import muteUserManager from '@src/util/libs/muteUserManager';
 import attemptDecryption from '@src/util/libs/attemptDecryption';
 
@@ -25,7 +26,7 @@ import {
   getCustomEmojiUrl,
   getEventReactions,
   reactionImgjQuery,
-} from '@src/util/libs/reactions';
+} from '@src/app/molecules/reactions/Reactions';
 import tinyClipboard from '@src/util/libs/Clipboard';
 
 import Text from '../../atoms/text/Text';
@@ -1080,10 +1081,10 @@ const MessageOptions = React.memo(
                           $('<div>', { class: 'my-2 user-react rounded p-1' })
                             .append(
                               ct.append(
-                                $('<img>', {
-                                  class: 'avatar-react',
+                                ImgJquery({
+                                  className: 'avatar-react',
                                   draggable: false,
-                                  src: readImageUrl(avatarAnimSrc),
+                                  src: avatarAnimSrc,
                                   alt: 'avatar',
                                 })
                                   .on('load', (event) => {

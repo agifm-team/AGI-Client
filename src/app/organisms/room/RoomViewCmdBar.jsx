@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import parse from 'html-react-parser';
 import twemoji from 'twemoji';
 
-import { readImageUrl } from '@src/util/libs/mediaCache';
-
+import Img from '@src/app/atoms/image/Image';
 import { twemojifyReact, TWEMOJI_BASE_URL } from '../../../util/twemojify';
 
 import initMatrix from '../../../client/initMatrix';
@@ -74,10 +73,10 @@ function renderSuggestions({ prefix, option, suggestions }, fireCmd) {
     // Render a custom emoji
     function renderCustomEmoji(emoji) {
       return (
-        <img
+        <Img
           className="emoji"
-          src={readImageUrl(mxcUrl.toHttp(emoji.mxc))}
-          data-mx-emoticon=""
+          src={mxcUrl.toHttp(emoji.mxc)}
+          dataMxEmoticon=""
           alt={`:${emoji.shortcode}:`}
         />
       );

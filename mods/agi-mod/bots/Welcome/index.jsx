@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef } from 'react';
 import { objType } from 'for-promise/utils/lib.mjs';
-import Iframe /* { postMessage } */ from '@src/app/molecules/iframe/Iframe';
+import Iframe /* { postMessage } */ from '@src/app/atoms/iframe/Iframe';
 import { selectRoomMode } from '@src/client/action/navigation';
 
 import './custom.scss';

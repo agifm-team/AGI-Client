@@ -8,6 +8,8 @@ import { client } from '@gradio/client';
 import objectHash from 'object-hash';
 import { objType } from 'for-promise/utils/lib.mjs';
 
+import Iframe from '@src/app/atoms/iframe/Iframe';
+
 import { tinyConfirm, toast } from '@src/util/tools';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
 import openTinyURL from '@src/util/message/urlProtection';
@@ -1016,7 +1018,7 @@ function GradioEmbed({ agiData, msgInfo, replyId }) {
   // Temp result. (I'm using this only to have a preview. This will be removed later.)
   return (
     <div>
-      <iframe
+      <Iframe
         ref={iframeRef}
         src={`${agiData.url}${!agiData.url.endsWith('/') ? '/' : ''}?room_id=${encodeURIComponent(msgInfo.roomId)}&msg_id=${encodeURIComponent(msgInfo.eventId)}&owner_id=${encodeURIComponent(msgInfo.senderId)}&user_id=${encodeURIComponent(initMatrix.matrixClient.getUserId())}${replyId ? `&reply_id=${encodeURIComponent(replyId)}` : ''}&theme=${getTheme()}`}
         style={{ height: '500px', width: '100%' }}

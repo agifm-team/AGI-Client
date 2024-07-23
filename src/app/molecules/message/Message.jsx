@@ -427,6 +427,7 @@ const messageDataEffects = (messageBody, embedHeight, setEmbedHeight) => {
 
       new bootstrap.Tooltip(value, { customClass: 'small' });
       el.addClass('emoji-fix');
+      el.attr('draggable', 'false');
     }
   });
 };

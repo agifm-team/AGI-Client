@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
+import initMatrix from '@src/client/initMatrix';
+
 const Img = React.forwardRef(
   (
     {
@@ -19,19 +21,16 @@ const Img = React.forwardRef(
     },
     ref,
   ) => {
+    // Ref
     const imgRef = ref || useRef(null);
-    let url = {};
-    try {
-      url = new URL(src);
-    } catch {
-      url = {};
-    }
+    const url = initMatrix.mxcUrl.getNewUrl(src);
 
     useEffect(() => {
       if (imgRef.current) {
       }
     });
 
+    // Complete
     return (
       <img
         onError={onError}
@@ -41,7 +40,7 @@ const Img = React.forwardRef(
         onLoad={onLoad}
         style={style}
         id={id}
-        src={src}
+        src={url ? url.toString() : null}
         alt={alt}
         ref={imgRef}
         className={className}
@@ -84,23 +83,20 @@ function ImgJquery({
   onError = null,
   dataMxEmoticon = null,
 }) {
-  let url = {};
-  try {
-    url = new URL(src);
-  } catch {
-    url = {};
-  }
+  const url = initMatrix.mxcUrl.getNewUrl(src);
 
-  const img = $('<img>', {
+  const ops = {
     'data-mx-emoticon': dataMxEmoticon,
     id,
     class: className,
-    draggable,
-    src,
+    src: url ? url.toString() : null,
     alt,
     height,
     width,
-  });
+  };
+
+  const img = $('<img>', ops);
+  if (!draggable) img.attr('draggable', 'false');
 
   if (style) img.css(style);
   if (onLoad) img.on('load', onLoad);

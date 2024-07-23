@@ -1018,7 +1018,7 @@ function GradioEmbed({ agiData, msgInfo, replyId }) {
     <div>
       <iframe
         ref={iframeRef}
-        src={`${agiData.url}${!agiData.url.endsWith('/') ? '/' : ''}?room_id=${encodeURIComponent(msgInfo.roomId)}&msg_id=${encodeURIComponent(msgInfo.eventId)}&owner_id=${encodeURIComponent(initMatrix.matrixClient.getUserId())}${replyId ? `&reply_id=${encodeURIComponent(replyId)}` : ''}&theme=${getTheme()}`}
+        src={`${agiData.url}${!agiData.url.endsWith('/') ? '/' : ''}?room_id=${encodeURIComponent(msgInfo.roomId)}&msg_id=${encodeURIComponent(msgInfo.eventId)}&owner_id=${encodeURIComponent(msgInfo.senderId)}&user_id=${encodeURIComponent(initMatrix.matrixClient.getUserId())}${replyId ? `&reply_id=${encodeURIComponent(replyId)}` : ''}&theme=${getTheme()}`}
         style={{ height: '500px', width: '100%' }}
         title="Gradio"
       />

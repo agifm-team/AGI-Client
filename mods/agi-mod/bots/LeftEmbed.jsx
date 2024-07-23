@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Button from '@src/app/atoms/button/Button';
 import PeopleDrawerBase from '@src/app/organisms/room/PeopleDrawerBase';
 import initMatrix from '@src/client/initMatrix';
+import Iframe from '@src/app/atoms/iframe/Iframe';
 
 export default function LeftEmbed({ sideIframe = {}, roomId }) {
   const [expandPixxIframe, setExpandPixxIframe] = useState(false);
@@ -33,7 +34,7 @@ export default function LeftEmbed({ sideIframe = {}, roomId }) {
           onClick={() => setExpandPixxIframe(!expandPixxIframe)}
         />
       </div>
-      <iframe
+      <Iframe
         className={`h-100 spaceship-embed${!expandPixxIframe ? '' : ' w-100'}`}
         alt="spaceship embed"
         src={sideIframe.url}

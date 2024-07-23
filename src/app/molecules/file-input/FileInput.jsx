@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 // import { Filesystem } from '@capacitor/filesystem';
 // import { FilePicker } from '@capawesome/capacitor-file-picker';
 
-// import { objType } from 'for-promise/utils/lib.mjs';
+import { objType } from 'for-promise/utils/lib.mjs';
 import initMatrix from '@src/client/initMatrix';
 import blobUrlManager from '@src/util/libs/blobUrlManager';
 
@@ -70,25 +70,25 @@ const FileInput = React.forwardRef(
   },
 );
 
-/* const uploadContent = (file, ops, forceDefault = false) => {
-  if (!Capacitor.isNativePlatform() || forceDefault) {
-    return initMatrix.matrixClient.uploadContent(file);
-  }
-
-  const tinyOps = {
-    type: file.type,
-    name: file.name,
-  };
-
+const uploadContent = (file, ops, forceDefault = false) => {
+  const tinyOps = {};
   if (objType(ops, 'object')) {
     for (const item in ops) {
       tinyOps[item] = ops[item];
     }
   }
 
-  return initMatrix.matrixClient.uploadContent(Buffer.from(file.data, 'base64'), tinyOps);
-}; */
-const uploadContent = (file) => initMatrix.matrixClient.uploadContent(file);
+  // if (!Capacitor.isNativePlatform() || forceDefault) {
+  return initMatrix.matrixClient.uploadContent(file, tinyOps);
+  // }
+
+  if (file) {
+    if (typeof file.type === 'string') tinyOps.type = file.type;
+    if (typeof file.name === 'string') tinyOps.name = file.name;
+  }
+
+  /* return initMatrix.matrixClient.uploadContent(Buffer.from(file.data, 'base64'), tinyOps); */
+};
 
 /* const createObjectURL = (file, groupId, forceDefault = false) => {
   if (!Capacitor.isNativePlatform() || forceDefault) {

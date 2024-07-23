@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { UserEvent } from 'matrix-js-sdk';
 import { objType } from 'for-promise/utils/lib.mjs';
 
+import { ImgJquery } from '@src/app/atoms/image/Image';
 import moment, { momentFormat } from '@src/util/libs/momentjs';
 import envAPI from '@src/util/libs/env';
-import { readImageUrl } from '@src/util/libs/mediaCache';
 import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 import { openProfileViewer } from '@src/client/action/navigation';
 import { convertUserId } from '@src/util/matrixUtil';
@@ -168,15 +168,15 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
 
       // Message Icon
       if (typeof presence.msgIcon === 'string' && presence.msgIcon.length > 0) {
-        customStatusImg = $('<img>', {
-          src: readImageUrl(presence.msgIconThumb),
+        customStatusImg = ImgJquery({
+          src: presence.msgIconThumb,
           alt: 'icon',
-          class: 'emoji me-1',
+          className: 'emoji me-1',
         });
         htmlStatus.push(customStatusImg);
 
-        customStatusImg.data('pony-house-cs-normal', readImageUrl(presence.msgIconThumb));
-        customStatusImg.data('pony-house-cs-hover', readImageUrl(presence.msgIcon));
+        customStatusImg.data('pony-house-cs-normal', presence.msgIconThumb);
+        customStatusImg.data('pony-house-cs-hover', presence.msgIcon);
       }
 
       if (typeof presence.msg === 'string' && presence.msg.length > 0) {

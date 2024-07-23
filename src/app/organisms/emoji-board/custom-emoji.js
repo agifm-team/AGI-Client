@@ -1,3 +1,5 @@
+import EmojiEvents from '@src/util/libs/emoji/EmojiEvents';
+
 import { defaultEmojis } from './emoji';
 import { getCurrentState } from '../../../util/matrixUtil';
 
@@ -147,7 +149,7 @@ class ImagePack {
 }
 
 function getGlobalImagePacks(mx) {
-  const globalContent = mx.getAccountData('im.ponies.emote_rooms')?.getContent();
+  const globalContent = mx.getAccountData(EmojiEvents.EmoteRooms)?.getContent();
   if (typeof globalContent !== 'object') return [];
 
   const { rooms } = globalContent;
@@ -163,7 +165,7 @@ function getGlobalImagePacks(mx) {
 
     return stateKeys
       .map((stateKey) => {
-        const data = getCurrentState(room).getStateEvents('im.ponies.room_emotes', stateKey);
+        const data = getCurrentState(room).getStateEvents(EmojiEvents.RoomEmotes, stateKey);
         const pack = ImagePack.parsePack(data?.getId(), data?.getContent());
         if (pack) {
           pack.displayName ??= room.name;
@@ -178,7 +180,7 @@ function getGlobalImagePacks(mx) {
 }
 
 function getUserImagePack(mx) {
-  const accountDataEmoji = mx.getAccountData('im.ponies.user_emotes');
+  const accountDataEmoji = mx.getAccountData(EmojiEvents.UserEmotes);
   if (!accountDataEmoji) {
     return null;
   }
@@ -189,7 +191,7 @@ function getUserImagePack(mx) {
 }
 
 function getRoomImagePacks(room) {
-  const dataEvents = getCurrentState(room).getStateEvents('im.ponies.room_emotes');
+  const dataEvents = getCurrentState(room).getStateEvents(EmojiEvents.RoomEmotes);
 
   return dataEvents
     .map((data) => {

@@ -1,20 +1,18 @@
-import React, { useState, useReducer, useEffect } from 'react';
+import React, { useState, useReducer, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { ClientEvent } from 'matrix-js-sdk';
 
 import {
   emojiExport,
-  getEmojiUsage,
-  useUserImagePack,
-  useRoomImagePack,
-  addGlobalImagePack,
-  removeGlobalImagePack,
-  isGlobalPack,
-} from '@src/util/emojiUtil';
+  getEmojiImport,
+  supportedEmojiImportFiles,
+} from '@src/util/libs/emoji/emojiUtil';
+import emojiEditor from '@src/util/libs/emoji/EmojiEditor';
+import EmojiEvents from '@src/util/libs/emoji/EmojiEvents';
+import { setLoadingPage } from '@src/app/templates/client/Loading';
 
 import initMatrix from '../../../client/initMatrix';
 import { openReusableDialog, updateEmojiList } from '../../../client/action/navigation';
-import { suffixRename } from '../../../util/common';
 
 import Button from '../../atoms/button/Button';
 import Text from '../../atoms/text/Text';
@@ -28,6 +26,7 @@ import ImagePackItem from './ImagePackItem';
 import ImagePackUpload from './ImagePackUpload';
 import { getSelectRoom } from '../../../util/selectedRoom';
 import { getCurrentState } from '../../../util/matrixUtil';
+import FileInput, { fileInputClick, fileInputValue } from '../file-input/FileInput';
 
 const renameImagePackItem = (shortcode) =>
   new Promise((resolve) => {
@@ -66,50 +65,48 @@ const renameImagePackItem = (shortcode) =>
     );
   });
 
-function useImagePackHandles(pack, sendPackContent) {
-  const [, forceUpdate] = useReducer((count) => count + 1, 0);
-
-  const getNewKey = (key) => {
-    if (typeof key !== 'string') return undefined;
-    let newKey = key?.replace(/\s/g, '_');
-    if (pack.getImages().get(newKey)) {
-      newKey = suffixRename(newKey, (suffixedKey) => pack.getImages().get(suffixedKey));
-    }
-    return newKey;
+function useImagePackHandles(forceUpdate, roomId, stateKey) {
+  const tinyComplete = () => {
+    forceUpdate();
+    setLoadingPage(false);
+  };
+  const tinyError = (err) => {
+    console.error(err);
+    alert(err.message, 'Emoji Editor Error');
+    setLoadingPage(false);
   };
 
   const handleAvatarChange = (url) => {
-    pack.setAvatarUrl(url);
-    sendPackContent(pack.getContent());
-    forceUpdate();
+    setLoadingPage('Changing pack avatar...');
+    emojiEditor
+      .avatarChange(url, roomId, stateKey)
+      .then(() => tinyComplete())
+      .catch(tinyError);
   };
 
   const handleEditProfile = (name, attribution) => {
-    pack.setDisplayName(name);
-    pack.setAttribution(attribution);
-    sendPackContent(pack.getContent());
-    forceUpdate();
+    setLoadingPage('Changing pack profile...');
+    emojiEditor
+      .editProfile(name, attribution, roomId, stateKey)
+      .then(() => tinyComplete())
+      .catch(tinyError);
   };
 
   const handleUsageChange = (newUsage) => {
-    const usage = [];
-    if (newUsage === 'emoticon' || newUsage === 'both') usage.push('emoticon');
-    if (newUsage === 'sticker' || newUsage === 'both') usage.push('sticker');
-    pack.setUsage(usage);
-    pack.getImages().forEach((img) => pack.setImageUsage(img.shortcode, undefined));
-
-    sendPackContent(pack.getContent());
-    forceUpdate();
+    setLoadingPage('Changing pack usage...');
+    emojiEditor
+      .usageChange(newUsage, roomId, stateKey)
+      .then(() => tinyComplete())
+      .catch(tinyError);
   };
 
   const handleRenameItem = async (key) => {
-    const newKey = getNewKey(await renameImagePackItem(key));
-
-    if (!newKey || newKey === key) return;
-    pack.updateImageKey(key, newKey);
-
-    sendPackContent(pack.getContent());
-    forceUpdate();
+    const newKeyValue = await renameImagePackItem(key);
+    setLoadingPage('Changing pack name...');
+    emojiEditor
+      .rename(key, newKeyValue, roomId, stateKey)
+      .then(() => tinyComplete())
+      .catch(tinyError);
   };
 
   const handleDeleteItem = async (key) => {
@@ -120,32 +117,27 @@ function useImagePackHandles(pack, sendPackContent) {
       'danger',
     );
     if (!isConfirmed) return;
-    pack.removeImage(key);
-
-    sendPackContent(pack.getContent());
-    forceUpdate();
+    setLoadingPage('Deleting item pack...');
+    emojiEditor
+      .delete(key, roomId, stateKey)
+      .then(() => tinyComplete())
+      .catch(tinyError);
   };
 
   const handleUsageItem = (key, newUsage) => {
-    const usage = [];
-    if (newUsage === 'emoticon' || newUsage === 'both') usage.push('emoticon');
-    if (newUsage === 'sticker' || newUsage === 'both') usage.push('sticker');
-    pack.setImageUsage(key, usage);
-
-    sendPackContent(pack.getContent());
-    forceUpdate();
+    setLoadingPage('Changing pack usage...');
+    emojiEditor
+      .usage(key, newUsage, roomId, stateKey)
+      .then(() => tinyComplete())
+      .catch(tinyError);
   };
 
   const handleAddItem = (key, url) => {
-    const newKey = getNewKey(key);
-    if (!newKey || !url) return;
-
-    pack.addImage(newKey, {
-      url,
-    });
-
-    sendPackContent(pack.getContent());
-    forceUpdate();
+    setLoadingPage('Adding image into the pack...');
+    emojiEditor
+      .add(key, url, roomId, stateKey)
+      .then(() => tinyComplete())
+      .catch(tinyError);
   };
 
   return {
@@ -159,14 +151,26 @@ function useImagePackHandles(pack, sendPackContent) {
   };
 }
 
+const emojiEventListen = (forceUpdate) => () => {
+  const tinyUpdate = () => forceUpdate();
+  emojiEditor.on('personalUpdated', tinyUpdate);
+  emojiEditor.on('roomUpdated', tinyUpdate);
+  emojiEditor.on('roomDeleted', tinyUpdate);
+  return () => {
+    emojiEditor.off('personalUpdated', tinyUpdate);
+    emojiEditor.off('roomUpdated', tinyUpdate);
+    emojiEditor.off('roomDeleted', tinyUpdate);
+  };
+};
+
 function ImagePack({ roomId, stateKey, handlePackDelete = null }) {
   const mx = initMatrix.matrixClient;
   const mxcUrl = initMatrix.mxcUrl;
   const room = mx.getRoom(roomId);
   const [viewMore, setViewMore] = useState(false);
-  const [isGlobal, setIsGlobal] = useState(isGlobalPack(roomId, stateKey));
-
-  const { pack, sendPackContent } = useRoomImagePack(roomId, stateKey);
+  const [isGlobal, setIsGlobal] = useState(emojiEditor.isGlobalPack(roomId, stateKey));
+  const [, forceUpdate] = useReducer((count) => count + 1, 0);
+  const { pack } = emojiEditor.getRoom(roomId, stateKey);
 
   const {
     handleAvatarChange,
@@ -176,18 +180,15 @@ function ImagePack({ roomId, stateKey, handlePackDelete = null }) {
     handleDeleteItem,
     handleUsageItem,
     handleAddItem,
-  } = useImagePackHandles(pack, sendPackContent);
+  } = useImagePackHandles(forceUpdate, roomId, stateKey);
 
   const handleGlobalChange = (isG) => {
     setIsGlobal(isG);
-    if (isG) addGlobalImagePack(roomId, stateKey);
-    else removeGlobalImagePack(roomId, stateKey);
+    if (isG) emojiEditor.addGlobalPack(roomId, stateKey);
+    else emojiEditor.removeGlobalPack(roomId, stateKey);
   };
 
-  const canChange = getCurrentState(room).maySendStateEvent(
-    'im.ponies.room_emotes',
-    mx.getUserId(),
-  );
+  const canChange = getCurrentState(room).maySendStateEvent(EmojiEvents.RoomEmotes, mx.getUserId());
 
   const handleDeletePack = async () => {
     const isConfirmed = await confirmDialog(
@@ -202,6 +203,16 @@ function ImagePack({ roomId, stateKey, handlePackDelete = null }) {
   };
 
   const images = [...pack.images].slice(0, viewMore ? pack.images.size : 2);
+  useEffect(emojiEventListen(forceUpdate));
+
+  const exportData = {
+    displayName: pack.displayName || 'Unknown',
+    avatarUrl: pack.avatarUrl,
+    attribution: pack.attribution,
+    usage: emojiEditor.getUsage(pack.usage),
+    stateKey,
+    roomId,
+  };
 
   return (
     <li className="list-group-item image-pack">
@@ -209,7 +220,7 @@ function ImagePack({ roomId, stateKey, handlePackDelete = null }) {
         avatarUrl={pack.avatarUrl ? mxcUrl.toHttp(pack.avatarUrl, 42, 42, 'crop') : null}
         displayName={pack.displayName ?? 'Unknown'}
         attribution={pack.attribution}
-        usage={getEmojiUsage(pack.usage)}
+        usage={emojiEditor.getUsage(pack.usage)}
         onUsageChange={canChange ? handleUsageChange : null}
         onAvatarChange={canChange ? handleAvatarChange : null}
         onEditProfile={canChange ? handleEditProfile : null}
@@ -228,7 +239,7 @@ function ImagePack({ roomId, stateKey, handlePackDelete = null }) {
               key={shortcode}
               url={mxcUrl.toHttp(image.mxc)}
               shortcode={shortcode}
-              usage={getEmojiUsage(image.usage)}
+              usage={emojiEditor.getUsage(image.usage)}
               onUsageChange={canChange ? handleUsageItem : undefined}
               onDelete={canChange ? handleDeleteItem : undefined}
               onRename={canChange ? handleRenameItem : undefined}
@@ -245,9 +256,7 @@ function ImagePack({ roomId, stateKey, handlePackDelete = null }) {
                 {viewMore ? 'View less' : `View ${pack.images.size - 2} more`}
               </Button>
             )}
-            <Button onClick={() => emojiExport(pack.displayName ?? 'Unknown', [...pack.images])}>
-              Export
-            </Button>
+            <Button onClick={() => emojiExport(exportData, [...pack.images])}>Export</Button>
             {handlePackDelete && (
               <Button variant="danger" onClick={handleDeletePack}>
                 Delete Pack
@@ -255,9 +264,7 @@ function ImagePack({ roomId, stateKey, handlePackDelete = null }) {
             )}
           </>
         ) : (
-          <Button onClick={() => emojiExport(pack.displayName ?? 'Unknown', [...pack.images])}>
-            Export
-          </Button>
+          <Button onClick={() => emojiExport(exportData, [...pack.images])}>Export</Button>
         )}
       </div>
 
@@ -284,8 +291,10 @@ function ImagePackUser() {
   const mx = initMatrix.matrixClient;
   const mxcUrl = initMatrix.mxcUrl;
   const [viewMore, setViewMore] = useState(false);
+  const [, forceUpdate] = useReducer((count) => count + 1, 0);
+  const { pack } = emojiEditor.getPersonal();
 
-  const { pack, sendPackContent } = useUserImagePack();
+  const emojiImportRef = useRef(null);
 
   const {
     handleAvatarChange,
@@ -295,9 +304,34 @@ function ImagePackUser() {
     handleDeleteItem,
     handleUsageItem,
     handleAddItem,
-  } = useImagePackHandles(pack, sendPackContent);
+  } = useImagePackHandles(forceUpdate);
 
   const images = [...pack.images].slice(0, viewMore ? pack.images.size : 2);
+  useEffect(emojiEventListen(forceUpdate));
+
+  const handleEmojisFileChange = (target, getFile) => {
+    const zipFile = getFile(0);
+    if (zipFile === null) return;
+    const errorFile = (err) => {
+      alert(err.message, 'Import Emojis Error');
+      console.error(err);
+      setLoadingPage(false);
+    };
+
+    setLoadingPage('Importing image pack...');
+    getEmojiImport(zipFile)
+      .then((data) => {
+        if (data.title && data.client === 'pony-house') {
+          emojiEditor
+            .addEmojiPack(data)
+            .then(() => setLoadingPage(false))
+            .catch(errorFile);
+        }
+      })
+      .catch(errorFile);
+
+    fileInputValue(emojiImportRef, null);
+  };
 
   return (
     <div className="card noselect">
@@ -306,13 +340,31 @@ function ImagePackUser() {
           avatarUrl={pack.avatarUrl ? mxcUrl.toHttp(pack.avatarUrl, 42, 42, 'crop') : null}
           displayName={pack.displayName ?? 'Personal'}
           attribution={pack.attribution}
-          usage={getEmojiUsage(pack.usage)}
+          usage={emojiEditor.getUsage(pack.usage)}
           onUsageChange={handleUsageChange}
           onAvatarChange={handleAvatarChange}
           onEditProfile={handleEditProfile}
         />
 
-        <ImagePackUpload onUpload={handleAddItem} />
+        <ImagePackUpload
+          buttons={
+            <>
+              <FileInput
+                ref={emojiImportRef}
+                onChange={handleEmojisFileChange}
+                accept={supportedEmojiImportFiles}
+              />
+              <Button
+                className="m-1"
+                variant="primary"
+                onClick={() => fileInputClick(emojiImportRef, handleEmojisFileChange)}
+              >
+                Import pack
+              </Button>
+            </>
+          }
+          onUpload={handleAddItem}
+        />
 
         {images.length === 0 ? null : (
           <div>
@@ -326,7 +378,7 @@ function ImagePackUser() {
                 key={shortcode}
                 url={mxcUrl.toHttp(image.mxc)}
                 shortcode={shortcode}
-                usage={getEmojiUsage(image.usage)}
+                usage={emojiEditor.getUsage(image.usage)}
                 onUsageChange={handleUsageItem}
                 onDelete={handleDeleteItem}
                 onRename={handleRenameItem}
@@ -345,7 +397,21 @@ function ImagePackUser() {
                 <br />
               </>
             )}
-            <Button onClick={() => emojiExport('Personal Pack', [...pack.images])}>
+            <Button
+              onClick={() =>
+                emojiExport(
+                  {
+                    displayName: pack.displayName || 'Personal Pack',
+                    attribution: pack.attribution,
+                    avatarUrl: pack.avatarUrl,
+                    usage: emojiEditor.getUsage(pack.usage),
+                    stateKey: null,
+                    roomId: null,
+                  },
+                  [...pack.images],
+                )
+              }
+            >
               Export Personal Emojis
             </Button>
           </center>
@@ -360,7 +426,7 @@ function useGlobalImagePack() {
   const mx = initMatrix.matrixClient;
 
   const roomIdToStateKeys = new Map();
-  const globalContent = mx.getAccountData('im.ponies.emote_rooms')?.getContent() ?? { rooms: {} };
+  const globalContent = mx.getAccountData(EmojiEvents.EmoteRooms)?.getContent() ?? { rooms: {} };
   const { rooms } = globalContent;
 
   Object.keys(rooms).forEach((roomId) => {
@@ -373,7 +439,7 @@ function useGlobalImagePack() {
 
   useEffect(() => {
     const handleEvent = (event) => {
-      if (event.getType() === 'im.ponies.emote_rooms') forceUpdate();
+      if (event.getType() === EmojiEvents.EmoteRooms) forceUpdate();
     };
     mx.addListener(ClientEvent.AccountData, handleEvent);
     return () => {
@@ -389,7 +455,7 @@ function ImagePackGlobal() {
   const roomIdToStateKeys = useGlobalImagePack();
 
   const handleChange = (roomId, stateKey) => {
-    removeGlobalImagePack(roomId, stateKey);
+    emojiEditor.removeGlobalPack(roomId, stateKey);
   };
 
   return (
@@ -403,10 +469,7 @@ function ImagePackGlobal() {
               const room = mx.getRoom(roomId);
 
               return stateKeys.map((stateKey) => {
-                const data = getCurrentState(room).getStateEvents(
-                  'im.ponies.room_emotes',
-                  stateKey,
-                );
+                const data = getCurrentState(room).getStateEvents(EmojiEvents.RoomEmotes, stateKey);
                 const pack = ImagePackBuilder.parsePack(data?.getId(), data?.getContent());
                 if (!pack) return null;
                 return (

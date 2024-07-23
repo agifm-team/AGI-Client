@@ -80,6 +80,10 @@
   }
 }
 
+.room-view--dropped > .navbar {
+  border-top: 1px solid var(--bg-surface-border);
+}
+
 @media (max-width: 768px) {
   .room-mode .navigation-wrapper,
   .navigation-mode .back-navigation,
@@ -124,20 +128,25 @@
     }
   }
 
-  body:not(.navigation-wrapper-hover) .disable-navigation-wrapper {
-    #space-header,
-    #profile-sidebar {
-      display: none;
-    }
-    .navigation-wrapper {
-      width: 80px;
-    }
-    &.theme-type-dark,
-    &.theme-type-dark2,
-    &.theme-type-silver,
-    &.theme-type-light {
+  body:not(.navigation-wrapper-hover) {
+    .disable-navigation-wrapper {
+      #space-header,
+      #profile-sidebar {
+        display: none;
+      }
       .navigation-wrapper {
         width: 72px;
+      }
+    }
+
+    &.theme-type-silver-solid,
+    &.theme-type-light-solid,
+    &.theme-type-dark-solid,
+    &.theme-type-dark2-solid {
+      .disable-navigation-wrapper {
+        .navigation-wrapper {
+          width: 80px;
+        }
       }
     }
   }

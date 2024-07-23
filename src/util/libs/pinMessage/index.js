@@ -1,6 +1,8 @@
 import clone from 'clone';
 import { objType } from 'for-promise/utils/lib.mjs';
 
+import { ImgJquery } from '@src/app/atoms/image/Image';
+
 import initMatrix from '../../../client/initMatrix';
 import { getCurrentState } from '../../matrixUtil';
 import { btModal } from '../../tools';
@@ -16,7 +18,6 @@ import { createMessageData, messageDataEffects } from '../../../app/molecules/me
 import { jqueryTime } from '../../../app/atoms/time/Time';
 
 import { getEventById } from './cache';
-import { readImageUrl } from '../mediaCache';
 
 // Info
 const ImageBrokenSVG = './img/svg/image-broken.svg';
@@ -250,11 +251,10 @@ export function openPinMessageModal(room) {
                     $('<button>')
                       .on('click', () => openProfileViewer(userId, roomId))
                       .append(
-                        $('<img>', {
-                          class: 'avatar-react',
+                        ImgJquery({
+                          className: 'avatar-react',
                           draggable: false,
-                          src:
-                            imageSrc !== null ? readImageUrl(imageSrc) : defaultAvatar(userColor),
+                          src: imageSrc !== null ? imageSrc : defaultAvatar(userColor),
                           alt: 'avatar',
                         })
                           .on('load', (event) => {

@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { objType } from 'for-promise/utils/lib.mjs';
+import initMatrix from '@src/client/initMatrix';
+import MxcUrl from '@src/util/libs/MxcUrl';
 
 export const postMessage = (current, msg = null) => current.contentWindow.postMessage(msg);
 
@@ -26,12 +28,25 @@ const Iframe = React.forwardRef(
     ref,
   ) => {
     const iframeRef = ref || useRef(null);
-    const url = new URL(src);
+    const url =
+      typeof src === 'string' &&
+      src.startsWith('mxc://') &&
+      initMatrix.mxcUrl &&
+      initMatrix.mxcUrl.toHttp
+        ? initMatrix.mxcUrl.toHttp(src)
+        : src;
+
+    let urlValidator;
+    try {
+      urlValidator = new URL(url);
+    } catch {
+      urlValidator = new URL(location.href);
+    }
 
     useEffect(() => {
       if (iframeRef.current && onMessage) {
         const msgFilter = (event) => {
-          if (event.origin === url.origin) {
+          if (event.origin === urlValidator.origin) {
             let data;
             if (typeof event.data === 'string') {
               try {
@@ -56,7 +71,7 @@ const Iframe = React.forwardRef(
         title={title}
         style={style}
         id={id}
-        src={src}
+        src={url}
         alt={alt}
         ref={iframeRef}
         className={className || 'w-100'}

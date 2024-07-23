@@ -1,9 +1,14 @@
-import React, { useReducer, useEffect } from 'react';
+import React, { useReducer, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { RoomStateEvent } from 'matrix-js-sdk';
 
+import { getEmojiImport, supportedEmojiImportFiles } from '@src/util/libs/emoji/emojiUtil';
+import EmojiEvents from '@src/util/libs/emoji/EmojiEvents';
+import emojiEditor from '@src/util/libs/emoji/EmojiEditor';
+
+import { setLoadingPage } from '@src/app/templates/client/Loading';
+
 import initMatrix from '../../../client/initMatrix';
-import { suffixRename } from '../../../util/common';
 
 import Text from '../../atoms/text/Text';
 import Input from '../../atoms/input/Input';
@@ -11,25 +16,18 @@ import Button from '../../atoms/button/Button';
 import ImagePack from '../image-pack/ImagePack';
 import { updateEmojiList } from '../../../client/action/navigation';
 import { getCurrentState } from '../../../util/matrixUtil';
+import FileInput, { fileInputClick, fileInputValue } from '../file-input/FileInput';
 
 function useRoomPacks(room) {
   const mx = initMatrix.matrixClient;
   const [, forceUpdate] = useReducer((count) => count + 1, 0);
 
-  const packEvents = getCurrentState(room).getStateEvents('im.ponies.room_emotes');
-  const unUsablePacks = [];
-  const usablePacks = packEvents.filter((mEvent) => {
-    if (typeof mEvent.getContent()?.images !== 'object') {
-      unUsablePacks.push(mEvent);
-      return false;
-    }
-    return true;
-  });
+  const { usablePacks } = emojiEditor.getPackState(room);
 
   useEffect(() => {
     const handleEvent = (event, state, prevEvent) => {
       if (event.getRoomId() !== room.roomId) return;
-      if (event.getType() !== 'im.ponies.room_emotes') return;
+      if (event.getType() !== EmojiEvents.RoomEmotes) return;
       if (!prevEvent?.getContent()?.images || !event.getContent().images) {
         forceUpdate();
       }
@@ -41,31 +39,23 @@ function useRoomPacks(room) {
     };
   }, [room, mx]);
 
-  const isStateKeyAvailable = (key) =>
-    !getCurrentState(room).getStateEvents('im.ponies.room_emotes', key);
-
   const createPack = async (name) => {
-    const packContent = {
-      pack: { display_name: name },
-      images: {},
-    };
-    let stateKey = '';
-    if (unUsablePacks.length > 0) {
-      const mEvent = unUsablePacks[0];
-      stateKey = mEvent.getStateKey();
-    } else {
-      stateKey = packContent.pack.display_name.replace(/\s/g, '-');
-      if (!isStateKeyAvailable(stateKey)) {
-        stateKey = suffixRename(stateKey, isStateKeyAvailable);
-      }
-    }
-    await mx.sendStateEvent(room.roomId, 'im.ponies.room_emotes', packContent, stateKey);
+    const result = await emojiEditor.createPack(room.roomId, name).catch((err) => {
+      console.error(err);
+      alert(err.message, 'Create Pack Error');
+    });
     updateEmojiList(room.roomId);
+    return result;
   };
 
   const deletePack = async (stateKey) => {
-    await mx.sendStateEvent(room.roomId, 'im.ponies.room_emotes', {}, stateKey);
+    setLoadingPage('Deleting image pack...');
+    await emojiEditor.deletePack(room.roomId, stateKey).catch((err) => {
+      console.error(err);
+      alert(err.message, 'Create Pack Error');
+    });
     updateEmojiList(room.roomId);
+    setLoadingPage(false);
   };
 
   return {
@@ -79,20 +69,51 @@ function RoomEmojis({ roomId }) {
   const mx = initMatrix.matrixClient;
   const room = mx.getRoom(roomId);
 
+  const emojiImportRef = useRef(null);
   const { usablePacks, createPack, deletePack } = useRoomPacks(room);
-  const canChange = getCurrentState(room).maySendStateEvent(
-    'im.ponies.emote_rooms',
-    mx.getUserId(),
-  );
+  const canChange = getCurrentState(room).maySendStateEvent(EmojiEvents.EmoteRooms, mx.getUserId());
+
+  const createPackBase = (name, nameInput) => {
+    if (name === '') return new Promise((resolve) => resolve(null));
+    if (nameInput) nameInput.value = '';
+    return createPack(name);
+  };
 
   const handlePackCreate = (e) => {
     e.preventDefault();
     const { nameInput } = e.target;
-    const name = nameInput.value.trim();
-    if (name === '') return;
-    nameInput.value = '';
+    setLoadingPage('Creating image pack...');
+    createPackBase(nameInput.value.trim(), nameInput)
+      .then(() => setLoadingPage(false))
+      .catch((err) => {
+        console.error(err);
+        alert(err.message, 'Image pack creation error');
+        setLoadingPage(false);
+      });
+  };
 
-    createPack(name);
+  const handleEmojisFileChange = (target, getFile) => {
+    const zipFile = getFile(0);
+    if (zipFile === null) return;
+    const errorFile = (err) => {
+      alert(err.message, 'Import Emojis Error');
+      console.error(err);
+      setLoadingPage(false);
+    };
+
+    setLoadingPage('Importing image pack...');
+    getEmojiImport(zipFile)
+      .then((data) => {
+        if (data.title && data.client === 'pony-house') {
+          createPackBase(data.title)
+            .then((result) => emojiEditor.addEmojiPack(data, roomId, result.stateKey))
+            .then(() => setLoadingPage(false))
+            .catch(errorFile);
+        }
+      })
+      .catch(errorFile);
+
+    fileInputValue(emojiImportRef, null);
   };
 
   return (
@@ -110,9 +131,21 @@ function RoomEmojis({ roomId }) {
                   </div>
                 </div>
                 <div className="col-2">
-                  <center className="h-100">
-                    <Button className="h-100" variant="primary" type="submit">
+                  <center className="h-100 align-items-center d-flex">
+                    <Button className="m-1" variant="primary" type="submit">
                       Create pack
+                    </Button>
+                    <FileInput
+                      ref={emojiImportRef}
+                      onChange={handleEmojisFileChange}
+                      accept={supportedEmojiImportFiles}
+                    />
+                    <Button
+                      className="m-1"
+                      variant="primary"
+                      onClick={() => fileInputClick(emojiImportRef, handleEmojisFileChange)}
+                    >
+                      Import pack
                     </Button>
                   </center>
                 </div>

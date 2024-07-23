@@ -23,9 +23,15 @@ async function getUrl(link, type, decryptData, roomId /* , threadId */) {
       group: `roomMedia:${roomId}`,
     };
 
-    const blob = await initMatrix.mxcUrl.fetchBlob(link, type, decryptData);
-    const result = await blobUrlManager.insert(blob, blobSettings);
-    return result;
+    blobSettings.id = `${blobSettings.group}:${link}`;
+    const resultById = blobUrlManager.getById(blobSettings.id);
+    if (!resultById) {
+      const blob = await initMatrix.mxcUrl.fetchBlob(link, type, decryptData);
+      const result = await blobUrlManager.insert(blob, blobSettings);
+      return result;
+    } else {
+      return resultById;
+    }
   } catch (e) {
     console.error(e);
     return link;

@@ -1,4 +1,6 @@
 import encrypt from 'matrix-encrypt-attachment';
+import EventEmitter from 'events';
+import { generateApiKey } from 'generate-api-key';
 
 import { fetchFn } from '@src/client/initMatrix';
 import { avatarDefaultColor } from '@src/app/atoms/avatar/Avatar';
@@ -8,10 +10,23 @@ import { getBlobSafeMimeType } from '../mimetypes';
 
 // getAnimatedImageUrl
 // Mxc Url
-class MxcUrl {
+class MxcUrl extends EventEmitter {
   // Constructor
   constructor(mxBase) {
+    super();
     this.mx = mxBase;
+    this._fetchWait = {};
+    this._isAuth = false;
+    this.setMaxListeners(__ENV_APP__.MAX_LISTENERS);
+  }
+
+  // Set Auth Mode
+  setAuthMode(value) {
+    if (typeof value === 'boolean') this._isAuth = value;
+  }
+
+  isAuth() {
+    return this._isAuth;
   }
 
   // Check Url Cache
@@ -80,6 +95,53 @@ class MxcUrl {
     return this.getBlob(response, type, tinyLink, decryptData);
   }
 
+  // Focus Fetch Blob
+  async focusFetchBlob(link = null, type = null, decryptData = null) {
+    const tinyThis = this;
+    return new Promise((resolve, reject) => {
+      if (!tinyThis._fetchWait[link]) {
+        tinyThis._fetchWait[link] = true;
+        tinyThis
+          .fetchBlob(link, type, decryptData)
+          // Complete
+          .then((result) => {
+            tinyThis.emit(`fetchBlob:then:${link}`, result);
+            delete tinyThis._fetchWait[link];
+            resolve(result);
+          })
+          // Error
+          .catch((err) => {
+            tinyThis.emit(`fetchBlob:catch:${link}`, err);
+            delete tinyThis._fetchWait[link];
+            reject(err);
+          });
+      }
+
+      // Wait
+      else {
+        const funcs = {};
+        const key = generateApiKey();
+
+        const tinyComplete = (isResolve) => {
+          if (isResolve) tinyThis.off(`fetchBlob:catch:${link}`, funcs[`${key}_TinyReject`]);
+          else tinyThis.off(`fetchBlob:then:${link}`, funcs[`${key}_TinyResolve`]);
+        };
+
+        funcs[`${key}_TinyResolve`] = (result) => {
+          resolve(result);
+          tinyComplete(true);
+        };
+        funcs[`${key}_TinyReject`] = (err) => {
+          reject(err);
+          tinyComplete(false);
+        };
+
+        tinyThis.once(`fetchBlob:then:${link}`, funcs[`${key}_TinyResolve`]);
+        tinyThis.once(`fetchBlob:catch:${link}`, funcs[`${key}_TinyReject`]);
+      }
+    });
+  }
+
   // MXC Protocol to Http
   toHttp(mxcUrl, width, height, resizeMethod, allowDirectLinks, allowRedirects) {
     return this.mx.mxcUrlToHttp(
@@ -89,7 +151,7 @@ class MxcUrl {
       resizeMethod,
       allowDirectLinks,
       allowRedirects,
-      // true,
+      this._isAuth,
     );
   }
 

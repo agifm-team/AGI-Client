@@ -1069,7 +1069,7 @@ const MessageOptions = React.memo(
                         const avatarAnimSrc = user
                           ? !appearanceSettings.enableAnimParams
                             ? mxcUrl.toHttp(user.avatarUrl)
-                            : (getAnimatedImageUrl(mxcUrl.toHttp(user.avatarUrl, 36, 36, 'crop')) ??
+                            : (getAnimatedImageUrl(mxcUrl.toHttp(user.avatarUrl, 36, 36)) ??
                               avatarDefaultColor(color))
                           : avatarDefaultColor(color);
 
@@ -1308,7 +1308,7 @@ const MessageThreadSummary = React.memo(({ thread, useManualCheck = false }) => 
     lastSender && typeof lastSender?.userId === 'string' ? colorMXID(lastSender?.userId) : null;
 
   // Avatar
-  const newAvatar = mxcUrl.getAvatarUrl(lastSender, 36, 36, 'crop', true, false);
+  const newAvatar = mxcUrl.getAvatarUrl(lastSender, 36, 36, undefined, true, false);
   const lastSenderAvatarSrc = newAvatar
     ? newAvatar
     : typeof color === 'string'
@@ -1514,7 +1514,7 @@ function genMediaContent(mE, seeHiddenData, setSeeHiddenData) {
           link={
             !enableAnimParams
               ? mxcUrl.toHttp(mediaMXC)
-              : getAnimatedImageUrl(mxcUrl.toHttp(mediaMXC, 170, 170, 'crop'))
+              : getAnimatedImageUrl(mxcUrl.toHttp(mediaMXC, 170, 170))
           }
           file={isEncryptedFile ? mContent.file : null}
           type={mContent.info?.mimetype}
@@ -1672,10 +1672,10 @@ function Message({
 
   const color = colorMXID(senderId);
   const username = muteUserManager.getMessageName(mEvent, isDM);
-  const avatarSrc = mxcUrl.getAvatarUrl(mEvent.sender, 36, 36, 'crop') ?? avatarDefaultColor(color);
+  const avatarSrc = mxcUrl.getAvatarUrl(mEvent.sender, 36, 36) ?? avatarDefaultColor(color);
   const avatarAnimSrc = !appearanceSettings.enableAnimParams
     ? mxcUrl.getAvatarUrl(mEvent.sender)
-    : (getAnimatedImageUrl(mxcUrl.getAvatarUrl(mEvent.sender, 36, 36, 'crop')) ??
+    : (getAnimatedImageUrl(mxcUrl.getAvatarUrl(mEvent.sender, 36, 36)) ??
       avatarDefaultColor(color));
 
   // Content Data

@@ -12,13 +12,15 @@ import initMatrix from '../../../client/initMatrix';
 
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import { getCurrentState } from '../../../util/matrixUtil';
-import { handleBannerUpload } from './handleBannerUpload';
 
 function PonyHouseSettings({ roomId, room }) {
   const mx = initMatrix.matrixClient;
+  const mxcUrl = initMatrix.mxcUrl;
+
   const userId = mx.getUserId();
   const roomName = room?.name;
   const [isRoomIconsVisible, setRoomIconsVisible] = useState(false);
+  const [avatarSrc, setAvatarSrc] = useState(null);
   const color = colorMXID(initMatrix.matrixClient.getUserId());
 
   const toggleShowRoomIcons = async (data) => {
@@ -28,19 +30,38 @@ function PonyHouseSettings({ roomId, room }) {
 
   // Pony Config
   const canPonyHouse = getCurrentState(room).maySendStateEvent('pony.house.settings', userId);
-  let avatarSrc;
-
-  const bannerCfg =
-    getCurrentState(room).getStateEvents('pony.house.settings', 'banner')?.getContent() ?? {};
-  if (typeof bannerCfg?.url === 'string' && bannerCfg?.url.length > 0) {
-    avatarSrc = initMatrix.mxcUrl.toHttp(bannerCfg.url, 400, 227);
-  }
 
   useEffect(() => {
     const roomIconCfg =
       getCurrentState(room).getStateEvents('pony.house.settings', 'roomIcons')?.getContent() ?? {};
     setRoomIconsVisible(roomIconCfg.isActive === true);
+
+    const bannerCfg =
+      getCurrentState(room).getStateEvents('pony.house.settings', 'banner')?.getContent() ?? {};
+
+    if (typeof bannerCfg?.url === 'string' && bannerCfg?.url.length > 0) {
+      setAvatarSrc(mxcUrl.toHttp(bannerCfg.url, 400, 227));
+    }
   }, [room]);
+
+  const handleBannerUpload = async (url) => {
+    if (url === null) {
+      const isConfirmed = await confirmDialog(
+        'Remove space banner',
+        'Are you sure that you want to remove room banner?',
+        'Remove',
+        'warning',
+      );
+
+      if (isConfirmed) {
+        await mx.sendStateEvent(roomId, 'pony.house.settings', { url }, 'banner');
+        setAvatarSrc(null);
+      }
+    } else {
+      await mx.sendStateEvent(roomId, 'pony.house.settings', { url }, 'banner');
+      setAvatarSrc(mxcUrl.toHttp(url, 400, 227));
+    }
+  };
 
   return (
     <>
@@ -75,8 +96,8 @@ function PonyHouseSettings({ roomId, room }) {
             className="space-banner"
             text="Banner"
             imageSrc={avatarSrc}
-            onUpload={(url) => handleBannerUpload(url, roomId)}
-            onRequestRemove={() => handleBannerUpload(null, roomId)}
+            onUpload={(url) => handleBannerUpload(url)}
+            onRequestRemove={() => handleBannerUpload(null)}
             defaultImage={avatarDefaultColor(color, 'space')}
           />
         )}

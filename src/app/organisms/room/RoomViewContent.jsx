@@ -29,7 +29,13 @@ import TimelineChange from '../../molecules/message/TimelineChange';
 import { useStore } from '../../hooks/useStore';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { parseTimelineChange } from './common';
-import TimelineScroll from './TimelineScroll';
+
+import TimelineScroll, {
+  PLACEHOLDER_COUNT,
+  MAX_MSG_DIFF_MINUTES,
+  SCROLL_TRIGGER_POS,
+} from './TimelineScroll';
+
 import EventLimit from './EventLimit';
 import { getCurrentState } from '../../../util/matrixUtil';
 import tinyAPI from '../../../util/mods';
@@ -39,10 +45,6 @@ import matrixAppearance, { getAppearance } from '../../../util/libs/appearance';
 
 let forceDelay = false;
 let loadingPage = false;
-const MAX_MSG_DIFF_MINUTES = 5;
-const PLACEHOLDER_COUNT = 2;
-const PLACEHOLDERS_HEIGHT = 96 * PLACEHOLDER_COUNT;
-const SCROLL_TRIGGER_POS = PLACEHOLDERS_HEIGHT / 2;
 
 function loadingMsgPlaceholders(key, count = 2) {
   const pl = [];
@@ -81,10 +83,8 @@ function RoomIntroContainer({ event, timeline }) {
 
   const roomTopic = getCurrentState(room).getStateEvents('m.room.topic')[0]?.getContent().topic;
   const isDM = roomList.directs.has(timeline.roomId);
-  let avatarSrc = mxcUrl.getAvatarUrl(room, 80, 80, 'crop');
-  avatarSrc = isDM
-    ? mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 80, 80, 'crop')
-    : avatarSrc;
+  let avatarSrc = mxcUrl.getAvatarUrl(room, 80, 80);
+  avatarSrc = isDM ? mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 80, 80) : avatarSrc;
 
   const heading = isDM ? roomTitle : `Welcome to ${roomTitle}`;
   const topic = !thread

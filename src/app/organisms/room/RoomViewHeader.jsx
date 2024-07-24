@@ -68,8 +68,8 @@ function RoomViewHeader({
 
   const getAvatarUrl = () =>
     isDM
-      ? mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 36, 36, 'crop')
-      : mxcUrl.getAvatarUrl(room, 36, 36, 'crop');
+      ? mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 36, 36)
+      : mxcUrl.getAvatarUrl(room, 36, 36);
   const [avatarSrc, setAvatarSrc] = useState(getAvatarUrl());
   const [roomName, setRoomName] = useState(roomAlias || room.name);
 

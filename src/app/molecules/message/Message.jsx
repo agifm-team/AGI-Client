@@ -1089,7 +1089,7 @@ const MessageOptions = React.memo(
                                   alt: 'avatar',
                                 })
                                   .on('load', (event) => {
-                                    ct.addClass('avatar-react-loaded');
+                                    ct.addClass('image-react-loaded');
                                   })
                                   .on('error', (event) => {
                                     const e = event.originalEvent;

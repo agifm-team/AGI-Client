@@ -193,31 +193,33 @@ const Selector = React.forwardRef(
     );
 
     useEffect(() => {
-      if (room) {
+      const spaceId = getSelectSpace();
+      if (spaceId) {
+        const space = mx.getRoom(spaceId);
         const roomIconCfg =
-          getCurrentState(room)
+          getCurrentState(space)
             .getStateEvents(PonyRoomEvent.PhSettings, 'roomIcons')
             ?.getContent() ?? {};
-        setRoomIconsActive(roomIconCfg.isActive);
+        if (roomIconCfg.isActive !== roomIconsActive) setRoomIconsActive(roomIconCfg.isActive);
+
+        const handleEvent = (event, state, prevEvent) => {
+          if (event.getRoomId() !== spaceId) return;
+          if (event.getType() !== PonyRoomEvent.PhSettings) return;
+          if (event.getStateKey() !== 'roomIcons') return;
+
+          const oldUrl = prevEvent?.getContent()?.isActive;
+          const newUrl = event.getContent()?.isActive;
+
+          if (newUrl !== oldUrl) {
+            setRoomIconsActive(newUrl);
+          }
+        };
+
+        mx.on(RoomStateEvent.Events, handleEvent);
+        return () => {
+          mx.removeListener(RoomStateEvent.Events, handleEvent);
+        };
       }
-
-      const handleEvent = (event, state, prevEvent) => {
-        if (event.getRoomId() !== room.roomId) return;
-        if (event.getType() !== PonyRoomEvent.PhSettings) return;
-        if (event.getStateKey() !== 'roomIcons') return;
-
-        const oldUrl = prevEvent?.getContent()?.isActive;
-        const newUrl = event.getContent()?.isActive;
-
-        if (newUrl !== oldUrl) {
-          setRoomIconsActive(newUrl);
-        }
-      };
-
-      mx.on(RoomStateEvent.Events, handleEvent);
-      return () => {
-        mx.removeListener(RoomStateEvent.Events, handleEvent);
-      };
     });
 
     return (
@@ -228,7 +230,7 @@ const Selector = React.forwardRef(
           isProfile={isProfile}
           name={roomName}
           roomId={roomId}
-          animParentsCount={3}
+          animParentsCount={2}
           user={user}
           room={room}
           imageAnimSrc={imageAnimSrc || null}

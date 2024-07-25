@@ -5,14 +5,10 @@ import settings from '@src/client/state/settings';
 import { canSupport } from '@src/util/matrixUtil';
 
 import * as linkify from 'linkifyjs';
-
 import { tinyPrompt } from '@src/util/tools';
 import { getCurrentState } from '@src/util/matrixUtil';
-import Button from '@src/app/atoms/button/Button';
 
-import { forceUnloadedAvatars } from '../../atoms/avatar/load';
 import { twemojifyReact } from '../../../util/twemojify';
-
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
@@ -102,12 +98,10 @@ function RoomViewHeader({
   useEffect(() => {
     const { roomList } = initMatrix;
     const handleProfileUpdate = (rId) => {
-      forceUnloadedAvatars();
       if (roomId !== rId) return;
       forceUpdate();
     };
 
-    forceUnloadedAvatars();
     if (roomList) {
       roomList.on(cons.events.roomList.ROOM_PROFILE_UPDATED, handleProfileUpdate);
       return () => {
@@ -129,7 +123,6 @@ function RoomViewHeader({
 
   //       <IconButton className="room-header__drawer-btn" onClick={startVoiceChat} tooltip="Start VC" fa="fa-solid fa-phone" />
 
-  setTimeout(forceUnloadedAvatars, 200);
   const navigationSidebarCallback = () => {
     if (!threadId) {
       if (window.matchMedia('screen and (max-width: 768px)').matches) {
@@ -273,13 +266,12 @@ function RoomViewHeader({
                   className="nav-link btn btn-bg border-0"
                   onClick={() => setPixxEmbedsVisible(!pixxEmbedsVisible)}
                   tooltipPlacement="bottom"
-                  tooltip={`${
-                    objType(pixxEmbeds.data, 'object') &&
-                    pixxEmbeds.roomId === roomId &&
-                    pixxEmbedsVisible
+                  tooltip={`${objType(pixxEmbeds.data, 'object') &&
+                      pixxEmbeds.roomId === roomId &&
+                      pixxEmbedsVisible
                       ? 'Hide'
                       : 'Show'
-                  } Embed`}
+                    } Embed`}
                   fa={`fa-solid fa-${pixxEmbedVisible ? 'window-minimize' : 'window-restore'}`}
                 />
               </li>

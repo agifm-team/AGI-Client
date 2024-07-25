@@ -1,5 +1,3 @@
-@use './partials/flex';
-
 .avatar-polygon {
   clip-path: polygon(
     92.3205% 40%,
@@ -119,49 +117,12 @@
   }
 }
 
-.avatar-container {
-  width: 42px;
-  height: 42px;
+:root {
+  --default-avatar-size: 42px;
+}
 
-  &,
-  .react-freezeframe canvas,
-  .react-freezeframe img {
-    border-radius: var(--bo-radius);
-  }
-
-  .react-freezeframe {
-    canvas,
-    img {
-      image-rendering: crisp-edges !important;
-    }
-  }
-
-  &__large {
-    width: var(--av-large);
-    height: var(--av-large);
-  }
-  &__normal {
-    width: var(--av-normal);
-    height: var(--av-normal);
-  }
-
-  &__small {
-    width: var(--av-small);
-    height: var(--av-small);
-  }
-
-  &__extra-small {
-    width: var(--av-extra-small);
-    height: var(--av-extra-small);
-  }
-
-  > img,
-  > canvas {
-    font-size: 0;
-    border-radius: inherit;
-    opacity: 0;
-  }
-
+.avatar-container,
+.image-container {
   & {
     background-color: var(--avatar-grow-animation-1);
     -webkit-animation: avatar-container-loading 2s infinite ease-in-out;
@@ -170,31 +131,53 @@
     animation: avatar-container-loading 2s infinite ease-in-out;
   }
 
-  &.avatar-react-loaded {
+  &.image-react-loaded {
     background-color: transparent !important;
     -webkit-transition: none !important;
     -moz-transition: none !important;
     -o-transition: none !important;
     transition: none !important;
+  }
+}
 
-    > img,
-    > canvas {
-      opacity: 1;
-    }
+.avatar-container,
+.avatar-container img,
+.avatar-container canvas {
+  width: var(--default-avatar-size);
+  height: var(--default-avatar-size);
+}
+
+.avatar-container {
+  display: flex;
+  justify-content: center;
+  & {
+    border-radius: var(--bo-radius);
+  }
+
+  > img,
+  > canvas {
+    font-size: 0;
+    border-radius: var(--bo-radius);
+    height: 100%;
+    width: 100%;
   }
 
   .avatar__border {
-    @extend .cp-fx__row--c-c;
-
-    width: 100%;
-    height: 100%;
-    border-radius: inherit;
+    &,
+    &--active {
+      width: 100%;
+      height: 100%;
+      border-radius: var(--bo-radius);
+      display: flex;
+      align-items: center;
+      align-content: center;
+      justify-content: center;
+    }
 
     .text {
       color: white;
     }
     &--active {
-      @extend .avatar__border;
       box-shadow: var(--bs-surface-border);
     }
   }
@@ -202,10 +185,10 @@
 
 .modal-dialog-user-profile,
 .people-drawer-banner {
-  .avatar-container {
+  .avatar-container.image-react-loaded {
     background-color: var(--bg-profile-banner) !important;
   }
-  &.avatar-react-loaded {
+  &.image-react-loaded {
     background-color: var(--bg-profile-banner) !important;
   }
 }
@@ -230,6 +213,126 @@
       .normal-avatar {
         display: none;
       }
+    }
+  }
+}
+
+// Room Header
+.room-view .header-room {
+  .avatar-container,
+  .avatar-container img,
+  .avatar-container canvas {
+    height: 36px !important;
+    width: 36px !important;
+  }
+
+  .avatar-base .avatar-react,
+  .avatar-base.ff-canvas,
+  .avatar-base .ff-image {
+    height: 30px;
+  }
+}
+
+// Profile / Room Editor Place
+.profile-editor,
+.room-info {
+  .avatar-react,
+  .img-upload__process,
+  .avatar__border {
+    height: 82px;
+    width: 82px;
+  }
+  .avatar-container {
+    width: 82px;
+    height: 82px;
+  }
+}
+
+// Sidebar Container
+.space-container,
+.featured-container {
+  .avatar-container {
+    .avatar-react,
+    .ff-canvas,
+    .ff-image {
+      height: 42px !important;
+      width: 42px !important;
+    }
+  }
+}
+
+// People Drawer
+.people-drawer {
+  .avatar-container,
+  .avatar-container img,
+  .avatar-container canvas {
+    height: 32px !important;
+    width: 32px !important;
+  }
+}
+
+// Room Selector
+.room-selector {
+  .avatar-container,
+  .avatar-container img,
+  .avatar-container canvas {
+    height: 24px !important;
+    width: 24px !important;
+  }
+}
+
+// Profile Modal
+.profile-user-profile-avatar {
+  .avatar-container,
+  .avatar-container img,
+  .avatar-container canvas {
+    height: 87px !important;
+    width: 101px !important;
+  }
+}
+
+.modal-dialog-user-profile {
+  .avatar-container,
+  .avatar-container img,
+  .avatar-container canvas {
+    height: 140px;
+    width: 140px;
+  }
+
+  &.modal-dialog-room-profile {
+    .avatar-container,
+    .avatar-container img,
+    .avatar-container canvas {
+      height: 110px;
+      width: 110px;
+    }
+  }
+}
+
+// Chatbox Data
+#chatbox,
+.chatbox-portable,
+#search-chatbox {
+  .message__threadSummary {
+    .avatar-container,
+    .avatar-container img,
+    .avatar-container canvas {
+      height: 24px !important;
+      width: 24px !important;
+    }
+  }
+
+  .chat-base {
+    height: var(--default-avatar-size) !important;
+    width: var(--default-avatar-size) !important;
+  }
+
+  .welcome-msg {
+    .avatar-container,
+    .avatar-container img,
+    .avatar-container canvas {
+      height: 80px !important;
+      width: 80px !important;
     }
   }
 }

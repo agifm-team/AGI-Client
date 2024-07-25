@@ -12,7 +12,12 @@ import imageViewer from '../../../util/imageViewer';
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
-import { selectRoom, selectRoomMode, selectTab } from '../../../client/action/navigation';
+import {
+  openRoomViewer,
+  selectRoom,
+  selectRoomMode,
+  selectTab,
+} from '../../../client/action/navigation';
 import * as roomActions from '../../../client/action/room';
 
 import { getCurrentState, hasDMWith, hasDevices } from '../../../util/matrixUtil';
@@ -221,6 +226,9 @@ function RoomViewer() {
 
   useEffect(() => {
     if (room) {
+      const reopenProfile = () => {
+        if (originalRoomId) openRoomViewer(originalRoomId, originalRoomId, true);
+      };
       const theAvatar = mxcUrl.getAvatarUrl(room);
       const newAvatar = theAvatar ? theAvatar : avatarDefaultColor(colorMXID(roomId));
 
@@ -231,11 +239,14 @@ function RoomViewer() {
       // Avatar Preview
       const tinyAvatarPreview = () => {
         if (newAvatar) {
+          const img = $(profileAvatar.current).find('> img');
           imageViewer({
+            onClose: reopenProfile,
             lightbox,
-            imgQuery: $(profileAvatar.current).find('> img'),
+            imgQuery: img,
             name: username,
-            url: newAvatar,
+            url: img.attr('src'),
+            originalUrl: newAvatar,
             readMime: true,
           });
         }
@@ -311,6 +322,7 @@ function RoomViewer() {
   const renderProfile = () => {
     const toggleLightbox = () => {
       if (!avatarUrl) return;
+      closeDialog();
       setLightbox(!lightbox);
     };
 

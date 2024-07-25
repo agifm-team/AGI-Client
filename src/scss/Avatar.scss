@@ -122,7 +122,7 @@
 }
 
 .avatar-container,
-.image-container {
+.img-container {
   & {
     background-color: var(--avatar-grow-animation-1);
     -webkit-animation: avatar-container-loading 2s infinite ease-in-out;
@@ -230,6 +230,16 @@
   .avatar-base.ff-canvas,
   .avatar-base .ff-image {
     height: 30px;
+  }
+}
+
+/* Space Manage */
+.space-manage__content {
+  .profile-image-container,
+  .profile-image-container img,
+  .profile-image-container canvas {
+    height: 24px !important;
+    width: 24px !important;
   }
 }
 

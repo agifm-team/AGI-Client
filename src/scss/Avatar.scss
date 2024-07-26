@@ -374,7 +374,8 @@
   &,
   img,
   canvas,
-  .avatar__border--active {
+  .avatar__border--active,
+  .img-container {
     border-radius: 50% !important;
   }
 }

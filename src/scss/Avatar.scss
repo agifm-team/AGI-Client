@@ -148,6 +148,18 @@
 }
 
 .avatar-container {
+  canvas,
+  img,
+  .img-container {
+    font-size: 0px !important;
+    &::before {
+      opacity: 0;
+      display: none;
+    }
+  }
+}
+
+.avatar-container {
   display: flex;
   justify-content: center;
   & {
@@ -288,6 +300,18 @@
   .avatar-container canvas {
     height: 24px !important;
     width: 24px !important;
+  }
+}
+
+// Reactions
+#message-reactions {
+  .react-content {
+    .avatar-container,
+    img,
+    canvas {
+      height: 36px;
+      width: 36px;
+    }
   }
 }
 

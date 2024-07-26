@@ -6,6 +6,7 @@ import cons from '@src/client/state/cons';
 import initMatrix from '@src/client/initMatrix';
 import { joinAiBot, joinAiRoom, joinAiSpace } from './execute';
 import Img from '@src/app/atoms/image/Image';
+import { avatarDefaultColor } from '@src/app/atoms/avatar/Avatar';
 // import { btModal } from '@src/util/tools';
 // import { ChatRoomjFrame } from '@src/app/embed/ChatRoom';
 
@@ -105,7 +106,14 @@ function ItemWelcome({ bot, type, isGuest, setSelectedTag }) {
       botid={bot.agiId}
     >
       <div className="card text-center">
-        <Img src={avatar} className="card-img" alt="..." />
+        <Img
+          bgColor={1}
+          defaultAvatar
+          getDefaultImage={avatarDefaultColor}
+          src={avatar}
+          className="card-img"
+          alt="..."
+        />
         <div className="card-img-overlay">
           <p className="card-text">
             {bot.description.length < 100 ? (

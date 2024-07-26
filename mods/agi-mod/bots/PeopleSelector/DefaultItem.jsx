@@ -94,7 +94,8 @@ function PeopleSelector({
         />
   */
 
-  const defaultAvatar = avatarDefaultColor(colorMXID(user ? user.userId : 0));
+  const tinyColor = colorMXID(user ? user.userId : 0);
+  const defaultAvatar = avatarDefaultColor(tinyColor);
   const isAgent = user && agents.indexOf(user.userId) > -1;
   let newName = typeof name === 'string' ? name.split(':')[0] : '';
   if (newName.startsWith('@')) newName = newName.substring(1);
@@ -103,6 +104,9 @@ function PeopleSelector({
     <div className="card agent-button noselect" onClick={onClick} onContextMenu={contextMenu}>
       <div className="avatar-place text-start my-3 mx-4">
         <Img
+          bgColor={tinyColor}
+          defaultAvatar
+          getDefaultImage={avatarDefaultColor}
           src={avatarSrc || defaultAvatar}
           className="img-fluid avatar rounded-circle"
           height={100}

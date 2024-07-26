@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import { objType } from 'for-promise/utils/lib.mjs';
 
 import hsWellKnown from '@src/util/libs/HsWellKnown';
+import Img from '@src/app/atoms/image/Image';
+
 import Homeserver from './Homeserver';
 import Login from './Login';
 
@@ -33,7 +35,7 @@ function AuthCard({ type = 'login', setType }) {
             <div className="container-fluid">
               <a className="navbar-brand text-bg-force">
                 {' '}
-                <img
+                <Img
                   src="./img/png/cinny.png"
                   alt="Logo"
                   width="24"

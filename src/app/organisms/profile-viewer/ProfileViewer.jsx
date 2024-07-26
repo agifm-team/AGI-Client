@@ -299,8 +299,6 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence
     }
   };
 
-  console.log(agentData.data);
-
   return (
     <>
       {agentData &&

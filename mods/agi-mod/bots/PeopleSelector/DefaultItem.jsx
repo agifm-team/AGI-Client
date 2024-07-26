@@ -10,6 +10,7 @@ import insertCustomStatus from '@src/app/molecules/people-selector/insertCustomS
 import { getAnimatedImageUrl, getAppearance } from '@src/util/libs/appearance';
 import { colorMXID } from '@src/util/colorMXID';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
+import Img from '@src/app/atoms/image/Image';
 
 function PeopleSelector({
   avatarSrc = null,
@@ -101,10 +102,9 @@ function PeopleSelector({
   return (
     <div className="card agent-button noselect" onClick={onClick} onContextMenu={contextMenu}>
       <div className="avatar-place text-start my-3 mx-4">
-        <img
+        <Img
           src={avatarSrc || defaultAvatar}
           className="img-fluid avatar rounded-circle"
-          draggable={false}
           height={100}
           width={100}
           alt="avatar"

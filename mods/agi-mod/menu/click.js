@@ -11,14 +11,14 @@ import { serverAddress } from '../socket';
 
 import { duplicatorAgent } from '../bots/PeopleSelector/lib';
 import { insertAgiAvatar } from '../lib';
+import { ImgJquery } from '@src/app/atoms/image/Image';
 
 const userGenerator = (data, username, botid, nickname, avatar) =>
   $('<div>', { class: 'room-tile' }).append(
     $('<div>', { class: 'room-tile__avatar' }).append(
       $('<div>', { class: 'avatar-container avatar-container__normal  noselect' }).append(
-        $('<img>', {
-          class: 'avatar-react img-fluid',
-          draggable: false,
+        ImgJquery({
+          className: 'img-fluid',
           src: avatar,
           alt: nickname,
         }).css('background-color', 'transparent'),

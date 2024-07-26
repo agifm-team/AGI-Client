@@ -229,6 +229,7 @@ function RoomViewHeader({
                 <Avatar
                   animParentsCount={2}
                   className="d-inline-block me-2 profile-image-container"
+                  imgClass="profile-image-container"
                   imageSrc={avatarSrc}
                   imageAnimSrc={avatarAnimSrc}
                   text={roomName}
@@ -259,6 +260,7 @@ function RoomViewHeader({
               >
                 <Avatar
                   className="d-inline-block me-2 profile-image-container"
+                  imgClass="profile-image-container"
                   imageSrc={avatarSrc}
                   text={roomName}
                   bgColor={colorMXID(roomId)}
@@ -283,13 +285,12 @@ function RoomViewHeader({
                   className="nav-link btn btn-bg border-0"
                   onClick={() => setPixxEmbedsVisible(!pixxEmbedsVisible)}
                   tooltipPlacement="bottom"
-                  tooltip={`${
-                    objType(pixxEmbeds.data, 'object') &&
+                  tooltip={`${objType(pixxEmbeds.data, 'object') &&
                     pixxEmbeds.roomId === roomId &&
                     pixxEmbedsVisible
-                      ? 'Hide'
-                      : 'Show'
-                  } Embed`}
+                    ? 'Hide'
+                    : 'Show'
+                    } Embed`}
                   fa={`fa-solid fa-${pixxEmbedVisible ? 'window-minimize' : 'window-restore'}`}
                 />
               </li>

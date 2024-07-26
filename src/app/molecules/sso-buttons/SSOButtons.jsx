@@ -32,6 +32,7 @@ function SSOButtons({ type, identityProviders, baseUrl, isRegister = false }) {
                 onClick={() => handleClick(idp.id)}
               >
                 <Img
+                  customMxcUrl={mxcUrl}
                   className="sso-btn__img rounded-circle border border-bg mb-2"
                   src={mxcUrl.toHttp(idp.icon)}
                   alt={idp.name}

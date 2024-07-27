@@ -38,6 +38,9 @@ const Avatar = React.forwardRef(
   (
     {
       onClick = null,
+      onError = null,
+      onLoad = null,
+      onLoadingChange = null,
       neonColor = false,
       text = null,
       bgColor = 'transparent',
@@ -101,8 +104,14 @@ const Avatar = React.forwardRef(
         {isImage ? (
           <Img
             disableBase
+            onError={onError}
             bgColor={bgColor}
-            onLoadingChange={setIsLoading}
+            onLoad={onLoad}
+            onClick={onClick}
+            onLoadingChange={(value) => {
+              setIsLoading(value);
+              if (onLoadingChange) onLoadingChange(value);
+            }}
             getDefaultImage={avatarDefaultColor}
             isDefaultImage={isDefaultImage}
             ref={theRef}
@@ -133,7 +142,10 @@ const imgPropTypes = {
   faSrc: PropTypes.string,
   iconColor: PropTypes.string,
   imageSrc: PropTypes.string,
+  onError: PropTypes.func,
   onClick: PropTypes.func,
+  onLoad: PropTypes.func,
+  onLoadingChange: PropTypes.func,
   size: PropTypes.oneOf(['large', 'normal', 'small', 'extra-small']),
 };
 
@@ -142,21 +154,42 @@ Avatar.propTypes = imgPropTypes;
 export default Avatar;
 
 // jQuery
-const AvatarJquery = ({ text = null, imageSrc = null, imgClass = null, className = null }) => {
+const AvatarJquery = ({
+  onClick = null,
+  onError = null,
+  onLoad = null,
+  onLoadingChange = null,
+  text = null,
+  imageSrc = null,
+  imageAnimSrc = null,
+  animParentsCount = 0,
+  imgClass = 'img-fluid',
+  className = null,
+  bgColor = 'transparent',
+  isDefaultImage = false,
+}) => {
   const tinyBase = $('<div>', {
     class: `avatar-container${`${className ? ` ${className}` : ''}`} noselect`,
   });
 
   return tinyBase.append(
     ImgJquery({
+      onClick,
+      onError,
+      onLoad,
+      isDefaultImage: isDefaultImage,
+      getDefaultImage: avatarDefaultColor,
+      bgColor,
+      animParentsCount,
       disableBase: true,
       alt: text || 'avatar',
       className: `avatar-react${imgClass ? ` ${imgClass}` : ''}`,
       draggable: false,
       src: imageSrc,
-      alt: 'avatar',
+      animSrc: imageAnimSrc,
       onLoadingChange: (isLoading) => {
         if (isLoading >= 2) tinyBase.addClass('image-react-loaded');
+        if (onLoadingChange) onLoadingChange(isLoading);
       },
     }),
   );

@@ -1,5 +1,7 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import $ from 'jquery';
+
 import { UserEvent } from 'matrix-js-sdk';
 import { objType } from 'for-promise/utils/lib.mjs';
 
@@ -167,7 +169,9 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
       // Message Icon
       if (typeof presence.msgIcon === 'string' && presence.msgIcon.length > 0) {
         customStatusImg = ImgJquery({
+          animParentsCount: 4,
           src: presence.msgIconThumb,
+          animSrc: presence.msgIcon,
           alt: 'icon',
           className: 'emoji me-1',
         });

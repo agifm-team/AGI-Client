@@ -1,4 +1,16 @@
+import $ from 'jquery';
 import windowEvents from './window';
+
+export const jQueryState = (defaultValue) => {
+  let tinyValue = defaultValue;
+  const setValue = (value) => {
+    tinyValue = value;
+  };
+
+  const getValue = () => tinyValue;
+
+  return [getValue, setValue];
+};
 
 // Window Hidden Detector
 let hiddenWindow = 'windowHidden';
@@ -109,3 +121,5 @@ export default function startQuery() {
     });
   };
 }
+
+if (__ENV_APP__.MODE === 'development') global.$ = $;

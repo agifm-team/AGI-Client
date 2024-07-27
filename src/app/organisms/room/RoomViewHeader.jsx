@@ -277,12 +277,13 @@ function RoomViewHeader({
                   className="nav-link btn btn-bg border-0"
                   onClick={() => setPixxEmbedsVisible(!pixxEmbedsVisible)}
                   tooltipPlacement="bottom"
-                  tooltip={`${objType(pixxEmbeds.data, 'object') &&
+                  tooltip={`${
+                    objType(pixxEmbeds.data, 'object') &&
                     pixxEmbeds.roomId === roomId &&
                     pixxEmbedsVisible
-                    ? 'Hide'
-                    : 'Show'
-                    } Embed`}
+                      ? 'Hide'
+                      : 'Show'
+                  } Embed`}
                   fa={`fa-solid fa-${pixxEmbedVisible ? 'window-minimize' : 'window-restore'}`}
                 />
               </li>

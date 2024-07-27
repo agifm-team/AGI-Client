@@ -215,7 +215,9 @@ export default function FeaturedTab() {
                   bgColor={colorMXID(room.roomId)}
                   size="normal"
                   animParentsCount={1}
-                  imageAnimSrc={mxcUrl.getAvatarUrl(room.getAvatarFallbackMember()) || mxcUrl.getAvatarUrl(room)}
+                  imageAnimSrc={
+                    mxcUrl.getAvatarUrl(room.getAvatarFallbackMember()) || mxcUrl.getAvatarUrl(room)
+                  }
                   imageSrc={
                     mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 42, 42) ||
                     mxcUrl.getAvatarUrl(room, 42, 42) ||

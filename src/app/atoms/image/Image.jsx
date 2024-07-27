@@ -7,12 +7,18 @@ import blobUrlManager from '@src/util/libs/blobUrlManager';
 import initMatrix from '@src/client/initMatrix';
 import { imageExts } from '@src/util/MimesUtil';
 
-import { getAppearance } from '../../../util/libs/appearance';
+import { getAnimatedImageUrl, getAppearance } from '../../../util/libs/appearance';
 
 const getTinyUrl = (mxcUrl, src) => {
   return typeof src === 'string' && src.startsWith('mxc://') && mxcUrl && mxcUrl.toHttp
     ? mxcUrl.toHttp(src)
     : src;
+};
+
+const filterAvatarAnimation = (avatarSrc, animAvatarSrc) => {
+  if (animAvatarSrc && avatarSrc)
+    return !getAppearance('enableAnimParams') ? animAvatarSrc : getAnimatedImageUrl(avatarSrc);
+  return null;
 };
 
 const createImageCanvas = (mainBlob, onLoad, onError) => {
@@ -67,7 +73,7 @@ const Img = React.forwardRef(
     const imgRef = ref || useRef(null);
 
     const url = getTinyUrl(mxcUrl, src);
-    const animUrl = getTinyUrl(mxcUrl, animSrc);
+    const animUrl = filterAvatarAnimation(url, getTinyUrl(mxcUrl, animSrc));
 
     // Image Broken
     let ImageBrokenSVG = './img/svg/image-broken.svg';
@@ -175,7 +181,7 @@ const Img = React.forwardRef(
                                 setImgError(err.message);
                                 setIsLoading(2);
                                 if (onLoadingChange) onLoadingChange(2);
-                                onError(err);
+                                if (onError) onError(err);
                               }
                             });
                         } else {
@@ -184,7 +190,7 @@ const Img = React.forwardRef(
                             setImgError(err.message);
                             setIsLoading(2);
                             if (onLoadingChange) onLoadingChange(2);
-                            onError(err);
+                            if (onError) onError(err);
                           }
                         }
                       }, 'image/gif');
@@ -197,7 +203,7 @@ const Img = React.forwardRef(
                         setImgError(err.message);
                         setIsLoading(2);
                         if (onLoadingChange) onLoadingChange(2);
-                        onError(err);
+                        if (onError) onError(err);
                       }
                     }
                   },
@@ -206,7 +212,7 @@ const Img = React.forwardRef(
                       setImgError(err.message);
                       setIsLoading(2);
                       if (onLoadingChange) onLoadingChange(2);
-                      onError(err);
+                      if (onError) onError(err);
                     }
                   },
                 );
@@ -310,7 +316,7 @@ const Img = React.forwardRef(
                     setTnSrc(tinySrc);
                     setTinyMime([]);
                     setError(err.message);
-                    onError(err);
+                    if (onError) onError(err);
                     if (isAnim) mainBlob = ImageBrokenSVG;
                   }
 
@@ -389,8 +395,10 @@ const Img = React.forwardRef(
           const img = $(imgRef.current);
           if (img.length > 0) {
             tinyNode = img.get(0);
-            for (let i = 0; i < animParentsCount; i++) {
-              tinyNode = tinyNode.parentNode;
+            if (tinyNode) {
+              for (let i = 0; i < animParentsCount; i++) {
+                if (tinyNode.parentNode) tinyNode = tinyNode.parentNode;
+              }
             }
           }
         }
@@ -547,7 +555,7 @@ function ImgJquery({
   const mxcUrl = initMatrix.mxcUrl || customMxcUrl;
 
   const url = getTinyUrl(mxcUrl, src);
-  const animUrl = getTinyUrl(mxcUrl, animSrc);
+  const animUrl = filterAvatarAnimation(url, getTinyUrl(mxcUrl, animSrc));
 
   // Image Broken
   let ImageBrokenSVG = './img/svg/image-broken.svg';
@@ -648,7 +656,7 @@ function ImgJquery({
         if (typeof animUrl === 'string' && animUrl.length > 0) {
           tinyNode = finalImg.get(0);
           for (let i = 0; i < animParentsCount; i++) {
-            tinyNode = tinyNode.parentNode;
+            if (tinyNode.parentNode) tinyNode = tinyNode.parentNode;
           }
         }
 
@@ -726,7 +734,7 @@ function ImgJquery({
                           setImgError(err.message);
                           tinyComplete();
                           if (onLoadingChange) onLoadingChange(2);
-                          onError(err);
+                          if (onError) onError(err);
                         });
                     } else {
                       if (tinyImageUrl === waitSrc) {
@@ -734,7 +742,7 @@ function ImgJquery({
                         setImgError(err.message);
                         tinyComplete();
                         if (onLoadingChange) onLoadingChange(2);
-                        onError(err);
+                        if (onError) onError(err);
                       }
                     }
                   }, 'image/gif');
@@ -746,14 +754,14 @@ function ImgJquery({
                   setImgError(err.message);
                   tinyComplete();
                   if (onLoadingChange) onLoadingChange(2);
-                  onError(err);
+                  if (onError) onError(err);
                 }
               },
               (err) => {
                 setImgError(err.message);
                 tinyComplete();
                 if (onLoadingChange) onLoadingChange(2);
-                onError(err);
+                if (onError) onError(err);
               },
             );
           }
@@ -846,7 +854,7 @@ function ImgJquery({
               setTnSrc(tinySrc);
               setTinyMime([]);
               setError(err.message);
-              onError(err);
+              if (onError) onError(err);
               if (isAnim) mainBlob = ImageBrokenSVG;
 
               // Check the progress

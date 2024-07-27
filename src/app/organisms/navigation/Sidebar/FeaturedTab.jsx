@@ -28,7 +28,7 @@ import { getUserWeb3Account, tinyCrypto } from '../../../../util/web3';
 import navigation from '../../../../client/state/navigation';
 import { setEthereumStatusButton } from '../../../../util/web3/status';
 import { colorMXID } from '../../../../util/colorMXID';
-import { getAppearance, getAnimatedImageUrl } from '../../../../util/libs/appearance';
+import { getAppearance } from '../../../../util/libs/appearance';
 
 // Featured Tab
 export default function FeaturedTab() {
@@ -215,15 +215,7 @@ export default function FeaturedTab() {
                   bgColor={colorMXID(room.roomId)}
                   size="normal"
                   animParentsCount={1}
-                  imageAnimSrc={
-                    !appearanceSettings.enableAnimParams
-                      ? mxcUrl.getAvatarUrl(room.getAvatarFallbackMember())
-                      : getAnimatedImageUrl(
-                        mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 42, 42),
-                      ) || !appearanceSettings.enableAnimParams
-                        ? mxcUrl.getAvatarUrl(room)
-                        : getAnimatedImageUrl(mxcUrl.getAvatarUrl(room, 42, 42)) || null
-                  }
+                  imageAnimSrc={mxcUrl.getAvatarUrl(room.getAvatarFallbackMember()) || mxcUrl.getAvatarUrl(room)}
                   imageSrc={
                     mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 42, 42) ||
                     mxcUrl.getAvatarUrl(room, 42, 42) ||

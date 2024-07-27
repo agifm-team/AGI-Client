@@ -13,11 +13,10 @@ import { getUserStatus, updateUserStatusIcon, getPresence } from '../../../util/
 import initMatrix from '../../../client/initMatrix';
 import insertCustomStatus from './insertCustomStatus';
 
-import { getAnimatedImageUrl, getAppearance } from '../../../util/libs/appearance';
-
 function PeopleSelector({
   avatarSrc = null,
   avatarAnimSrc = null,
+  animParentsCount = 3,
   name,
   color,
   peopleRole = null,
@@ -49,7 +48,6 @@ function PeopleSelector({
       // Update Status Profile
       const updateProfileStatus = (mEvent, tinyData) => {
         // Get Status
-        const appearanceSettings = getAppearance();
         const status = $(statusRef.current);
         const tinyUser = tinyData;
 
@@ -61,11 +59,7 @@ function PeopleSelector({
         setImageSrc(newImageSrc);
 
         const newImageAnimSrc =
-          tinyUser && tinyUser.avatarUrl
-            ? !appearanceSettings.enableAnimParams
-              ? mxcUrl.toHttp(tinyUser.avatarUrl)
-              : getAnimatedImageUrl(mxcUrl.toHttp(tinyUser.avatarUrl, avatarSize, avatarSize))
-            : null;
+          tinyUser && tinyUser.avatarUrl ? mxcUrl.toHttp(tinyUser.avatarUrl) : null;
         setImageAnimSrc(newImageAnimSrc);
 
         // Update Status Icon
@@ -95,6 +89,7 @@ function PeopleSelector({
       type="button"
     >
       <Avatar
+        animParentsCount={animParentsCount}
         imgClass="profile-image-container"
         className="profile-image-container"
         imageAnimSrc={imageAnimSrc}
@@ -128,6 +123,7 @@ function PeopleSelector({
 }
 
 PeopleSelector.propTypes = {
+  animParentsCount: PropTypes.number,
   avatarSize: PropTypes.number,
   disableStatus: PropTypes.bool,
   user: PropTypes.object,

@@ -27,6 +27,7 @@ function normalizeMembers(members) {
     name: getUsernameOfRoomMember(member),
     username: member.userId.slice(1, member.userId.indexOf(':')),
     avatarSrc: mxcUrl.getAvatarUrl(member, 32, 32),
+    avatarAnimSrc: mxcUrl.getAvatarUrl(member),
     peopleRole: getPowerLabel(member.powerLevel),
     powerLevel: members.powerLevel,
   }));
@@ -152,6 +153,7 @@ function RoomMembers({ roomId }) {
           {mList.map((member) => (
             <PeopleSelector
               disableStatus
+              animParentsCount={1}
               avatarSize={32}
               key={member.userId}
               contextMenu={(e) => {
@@ -163,6 +165,7 @@ function RoomMembers({ roomId }) {
               }}
               onClick={() => openProfileViewer(member.userId, roomId)}
               avatarSrc={member.avatarSrc}
+              avatarAnimSrc={member.avatarAnimSrc}
               name={member.name}
               color={colorMXID(member.userId)}
               peopleRole={member.peopleRole}

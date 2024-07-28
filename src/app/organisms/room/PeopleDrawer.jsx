@@ -8,7 +8,7 @@ import { checkRoomAgents } from '@mods/agi-mod/bots/PeopleSelector/lib';
 import settings from '@src/client/state/settings';
 
 import initMatrix from '../../../client/initMatrix';
-import { getPowerLabel, getUsernameOfRoomMember } from '../../../util/matrixUtil';
+import { dfAvatarSize, getPowerLabel, getUsernameOfRoomMember } from '../../../util/matrixUtil';
 import { colorMXID } from '../../../util/colorMXID';
 import {
   openInviteUser,
@@ -39,7 +39,7 @@ function simplyfiMembers(members) {
     userId: member.userId,
     name: getUsernameOfRoomMember(member),
     username: member.userId.slice(1, member.userId.indexOf(':')),
-    avatarSrc: mxcUrl.getAvatarUrl(member, 72, 72),
+    avatarSrc: mxcUrl.getAvatarUrl(member, dfAvatarSize, dfAvatarSize),
     avatarAnimSrc: mxcUrl.getAvatarUrl(member),
     peopleRole: getPowerLabel(member.powerLevel),
     powerLevel: members.powerLevel,

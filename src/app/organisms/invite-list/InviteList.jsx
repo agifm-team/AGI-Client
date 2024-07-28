@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { otpAccept } from '@mods/agi-mod/otpAccept';
+import { dfAvatarSize } from '@src/util/matrixUtil';
 
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
@@ -67,7 +68,11 @@ function InviteList({ isOpen, onRequestClose }) {
       <RoomTile
         key={myRoom.roomId}
         name={roomName}
-        avatarSrc={mxcUrl.getAvatarUrl(initMatrix.matrixClient.getRoom(roomId), 42, 42)}
+        avatarSrc={mxcUrl.getAvatarUrl(
+          initMatrix.matrixClient.getRoom(roomId),
+          dfAvatarSize,
+          dfAvatarSize,
+        )}
         avatarAnimSrc={mxcUrl.getAvatarUrl(initMatrix.matrixClient.getRoom(roomId))}
         id={roomAlias}
         inviterName={inviterName}

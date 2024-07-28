@@ -40,6 +40,7 @@ import {
   trimHTMLReply,
   getCurrentState,
   canSupport,
+  dfAvatarSize,
 } from '../../../util/matrixUtil';
 
 import { colorMXID, backgroundColorMXID } from '../../../util/colorMXID';
@@ -419,19 +420,6 @@ const messageDataEffects = (messageBody, embedHeight, setEmbedHeight) => {
     if (!el.hasClass('hljs')) {
       el.addClass('hljs');
       mediaFix(null, embedHeight, setEmbedHeight);
-    }
-  });
-
-  // Add tooltip on the emoji
-  messageBody.find('[data-mx-emoticon], .emoji').each((index, value) => {
-    const el = $(value);
-
-    if (!el.hasClass('emoji-fix')) {
-      if (!el.attr('title') && el.attr('alt')) el.attr('title', el.attr('alt'));
-
-      new bootstrap.Tooltip(value, { customClass: 'small' });
-      el.addClass('emoji-fix');
-      el.attr('draggable', 'false');
     }
   });
 };
@@ -1071,7 +1059,9 @@ const MessageOptions = React.memo(
 
                         const username = user ? muteUserManager.getSelectorName(user) : userId;
                         const avatarAnimSrc = user ? mxcUrl.toHttp(user.avatarUrl) : null;
-                        const avatarSrc = user ? mxcUrl.toHttp(user.avatarUrl, 36, 36) : null;
+                        const avatarSrc = user
+                          ? mxcUrl.toHttp(user.avatarUrl, dfAvatarSize, dfAvatarSize)
+                          : null;
 
                         const ct = $('<div>', {
                           class: 'align-top text-center chat-base d-inline-block',
@@ -1304,7 +1294,8 @@ const MessageThreadSummary = React.memo(({ thread, useManualCheck = false }) => 
     lastSender && typeof lastSender?.userId === 'string' ? colorMXID(lastSender?.userId) : null;
 
   // Avatar
-  const avatarSrc = mxcUrl.getAvatarUrl(lastSender, 36, 36, undefined, true, false) ?? null;
+  const avatarSrc =
+    mxcUrl.getAvatarUrl(lastSender, dfAvatarSize, dfAvatarSize, undefined, true, false) ?? null;
   const avatarAnimSrc = mxcUrl.getAvatarUrl(lastSender);
 
   // Select Thread
@@ -1667,7 +1658,7 @@ function Message({
 
   const color = colorMXID(senderId);
   const username = muteUserManager.getMessageName(mEvent, isDM);
-  const avatarSrc = mxcUrl.getAvatarUrl(mEvent.sender, 36, 36) ?? null;
+  const avatarSrc = mxcUrl.getAvatarUrl(mEvent.sender, dfAvatarSize, dfAvatarSize);
   const avatarAnimSrc = mxcUrl.getAvatarUrl(mEvent.sender);
 
   // Content Data

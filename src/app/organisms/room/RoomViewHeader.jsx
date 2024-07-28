@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { objType } from 'for-promise/utils/lib.mjs';
 import settings from '@src/client/state/settings';
-import { canSupport } from '@src/util/matrixUtil';
+import { canSupport, dfAvatarSize } from '@src/util/matrixUtil';
 
 import * as linkify from 'linkifyjs';
 import { tinyPrompt } from '@src/util/tools';
@@ -64,8 +64,8 @@ function RoomViewHeader({
 
   const getAvatarUrl = () =>
     isDM
-      ? mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 36, 36)
-      : mxcUrl.getAvatarUrl(room, 36, 36);
+      ? mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), dfAvatarSize, dfAvatarSize)
+      : mxcUrl.getAvatarUrl(room, dfAvatarSize, dfAvatarSize);
   const [avatarSrc, setAvatarSrc] = useState(getAvatarUrl());
 
   const getAvatarAnimUrl = () =>

@@ -82,6 +82,10 @@ const Img = React.forwardRef(
       customMxcUrl = null,
       placement = null,
       content = null,
+      isSticker = false,
+      isEmoji = false,
+      unicode = null,
+      shortcodes = null,
     },
     ref,
   ) => {
@@ -425,6 +429,8 @@ const Img = React.forwardRef(
       if (!isObj) {
         const theTinyImg = (
           <img
+            unicode={unicode}
+            shortcodes={shortcodes}
             onLoad={onLoad}
             className={className}
             onClick={onClick}
@@ -435,8 +441,9 @@ const Img = React.forwardRef(
             id={id}
             style={style}
             draggable={draggable}
-            src_url={tinyImageUrl}
-            src_anim_url={tinyImageAnimUrl}
+            src-url={tinyImageUrl}
+            src-anim-url={tinyImageAnimUrl}
+            img-type={isEmoji ? 'emoji' : isSticker ? 'sticker' : null}
             alt={alt}
             onError={({ currentTarget }) => {
               currentTarget.onerror = onError;
@@ -477,6 +484,8 @@ const Img = React.forwardRef(
       if (!isObj)
         return (
           <div
+            unicode={unicode}
+            shortcodes={shortcodes}
             className={`d-inline-block img-container${className ? ` ${className}` : ''}`}
             onClick={onClick}
             ref={imgRef}
@@ -485,8 +494,9 @@ const Img = React.forwardRef(
             width={width}
             id={id}
             style={finalStyle}
-            src_url={tinyImageUrl}
-            src_anim_url={tinyImageAnimUrl}
+            src-url={tinyImageUrl}
+            src-anim-url={tinyImageAnimUrl}
+            img-type={isEmoji ? 'emoji' : isSticker ? 'sticker' : null}
             alt={alt}
           />
         );
@@ -522,6 +532,8 @@ const imgPropTypes = {
   onError: PropTypes.func,
   placement: PropTypes.string,
   content: PropTypes.node,
+  isSticker: PropTypes.bool,
+  isEmoji: PropTypes.bool,
 };
 Img.propTypes = imgPropTypes;
 
@@ -549,6 +561,8 @@ function ImgJquery({
   isObj = false,
   getDefaultImage = null,
   customMxcUrl = null,
+  isSticker = false,
+  isEmoji = false,
 }) {
   const mxcUrl = initMatrix.mxcUrl || customMxcUrl;
 
@@ -579,14 +593,15 @@ function ImgJquery({
     if (!disableBase) {
       // Build container
       img = $('<div>', {
+        'img-type': isEmoji ? 'emoji' : isSticker ? 'sticker' : null,
         class: `d-inline-block img-container${className ? ` ${className}` : ''}`,
         'data-mx-emoticon': dataMxEmoticon,
         height,
         width,
         id,
         alt,
-        src_url: tinyImageUrl,
-        src_anim_url: tinyImageAnimUrl,
+        'src-url': tinyImageUrl,
+        'src-anim-url': tinyImageAnimUrl,
       });
 
       // Insert Data
@@ -620,14 +635,15 @@ function ImgJquery({
     const tinyComplete = () => {
       if (!isObj) {
         const ops = {
+          'img-type': isEmoji ? 'emoji' : isSticker ? 'sticker' : null,
           'data-mx-emoticon': dataMxEmoticon,
           id,
           class: className,
           alt,
           height,
           width,
-          src_url: tinyImageUrl,
-          src_anim_url: tinyImageAnimUrl,
+          'src-url': tinyImageUrl,
+          'src-anim-url': tinyImageAnimUrl,
         };
 
         const finalImg = $('<img>', ops);

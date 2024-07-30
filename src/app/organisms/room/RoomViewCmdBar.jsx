@@ -433,8 +433,8 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
 
   return (
     <>
-      {tabList(refcmdInput, null, cmd, 'TAB')}
       {tabList(null, 'bots', agentsCmd, 'BOTS')}
+      {tabList(refcmdInput, null, cmd, 'TAB')}
     </>
   );
 }

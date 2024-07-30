@@ -21,9 +21,13 @@ import FollowingMembers from '../../molecules/following-members/FollowingMembers
 import { addToEmojiList, getEmojisList } from '../emoji-board/recent';
 import commands from '../../../commands';
 
-function CmdItem({ onClick, children }) {
+function CmdItem({ onClick, children, className }) {
   return (
-    <button className="cmd-item" onClick={onClick} type="button">
+    <button
+      className={`cmd-item${className ? ` ${className}` : ''}`}
+      onClick={onClick}
+      type="button"
+    >
       {children}
     </button>
   );
@@ -33,7 +37,7 @@ CmdItem.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-function renderSuggestions({ prefix, option, suggestions }, fireCmd) {
+function renderSuggestions({ prefix, option, suggestions }, fireCmd, buttonMode = false) {
   function renderCmdSuggestions(cmdPrefix, cmds) {
     const cmdOptString = typeof option === 'string' ? `/${option}` : '/?';
     const cmdDOM = $('.cmd-bar');
@@ -128,6 +132,7 @@ function renderSuggestions({ prefix, option, suggestions }, fireCmd) {
 
       return (
         <CmdItem
+          className={buttonMode ? 'btn btn-theme' : null}
           key={member.userId}
           onClick={() => {
             fireCmd({
@@ -415,7 +420,7 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
     );
   }
 
-  const tabList = (tinyRef, classItems, cmdItems, tabName) =>
+  const tabList = (tinyRef, classItems, cmdItems, tabName, buttonMode = false) =>
     cmdItems.suggestions.length > 0 && (
       <div ref={tinyRef} className={`cmd-bar${classItems ? ` ${classItems}` : ''}`}>
         <div className="cmd-bar__info">
@@ -424,7 +429,7 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
         <div className="cmd-bar__content">
           <ScrollView horizontal vertical={false} invisible>
             <div className="cmd-bar__content-suggestions">
-              {renderSuggestions(cmdItems, fireCmd)}
+              {renderSuggestions(cmdItems, fireCmd, buttonMode)}
             </div>
           </ScrollView>
         </div>
@@ -433,8 +438,8 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
 
   return (
     <>
-      {tabList(null, 'bots', agentsCmd, 'BOTS')}
-      {tabList(refcmdInput, null, cmd, 'TAB')}
+      {tabList(null, 'bots', agentsCmd, 'BOTS', true)}
+      {tabList(refcmdInput, null, cmd, 'TAB', false)}
     </>
   );
 }

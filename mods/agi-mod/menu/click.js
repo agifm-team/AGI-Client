@@ -4,7 +4,7 @@ import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 import * as roomActions from '@src/client/action/room';
 import { getRoomInfo } from '@src/app/organisms/room/Room';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
-import initMatrix from '@src/client/initMatrix';
+import initMatrix, { fetchFn } from '@src/client/initMatrix';
 import { btModal } from '@src/util/tools';
 
 import { serverAddress } from '../socket';
@@ -76,7 +76,7 @@ const clickAIButton = () => {
   setLoadingPage();
   const mx = initMatrix.matrixClient;
 
-  fetch(`${serverAddress}list/${mx.getUserId()}`, {
+  fetchFn(`${serverAddress}list/${mx.getUserId()}`, {
     headers: {
       Accept: 'application/json',
     },

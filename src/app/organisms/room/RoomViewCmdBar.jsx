@@ -5,6 +5,9 @@ import $ from 'jquery';
 import parse from 'html-react-parser';
 import twemoji from 'twemoji';
 
+// import objectHash from 'object-hash';
+import { checkRoomAgents } from '@mods/agi-mod/bots/PeopleSelector/lib';
+
 import Img from '@src/app/atoms/image/Image';
 import { twemojifyReact, TWEMOJI_BASE_URL } from '../../../util/twemojify';
 
@@ -176,14 +179,49 @@ let cmdPrefix;
 let cmdOption;
 function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
   const [cmd, setCmd] = useState(null);
+  const [agentsCmd, setAgentsCmd] = useState(null);
+  const setCmds = (newCmd) => {
+    if (newCmd) {
+      setCmd(newCmd);
+      // const tinyHash = objectHash(newCmd);
+
+      const bots = [];
+      if (Array.isArray(newCmd.suggestions)) {
+        for (const item in newCmd.suggestions) {
+          bots.push(newCmd.suggestions[item].userId);
+        }
+      }
+
+      setAgentsCmd({ prefix: newCmd.prefix, suggestions: [] });
+      checkRoomAgents(roomId, { bots })
+        .then((data) => {
+          // const tinyHashNow = objectHash(cmd);
+          const suggestionsBots = [];
+          if (Array.isArray(data)) {
+            for (const item in data) {
+              const tinyData = data.find((i) => i.userId === data[item]);
+              if (tinyData) suggestionsBots.push(tinyData);
+            }
+          }
+
+          setAgentsCmd({ prefix: newCmd.prefix, suggestions: suggestionsBots });
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    } else {
+      setCmd(newCmd);
+      setAgentsCmd(newCmd);
+    }
+  };
 
   function displaySuggestions(suggestions) {
     if (suggestions.length === 0) {
-      setCmd({ prefix: cmd?.prefix || cmdPrefix, error: 'No suggestion found.' });
+      setCmds({ prefix: cmd?.prefix || cmdPrefix, error: 'No suggestion found.' });
       viewEvent.emit('cmd_error');
       return;
     }
-    setCmd({ prefix: cmd?.prefix || cmdPrefix, suggestions, option: cmdOption });
+    setCmds({ prefix: cmd?.prefix || cmdPrefix, suggestions, option: cmdOption });
   }
 
   function processCmd(prefix, slug) {
@@ -223,7 +261,7 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
     const setupSearch = {
       '/': () => {
         asyncSearch.setup(Object.keys(commands), { isContain: true });
-        setCmd({ prefix, suggestions: Object.keys(commands) });
+        setCmds({ prefix, suggestions: Object.keys(commands) });
       },
       ':': () => {
         const parentIds = initMatrix.roomList.getAllParentSpaces(roomId);
@@ -235,7 +273,7 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
           isContain: true,
           limit: 20,
         });
-        setCmd({
+        setCmds({
           prefix,
           suggestions: recentEmoji.length > 0 ? recentEmoji : emojis.slice(26, 46),
         });
@@ -262,7 +300,7 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
         });
         asyncSearch.setup(members, { keys: ['name', 'userId'], limit: 20 });
         const endIndex = members.length > 20 ? 20 : members.length;
-        setCmd({ prefix, suggestions: members.slice(0, endIndex) });
+        setCmds({ prefix, suggestions: members.slice(0, endIndex) });
       },
       '#': () => {
         const aliasesId = Object.keys(initMatrix.roomList.getAllRoomAliasesId()).map((roomId) => ({
@@ -271,7 +309,7 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
         }));
         asyncSearch.setup(aliasesId, { keys: ['roomId'], limit: 20 });
         const endIndex = aliasesId.length > 20 ? 20 : aliasesId.length;
-        setCmd({ prefix, suggestions: aliasesId.slice(0, endIndex) });
+        setCmds({ prefix, suggestions: aliasesId.slice(0, endIndex) });
       },
     };
     setupSearch[prefix]?.();
@@ -279,7 +317,7 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
 
   function deactivateCmd() {
     $('.cmd-bar').removeClass('active');
-    setCmd(null);
+    setCmds(null);
     cmdOption = undefined;
     cmdPrefix = undefined;
   }
@@ -373,17 +411,27 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
     );
   }
 
+  const tabList = (tinyRef, classItems, cmdItems, tabName) =>
+    cmdItems.suggestions.length > 0 && (
+      <div ref={tinyRef} className={`cmd-bar${classItems ? ` ${classItems}` : ''}`}>
+        <div className="cmd-bar__info">
+          <div className="very-small text-gray">{tabName}</div>
+        </div>
+        <div className="cmd-bar__content">
+          <ScrollView horizontal vertical={false} invisible>
+            <div className="cmd-bar__content-suggestions">
+              {renderSuggestions(cmdItems, fireCmd)}
+            </div>
+          </ScrollView>
+        </div>
+      </div>
+    );
+
   return (
-    <div ref={refcmdInput} className="cmd-bar">
-      <div className="cmd-bar__info">
-        <div className="very-small text-gray">TAB</div>
-      </div>
-      <div className="cmd-bar__content">
-        <ScrollView horizontal vertical={false} invisible>
-          <div className="cmd-bar__content-suggestions">{renderSuggestions(cmd, fireCmd)}</div>
-        </ScrollView>
-      </div>
-    </div>
+    <>
+      {tabList(refcmdInput, null, cmd, 'TAB')}
+      {tabList(null, 'bots', agentsCmd, 'BOTS')}
+    </>
   );
 }
 RoomViewCmdBar.propTypes = {

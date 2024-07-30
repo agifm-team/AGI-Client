@@ -16,7 +16,7 @@ import openTinyURL from '@src/util/message/urlProtection';
 import { getRoomInfo } from '@src/app/organisms/room/Room';
 
 import moment from '@src/util/libs/momentjs';
-import initMatrix from '@src/client/initMatrix';
+import initMatrix, { fetchFn } from '@src/client/initMatrix';
 
 import settings from '@src/client/state/settings';
 import cons from '@src/client/state/cons';
@@ -35,7 +35,7 @@ const updateInputValue = (input, dropdown, value, filePath = '') => {
     const tinyUrl = `${filePath}${typeof value === 'string' ? (value.startsWith('/') || !filePath ? value : `/${value}`) : ''}`;
     if (!tinyUrl.startsWith('data:')) {
       setLoadingPage('Fetching gradio blob...');
-      fetch(tinyUrl)
+      fetchFn(tinyUrl)
         .then((response) => response.blob())
         .then((blob) => {
           setLoadingPage(false);

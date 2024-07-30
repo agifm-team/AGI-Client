@@ -17,6 +17,7 @@ import ItemWelcome from './item';
 import './custom.scss';
 import './logo.scss';
 import Img from '@src/app/atoms/image/Image';
+import { fetchFn } from '@src/client/initMatrix';
 
 /*
     <ChatRoomFrame roomId=`#imagegen:${serverDomain}` hsUrl={isGuest && `https://matrix.${serverDomain}`} className='m-3 border border-bg' refreshTime={1} />
@@ -121,7 +122,7 @@ function Welcome({ isGuest }) {
       const loadingFetch = () => {
         const fetchJSON = (url) =>
           new Promise((resolve, reject) => {
-            fetch(url, {
+            fetchFn(url, {
               headers: {
                 Accept: 'application/json',
               },

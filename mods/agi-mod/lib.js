@@ -10,7 +10,7 @@ const supabase = {
 
 export function logout(/* redirect = true */) {
   /* return new Promise((resolve, reject) => {
-        fetch(logoutUrl).then((data) => {
+        fetchFn(logoutUrl).then((data) => {
             if (redirect) global.location.reload();
             resolve(data);
         }).catch(reject);

@@ -17,7 +17,7 @@ import isBase64 from 'is-base64';
 import { objType } from 'for-promise/utils/lib.mjs';
 
 import { blobCreator, hljsFixer, toast } from '@src/util/tools';
-import initMatrix from '@src/client/initMatrix';
+import initMatrix, { fetchFn } from '@src/client/initMatrix';
 import openTinyURL from '@src/util/message/urlProtection';
 import { bootstrapItems } from '@src/util/styles-bootstrap';
 import { twemojify } from '@src/util/twemojify';
@@ -211,7 +211,7 @@ const fileInputFixer = (compId, props, oHtml) => {
     if (props.value.startsWith('https://')) {
       setLoadingPage('Fetching gradio blob...');
 
-      fetch(props.value)
+      fetchFn(props.value)
         .then((response) => response.blob())
         .then((blob) => {
           setLoadingPage(false);
@@ -1214,7 +1214,7 @@ const components = {
 
                   if (tinyValue.startsWith('https://')) {
                     setLoadingPage('Fetching gradio blob...');
-                    fetch(tinyValue)
+                    fetchFn(tinyValue)
                       .then((response) => response.blob())
                       .then((blob) => {
                         setLoadingPage(false);

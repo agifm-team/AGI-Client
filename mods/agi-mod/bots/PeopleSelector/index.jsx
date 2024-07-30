@@ -2,7 +2,7 @@ import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 
 import { insertAgiAvatar } from '@mods/agi-mod/lib';
 import tinyAPI from '@src/util/mods';
-import initMatrix from '@src/client/initMatrix';
+import initMatrix, { fetchFn } from '@src/client/initMatrix';
 import { objType } from 'for-promise/utils/lib.mjs';
 
 import { serverAddress } from '../../socket';
@@ -13,7 +13,7 @@ let tinyData = null;
 export function updateAgentsList() {
   return new Promise((resolve) => {
     if (initMatrix.matrixClient) {
-      fetch(`${serverAddress}list/${initMatrix.matrixClient.getUserId()}`, {
+      fetchFn(`${serverAddress}list/${initMatrix.matrixClient.getUserId()}`, {
         headers: {
           Accept: 'application/json',
         },

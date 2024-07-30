@@ -154,8 +154,8 @@ function PeopleDrawer({
           for (const item in membersData) {
             if (membersData[item])
               bots.push(
-                membersData[item].userId.startsWith('@')
-                  ? membersData[item].userId.substring(1)
+                !membersData[item].userId.startsWith('@')
+                  ? `@${membersData[item].userId}`
                   : membersData[item].userId,
               );
           }
@@ -163,7 +163,17 @@ function PeopleDrawer({
 
         checkRoomAgents(roomId, { bots })
           .then((data) => {
-            setAgents(data);
+            const tinyList = [];
+            if (Array.isArray(data)) {
+              for (const item in data) {
+                const tinyData = data.find((i) =>
+                  !i.startsWith('@') ? `@${i}` === data[item] : i === data[item],
+                );
+                if (tinyData) tinyList.push(tinyData);
+              }
+            }
+
+            setAgents(tinyList);
             setMemberList(simplyfiMembers(membersData));
           })
           .catch((err) => {

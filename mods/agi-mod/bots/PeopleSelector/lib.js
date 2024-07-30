@@ -55,6 +55,7 @@ export const checkRoomAgents = (roomId, info) =>
               }
             }
             resolve(result);
+            return;
           } else {
             resolve([]);
           }

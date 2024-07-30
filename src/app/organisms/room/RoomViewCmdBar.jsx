@@ -194,8 +194,8 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
       if (Array.isArray(newCmd.suggestions)) {
         for (const item in newCmd.suggestions) {
           bots.push(
-            newCmd.suggestions[item].userId.startsWith('@')
-              ? newCmd.suggestions[item].userId.substring(1)
+            !newCmd.suggestions[item].userId.startsWith('@')
+              ? `@${newCmd.suggestions[item].userId}`
               : newCmd.suggestions[item].userId,
           );
         }
@@ -205,15 +205,17 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
       checkRoomAgents(roomId, { bots })
         .then((data) => {
           // const tinyHashNow = objectHash(cmd);
-          const suggestionsBots = [];
+          const tinyList = [];
           if (Array.isArray(data)) {
             for (const item in data) {
-              const tinyData = data.find((i) => i.userId === data[item]);
-              if (tinyData) suggestionsBots.push(tinyData);
+              const tinyData = newCmd.suggestions.find((i) =>
+                !i.userId.startsWith('@') ? `@${i.userId}` === data[item] : i.userId === data[item],
+              );
+              if (tinyData) tinyList.push(tinyData);
             }
           }
 
-          setAgentsCmd({ prefix: newCmd.prefix, suggestions: suggestionsBots });
+          setAgentsCmd({ prefix: newCmd.prefix, suggestions: tinyList });
         })
         .catch((err) => {
           console.error(err);

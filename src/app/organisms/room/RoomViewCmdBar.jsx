@@ -188,7 +188,11 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
       const bots = [];
       if (Array.isArray(newCmd.suggestions)) {
         for (const item in newCmd.suggestions) {
-          bots.push(newCmd.suggestions[item].userId);
+          bots.push(
+            newCmd.suggestions[item].userId.startsWith('@')
+              ? newCmd.suggestions[item].userId.substring(1)
+              : newCmd.suggestions[item].userId,
+          );
         }
       }
 

@@ -152,7 +152,12 @@ function PeopleDrawer({
         const bots = [];
         if (membersData) {
           for (const item in membersData) {
-            if (membersData[item]) bots.push(membersData[item].userId);
+            if (membersData[item])
+              bots.push(
+                membersData[item].userId.startsWith('@')
+                  ? membersData[item].userId.substring(1)
+                  : membersData[item].userId,
+              );
           }
         }
 

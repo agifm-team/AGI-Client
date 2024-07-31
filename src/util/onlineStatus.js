@@ -24,6 +24,18 @@ for (const item in statusIcons) {
   statusIcons2[statusIcons[item]] = item;
 }
 
+export function canUsePresence() {
+  return true;
+  /*
+  const user = initMatrix.matrixClient.getUser(initMatrix.matrixClient.getUserId());
+  return (
+    (typeof user.lastPresenceTs === 'number' && user.lastPresenceTs > 0) ||
+    (typeof user.lastActiveAgo === 'number' && user.lastActiveAgo > 0) ||
+    user.currentlyActive
+  );
+  */
+}
+
 export function getStatusCSS(presence) {
   if (statusList[presence]) {
     return statusList[presence];
@@ -56,7 +68,6 @@ export function validatorStatusIcon(presence) {
 export function parsePresenceStatus(presence, userId) {
   if (typeof presence === 'string') {
     // Get data
-    const mx = initMatrix.matrixClient;
     const mxcUrl = initMatrix.mxcUrl;
 
     // Result
@@ -121,7 +132,7 @@ export function parsePresenceStatus(presence, userId) {
           tinyResult.afk = false;
         }
       }
-    } catch (err) {
+    } catch {
       tinyResult.msg = presence.substring(0, 100);
     }
 

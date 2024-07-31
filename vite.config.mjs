@@ -192,6 +192,8 @@ export default defineConfig(({ command, mode }) => {
     SIDEBAR_TRANSITION: addBooleanToEnv('SIDEBAR_TRANSITION'),
 
     MAX_LISTENERS: Number(env.MAX_LISTENERS),
+    MXC_FETCH_LIMIT: Number(env.MXC_FETCH_LIMIT),
+    MXC_FETCH_TIMEOUT: Number(env.MXC_FETCH_TIMEOUT),
 
     IMG: {
       SIZE: {

@@ -1,5 +1,3 @@
-import $ from 'jquery';
-
 import * as Y from 'yjs';
 import EventEmitter from 'events';
 import clone from 'clone';
@@ -28,7 +26,7 @@ import { messageIsClassicCrdt } from '../../util/libs/crdt';
 
 import { updateRoomInfo } from '../action/navigation';
 import urlParams from '../../util/libs/urlParams';
-import { tinyFixScrollChat } from '../../app/molecules/media/mediaFix';
+import tinyFixScrollChat from '../../app/molecules/media/mediaFix';
 // import { insertEvent } from './eventsDelay';
 
 const delayYdocUpdate = 100;
@@ -162,7 +160,6 @@ const enableyJsItem = {
 // Class
 class RoomTimeline extends EventEmitter {
   constructor(roomId, roomAlias = null, isGuest = false, guestId = null, refreshTime = null) {
-    // Super!
     super();
 
     // These are local timelines

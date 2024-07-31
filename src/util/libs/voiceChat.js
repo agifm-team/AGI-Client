@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 // Example --> https://github.com/matrix-org/matrix-js-sdk/blob/develop/examples/voip/browserTest.js
 // https://matrix-org.github.io/matrix-js-sdk/stable/classes/MatrixCall.html
 import { CallEvent, createNewMatrixCall } from 'matrix-js-sdk';
@@ -60,6 +59,18 @@ class MatrixVoiceChat {
 
   supportsVoip() {
     return this.mx.supportsVoip();
+  }
+
+  supportsCallTransfer() {
+    return this.mx.supportsCallTransfer;
+  }
+
+  useE2eForGroupCall() {
+    return this.mx.useE2eForGroupCall;
+  }
+
+  useLivekitForGroupCalls() {
+    return this.mx.useLivekitForGroupCalls;
   }
 
   existsCall() {

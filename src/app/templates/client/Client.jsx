@@ -57,7 +57,7 @@ import ElectronSidebar from './ElectronSidebar';
 let versionChecked = false;
 
 if (__ENV_APP__.ELECTRON_MODE) {
-  window.setElectronResize(() => resizeWindowChecker());
+  global.electronWindow.on('resize', () => resizeWindowChecker());
 }
 
 export const versionChecker = () =>
@@ -339,9 +339,10 @@ function Client({ isDevToolsOpen = false }) {
         <ElectronSidebar isDevToolsOpen={isDevToolsOpen} />
         <LoadingPage />
         {tinyMod}
-        <DragDrop
-          className={`${classesDragDrop.join(' ')}${navigationSidebarHidden ? ' disable-navigation-wrapper' : ''}${isDevToolsOpen ? ' devtools-open' : ''}`}
-          navWrapperRef={navWrapperRef}
+        <DragDrop />
+        <div
+          ref={navWrapperRef}
+          className={`${__ENV_APP__.ELECTRON_MODE ? 'root-electron-style ' : ''}client-container ${classesDragDrop.join(' ')}${navigationSidebarHidden ? ' disable-navigation-wrapper' : ''}${isDevToolsOpen ? ' devtools-open' : ''}`}
         >
           <EmojiBoardOpener />
           <div
@@ -369,7 +370,7 @@ function Client({ isDevToolsOpen = false }) {
           <Windows />
           <Dialogs />
           <ReusableContextMenu />
-        </DragDrop>
+        </div>
       </>
     );
   }

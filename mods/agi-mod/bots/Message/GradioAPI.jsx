@@ -20,7 +20,7 @@ import initMatrix, { fetchFn } from '@src/client/initMatrix';
 
 import settings from '@src/client/state/settings';
 import cons from '@src/client/state/cons';
-import { mediaFix } from '@src/app/molecules/media/mediaFix';
+import tinyFixScrollChat from '@src/app/molecules/media/mediaFix';
 
 import GradioLayout, { fileUrlGenerator } from './gradioLayout';
 
@@ -185,7 +185,6 @@ function GradioEmbed({ agiData, msgInfo, replyId }) {
   const [appError, setAppError] = useState(null);
   const [id, setId] = useState(null);
 
-  const [embedHeight, setEmbedHeight] = useState(null);
   const [isVisible, setIsVisible] = useState(0);
 
   // Temp
@@ -1013,7 +1012,7 @@ function GradioEmbed({ agiData, msgInfo, replyId }) {
     }
   });
 
-  useEffect(() => mediaFix(iframeRef, embedHeight, setEmbedHeight));
+  useEffect(() => tinyFixScrollChat());
 
   // Temp result. (I'm using this only to have a preview. This will be removed later.)
   return (

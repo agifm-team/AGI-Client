@@ -15,7 +15,12 @@ import { openSuperAgent } from '@mods/agi-mod/menu/Buttons';
 import matrixAppearance from '@src/util/libs/appearance';
 
 import { twemojifyReact } from '../../../util/twemojify';
-import { getPresence, canUsePresence, getUserStatus, updateUserStatusIcon } from '../../../util/onlineStatus';
+import {
+  getPresence,
+  canUsePresence,
+  getUserStatus,
+  updateUserStatusIcon,
+} from '../../../util/onlineStatus';
 
 import imageViewer from '../../../util/imageViewer';
 
@@ -304,9 +309,9 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence
   return (
     <>
       {agentData &&
-        agentData.data &&
-        typeof agentData.data.id === 'string' &&
-        agentData.data.id.length > 0 ? (
+      agentData.data &&
+      typeof agentData.data.id === 'string' &&
+      agentData.data.id.length > 0 ? (
         <>
           <Button
             className="me-2"
@@ -798,8 +803,8 @@ function ProfileViewer() {
         .then((userProfile) => {
           newAvatar =
             userProfile.avatar_url &&
-              userProfile.avatar_url !== 'null' &&
-              userProfile.avatar_url !== null
+            userProfile.avatar_url !== 'null' &&
+            userProfile.avatar_url !== null
               ? mxcUrl.toHttp(userProfile.avatar_url)
               : null;
 
@@ -968,7 +973,7 @@ function ProfileViewer() {
               {agentData.data && typeof agentData.data.id === 'string' ? (
                 <>
                   {typeof agentData.data.llmModel === 'string' ||
-                    typeof agentData.data.prompt === 'string' ? (
+                  typeof agentData.data.prompt === 'string' ? (
                     <>
                       <hr />
 

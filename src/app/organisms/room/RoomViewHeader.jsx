@@ -2,17 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { objType } from 'for-promise/utils/lib.mjs';
 import settings from '@src/client/state/settings';
-import { canSupport } from '@src/util/matrixUtil';
+import { canSupport, dfAvatarSize } from '@src/util/matrixUtil';
 
 import * as linkify from 'linkifyjs';
-
 import { tinyPrompt } from '@src/util/tools';
 import { getCurrentState } from '@src/util/matrixUtil';
-import Button from '@src/app/atoms/button/Button';
 
-import { forceUnloadedAvatars } from '../../atoms/avatar/load';
 import { twemojifyReact } from '../../../util/twemojify';
-
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
@@ -68,15 +64,22 @@ function RoomViewHeader({
 
   const getAvatarUrl = () =>
     isDM
-      ? mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 36, 36, 'crop')
-      : mxcUrl.getAvatarUrl(room, 36, 36, 'crop');
+      ? mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), dfAvatarSize, dfAvatarSize)
+      : mxcUrl.getAvatarUrl(room, dfAvatarSize, dfAvatarSize);
   const [avatarSrc, setAvatarSrc] = useState(getAvatarUrl());
+
+  const getAvatarAnimUrl = () =>
+    isDM ? mxcUrl.getAvatarUrl(room.getAvatarFallbackMember()) : mxcUrl.getAvatarUrl(room);
+  const [avatarAnimSrc, setAvatarAnimSrc] = useState(getAvatarAnimUrl());
+
   const [roomName, setRoomName] = useState(roomAlias || room.name);
 
   const roomInfoUpdate = () => {
+    const newAnimAvatar = getAvatarAnimUrl();
     const newAvatar = getAvatarUrl();
     const newName = roomAlias || room.name;
     if (avatarSrc !== newAvatar) setAvatarSrc(newAvatar);
+    if (avatarAnimSrc !== newAnimAvatar) setAvatarAnimSrc(newAnimAvatar);
     if (roomName !== newName) setRoomName(newName);
   };
 
@@ -102,12 +105,10 @@ function RoomViewHeader({
   useEffect(() => {
     const { roomList } = initMatrix;
     const handleProfileUpdate = (rId) => {
-      forceUnloadedAvatars();
       if (roomId !== rId) return;
       forceUpdate();
     };
 
-    forceUnloadedAvatars();
     if (roomList) {
       roomList.on(cons.events.roomList.ROOM_PROFILE_UPDATED, handleProfileUpdate);
       return () => {
@@ -129,7 +130,6 @@ function RoomViewHeader({
 
   //       <IconButton className="room-header__drawer-btn" onClick={startVoiceChat} tooltip="Start VC" fa="fa-solid fa-phone" />
 
-  setTimeout(forceUnloadedAvatars, 200);
   const navigationSidebarCallback = () => {
     if (!threadId) {
       if (window.matchMedia('screen and (max-width: 768px)').matches) {
@@ -212,15 +212,18 @@ function RoomViewHeader({
           ) : null}
 
           <li className="nav-item avatar-base">
-            {!disableActions ? (
+            {!initMatrix.isGuest && !disableActions ? (
               <button
                 className="nav-link btn btn-bg border-0 p-1"
                 onClick={() => toggleRoomSettings()}
                 type="button"
               >
                 <Avatar
+                  animParentsCount={2}
                   className="d-inline-block me-2 profile-image-container"
+                  imgClass="profile-image-container"
                   imageSrc={avatarSrc}
+                  imageAnimSrc={avatarAnimSrc}
                   text={roomName}
                   bgColor={colorMXID(roomId)}
                   size="small"
@@ -248,8 +251,11 @@ function RoomViewHeader({
                 type="button"
               >
                 <Avatar
+                  animParentsCount={2}
                   className="d-inline-block me-2 profile-image-container"
+                  imgClass="profile-image-container"
                   imageSrc={avatarSrc}
+                  imageAnimSrc={avatarAnimSrc}
                   text={roomName}
                   bgColor={colorMXID(roomId)}
                   size="small"

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import $ from 'jquery';
 
 import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
@@ -10,7 +11,6 @@ import EmojiBoard from './EmojiBoard';
 let requestCallback = null;
 let isEmojiBoardVisible = false;
 function EmojiBoardOpener() {
-  const scrollEmojisRef = useRef(null);
   const openerRef = useRef(null);
   const searchRef = useRef(null);
   const emojiBoardRef = useRef(null);
@@ -29,9 +29,6 @@ function EmojiBoardOpener() {
     requestCallback = requestEmojiCallback;
 
     opener.trigger('click');
-    setTimeout(() => {
-      $(scrollEmojisRef.current).trigger('scroll');
-    }, 500);
   }
 
   function afterEmojiBoardToggle(isVisible) {
@@ -61,12 +58,7 @@ function EmojiBoardOpener() {
     <ContextMenu
       className="emoji-board-base"
       content={
-        <EmojiBoard
-          onSelect={addEmoji}
-          searchRef={searchRef}
-          emojiBoardRef={emojiBoardRef}
-          scrollEmojisRef={scrollEmojisRef}
-        />
+        <EmojiBoard onSelect={addEmoji} searchRef={searchRef} emojiBoardRef={emojiBoardRef} />
       }
       afterToggle={afterEmojiBoardToggle}
       render={(toggleMenu) => (

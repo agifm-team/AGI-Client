@@ -4,8 +4,6 @@
   .avatar-react,
   .img-upload__process,
   .avatar__border {
-    height: 82px !important;
-    width: 82px !important;
     max-width: unset !important;
   }
 
@@ -20,6 +18,14 @@
     .emoji {
       height: 42px;
       width: 42px;
+    }
+  }
+}
+
+#settings-base {
+  .space-banner.profile-banner {
+    .img-upload__process {
+      left: 1px;
     }
   }
 }

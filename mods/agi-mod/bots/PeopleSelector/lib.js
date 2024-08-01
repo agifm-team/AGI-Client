@@ -1,6 +1,6 @@
 // import clone from 'clone';
 import { serverDomain } from '@mods/agi-mod/socket';
-import initMatrix from '@src/client/initMatrix';
+import initMatrix, { fetchFn } from '@src/client/initMatrix';
 import { objType } from 'for-promise/utils/lib.mjs';
 
 export function duplicatorAgent(data) {
@@ -8,7 +8,7 @@ export function duplicatorAgent(data) {
     const username = initMatrix.matrixClient.getUserId();
     // const newData = clone(data);
     // newData.username = username;
-    fetch(`https://bots.${serverDomain}/agent/duplicate/${username}`, {
+    fetchFn(`https://bots.${serverDomain}/agent/duplicate/${username}`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -23,7 +23,7 @@ export function duplicatorAgent(data) {
 
 export function reconnectAgent(botUsername) {
   return new Promise((resolve, reject) => {
-    fetch(`https://bots.${serverDomain}/bots/restart/${botUsername}`, {
+    fetchFn(`https://bots.${serverDomain}/bots/restart/${botUsername}`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -37,7 +37,7 @@ export function reconnectAgent(botUsername) {
 
 export const checkRoomAgents = (roomId, info) =>
   new Promise((resolve, reject) =>
-    fetch(`https://bots.${serverDomain}/bots/${roomId}/check`, {
+    fetchFn(`https://bots.${serverDomain}/bots/${roomId}/check`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -55,6 +55,7 @@ export const checkRoomAgents = (roomId, info) =>
               }
             }
             resolve(result);
+            return;
           } else {
             resolve([]);
           }

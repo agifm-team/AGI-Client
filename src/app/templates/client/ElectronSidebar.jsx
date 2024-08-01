@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import $ from 'jquery';
 
 import favIconManager from '@src/util/libs/favicon';
 import Img from '@src/app/atoms/image/Image';
@@ -35,7 +36,7 @@ function ElectronSidebar({ isDevToolsOpen = false }) {
         }
       }
 
-      if (electronWindowStatus.isMaximized()) {
+      if (electronWindow.isMaximized()) {
         $('body').addClass('electron-maximized');
       } else {
         $('body').removeClass('electron-maximized');
@@ -48,11 +49,11 @@ function ElectronSidebar({ isDevToolsOpen = false }) {
         );
     };
     const maxWindow = () => {
-      if (electronWindowStatus.isMaximized()) {
-        electronWindowStatus.unmaximize();
+      if (electronWindow.isMaximized()) {
+        electronWindow.unmaximize();
         setIsMaximize(false);
       } else {
-        electronWindowStatus.maximize();
+        electronWindow.maximize();
         setIsMaximize(true);
       }
     };
@@ -69,9 +70,16 @@ function ElectronSidebar({ isDevToolsOpen = false }) {
         // setIsUnread(info.unread);
       };
       const resizePage = () => {
-        setIsMaximize(electronWindowStatus.isMaximized());
+        setIsMaximize(electronWindow.isMaximized());
         resizeRoot();
       };
+
+      const windowIsFocused = () => {};
+
+      electronWindow.on('isFocused', (isFocused) => {
+        if (isFocused) $('body').removeClass('electron-blur');
+        else $('body').addClass('electron-blur');
+      });
 
       $(window).on('resize', resizePage);
       favIconManager.on('valueChange', favIconUpdated);
@@ -107,13 +115,13 @@ function ElectronSidebar({ isDevToolsOpen = false }) {
           ) : null}
         </div>
         <div className="options text-end">
-          <button className="minimize button" onClick={() => electronWindowStatus.minimize()}>
+          <button className="minimize button" onClick={() => electronWindow.minimize()}>
             <i className="bi bi-dash-lg" />
           </button>
           <button className="maximize button" onClick={maxWindow}>
             {isMaximize ? <i className="bi bi-window-stack" /> : <i className="bi bi-square" />}
           </button>
-          <button className="close button" onClick={() => electronWindowStatus.close()}>
+          <button className="close button" onClick={() => electronWindow.hide()}>
             <i className="bi bi-x-lg" />
           </button>
         </div>

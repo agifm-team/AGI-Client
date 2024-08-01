@@ -103,7 +103,7 @@ export default function InviteSidebar() {
         // mx.joinRoom(member.roomId);
 
         if (!otpAccept(member) && getPrivacyRefuseRoom(member)) {
-          roomActions.leave(member.roomId);
+          roomActions.leave(member.roomId).catch((err) => alert(err.message, 'Leave room error'));
         }
 
         setLastMemberRoomId(member.roomId);
@@ -129,6 +129,7 @@ export default function InviteSidebar() {
             neonColor
             iconColor={!isIconsColored ? null : 'rgb(164, 42, 212)'}
             faSrc="bi bi-envelope-plus-fill"
+            imgClass="profile-image-container"
             className="profile-image-container"
             size="normal"
           />

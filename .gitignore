@@ -8,8 +8,13 @@ electron/main/notification/sounds
 public/img/twemoji
 mods/test
 
+/vite.config.*.timestamp-*-*.mjs
+/vite.config.*.timestamp-*-*.js
+/vite.config.*.timestamp-*-*.ts
+
 /index.js
 .DS_Store
+*.*~
 
 .expo/
 npm-debug.*
@@ -21,6 +26,8 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
+
+*.kra~
 
 # macOS
 .DS_Store

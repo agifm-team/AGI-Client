@@ -92,7 +92,7 @@ function Homeserver() {
   return (
     <>
       {process.error !== undefined && (
-        <Text className="homeserver-form__error" variant="b3">
+        <Text className="homeserver-form__error noselect" variant="b3">
           {process.error}
         </Text>
       )}

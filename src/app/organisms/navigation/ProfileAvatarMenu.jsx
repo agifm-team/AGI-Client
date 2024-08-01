@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef, useReducer } from 'react';
-import { UserEvent } from 'matrix-js-sdk';
+import $ from 'jquery';
 
+import { UserEvent } from 'matrix-js-sdk';
 import clone from 'clone';
 
 import { ImgJquery } from '@src/app/atoms/image/Image';
 import jReact from '@mods/lib/jReact';
 import soundFiles from '@src/util/soundFiles';
-import { convertUserId } from '@src/util/matrixUtil';
+import { convertUserId, dfAvatarSize } from '@src/util/matrixUtil';
 
 import IconButton from '../../atoms/button/IconButton';
 import { twemojifyReact } from '../../../util/twemojify';
@@ -18,17 +19,14 @@ import { colorMXID } from '../../../util/colorMXID';
 
 import initMatrix from '../../../client/initMatrix';
 import { tabText as settingTabText } from '../settings/Settings';
-import { getPresence, getUserStatus } from '../../../util/onlineStatus';
+import { canUsePresence, getPresence, getUserStatus } from '../../../util/onlineStatus';
 
 import { openSettings } from '../../../client/action/navigation';
 import tinyAPI from '../../../util/mods';
 import { enableAfkSystem } from '../../../util/userStatusEffects';
 import { getUserWeb3Account } from '../../../util/web3';
 
-import matrixAppearance, {
-  getAppearance,
-  getAnimatedImageUrl,
-} from '../../../util/libs/appearance';
+import matrixAppearance from '../../../util/libs/appearance';
 
 // Account Status
 const accountStatus = { status: null, data: null };
@@ -81,7 +79,7 @@ function ProfileAvatarMenu() {
     // Set New User Status
     const onProfileUpdate = (event = {}) => {
       // Exist
-      if (event) {
+      if (event && canUsePresence()) {
         // Clone Event
         const tinyEvent = event;
         const tinyClone = clone(event);
@@ -103,10 +101,11 @@ function ProfileAvatarMenu() {
           }
 
           // Set Presence
-          mx.setPresence({
-            presence: presenceStatus,
-            status_msg: eventJSON,
-          });
+          if (!initMatrix.isGuest)
+            mx.setPresence({
+              presence: presenceStatus,
+              status_msg: eventJSON,
+            });
         }
 
         // Custom Status data
@@ -182,7 +181,7 @@ function ProfileAvatarMenu() {
 
       // Status update
       tinyAPI.emit('userStatusUpdate', accountStatus);
-      enableAfkSystem();
+      if (canUsePresence()) enableAfkSystem();
     };
 
     onProfileUpdate(mx.getAccountData('pony.house.profile')?.getContent() ?? {});
@@ -227,8 +226,6 @@ function ProfileAvatarMenu() {
   user.presenceStatusMsg = JSON.stringify(content);
   const newStatus = `user-status-icon ${getUserStatus(user)}`;
 
-  const appearanceSettings = getAppearance();
-
   useEffect(() => {
     const tinyUpdate = () => forceUpdate();
     matrixAppearance.off('simplerHashtagSameHomeServer', tinyUpdate);
@@ -250,24 +247,15 @@ function ProfileAvatarMenu() {
             >
               <Avatar
                 className="d-inline-block float-start profile-image-container"
+                imgClass="profile-image-container"
                 text={profile.displayName}
                 bgColor={colorMXID(mx.getUserId())}
                 size="normal"
-                imageAnimSrc={
-                  profile.avatarUrl !== null
-                    ? !appearanceSettings.enableAnimParams
-                      ? mxcUrl.toHttp(profile.avatarUrl)
-                      : getAnimatedImageUrl(mxcUrl.toHttp(profile.avatarUrl, 42, 42, 'crop'))
-                    : null
-                }
-                imageSrc={
-                  profile.avatarUrl !== null
-                    ? mxcUrl.toHttp(profile.avatarUrl, 42, 42, 'crop')
-                    : null
-                }
+                imageAnimSrc={mxcUrl.toHttp(profile.avatarUrl)}
+                imageSrc={mxcUrl.toHttp(profile.avatarUrl, dfAvatarSize, dfAvatarSize)}
                 isDefaultImage
               />
-              <i ref={statusRef} className={newStatus} />
+              {canUsePresence() && <i ref={statusRef} className={newStatus} />}
               <div className="very-small ps-2 text-truncate emoji-size-fix-2" id="display-name">
                 {profile.displayName}
               </div>

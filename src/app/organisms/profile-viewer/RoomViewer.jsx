@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import $ from 'jquery';
+
 import { objType } from 'for-promise/utils/lib.mjs';
 import tinyClipboard from '@src/util/libs/Clipboard';
 import { getShareUrl } from '@src/util/tools';
@@ -12,7 +14,12 @@ import imageViewer from '../../../util/imageViewer';
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
-import { selectRoom, selectRoomMode, selectTab } from '../../../client/action/navigation';
+import {
+  openRoomViewer,
+  selectRoom,
+  selectRoomMode,
+  selectTab,
+} from '../../../client/action/navigation';
 import * as roomActions from '../../../client/action/room';
 
 import { getCurrentState, hasDMWith, hasDevices } from '../../../util/matrixUtil';
@@ -63,7 +70,7 @@ function RoomFooter({ roomId, originalRoomId, publicData, onRequestClose }) {
   async function joinRoom() {
     onRequestClose();
     setLoadingPage('Joining room...');
-    await roomActions.join(roomId, false);
+    await roomActions.join(roomId, false).catch((err) => alert(err.message, 'Join room error'));
     setLoadingPage(false);
     openRoom();
   }
@@ -221,6 +228,9 @@ function RoomViewer() {
 
   useEffect(() => {
     if (room) {
+      const reopenProfile = () => {
+        if (originalRoomId) openRoomViewer(originalRoomId, originalRoomId, true);
+      };
       const theAvatar = mxcUrl.getAvatarUrl(room);
       const newAvatar = theAvatar ? theAvatar : avatarDefaultColor(colorMXID(roomId));
 
@@ -231,12 +241,13 @@ function RoomViewer() {
       // Avatar Preview
       const tinyAvatarPreview = () => {
         if (newAvatar) {
+          const img = $(profileAvatar.current).find('> img');
           imageViewer({
+            onClose: reopenProfile,
             lightbox,
-            imgQuery: $(profileAvatar.current).find('> img'),
+            imgQuery: img,
             name: username,
-            url: newAvatar,
-            readMime: true,
+            originalUrl: newAvatar,
           });
         }
       };
@@ -311,6 +322,7 @@ function RoomViewer() {
   const renderProfile = () => {
     const toggleLightbox = () => {
       if (!avatarUrl) return;
+      closeDialog();
       setLightbox(!lightbox);
     };
 
@@ -324,6 +336,7 @@ function RoomViewer() {
               onKeyDown={toggleLightbox}
             >
               <Avatar
+                imgClass="profile-image-container"
                 className="profile-image-container"
                 ref={profileAvatar}
                 imageSrc={imageSrc}

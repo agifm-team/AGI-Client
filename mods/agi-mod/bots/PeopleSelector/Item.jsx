@@ -14,8 +14,16 @@ import { setLoadingPage } from '@src/app/templates/client/Loading';
 import { getRoomInfo } from '@src/app/organisms/room/Room';
 import { openProfileViewer } from '@src/client/action/navigation';
 import { twemojifyReact } from '@src/util/twemojify';
+import Img from '@src/app/atoms/image/Image';
+import { avatarDefaultColor } from '@src/app/atoms/avatar/Avatar';
 
-function PeopleSelector({ avatarSrc = null, name, user, peopleRole = null /* , customData */ }) {
+function PeopleSelector({
+  color = null,
+  avatarSrc = null,
+  name,
+  user,
+  peopleRole = null /* , customData */,
+}) {
   // Refs
   const buttonRef = useRef(null);
   const profileButtonRef = useRef(null);
@@ -67,10 +75,12 @@ function PeopleSelector({ avatarSrc = null, name, user, peopleRole = null /* , c
   return peopleRole !== 'divisor' ? (
     <div ref={profileButtonRef} className="card agent-button noselect">
       <div className="avatar-place text-start my-3 mx-4">
-        <img
+        <Img
+          bgColor={color}
+          defaultAvatar
+          getDefaultImage={avatarDefaultColor}
           src={avatarSrc}
           className="img-fluid avatar rounded-circle"
-          draggable={false}
           height={100}
           width={100}
           alt="avatar"

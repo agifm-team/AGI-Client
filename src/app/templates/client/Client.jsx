@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import $ from 'jquery';
 
 import appLoadMsg from '@mods/appLoadMsg';
 import {
@@ -56,7 +57,7 @@ import ElectronSidebar from './ElectronSidebar';
 let versionChecked = false;
 
 if (__ENV_APP__.ELECTRON_MODE) {
-  window.setElectronResize(() => resizeWindowChecker());
+  global.electronWindow.on('resize', () => resizeWindowChecker());
 }
 
 export const versionChecker = () =>
@@ -69,7 +70,7 @@ export const versionChecker = () =>
             id: 'tiny-update-warn',
             title: `New version available!`,
 
-            dialog: 'modal-dialog-centered modal-lg',
+            dialog: 'modal-dialog-centered modal-lg noselect',
             body: [
               $('<p>', { class: 'small' }).text(
                 `Version ${versionData.value.name} of the app is now available for download! Click the button below to be sent to the update page.`,
@@ -192,6 +193,7 @@ function Client({ isDevToolsOpen = false }) {
       }
     }, 15000);
 
+    // Loading finished
     initMatrix.once('init_loading_finished', () => {
       clearInterval(iId);
       initHotkeys();
@@ -338,9 +340,10 @@ function Client({ isDevToolsOpen = false }) {
         <ElectronSidebar isDevToolsOpen={isDevToolsOpen} />
         <LoadingPage />
         {tinyMod}
-        <DragDrop
-          className={`${classesDragDrop.join(' ')}${navigationSidebarHidden ? ' disable-navigation-wrapper' : ''}${isDevToolsOpen ? ' devtools-open' : ''}`}
-          navWrapperRef={navWrapperRef}
+        <DragDrop />
+        <div
+          ref={navWrapperRef}
+          className={`${__ENV_APP__.ELECTRON_MODE ? 'root-electron-style ' : ''}client-container ${classesDragDrop.join(' ')}${navigationSidebarHidden ? ' disable-navigation-wrapper' : ''}${isDevToolsOpen ? ' devtools-open' : ''}`}
         >
           <EmojiBoardOpener />
           <div
@@ -368,7 +371,7 @@ function Client({ isDevToolsOpen = false }) {
           <Windows />
           <Dialogs />
           <ReusableContextMenu />
-        </DragDrop>
+        </div>
       </>
     );
   }

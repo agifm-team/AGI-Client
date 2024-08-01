@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import $ from 'jquery';
+
 import clone from 'clone';
 import { objType } from 'for-promise/utils/lib.mjs';
 
@@ -78,7 +80,6 @@ function Room() {
     const setRoomSelected = (roomId, threadId, eventId, forceScroll) => {
       const threadTimeline = threadId ? RoomTimeline.newFromThread(threadId, roomId) : null;
       const roomTimeline = threadTimeline ?? new RoomTimeline(roomId);
-      roomTimeline.setMaxListeners(__ENV_APP__.MAX_LISTENERS);
 
       sendRoomInfo({
         roomTimeline,
@@ -95,7 +96,8 @@ function Room() {
       forceScroll,
     ) => {
       blobUrlManager.deleteGroup(
-        `roomMedia:${prevRoomId}${typeof prevThreadId === 'string' ? `:${prevThreadId}` : ''}`,
+        `roomMedia:${prevRoomId}`,
+        // `roomMedia:${prevRoomId}${typeof prevThreadId === 'string' ? `:${prevThreadId}` : ''}`,
       );
       roomInfo.roomTimeline?.removeInternalListeners();
       $('.space-drawer-menu-item').removeClass('active');

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useReducer } from 'react';
 import PropTypes from 'prop-types';
+import $ from 'jquery';
+
 import { RoomMemberEvent, UserEvent } from 'matrix-js-sdk';
 
 import clone from 'clone';
@@ -13,7 +15,12 @@ import { openSuperAgent } from '@mods/agi-mod/menu/Buttons';
 import matrixAppearance from '@src/util/libs/appearance';
 
 import { twemojifyReact } from '../../../util/twemojify';
-import { getPresence, getUserStatus, updateUserStatusIcon } from '../../../util/onlineStatus';
+import {
+  getPresence,
+  canUsePresence,
+  getUserStatus,
+  updateUserStatusIcon,
+} from '../../../util/onlineStatus';
 
 import imageViewer from '../../../util/imageViewer';
 
@@ -98,6 +105,7 @@ function ModerationTools({ roomId, userId }) {
   });
 
   return (
+    !initMatrix.isGuest &&
     (canIKick || canIBan) && (
       <div className="card-body">
         {canIKick && (
@@ -298,8 +306,6 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence
       setIsInviting(false);
     }
   };
-
-  console.log(agentData.data);
 
   return (
     <>
@@ -563,13 +569,13 @@ function ProfileViewer() {
       // Avatar Preview
       const tinyAvatarPreview = () => {
         if (newAvatar) {
+          const img = $(profileAvatar.current).find('> img');
           imageViewer({
             lightbox,
             onClose: reopenProfile,
-            imgQuery: $(profileAvatar.current).find('> img'),
+            imgQuery: img,
             name: username,
-            url: newAvatar,
-            readMime: true,
+            originalUrl: newAvatar,
           });
         }
       };
@@ -782,13 +788,13 @@ function ProfileViewer() {
       let newAvatar;
       const tinyAvatarPreview = () => {
         if (newAvatar) {
+          const img = $(profileAvatar.current).find('> img');
           imageViewer({
             onClose: reopenProfile,
             lightbox,
-            imgQuery: $(profileAvatar.current).find('> img'),
+            imgQuery: img,
             name: userId,
-            url: newAvatar,
-            readMime: true,
+            originalUrl: newAvatar,
           });
         }
       };
@@ -864,8 +870,8 @@ function ProfileViewer() {
     };
 
     const toggleLightbox = () => {
-      closeDialog();
       if (!avatarUrl) return;
+      closeDialog();
       setLightbox(!lightbox);
     };
 
@@ -883,6 +889,7 @@ function ProfileViewer() {
               onKeyDown={toggleLightbox}
             >
               <Avatar
+                imgClass="profile-image-container"
                 className="profile-image-container"
                 ref={profileAvatar}
                 imageSrc={avatarUrl}
@@ -891,10 +898,12 @@ function ProfileViewer() {
                 size="large"
                 isDefaultImage
               />
-              <i
-                ref={statusRef}
-                className={`user-status user-status-icon pe-2 ${getUserStatus(user, tinyPresence)}`}
-              />
+              {canUsePresence() && (
+                <i
+                  ref={statusRef}
+                  className={`user-status user-status-icon pe-2 ${getUserStatus(user)}`}
+                />
+              )}
             </div>
 
             <div className="col-md-9">

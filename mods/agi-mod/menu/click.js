@@ -4,21 +4,21 @@ import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 import * as roomActions from '@src/client/action/room';
 import { getRoomInfo } from '@src/app/organisms/room/Room';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
-import initMatrix from '@src/client/initMatrix';
+import initMatrix, { fetchFn } from '@src/client/initMatrix';
 import { btModal } from '@src/util/tools';
 
 import { serverAddress } from '../socket';
 
 import { duplicatorAgent } from '../bots/PeopleSelector/lib';
 import { insertAgiAvatar } from '../lib';
+import { ImgJquery } from '@src/app/atoms/image/Image';
 
 const userGenerator = (data, username, botid, nickname, avatar) =>
   $('<div>', { class: 'room-tile' }).append(
     $('<div>', { class: 'room-tile__avatar' }).append(
       $('<div>', { class: 'avatar-container avatar-container__normal  noselect' }).append(
-        $('<img>', {
-          class: 'avatar-react img-fluid',
-          draggable: false,
+        ImgJquery({
+          className: 'img-fluid',
           src: avatar,
           alt: nickname,
         }).css('background-color', 'transparent'),
@@ -76,7 +76,7 @@ const clickAIButton = () => {
   setLoadingPage();
   const mx = initMatrix.matrixClient;
 
-  fetch(`${serverAddress}list/${mx.getUserId()}`, {
+  fetchFn(`${serverAddress}list/${mx.getUserId()}`, {
     headers: {
       Accept: 'application/json',
     },

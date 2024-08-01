@@ -7,158 +7,46 @@ import React, {
   useReducer,
 } from 'react';
 import PropTypes from 'prop-types';
-import moment, { momentFormat } from '@src/util/libs/momentjs';
-import windowEvents from '@src/util/libs/window';
+import $ from 'jquery';
 
-import { twemojifyReact } from '../../../util/twemojify';
+import { rule3 } from '@src/util/tools';
+import moment from '@src/util/libs/momentjs';
+import windowEvents from '@src/util/libs/window';
 
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
 import settings from '../../../client/state/settings';
-import { openProfileViewer, openRoomViewer } from '../../../client/action/navigation';
 import { diffMinutes, isInSameDay, Throttle } from '../../../util/common';
 import { markAsRead } from '../../../client/action/notifications';
 
 import Divider from '../../atoms/divider/Divider';
 import ScrollView from '../../atoms/scroll/ScrollView';
-import { Message, PlaceholderMessage } from '../../molecules/message/Message';
-import RoomIntro from '../../molecules/room-intro/RoomIntro';
+import { Message } from '../../molecules/message/Message';
 import TimelineChange from '../../molecules/message/TimelineChange';
 
 import { useStore } from '../../hooks/useStore';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { parseTimelineChange } from './common';
-import TimelineScroll from './TimelineScroll';
+
+import TimelineScroll, {
+  PLACEHOLDER_COUNT,
+  MAX_MSG_DIFF_MINUTES,
+  SCROLL_TRIGGER_POS,
+} from './TimelineScroll';
+
 import EventLimit from './EventLimit';
-import { getCurrentState } from '../../../util/matrixUtil';
 import tinyAPI from '../../../util/mods';
-import { rule3 } from '../../../util/tools';
-import { mediaFix } from '../../molecules/media/mediaFix';
+import tinyFixScrollChat from '../../molecules/media/mediaFix';
 import matrixAppearance, { getAppearance } from '../../../util/libs/appearance';
 
-let forceDelay = false;
-let loadingPage = false;
-const MAX_MSG_DIFF_MINUTES = 5;
-const PLACEHOLDER_COUNT = 2;
-const PLACEHOLDERS_HEIGHT = 96 * PLACEHOLDER_COUNT;
-const SCROLL_TRIGGER_POS = PLACEHOLDERS_HEIGHT / 2;
-
-function loadingMsgPlaceholders(key, count = 2) {
-  const pl = [];
-  const genPlaceholders = () => {
-    for (let i = 0; i < count; i += 1) {
-      pl.push(
-        <PlaceholderMessage
-          loadingPage={loadingPage}
-          showAvatar
-          key={`RoomViewContent-placeholder-${i}${key}`}
-        />,
-      );
-    }
-    return pl;
-  };
-
-  return <React.Fragment key={`placeholder-container${key}-2`}>{genPlaceholders()}</React.Fragment>;
-}
-
-function RoomIntroContainer({ event, timeline }) {
-  const [, nameForceUpdate] = useForceUpdate();
-
-  const mx = initMatrix.matrixClient;
-  const mxcUrl = initMatrix.mxcUrl;
-
-  const { roomList } = initMatrix;
-  const { room, thread } = timeline;
-
-  const rootContent = thread && thread.rootEvent ? thread.rootEvent.getContent() : null;
-  const roomTitle =
-    !thread || !rootContent || typeof rootContent.body !== 'string'
-      ? room.name
-      : rootContent.body.length < 100
-        ? rootContent.body
-        : rootContent.body.substring(0, 100);
-
-  const roomTopic = getCurrentState(room).getStateEvents('m.room.topic')[0]?.getContent().topic;
-  const isDM = roomList.directs.has(timeline.roomId);
-  let avatarSrc = mxcUrl.getAvatarUrl(room, 80, 80, 'crop');
-  avatarSrc = isDM
-    ? mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 80, 80, 'crop')
-    : avatarSrc;
-
-  const heading = isDM ? roomTitle : `Welcome to ${roomTitle}`;
-  const topic = !thread
-    ? twemojifyReact(roomTopic || '', undefined, true)
-    : twemojifyReact('', undefined, true);
-  const nameJsx = twemojifyReact(roomTitle);
-  const desc =
-    isDM && !thread ? (
-      <>
-        This is the beginning of your direct message history with @<strong>{nameJsx}</strong>
-        {'. '}
-        {topic}
-      </>
-    ) : (
-      <>
-        {'This is the beginning of the '}
-        <strong>{nameJsx}</strong>
-        {` ${!thread ? 'room' : 'thread'}.${!thread ? ' ' : ''}`}
-        {topic}
-      </>
-    );
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    const handleUpdate = () => nameForceUpdate();
-
-    roomList.on(cons.events.roomList.ROOM_PROFILE_UPDATED, handleUpdate);
-    return () => {
-      roomList.removeListener(cons.events.roomList.ROOM_PROFILE_UPDATED, handleUpdate);
-    };
-  }, []);
-
-  return (
-    <RoomIntro
-      roomId={timeline.roomId}
-      avatarSrc={avatarSrc}
-      name={roomTitle}
-      heading={twemojifyReact(heading)}
-      desc={desc}
-      time={
-        event
-          ? `Created at ${moment(event.getDate()).format(`DD MMMM YYYY, ${momentFormat.clock()}`)}`
-          : null
-      }
-    />
-  );
-}
-
-const mentionOpen = {
-  '@': (userId) => {
-    const roomId = navigation.selectedRoomId;
-    openProfileViewer(userId, roomId);
-  },
-
-  '#': (roomId) => {
-    openRoomViewer(initMatrix.roomList.getRoomAliasId(roomId) || roomId, roomId);
-  },
-};
-
-function handleOnClickCapture(e) {
-  const { target, nativeEvent } = e;
-
-  const itemId = target.getAttribute('data-mx-pill');
-  if (typeof itemId === 'string' && itemId.length > 0) {
-    const tag = itemId[0];
-    if (typeof mentionOpen[tag] === 'function') mentionOpen[tag](itemId);
-  }
-
-  const spoiler = nativeEvent.composedPath().find((el) => el?.hasAttribute?.('data-mx-spoiler'));
-  if (spoiler) {
-    if (!spoiler.classList.contains('data-mx-spoiler--visible')) e.preventDefault();
-    spoiler.classList.toggle('data-mx-spoiler--visible');
-  }
-}
+import handleOnClickCapture from './content/handleOnClickCapture';
+import RoomIntroContainer from './content/RoomIntroContainer';
+import LoadingMsgPlaceholders, {
+  isForceDelayTimeline,
+  setForceDelayTimeline,
+  setLoadingTimeline,
+} from './content/LoadingMsgPlaceholders';
 
 function renderEvent(
   timelineSVRef,
@@ -325,12 +213,12 @@ function usePaginate(
 
   const autoPaginate = useCallback(async () => {
     if (timelineScrollRef.current && eventLimitRef.current) {
-      loadingPage = true;
+      setLoadingTimeline(true);
       const timelineScroll = timelineScrollRef.current;
       const limit = eventLimitRef.current;
 
       if (roomTimeline.isOngoingPagination) {
-        loadingPage = false;
+        setLoadingTimeline(false);
         return;
       }
 
@@ -349,7 +237,7 @@ function usePaginate(
           } else if (roomTimeline.canPaginateForward()) {
             // paginate from server.
             await roomTimeline.paginateTimeline(false, pageLimit);
-            loadingPage = false;
+            setLoadingTimeline(false);
             return;
           }
         }
@@ -366,7 +254,7 @@ function usePaginate(
         }
       }
 
-      loadingPage = false;
+      setLoadingTimeline(false);
     }
   }, [roomTimeline]);
 
@@ -523,7 +411,6 @@ function RoomViewContent({
 }) {
   const [, forceUpdate] = useReducer((count) => count + 1, 0);
   const [throttle] = useState(new Throttle());
-  const [embedHeight, setEmbedHeight] = useState(null);
   const [pageLimit, setPageLimit] = useState(getAppearance('pageLimit'));
   const [useManualCheck] = useState(true);
 
@@ -560,23 +447,8 @@ function RoomViewContent({
 
   const { timeline } = roomTimeline;
 
-  /* useEffect(() => {
-    const tinyRoomUpdate = (beforeIds) => {
-      if (beforeIds.threadId && beforeIds.roomId === roomId) {
-        setUseManualCheck(true);
-      } else {
-        setUseManualCheck(false);
-      }
-    };
-
-    navigation.on(cons.events.navigation.SELECTED_ROOM_BEFORE, tinyRoomUpdate);
-    return () => {
-      navigation.off(cons.events.navigation.SELECTED_ROOM_BEFORE, tinyRoomUpdate);
-    };
-  }); */
-
   useLayoutEffect(() => {
-    if (!roomTimeline.initialized) {
+    if (!isLoading && !roomTimeline.initialized) {
       timelineScrollRef.current = new TimelineScroll(timelineSVRef.current);
       eventLimitRef.current = new EventLimit();
     }
@@ -606,7 +478,7 @@ function RoomViewContent({
 
       autoPaginate();
 
-      mediaFix(null, embedHeight, setEmbedHeight);
+      tinyFixScrollChat();
       roomTimeline.on(cons.events.roomTimeline.SCROLL_TO_LIVE, handleScrollToLive);
       return () => {
         if (timelineSVRef.current === null) return;
@@ -749,14 +621,14 @@ function RoomViewContent({
 
   useEffect(() => {
     const forceUpdateTime = () => {
-      if (roomTimeline && roomTimeline.canPaginateForward() && !forceDelay) {
-        forceDelay = true;
+      if (roomTimeline && roomTimeline.canPaginateForward() && !isForceDelayTimeline()) {
+        setForceDelayTimeline(true);
         forceUpdateLimit();
       }
     };
 
     const timeoutTime = setInterval(() => {
-      if (forceDelay) forceDelay = false;
+      if (isForceDelayTimeline()) setForceDelayTimeline(false);
     }, 200);
 
     windowEvents.on('setWindowVisible', forceUpdateTime);
@@ -784,7 +656,8 @@ function RoomViewContent({
 
     // Need pagination backward
     if (roomTimeline.canPaginateBackward() || limit.from > 0) {
-      if (!isGuest) tl.push(loadingMsgPlaceholders(1, PLACEHOLDER_COUNT));
+      if (!isGuest)
+        tl.push(<LoadingMsgPlaceholders keyName="chatscroll-1" count={PLACEHOLDER_COUNT} />);
       itemCountIndex += PLACEHOLDER_COUNT;
     }
 
@@ -872,7 +745,8 @@ function RoomViewContent({
 
     // Need pagination forward
     if (roomTimeline.canPaginateForward() || limit.length < timeline.length) {
-      if (!isGuest) tl.push(loadingMsgPlaceholders(2, PLACEHOLDER_COUNT));
+      if (!isGuest)
+        tl.push(<LoadingMsgPlaceholders keyName="chatscroll-2" count={PLACEHOLDER_COUNT} />);
     }
 
     if (tl.length < 1 && isGuest) {
@@ -887,28 +761,6 @@ function RoomViewContent({
     target.removeClass('no-loading').off('click', noLoadingPageButton);
     forceUpdateLimit();
   };
-
-  setTimeout(() => {
-    if (roomTimeline.timeline.length < 1) {
-      autoPaginate().then(() => {
-        if (roomTimeline.timeline.length <= rule3(50, 10, pageLimit)) {
-          $(phMsgQuery)
-            .addClass('no-loading')
-            .off('click', noLoadingPageButton)
-            .on('click', noLoadingPageButton);
-        }
-
-        if (roomTimeline.timeline.length < 1) {
-          tinyAPI.emit('emptyTimeline', forceUpdateLimit);
-        }
-      });
-    } else if (roomTimeline.timeline.length <= rule3(50, 10, pageLimit)) {
-      $(phMsgQuery)
-        .addClass('no-loading')
-        .off('click', noLoadingPageButton)
-        .on('click', noLoadingPageButton);
-    }
-  }, 100);
 
   useEffect(() => {
     const updateClock = () => forceUpdate();
@@ -930,9 +782,11 @@ function RoomViewContent({
         <div className="timeline__wrapper">
           <table className="table table-borderless table-hover align-middle m-0" id="chatbox">
             <tbody>
-              {!isLoading && roomTimeline.initialized
-                ? renderTimeline(isUserList)
-                : loadingMsgPlaceholders('loading', 3)}
+              {!isLoading && roomTimeline.initialized ? (
+                renderTimeline(isUserList)
+              ) : (
+                <LoadingMsgPlaceholders keyName="chatscroll-loading" count={3} />
+              )}
             </tbody>
           </table>
         </div>

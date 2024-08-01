@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import $ from 'jquery';
+
 import TextareaAutosize from 'react-autosize-textarea';
 import moment from '@src/util/libs/momentjs';
 
@@ -35,7 +37,7 @@ import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 
 import commands from '../../../commands';
 import matrixAppearance, { getAppearance } from '../../../util/libs/appearance';
-import { mediaFix } from '../../molecules/media/mediaFix';
+import tinyFixScrollChat from '../../molecules/media/mediaFix';
 import RoomUpload from '../../molecules/room-upload-button/RoomUpload';
 
 // Variables
@@ -48,7 +50,6 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
   // Rec Ref
   const recAudioRef = useRef(null);
   const [isStickersVisible, setIsStickersVisible] = useState(matrixAppearance.get('showStickers'));
-  const [embedHeight, setEmbedHeight] = useState(null);
   const [closeUpButton, setCloseUpButton] = useState(null);
   const [fileSrc, setFileSrc] = useState(null);
 
@@ -80,7 +81,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
   }
 
   useEffect(() => {
-    const tinyScrollTime = () => mediaFix(null, embedHeight, setEmbedHeight);
+    const tinyScrollTime = () => tinyFixScrollChat();
     if (roomsInput) {
       roomsInput.on(cons.events.roomsInput.ATTACHMENT_SET, setAttachment);
       roomsInput.on(cons.events.roomsInput.ATTACHMENT_SET, tinyScrollTime);
@@ -199,7 +200,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
 
                 // Insert attachment and complete
                 initMatrix.roomsInput.setAttachment(selectedRoomId, selectedThreadId, blob);
-                mediaFix(null, embedHeight, setEmbedHeight);
+                tinyFixScrollChat();
                 initMatrix.roomsInput.emit(cons.events.roomsInput.ATTACHMENT_SET, blob);
                 tinyRec.enabled = false;
               }
@@ -410,7 +411,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
     if (roomId !== myRoomId) return;
     if (threadId && threadId !== myThreadId) return;
     setAttachment(null);
-    mediaFix(null, embedHeight, setEmbedHeight);
+    tinyFixScrollChat();
     $(inputBaseRef.current).css('background-image', 'unset');
     fileInputValue(uploadInputRef, '');
   }
@@ -498,7 +499,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
     textArea.focus();
 
     deactivateCmd();
-    mediaFix(null, embedHeight, setEmbedHeight);
+    tinyFixScrollChat();
   }
 
   // Input
@@ -511,13 +512,13 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
 
     if (editor.current) ReactEditor.focus(editor.current);
     if (editor.current) Transforms.select(editor.current, Editor.end(editor.current, []));
-    mediaFix(null, embedHeight, setEmbedHeight);
+    tinyFixScrollChat();
   }
 
   // Set Reply
   function setUpReply(userId, eventId, body, formattedBody) {
     setReplyTo({ userId, eventId, body });
-    mediaFix(null, embedHeight, setEmbedHeight);
+    tinyFixScrollChat();
 
     if (roomsInput)
       roomsInput.setReplyTo(roomId, threadId, {
@@ -551,7 +552,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
         textArea.val(roomsInput.getMessage(roomId, threadId));
         setAttachment(roomsInput.getAttachment(roomId, threadId));
         setReplyTo(roomsInput.getReplyTo(roomId, threadId));
-        mediaFix(null, embedHeight, setEmbedHeight);
+        tinyFixScrollChat();
       }
     }
 
@@ -575,7 +576,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
     ];
 
     // Complete
-    mediaFix(null, embedHeight, setEmbedHeight);
+    tinyFixScrollChat();
     textArea
       .on('focus', focusUpdate[0])
       .on('blur', focusUpdate[1])
@@ -643,7 +644,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
     if (attachment !== null) {
       if (roomsInput) {
         roomsInput.setAttachment(roomId, threadId, attachment);
-        mediaFix(null, embedHeight, setEmbedHeight);
+        tinyFixScrollChat();
       }
     }
 
@@ -671,7 +672,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
 
     // Reply Fix
     if (replyTo !== null) setReplyTo(null);
-    mediaFix(null, embedHeight, setEmbedHeight);
+    tinyFixScrollChat();
   };
 
   // Command
@@ -693,7 +694,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
     }
 
     commands[cmdName].exe(roomId, cmdData);
-    mediaFix(null, embedHeight, setEmbedHeight);
+    tinyFixScrollChat();
   };
 
   // Send Message
@@ -723,7 +724,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
   // Sticker
   const handleSendSticker = async (data) => {
     if (roomsInput) await roomsInput.sendSticker(roomId, threadId, data);
-    mediaFix(null, embedHeight, setEmbedHeight);
+    tinyFixScrollChat();
   };
 
   // Typing Progress
@@ -802,7 +803,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
       e.preventDefault();
       if (roomsInput) roomsInput.cancelReplyTo(roomId, threadId);
       setReplyTo(null);
-      mediaFix(null, embedHeight, setEmbedHeight);
+      tinyFixScrollChat();
     }
 
     if (
@@ -833,10 +834,10 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
           setAttachment(image);
           if (image !== null) {
             if (roomsInput) roomsInput.setAttachment(roomId, threadId, image);
-            mediaFix(null, embedHeight, setEmbedHeight);
+            tinyFixScrollChat();
             return;
           }
-          mediaFix(null, embedHeight, setEmbedHeight);
+          tinyFixScrollChat();
         } else {
           return;
         }
@@ -891,7 +892,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
     const file = getFile(0);
     setAttachment(file);
     if (roomsInput && file !== null) roomsInput.setAttachment(roomId, threadId, file);
-    mediaFix(null, embedHeight, setEmbedHeight);
+    tinyFixScrollChat();
   }
 
   const handleUploadClick = () => {
@@ -1130,7 +1131,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
           onClick={() => {
             roomsInput.cancelReplyTo(roomId, threadId);
             setReplyTo(null);
-            mediaFix(null, embedHeight, setEmbedHeight);
+            tinyFixScrollChat();
           }}
           className="me-2"
           fa="fa-solid fa-xmark"

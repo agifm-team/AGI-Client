@@ -1,10 +1,11 @@
+import $ from 'jquery';
 import clone from 'clone';
 import { objType } from 'for-promise/utils/lib.mjs';
 
-import { ImgJquery } from '@src/app/atoms/image/Image';
+import { AvatarJquery } from '@src/app/atoms/avatar/Avatar';
 
 import initMatrix from '../../../client/initMatrix';
-import { getCurrentState } from '../../matrixUtil';
+import { dfAvatarSize, getCurrentState } from '../../matrixUtil';
 import { btModal } from '../../tools';
 
 import { setLoadingPage } from '../../../app/templates/client/Loading';
@@ -12,7 +13,6 @@ import { twemojify } from '../../twemojify';
 import { getRoomInfo } from '../../../app/organisms/room/Room';
 
 import { openProfileViewer, selectRoom } from '../../../client/action/navigation';
-import { defaultAvatar } from '../../../app/atoms/avatar/defaultAvatar';
 import { colorMXID } from '../../colorMXID';
 import { createMessageData, messageDataEffects } from '../../../app/molecules/message/Message';
 import { jqueryTime } from '../../../app/atoms/time/Time';
@@ -20,7 +20,6 @@ import { jqueryTime } from '../../../app/atoms/time/Time';
 import { getEventById } from './cache';
 
 // Info
-const ImageBrokenSVG = './img/svg/image-broken.svg';
 const PIN_LIMIT = 50;
 const eventName = 'm.room.pinned_events';
 
@@ -189,6 +188,8 @@ export function openPinMessageModal(room) {
       // Prepare
       const body = [];
       const mx = initMatrix.matrixClient;
+      const mxcUrl = initMatrix.mxcUrl;
+
       const isCustomHTML = true;
       let modal = null;
 
@@ -209,7 +210,10 @@ export function openPinMessageModal(room) {
 
               const tinyUsername = twemojify(user.userId);
 
-              const imageSrc = user ? (user.avatarUrl, 36, 36, 'crop') : null;
+              const imageSrc = user
+                ? mxcUrl.toHttp(user.avatarUrl, dfAvatarSize, dfAvatarSize)
+                : null;
+              const imageAnimSrc = user ? mxcUrl.toHttp(user.avatarUrl) : null;
 
               const content = events[item].getContent();
               const msgBody =
@@ -237,7 +241,7 @@ export function openPinMessageModal(room) {
 
               const td = $('<td>', {
                 class:
-                  'p-0 ps-2 ps-md-4 py-1 pe-md-2 align-top text-center chat-base avatar-container profile-image-container',
+                  'p-0 ps-2 ps-md-4 py-1 pe-md-2 align-top text-center chat-base profile-image-container',
               });
 
               // Insert Body
@@ -248,38 +252,37 @@ export function openPinMessageModal(room) {
                 }).append(
                   // Avatar
                   td.append(
-                    $('<button>')
-                      .on('click', () => openProfileViewer(userId, roomId))
-                      .append(
-                        ImgJquery({
-                          className: 'avatar-react',
-                          draggable: false,
-                          src: imageSrc !== null ? imageSrc : defaultAvatar(userColor),
-                          alt: 'avatar',
-                        })
-                          .on('load', (event) => {
-                            td.addClass('avatar-react-loaded');
-                          })
-                          .on('error', (event) => {
-                            const e = event.originalEvent;
-                            e.target.src = ImageBrokenSVG;
-                          }),
-                      ),
+                    $('<button>').append(
+                      AvatarJquery({
+                        className: 'profile-image-container',
+                        imgClass: 'profile-image-container',
+                        imageSrc,
+                        imageAnimSrc,
+                        isDefaultImage: true,
+                        animParentsCount: 4,
+                        onClick: () => openProfileViewer(userId, roomId),
+                      }),
+                    ),
                   ),
 
                   // Message
                   $('<td>', { class: 'p-0 pe-3 py-1 message-open-click' })
                     .on('click', () => {
-                      const roomTimeline = getRoomInfo().roomTimeline;
+                      try {
+                        const roomTimeline = getRoomInfo().roomTimeline;
 
-                      if (typeof threadId === 'string') {
-                        if (threadId !== roomTimeline.threadId)
-                          selectRoom(thread.roomId, eventId, thread.rootEvent?.getId());
-                      } else if (roomTimeline.room.roomId !== roomId || roomTimeline.threadId) {
-                        selectRoom(roomId, eventId);
+                        if (typeof threadId === 'string') {
+                          if (threadId !== roomTimeline.threadId)
+                            selectRoom(thread.roomId, eventId, thread.rootEvent?.getId());
+                        } else if (roomTimeline.room.roomId !== roomId || roomTimeline.threadId) {
+                          selectRoom(roomId, eventId);
+                        }
+
+                        setTimeout(() => roomTimeline.loadEventTimeline(eventId), 500);
+                      } catch (err) {
+                        console.error(err);
+                        alert(err.message);
                       }
-
-                      setTimeout(() => roomTimeline.loadEventTimeline(eventId), 500);
                       if (modal) modal.hide();
                     })
                     .append(

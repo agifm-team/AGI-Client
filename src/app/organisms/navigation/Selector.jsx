@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { objType } from 'for-promise/utils/lib.mjs';
 
 import threadsList from '@src/util/libs/thread';
+import { RoomStateEvent, UserEvent } from 'matrix-js-sdk';
 
 import muteUserManager from '@src/util/libs/muteUserManager';
 import initMatrix from '../../../client/initMatrix';
@@ -10,7 +11,12 @@ import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
 import { openReusableContextMenu } from '../../../client/action/navigation';
 import { getEventCords, abbreviateNumber } from '../../../util/common';
-import { canSupport, joinRuleToIconSrc } from '../../../util/matrixUtil';
+import {
+  canSupport,
+  dfAvatarSize,
+  getCurrentState,
+  joinRuleToIconSrc,
+} from '../../../util/matrixUtil';
 import { updateName } from '../../../util/roomName';
 
 import IconButton from '../../atoms/button/IconButton';
@@ -19,8 +25,8 @@ import RoomOptions from '../../molecules/room-options/RoomOptions';
 import SpaceOptions from '../../molecules/space-options/SpaceOptions';
 
 import { useForceUpdate } from '../../hooks/useForceUpdate';
-import { getAppearance, getAnimatedImageUrl } from '../../../util/libs/appearance';
-import { getDataList } from '../../../util/selectedRoom';
+import { getDataList, getSelectSpace } from '../../../util/selectedRoom';
+import PonyRoomEvent from '../space-settings/PonyRoomEvent';
 
 // Selector Function
 const Selector = React.forwardRef(
@@ -33,7 +39,7 @@ const Selector = React.forwardRef(
       onClick,
       roomObject,
       isProfile = false,
-      notSpace = false,
+      isSpaces = false,
     },
     ref,
   ) => {
@@ -42,7 +48,7 @@ const Selector = React.forwardRef(
     const mxcUrl = initMatrix.mxcUrl;
 
     const noti = initMatrix.notifications;
-    const appearanceSettings = getAppearance();
+    const [roomIconsActive, setRoomIconsActive] = useState(false);
 
     // Room Data
     let room;
@@ -51,6 +57,11 @@ const Selector = React.forwardRef(
       room = mx.getRoom(roomId);
     } else {
       room = roomObject;
+    }
+
+    let notSpace = !getSelectSpace();
+    if (room && !notSpace) {
+      notSpace = roomIconsActive === true || isSpaces;
     }
 
     // Is Room
@@ -76,26 +87,29 @@ const Selector = React.forwardRef(
     }
 
     // Image
-    let imageSrc =
-      user && user.avatarUrl
-        ? mxcUrl.toHttp(user.avatarUrl, 32, 32, 'crop')
-        : mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 32, 32, 'crop') || null;
-    if (imageSrc === null) imageSrc = mxcUrl.getAvatarUrl(room, 32, 32, 'crop') || null;
+    let imageSrc = null;
+    let imageAnimSrc = null;
+    if (isDM || notSpace) {
+      // Normal Image
+      if (!isSpaces) {
+        imageSrc =
+          user && user.avatarUrl && mxcUrl.toHttp(user.avatarUrl, dfAvatarSize, dfAvatarSize);
+        if (!imageSrc)
+          imageSrc = mxcUrl.getAvatarUrl(
+            room.getAvatarFallbackMember(),
+            dfAvatarSize,
+            dfAvatarSize,
+          );
+      }
+      if (!imageSrc) imageSrc = mxcUrl.getAvatarUrl(room, dfAvatarSize, dfAvatarSize);
 
-    let imageAnimSrc =
-      user && user.avatarUrl
-        ? !appearanceSettings.enableAnimParams
-          ? mxcUrl.toHttp(user.avatarUrl)
-          : getAnimatedImageUrl(mxcUrl.toHttp(user.avatarUrl, 32, 32, 'crop'))
-        : !appearanceSettings.enableAnimParams
-          ? mxcUrl.getAvatarUrl(room.getAvatarFallbackMember())
-          : getAnimatedImageUrl(
-              mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 32, 32, 'crop'),
-            ) || null;
-    if (imageAnimSrc === null)
-      imageAnimSrc = !appearanceSettings.enableAnimParams
-        ? mxcUrl.getAvatarUrl(room)
-        : getAnimatedImageUrl(mxcUrl.getAvatarUrl(room, 32, 32, 'crop')) || null;
+      // Anim Image
+      if (!isSpaces) {
+        imageAnimSrc = user && user.avatarUrl && mxcUrl.toHttp(user.avatarUrl);
+        if (!imageAnimSrc) imageAnimSrc = mxcUrl.getAvatarUrl(room.getAvatarFallbackMember());
+      }
+      if (!imageAnimSrc) imageAnimSrc = mxcUrl.getAvatarUrl(room);
+    }
 
     // Is Muted
     const isMuted = noti.getNotiType(roomId) === cons.notifs.MUTE;
@@ -164,6 +178,48 @@ const Selector = React.forwardRef(
           )),
     );
 
+    useEffect(() => {
+      const spaceId = getSelectSpace();
+      if (spaceId) {
+        const space = mx.getRoom(spaceId);
+        const roomIconCfg =
+          getCurrentState(space)
+            .getStateEvents(PonyRoomEvent.PhSettings, 'roomIcons')
+            ?.getContent() ?? {};
+        if (roomIconCfg.isActive !== roomIconsActive) setRoomIconsActive(roomIconCfg.isActive);
+
+        const handleEvent = (event, state, prevEvent) => {
+          if (event.getRoomId() !== spaceId) return;
+          if (event.getType() !== PonyRoomEvent.PhSettings) return;
+          if (event.getStateKey() !== 'roomIcons') return;
+
+          const oldUrl = prevEvent?.getContent()?.isActive;
+          const newUrl = event.getContent()?.isActive;
+
+          if (newUrl !== oldUrl) {
+            setRoomIconsActive(newUrl);
+          }
+        };
+
+        mx.on(RoomStateEvent.Events, handleEvent);
+        return () => {
+          mx.removeListener(RoomStateEvent.Events, handleEvent);
+        };
+      }
+    });
+
+    useEffect(() => {
+      if (user) {
+        const updateRoomData = () => forceUpdate();
+        user.on(UserEvent.AvatarUrl, updateRoomData);
+        muteUserManager.on('friendNickname', updateRoomData);
+        return () => {
+          user.removeListener(UserEvent.AvatarUrl, updateRoomData);
+          muteUserManager.off('friendNickname', updateRoomData);
+        };
+      }
+    });
+
     return (
       <>
         <RoomSelector
@@ -172,11 +228,11 @@ const Selector = React.forwardRef(
           isProfile={isProfile}
           name={roomName}
           roomId={roomId}
-          animParentsCount={3}
+          animParentsCount={2}
           user={user}
           room={room}
-          imageAnimSrc={isDM || notSpace ? imageAnimSrc : null}
-          imageSrc={isDM || notSpace ? imageSrc : null}
+          imageAnimSrc={imageAnimSrc}
+          imageSrc={imageSrc}
           iconSrc={isDM ? null : joinRuleToIconSrc(room.getJoinRule(), room.isSpaceRoom())}
           isSelected={navigation.selectedRoomId === roomId && navigation.selectedThreadId === null}
           isMuted={isMuted}
@@ -221,7 +277,7 @@ const Selector = React.forwardRef(
 
 // Default
 Selector.propTypes = {
-  notSpace: PropTypes.bool,
+  isSpaces: PropTypes.bool,
   isProfile: PropTypes.bool,
   roomId: PropTypes.string.isRequired,
   threadId: PropTypes.string,

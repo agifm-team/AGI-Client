@@ -146,6 +146,26 @@ async function createWindow() {
       });
     }
 
+    electronCache.win.on('focus', () => {
+      if (electronCache.win && electronCache.win.webContents)
+        electronCache.win.webContents.send('window-is-focused', true);
+    });
+
+    electronCache.win.on('blur', () => {
+      if (electronCache.win && electronCache.win.webContents)
+        electronCache.win.webContents.send('window-is-focused', false);
+    });
+
+    electronCache.win.on('show', () => {
+      if (electronCache.win && electronCache.win.webContents)
+        electronCache.win.webContents.send('window-is-visible', true);
+    });
+
+    electronCache.win.on('hide', () => {
+      if (electronCache.win && electronCache.win.webContents)
+        electronCache.win.webContents.send('window-is-visible', false);
+    });
+
     electronCache.win.on('maximize', () => {
       if (electronCache.win && electronCache.win.webContents)
         electronCache.win.webContents.send('window-is-maximized', true);
@@ -202,8 +222,13 @@ async function createWindow() {
       if (electronCache.win) electronCache.win.minimize();
     });
 
-    ipcMain.on('window-close', () => {
+    ipcMain.on('window-hide', () => {
       if (electronCache.win) electronCache.win.hide();
+    });
+
+    ipcMain.on('app-quit', () => {
+      electronCache.isQuiting = true;
+      app.quit();
     });
 
     ipcMain.on('change-app-icon', (event, img) => {

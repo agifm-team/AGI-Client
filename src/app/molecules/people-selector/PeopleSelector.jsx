@@ -1,29 +1,35 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { UserEvent } from 'matrix-js-sdk';
+import $ from 'jquery';
 
+import { UserEvent } from 'matrix-js-sdk';
+import { dfAvatarSize } from '@src/util/matrixUtil';
 import { twemojifyReact } from '../../../util/twemojify';
 
 import { blurOnBubbling } from '../../atoms/button/script';
 
 import Text from '../../atoms/text/Text';
 import Avatar from '../../atoms/avatar/Avatar';
-import { getUserStatus, updateUserStatusIcon, getPresence } from '../../../util/onlineStatus';
+import {
+  getUserStatus,
+  updateUserStatusIcon,
+  getPresence,
+  canUsePresence,
+} from '../../../util/onlineStatus';
 import initMatrix from '../../../client/initMatrix';
 import insertCustomStatus from './insertCustomStatus';
-
-import { getAnimatedImageUrl, getAppearance } from '../../../util/libs/appearance';
 
 function PeopleSelector({
   avatarSrc = null,
   avatarAnimSrc = null,
+  animParentsCount = 3,
   name,
   color,
   peopleRole = null,
   onClick,
   user = null,
   disableStatus = false,
-  avatarSize = 32,
+  avatarSize = dfAvatarSize,
   contextMenu,
 }) {
   const statusRef = useRef(null);
@@ -36,7 +42,7 @@ function PeopleSelector({
     insertCustomStatus(customStatusRef, content);
   };
 
-  if (user) {
+  if (user && canUsePresence()) {
     getCustomStatus(getPresence(user));
   }
 
@@ -48,29 +54,22 @@ function PeopleSelector({
       // Update Status Profile
       const updateProfileStatus = (mEvent, tinyData) => {
         // Get Status
-        const appearanceSettings = getAppearance();
         const status = $(statusRef.current);
         const tinyUser = tinyData;
 
         // Image
         const newImageSrc =
           tinyUser && tinyUser.avatarUrl
-            ? mxcUrl.toHttp(tinyUser.avatarUrl, avatarSize, avatarSize, 'crop')
+            ? mxcUrl.toHttp(tinyUser.avatarUrl, avatarSize, avatarSize)
             : null;
         setImageSrc(newImageSrc);
 
         const newImageAnimSrc =
-          tinyUser && tinyUser.avatarUrl
-            ? !appearanceSettings.enableAnimParams
-              ? mxcUrl.toHttp(tinyUser.avatarUrl)
-              : getAnimatedImageUrl(
-                  mxcUrl.toHttp(tinyUser.avatarUrl, avatarSize, avatarSize, 'crop'),
-                )
-            : null;
+          tinyUser && tinyUser.avatarUrl ? mxcUrl.toHttp(tinyUser.avatarUrl) : null;
         setImageAnimSrc(newImageAnimSrc);
 
         // Update Status Icon
-        getCustomStatus(updateUserStatusIcon(status, tinyUser));
+        if (canUsePresence) getCustomStatus(updateUserStatusIcon(status, tinyUser));
       };
 
       // Read Events
@@ -96,6 +95,8 @@ function PeopleSelector({
       type="button"
     >
       <Avatar
+        animParentsCount={animParentsCount}
+        imgClass="profile-image-container"
         className="profile-image-container"
         imageAnimSrc={imageAnimSrc}
         imageSrc={imageSrc}
@@ -104,7 +105,7 @@ function PeopleSelector({
         size="small"
         isDefaultImage
       />
-      {!disableStatus ? (
+      {canUsePresence() && !disableStatus ? (
         <i ref={statusRef} className={`user-status-icon ${getUserStatus(user)}`} />
       ) : (
         ''
@@ -128,6 +129,7 @@ function PeopleSelector({
 }
 
 PeopleSelector.propTypes = {
+  animParentsCount: PropTypes.number,
   avatarSize: PropTypes.number,
   disableStatus: PropTypes.bool,
   user: PropTypes.object,

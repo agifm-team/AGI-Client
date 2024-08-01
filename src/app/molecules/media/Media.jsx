@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import $ from 'jquery';
 
 import Img from '@src/app/atoms/image/Image';
 import initMatrix, { fetchFn } from '@src/client/initMatrix';
@@ -13,19 +14,30 @@ import IconButton from '../../atoms/button/IconButton';
 import Spinner from '../../atoms/spinner/Spinner';
 
 import { getBlobSafeMimeType } from '../../../util/mimetypes';
-import { mediaFix } from './mediaFix';
+import tinyFixScrollChat from './mediaFix';
 
-async function getUrl(link, type, decryptData, roomId /* , threadId */) {
+async function getUrl(contentType, link, type, decryptData, roomId /* , threadId */) {
   try {
     const blobSettings = {
       freeze: true,
-      // group: `roomMedia:${roomId}${typeof threadId === 'string' ? `:${threadId}` : ''}`,
-      group: `roomMedia:${roomId}`,
     };
 
-    const blob = await initMatrix.mxcUrl.fetchBlob(link, type, decryptData);
-    const result = await blobUrlManager.insert(blob, blobSettings);
-    return result;
+    if (contentType === 'image' || contentType === 'sticker' || contentType === 'videoThumb') {
+      blobSettings.group = `mxcMedia:${link}`;
+    } else {
+      blobSettings.group = `roomMedia:${roomId}`;
+      // blobSettings.group = `roomMedia:${roomId}${typeof threadId === 'string' ? `:${threadId}` : ''}`,
+    }
+
+    blobSettings.id = `${blobSettings.group}:${link}`;
+    const resultById = blobUrlManager.getById(blobSettings.id);
+    if (!resultById) {
+      const blob = await initMatrix.mxcUrl.focusFetchBlob(link, type, decryptData);
+      const result = await blobUrlManager.insert(blob, blobSettings);
+      return result;
+    } else {
+      return resultById;
+    }
   } catch (e) {
     console.error(e);
     return link;
@@ -45,7 +57,7 @@ function FileHeader({ name, link = null, external = false, file = null, type, ro
   const [url, setUrl] = useState(null);
 
   async function getFile() {
-    const myUrl = await getUrl(link, type, file, roomId, threadId);
+    const myUrl = await getUrl('file', link, type, file, roomId, threadId);
     setUrl(myUrl);
   }
 
@@ -135,13 +147,10 @@ function Image({
   const [blur, setBlur] = useState(true);
   const [lightbox, setLightbox] = useState(false);
 
-  const itemEmbed = useRef(null);
-  const [embedHeight, setEmbedHeight] = useState(null);
-
   useEffect(() => {
     let unmounted = false;
     async function fetchUrl() {
-      const myUrl = await getUrl(link, type, file, roomId, threadId);
+      const myUrl = await getUrl('image', link, type, file, roomId, threadId);
       if (unmounted) {
         blobUrlManager.delete(myUrl);
         return;
@@ -174,15 +183,16 @@ function Image({
           display: blur ? 'none' : 'unset',
           height: imgHeight,
         }}
+        onLoadingChange={() => tinyFixScrollChat()}
         onLoad={(event) => {
-          mediaFix(itemEmbed, embedHeight, setEmbedHeight);
+          tinyFixScrollChat();
           setBlur(false);
           let imageLoaded = false;
           if (!imageLoaded && event.target) {
             imageLoaded = true;
             const img = $(event.target);
             const imgAction = () => {
-              imageViewer({ lightbox, imgQuery: img, name, url });
+              imageViewer({ lightbox, imgQuery: img, name });
             };
 
             img.off('click', imgAction);
@@ -195,8 +205,7 @@ function Image({
     </div>
   );
 
-  useEffect(() => mediaFix(itemEmbed, embedHeight, setEmbedHeight));
-  // tinyFixScrollChat();
+  useEffect(() => tinyFixScrollChat());
 
   if (!ignoreContainer) {
     return (
@@ -245,13 +254,10 @@ function Sticker({
 }) {
   const [url, setUrl] = useState(null);
 
-  const itemEmbed = useRef(null);
-  const [embedHeight, setEmbedHeight] = useState(null);
-
   useEffect(() => {
     let unmounted = false;
     async function fetchUrl() {
-      const myUrl = await getUrl(link, type, file, roomId, threadId);
+      const myUrl = await getUrl('sticker', link, type, file, roomId, threadId);
       if (unmounted) {
         blobUrlManager.delete(myUrl);
         return;
@@ -264,15 +270,25 @@ function Sticker({
     };
   }, []);
 
-  useEffect(() => mediaFix(itemEmbed, embedHeight, setEmbedHeight));
+  useEffect(() => tinyFixScrollChat());
+  const stickerStyle = { height: width !== null ? getNativeHeight(width, height, 170) : 175 };
+  if (typeof stickerStyle.height === 'number' && stickerStyle.height > 175)
+    stickerStyle.height = 175;
 
   return (
     <Tooltip placement="top" content={<div className="small">{name}</div>}>
-      <div
-        className="sticker-container"
-        style={{ height: width !== null ? getNativeHeight(width, height, 170) : 'unset' }}
-      >
-        {url !== null && <Img src={url || link} alt={name} />}
+      <div className="sticker-container" style={stickerStyle}>
+        {url !== null && (
+          <Img
+            isSticker
+            style={typeof stickerStyle.height === 'number' ? stickerStyle : null}
+            height={stickerStyle.height}
+            src={url || link}
+            alt={name}
+            onLoad={() => tinyFixScrollChat()}
+            onLoadingChange={() => tinyFixScrollChat()}
+          />
+        )}
       </div>
     </Tooltip>
   );
@@ -292,11 +308,8 @@ function Audio({ name, link, type = '', file = null, roomId, threadId }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [url, setUrl] = useState(null);
 
-  const itemEmbed = useRef(null);
-  const [embedHeight, setEmbedHeight] = useState(null);
-
   async function loadAudio() {
-    const myUrl = await getUrl(link, type, file, roomId, threadId);
+    const myUrl = await getUrl('audio', link, type, file, roomId, threadId);
     setUrl(myUrl);
     setIsLoading(false);
     setIsLoaded(true);
@@ -306,9 +319,9 @@ function Audio({ name, link, type = '', file = null, roomId, threadId }) {
     loadAudio();
   }
 
-  useEffect(() => mediaFix(itemEmbed, embedHeight, setEmbedHeight, isLoaded));
+  useEffect(() => tinyFixScrollChat());
   return (
-    <div ref={itemEmbed} className="file-container">
+    <div className="file-container">
       <FileHeader
         threadId={threadId}
         roomId={roomId}
@@ -359,13 +372,17 @@ function Video({
   const [thumbUrl, setThumbUrl] = useState(null);
   const [blur, setBlur] = useState(true);
 
-  const itemEmbed = useRef(null);
-  const [embedHeight, setEmbedHeight] = useState(null);
-
   useEffect(() => {
     let unmounted = false;
     async function fetchUrl() {
-      const myThumbUrl = await getUrl(thumbnail, thumbnailType, thumbnailFile, roomId, threadId);
+      const myThumbUrl = await getUrl(
+        'videoThumb',
+        thumbnail,
+        thumbnailType,
+        thumbnailFile,
+        roomId,
+        threadId,
+      );
       if (unmounted) {
         blobUrlManager.delete(myThumbUrl);
         return;
@@ -379,9 +396,9 @@ function Video({
     };
   }, []);
 
-  useEffect(() => mediaFix(itemEmbed, embedHeight, setEmbedHeight, isLoaded));
+  useEffect(() => tinyFixScrollChat());
   const loadVideo = async () => {
-    const myUrl = await getUrl(link, type, file, roomId, threadId);
+    const myUrl = await getUrl('video', link, type, file, roomId, threadId);
     setUrl(myUrl);
     setIsLoading(false);
     setIsLoaded(true);
@@ -393,7 +410,7 @@ function Video({
   };
 
   return (
-    <div ref={itemEmbed} className={`file-container${url !== null ? ' file-open' : ''}`}>
+    <div className={`file-container${url !== null ? ' file-open' : ''}`}>
       <FileHeader
         threadId={threadId}
         roomId={roomId}
@@ -416,7 +433,11 @@ function Video({
             <Img
               style={{ display: blur ? 'none' : 'unset' }}
               src={thumbUrl}
-              onLoad={() => setBlur(false)}
+              onLoadingChange={() => tinyFixScrollChat()}
+              onLoad={() => {
+                setBlur(false);
+                tinyFixScrollChat();
+              }}
               alt={name}
             />
           )}

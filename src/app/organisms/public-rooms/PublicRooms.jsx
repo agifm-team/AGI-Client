@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { getHomeServer } from '@src/util/matrixUtil';
+import { dfAvatarSize, getHomeServer } from '@src/util/matrixUtil';
 import Img from '@src/app/atoms/image/Image';
 
 import initMatrix from '../../../client/initMatrix';
@@ -16,7 +16,6 @@ import PopupWindow from '../../molecules/popup-window/PopupWindow';
 import Avatar from '../../atoms/avatar/Avatar';
 import { colorMXID } from '../../../util/colorMXID';
 import { twemojifyReact } from '../../../util/twemojify';
-import { getAppearance, getAnimatedImageUrl } from '../../../util/libs/appearance';
 
 const HashSearchIC = './img/ic/outlined/hash-search.svg';
 
@@ -54,7 +53,9 @@ function TryJoinWithAlias({ alias, onRequestClose }) {
       tempRoomId: null,
     });
     try {
-      const roomId = await roomActions.join(alias, false);
+      const roomId = await roomActions
+        .join(alias, false)
+        .catch((err) => alert(err.message, 'Join room error'));
       setStatus({
         isJoining: true,
         error: null,
@@ -227,31 +228,22 @@ function PublicRooms({ isOpen, searchTerm, onRequestClose }) {
   }
 
   function renderRoomList(rooms) {
-    // const appearanceSettings = getAppearance();
     return rooms.map((room, index) => {
       const alias = typeof room.canonical_alias === 'string' ? room.canonical_alias : room.room_id;
       const name = typeof room.name === 'string' ? room.name : alias;
       const isJoined = initMatrix.matrixClient.getRoom(room.room_id)?.getMyMembership() === 'join';
       const desc = typeof room.topic === 'string' ? room.topic : null;
 
-      /*
-            animParentsCount={3}
-      imageAnimSrc={typeof room.avatar_url === 'string' ?
-        !appearanceSettings.enableAnimParams ? mxcUrl.toHttp(room.avatar_url) : getAnimatedImageUrl(mxcUrl.toHttp(room.avatar_url, 42, 42, 'crop'))
-        : null}
-      */
-
       return (
         <div key={`publicRooms_renderRoomList_${index}`} className="col-md-4">
           <div className="card p-3 m-2" style={{ height: '350px' }}>
             <h4 className="card-title">
               <Avatar
+                animParentsCount={0}
+                imgClass="profile-image-container"
                 className="profile-image-container"
-                imageSrc={
-                  typeof room.avatar_url === 'string'
-                    ? mxcUrl.toHttp(room.avatar_url, 42, 42, 'crop')
-                    : null
-                }
+                imageSrc={mxcUrl.toHttp(room.avatar_url, dfAvatarSize, dfAvatarSize)}
+                imageAnimSrc={mxcUrl.toHttp(room.avatar_url)}
                 bgColor={colorMXID(alias)}
                 text={name}
                 isDefaultImage

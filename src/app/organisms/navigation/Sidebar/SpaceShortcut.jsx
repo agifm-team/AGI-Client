@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { dfAvatarSize } from '@src/util/matrixUtil';
 
 import initMatrix from '../../../../client/initMatrix';
 import { colorMXID } from '../../../../util/colorMXID';
@@ -20,7 +21,6 @@ import { abbreviateNumber, getEventCords } from '../../../../util/common';
 import cons from '../../../../client/state/cons';
 
 import { notificationClasses, useNotificationUpdate } from './Notification';
-import { getAppearance, getAnimatedImageUrl } from '../../../../util/libs/appearance';
 
 // Draggable Space Shortcut
 function DraggableSpaceShortcut({ isActive, spaceId, index, moveShortcut, onDrop }) {
@@ -32,7 +32,6 @@ function DraggableSpaceShortcut({ isActive, spaceId, index, moveShortcut, onDrop
   const room = mx.getRoom(spaceId);
   const shortcutRef = useRef(null);
   const avatarRef = useRef(null);
-  const appearanceSettings = getAppearance();
 
   // Options
   const openSpaceOptions = (e, sId) => {
@@ -105,18 +104,15 @@ function DraggableSpaceShortcut({ isActive, spaceId, index, moveShortcut, onDrop
       onContextMenu={(e) => openSpaceOptions(e, spaceId)}
       avatar={
         <Avatar
+          imgClass="profile-image-container"
           className="profile-image-container"
           ref={avatarRef}
           text={room.name}
           bgColor={colorMXID(room.roomId)}
           size="normal"
-          animParentsCount={2}
-          imageAnimSrc={
-            !appearanceSettings.enableAnimParams
-              ? mxcUrl.getAvatarUrl(room)
-              : getAnimatedImageUrl(mxcUrl.getAvatarUrl(room, 42, 42, 'crop')) || null
-          }
-          imageSrc={mxcUrl.getAvatarUrl(room, 42, 42, 'crop') || null}
+          animParentsCount={1}
+          imageAnimSrc={mxcUrl.getAvatarUrl(room)}
+          imageSrc={mxcUrl.getAvatarUrl(room, dfAvatarSize, dfAvatarSize)}
           isDefaultImage
         />
       }

@@ -107,7 +107,7 @@ function GeneralSettings({ roomId }) {
                 'danger',
               );
               if (!isConfirmed) return;
-              roomActions.leave(roomId);
+              roomActions.leave(roomId).catch((err) => alert(err.message, 'Leave room error'));
             }}
             faSrc="fa-solid fa-arrow-right-from-bracket"
           >
@@ -209,7 +209,7 @@ function RoomSettings({ roomId }) {
   return (
     <ScrollView autoHide>
       <Header>
-        <ul className="navbar-nav mr-auto mt-0 pt-2">
+        <ul className="room-settings-navbar navbar-nav mr-auto mt-0">
           <button
             className="nav-link btn btn-bg border-0 p-1"
             onClick={() => toggleRoomSettings()}

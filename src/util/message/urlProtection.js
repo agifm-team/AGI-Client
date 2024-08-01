@@ -1,3 +1,4 @@
+import $ from 'jquery';
 // import { Browser } from '@capacitor/browser';
 import { objType } from 'for-promise/utils/lib.mjs';
 
@@ -9,7 +10,7 @@ import storageManager from '../libs/Localstorage';
 // import { isMobile } from '../libs/mobile';
 
 export const openUrl = (url) =>
-  new Promise((resolve, reject) => {
+  new Promise((resolve /*, reject */) => {
     // Mobile
     /* if (isMobile(true)) {
       Browser.open({ url }).then(resolve).catch(reject);

@@ -16,6 +16,8 @@ import ItemWelcome from './item';
 // import AgentCard from './AgentCard/AgentCard.jsx';
 import './custom.scss';
 import './logo.scss';
+import Img from '@src/app/atoms/image/Image';
+import { fetchFn } from '@src/client/initMatrix';
 
 /*
     <ChatRoomFrame roomId=`#imagegen:${serverDomain}` hsUrl={isGuest && `https://matrix.${serverDomain}`} className='m-3 border border-bg' refreshTime={1} />
@@ -120,7 +122,7 @@ function Welcome({ isGuest }) {
       const loadingFetch = () => {
         const fetchJSON = (url) =>
           new Promise((resolve, reject) => {
-            fetch(url, {
+            fetchFn(url, {
               headers: {
                 Accept: 'application/json',
               },
@@ -360,12 +362,7 @@ function Welcome({ isGuest }) {
 
             <div className="carousel-inner">
               <div className="carousel-item active">
-                <img
-                  src="./img/homepage-slider/c1.gif"
-                  className="d-block w-100"
-                  draggable="false"
-                  alt="..."
-                />
+                <Img src="./img/homepage-slider/c1.gif" className="d-block w-100" alt="..." />
                 <div className="carousel-caption">
                   <h5>Pixxel Forge</h5>
                   <p>
@@ -376,12 +373,7 @@ function Welcome({ isGuest }) {
               </div>
 
               <div className="carousel-item">
-                <img
-                  src="./img/homepage-slider/c2.gif"
-                  className="d-block w-100"
-                  draggable="false"
-                  alt="..."
-                />
+                <Img src="./img/homepage-slider/c2.gif" className="d-block w-100" alt="..." />
                 <div className="carousel-caption">
                   <h5>Fantastical Tools</h5>
                   <p>
@@ -392,12 +384,7 @@ function Welcome({ isGuest }) {
               </div>
 
               <div className="carousel-item">
-                <img
-                  src="./img/homepage-slider/c3.gif"
-                  className="d-block w-100"
-                  draggable="false"
-                  alt="..."
-                />
+                <Img src="./img/homepage-slider/c3.gif" className="d-block w-100" alt="..." />
                 <div className="carousel-caption">
                   <h5>Pixxel Spaces</h5>
                   <p>

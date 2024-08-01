@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import { ImgJquery } from '@src/app/atoms/image/Image';
 import { twemojify } from '../../../util/twemojify';
 
@@ -23,14 +24,13 @@ export default function insertCustomStatus(customStatusRef, content, testMode = 
         content.presenceStatusMsg.msgIcon.length > 0
       ) {
         customStatusImg = ImgJquery({
+          animParentsCount: 3,
           src: content.presenceStatusMsg.msgIconThumb,
+          animSrc: content.presenceStatusMsg.msgIcon,
           alt: 'icon',
           className: 'emoji me-1',
         });
         htmlStatus.push(customStatusImg);
-
-        customStatusImg.data('pony-house-cs-normal', content.presenceStatusMsg.msgIconThumb);
-        customStatusImg.data('pony-house-cs-hover', content.presenceStatusMsg.msgIcon);
       }
 
       if (
@@ -46,20 +46,5 @@ export default function insertCustomStatus(customStatusRef, content, testMode = 
     }
 
     customStatus.html(htmlStatus);
-
-    if (customStatusImg) {
-      customStatusImg
-        .parent()
-        .parent()
-        .parent()
-        .hover(
-          () => {
-            customStatusImg.attr('src', customStatusImg.data('pony-house-cs-hover'));
-          },
-          () => {
-            customStatusImg.attr('src', customStatusImg.data('pony-house-cs-normal'));
-          },
-        );
-    }
   }
 }

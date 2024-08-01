@@ -14,6 +14,7 @@ import ImagePackUsageSelector from './ImagePackUsageSelector';
 
 function ImagePackProfile({
   avatarUrl = null,
+  avatarAnimUrl = null,
   displayName,
   attribution = null,
   usage,
@@ -50,18 +51,23 @@ function ImagePackProfile({
     <div className="image-pack-profile">
       {onAvatarChange ? (
         <ImageUpload
+          animParentsCount={1}
           bgColor="#555"
           text={displayName}
           imageSrc={avatarUrl}
+          imageAnimSrc={avatarAnimUrl}
           size="normal"
           onUpload={onAvatarChange}
           onRequestRemove={() => onAvatarChange(undefined)}
         />
       ) : (
         <Avatar
+          animParentsCount={1}
           bgColor="#555"
           text={displayName}
           imageSrc={avatarUrl}
+          imageAnimSrc={avatarAnimUrl}
+          imgClass="profile-image-container"
           className="profile-image-container"
           size="normal"
         />
@@ -75,7 +81,7 @@ function ImagePackProfile({
             <div>
               <Input name="attributionInput" label="Attribution" value={attribution} resizable />
             </div>
-            <div>
+            <div className="noselect">
               <Button variant="primary" type="submit">
                 Save
               </Button>
@@ -88,6 +94,7 @@ function ImagePackProfile({
               <Text>{displayName}</Text>
               {onEditProfile && (
                 <IconButton
+                  className="noselect"
                   size="extra-small"
                   onClick={() => setIsEdit(true)}
                   fa="fa-solid fa-pencil"

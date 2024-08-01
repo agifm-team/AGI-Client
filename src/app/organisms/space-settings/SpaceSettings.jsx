@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import $ from 'jquery';
 
 import { twemojifyReact } from '../../../util/twemojify';
 
@@ -85,9 +86,9 @@ function GeneralSettings({ roomId }) {
   return (
     <>
       {window.matchMedia('screen and (min-width: 768px)').matches ? (
-        <div className="card noselect mb-3">
+        <div className="card mb-3">
           <ul className="list-group list-group-flush">
-            <li className="list-group-item very-small text-gray">Space ID</li>
+            <li className="list-group-item very-small text-gray noselect">Space Id</li>
 
             <li className="list-group-item border-0">
               <RoomProfile roomId={roomId} isSpace />
@@ -226,7 +227,6 @@ function SpaceSettings() {
       isFullscreen={!window.matchMedia('screen and (max-width: 768px)').matches}
       id="settings-base"
       isOpen={isOpen}
-      className="noselect"
       title={
         window.matchMedia('screen and (max-width: 768px)').matches ? (
           <>

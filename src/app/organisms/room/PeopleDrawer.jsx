@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
+import $ from 'jquery';
+
 import { RoomMemberEvent } from 'matrix-js-sdk';
 
 import { checkRoomAgents } from '@mods/agi-mod/bots/PeopleSelector/lib';
 import settings from '@src/client/state/settings';
 
 import initMatrix from '../../../client/initMatrix';
-import { getPowerLabel, getUsernameOfRoomMember } from '../../../util/matrixUtil';
+import { dfAvatarSize, getPowerLabel, getUsernameOfRoomMember } from '../../../util/matrixUtil';
 import { colorMXID } from '../../../util/colorMXID';
 import {
   openInviteUser,
@@ -32,20 +34,19 @@ import PeopleDrawerBase from './PeopleDrawerBase';
 function simplyfiMembers(members) {
   const mx = initMatrix.matrixClient;
   const mxcUrl = initMatrix.mxcUrl;
-
   return members.map((member) => ({
     user: mx.getUser(member.userId),
     userId: member.userId,
     name: getUsernameOfRoomMember(member),
     username: member.userId.slice(1, member.userId.indexOf(':')),
-    avatarSrc: mxcUrl.getAvatarUrl(member, 72, 72, 'crop'),
+    avatarSrc: mxcUrl.getAvatarUrl(member, dfAvatarSize, dfAvatarSize),
+    avatarAnimSrc: mxcUrl.getAvatarUrl(member),
     peopleRole: getPowerLabel(member.powerLevel),
     powerLevel: members.powerLevel,
   }));
 }
 
 const asyncSearch = new AsyncSearch();
-asyncSearch.setMaxListeners(__ENV_APP__.MAX_LISTENERS);
 function PeopleDrawer({
   roomId,
   isUserList,
@@ -151,13 +152,28 @@ function PeopleDrawer({
         const bots = [];
         if (membersData) {
           for (const item in membersData) {
-            if (membersData[item]) bots.push(membersData[item].userId);
+            if (membersData[item])
+              bots.push(
+                !membersData[item].userId.startsWith('@')
+                  ? `@${membersData[item].userId}`
+                  : membersData[item].userId,
+              );
           }
         }
 
         checkRoomAgents(roomId, {bots })
           .then((data) => {
-            setAgents(data);
+            const tinyList = [];
+            if (Array.isArray(data)) {
+              for (const item in data) {
+                const tinyData = data.find((i) =>
+                  !i.startsWith('@') ? `@${i}` === data[item] : i === data[item],
+                );
+                if (tinyData) tinyList.push(tinyData);
+              }
+            }
+
+            setAgents(tinyList);
             setMemberList(simplyfiMembers(membersData));
           })
           .catch((err) => {
@@ -293,6 +309,7 @@ function PeopleDrawer({
               !member.customSelector ? (
                 isUserList ? (
                   <PeopleSelector
+                    animParentsCount={1}
                     agents={agents}
                     avatarSize={72}
                     key={member.userId}
@@ -303,18 +320,20 @@ function PeopleDrawer({
                         : member.customClick()
                     }
                     contextMenu={(e) => {
-                      openReusableContextMenu(
-                        'bottom',
-                        getEventCords(e, '.ic-btn'),
-                        (closeMenu) => (
-                          <UserOptions userId={member.userId} afterOptionSelect={closeMenu} />
-                        ),
-                      );
+                      if (!initMatrix.isGuest)
+                        openReusableContextMenu(
+                          'bottom',
+                          getEventCords(e, '.ic-btn'),
+                          (closeMenu) => (
+                            <UserOptions userId={member.userId} afterOptionSelect={closeMenu} />
+                          ),
+                        );
 
                       e.preventDefault();
                     }}
                     customData={member.customData}
                     avatarSrc={member.avatarSrc}
+                    avatarAnimSrc={member.avatarAnimSrc}
                     name={member.name}
                     color={colorMXID(member.userId)}
                     peopleRole={member.peopleRole}
@@ -335,6 +354,7 @@ function PeopleDrawer({
               ) : (
                 <member.customSelector
                   agents={agents}
+                  animParentsCount={2}
                   key={member.userId}
                   user={mx.getUser(member.userId)}
                   onClick={() =>
@@ -343,6 +363,7 @@ function PeopleDrawer({
                       : member.customClick()
                   }
                   avatarSrc={member.avatarSrc}
+                  avatarAnimSrc={member.avatarAnimSrc}
                   name={member.name}
                   customData={member.customData}
                   color={colorMXID(member.userId)}

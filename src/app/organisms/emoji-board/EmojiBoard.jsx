@@ -2,15 +2,20 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useState, useEffect, useRef, useReducer } from 'react';
 import PropTypes from 'prop-types';
-import { ClientEvent } from 'matrix-js-sdk';
+import $ from 'jquery';
 
+import { ClientEvent } from 'matrix-js-sdk';
 import parse from 'html-react-parser';
 import twemoji from 'twemoji';
+
+import useIsVisible from '@src/util/useIsVisible';
+
 import matrixAppearance from '@src/util/libs/appearance';
 import EmojiEvents from '@src/util/libs/emoji/EmojiEvents';
 import emojiEditor from '@src/util/libs/emoji/EmojiEditor';
 import { colorMXID } from '@src/util/colorMXID';
 import { avatarDefaultColor } from '@src/app/atoms/avatar/Avatar';
+import Img from '@src/app/atoms/image/Image';
 
 import { emojis } from './emoji';
 import { loadEmojiData, getEmojiData, ROW_EMOJIS_COUNT, ROW_STICKERS_COUNT } from './emojiData';
@@ -33,21 +38,29 @@ import { emojiCateogoryList as cateogoryList, emojiGroups } from './data/emojiba
 let ROW_COUNT;
 
 // Emoji Groups
-const EmojiGroup = React.memo(({ name, groupEmojis, className, isFav }) => {
-  function getEmojiBoard() {
-    const emojiBoard = [];
-    const totalEmojis = groupEmojis.length;
-    const mxcUrl = initMatrix.mxcUrl;
+const EmojiGroup = React.memo(
+  ({ boardType = null, name, groupEmojis, className, isFav = false }) => {
+    const tinyRef = useRef(null);
+    const isIntersecting = useIsVisible(tinyRef);
 
-    for (let r = 0; r < totalEmojis; r += ROW_COUNT) {
-      const emojiRow = [];
-      for (let c = r; c < r + ROW_COUNT; c += 1) {
-        const emojiIndex = c;
-        if (emojiIndex >= totalEmojis) break;
-        const emoji = groupEmojis[emojiIndex];
-        emojiRow.push(
-          <span key={emojiIndex}>
-            {emoji.hexcode ? (
+    function getEmojiBoard() {
+      const emojiBoard = [];
+      const totalEmojis = groupEmojis.length;
+      const mxcUrl = initMatrix.mxcUrl;
+
+      // Read emoji data
+      for (let r = 0; r < totalEmojis; r += ROW_COUNT) {
+        const emojiRow = [];
+        for (let c = r; c < r + ROW_COUNT; c += 1) {
+          // Prepare data
+          const emojiIndex = c;
+          if (emojiIndex >= totalEmojis) break;
+          const emoji = groupEmojis[emojiIndex];
+          let emojiItem;
+
+          // Hex code
+          if (emoji.hexcode) {
+            emojiItem = (
               // This is a unicode emoji, and should be rendered with twemoji
               <span
                 className={`emoji${emoji.isFav || isFav ? ' fav-emoji' : ''}`}
@@ -61,43 +74,52 @@ const EmojiGroup = React.memo(({ name, groupEmojis, className, isFav }) => {
                 hexcode={emoji.hexcode}
                 style={{ backgroundImage: `url("${twemojifyUrl(emoji.hexcode)}")` }}
               />
-            ) : (
+            );
+          }
+
+          // Custom emoji
+          else {
+            emojiItem = (
               // This is a custom emoji, and should be render as an mxc
-              <span
+              <Img
+                isEmoji={boardType === 'emoji'}
+                isSticker={boardType === 'sticker'}
                 className={`emoji${emoji.isFav || isFav ? ' fav-emoji' : ''}`}
                 draggable="false"
                 alt={emoji.shortcode}
                 unicode={`:${emoji.shortcode}:`}
                 shortcodes={emoji.shortcode}
-                style={{
-                  backgroundImage: `url("${mxcUrl.toHttp(emoji.mxc)}")`,
-                }}
-                data-mx-emoticon={emoji.mxc}
+                src={mxcUrl.toHttp(emoji.mxc)}
+                dataMxEmoticon={emoji.mxc}
               />
-            )}
-          </span>,
+            );
+          }
+
+          // Insert emoji
+          emojiRow.push(<span key={emojiIndex}>{emojiItem}</span>);
+        }
+        emojiBoard.push(
+          <div key={r} className={`emoji-row${!isIntersecting ? ' hide-emoji' : ''}`}>
+            {emojiRow}
+          </div>,
         );
       }
-      emojiBoard.push(
-        <div key={r} className="emoji-row hide-emoji">
-          {emojiRow}
-        </div>,
-      );
+      return emojiBoard;
     }
-    return emojiBoard;
-  }
 
-  return (
-    <div className={`emoji-group${className ? ` ${className}` : ''}`}>
-      <Text className="emoji-group__header" variant="b2" weight="bold">
-        {name}
-      </Text>
-      {groupEmojis.length !== 0 && <div className="emoji-set noselect">{getEmojiBoard()}</div>}
-    </div>
-  );
-});
+    return (
+      <div ref={tinyRef} className={`emoji-group${className ? ` ${className}` : ''}`}>
+        <Text className="emoji-group__header" variant="b2" weight="bold">
+          {name}
+        </Text>
+        {groupEmojis.length !== 0 && <div className="emoji-set noselect">{getEmojiBoard()}</div>}
+      </div>
+    );
+  },
+);
 
 EmojiGroup.propTypes = {
+  boardType: PropTypes.string,
   isFav: PropTypes.bool,
   className: PropTypes.string,
   name: PropTypes.string.isRequired,
@@ -115,13 +137,12 @@ EmojiGroup.propTypes = {
 
 // Search Emoji
 const asyncSearch = new AsyncSearch();
-asyncSearch.setMaxListeners(__ENV_APP__.MAX_LISTENERS);
 asyncSearch.setup(emojis, {
   keys: ['shortcode', 'shortcodes', 'label', 'tags'],
   isContain: true,
   limit: 40,
 });
-function SearchedEmoji({ scrollEmojisRef }) {
+function SearchedEmoji({ boardType = null }) {
   // Searched
   const [searchedEmojis, setSearchedEmojis] = useState(null);
 
@@ -134,9 +155,6 @@ function SearchedEmoji({ scrollEmojisRef }) {
     }
 
     setSearchedEmojis({ emojis: resultEmojis });
-    setTimeout(() => {
-      $(scrollEmojisRef.current).trigger('scroll');
-    }, 500);
   }
 
   // Effect
@@ -153,6 +171,7 @@ function SearchedEmoji({ scrollEmojisRef }) {
   // Complete
   return (
     <EmojiGroup
+      boardType={boardType}
       key="-1"
       name={searchedEmojis.emojis.length === 0 ? 'No search result found' : 'Search results'}
       groupEmojis={searchedEmojis.emojis}
@@ -160,19 +179,16 @@ function SearchedEmoji({ scrollEmojisRef }) {
   );
 }
 
-SearchedEmoji.propTypes = {
-  scrollEmojisRef: PropTypes.shape({}).isRequired,
-};
-
 // Board
-function EmojiBoard({ onSelect, searchRef, emojiBoardRef, scrollEmojisRef }) {
+function EmojiBoard({ onSelect, searchRef, emojiBoardRef }) {
   // First Values
   const [, forceUpdate] = useReducer((count) => count + 1, 0);
   const emojiInfo = useRef(null);
   const [boardType, setBoardType] = useState('emoji');
   const [selectedRoomId, setSelectedRoomId] = useState(null);
-  const tinyTimeoutCollection = [];
+  const scrollEmojisRef = useRef(null);
 
+  const tinyTimeoutCollection = [];
   const [emojiFav, setEmojiFav] = useState([]);
   const [emojiData, setEmojiData] = useState([]);
   const [emojiRecent, setEmojiRecent] = useState([]);
@@ -191,34 +207,6 @@ function EmojiBoard({ onSelect, searchRef, emojiBoardRef, scrollEmojisRef }) {
     setEmojiFav,
     setEmojiData,
   );
-
-  // Check Emoji Visible
-  function onScroll(event) {
-    // Read Data
-    for (let i = 0; i < tinyTimeoutCollection.length; i++) {
-      if (tinyTimeoutCollection.length > 0) {
-        const tinyTimeoutLoad = tinyTimeoutCollection.shift();
-        clearTimeout(tinyTimeoutLoad);
-      }
-    }
-
-    const target = $(event.target.childNodes[0]).find('.emoji-row');
-    const existEmojiBoard = $('#emoji-board').length > 0;
-
-    if (existEmojiBoard) {
-      target.each((index, element) => {
-        const emojiGroup = $(element);
-        tinyTimeoutCollection.push(
-          setTimeout(() => {
-            // Is Visible
-            if (existEmojiBoard && checkVisible(element)) {
-              emojiGroup.removeClass('hide-emoji');
-            }
-          }, 500),
-        );
-      });
-    }
-  }
 
   function isTargetNotEmoji(target) {
     return target.hasClass('emoji') === false;
@@ -346,8 +334,11 @@ function EmojiBoard({ onSelect, searchRef, emojiBoardRef, scrollEmojisRef }) {
 
     let src;
 
-    if (el.css('background-image')) {
-      src = el.css('background-image').substring(5, el.css('background-image').length - 2);
+    if (el.prop('tagName').toUpperCase() !== 'IMG') {
+      if (el.css('background-image'))
+        src = el.css('background-image').substring(5, el.css('background-image').length - 2);
+    } else {
+      src = el.attr('src');
     }
 
     if (!src || typeof shortcodes === 'undefined') {
@@ -412,9 +403,7 @@ function EmojiBoard({ onSelect, searchRef, emojiBoardRef, scrollEmojisRef }) {
     navigation.on(cons.events.navigation.UPDATED_EMOJI_LIST_DATA, handleEvent2);
     navigation.on(cons.events.navigation.ROOM_SELECTED, updateAvailableEmoji);
     navigation.on(cons.events.navigation.EMOJIBOARD_OPENED, onOpen);
-    $(scrollEmojisRef.current).on('scroll', onScroll);
     return () => {
-      $(scrollEmojisRef.current).off('scroll', onScroll);
       mx.removeListener(ClientEvent.AccountData, handleEvent);
       matrixAppearance.off('useCustomEmojis', handleEvent2);
       matrixAppearance.off('showStickers', handleEvent2);
@@ -506,16 +495,19 @@ function EmojiBoard({ onSelect, searchRef, emojiBoardRef, scrollEmojisRef }) {
         <div className="emoji-board__content__emojis">
           <ScrollView ref={scrollEmojisRef} autoHide>
             <div onMouseMove={hoverEmoji} onContextMenu={contextEmoji} onClick={selectEmoji}>
-              <SearchedEmoji scrollEmojisRef={scrollEmojisRef} />
+              <SearchedEmoji boardType={boardType} />
 
-              {emojiFav.length > 0 && <EmojiGroup name="Favorites" groupEmojis={emojiFav} isFav />}
+              {emojiFav.length > 0 && (
+                <EmojiGroup boardType={boardType} name="Favorites" groupEmojis={emojiFav} isFav />
+              )}
 
               {emojiRecent.length > 0 && (
-                <EmojiGroup name="Recently used" groupEmojis={emojiRecent} />
+                <EmojiGroup boardType={boardType} name="Recently used" groupEmojis={emojiRecent} />
               )}
 
               {emojiData.map((pack) => (
                 <EmojiGroup
+                  boardType={boardType}
                   name={pack.displayName ?? 'Unknown'}
                   key={pack.packIndex}
                   groupEmojis={pack[boardType !== 'sticker' ? 'getEmojis' : 'getStickers']()}
@@ -525,6 +517,7 @@ function EmojiBoard({ onSelect, searchRef, emojiBoardRef, scrollEmojisRef }) {
 
               {emojiGroups.map((group) => (
                 <EmojiGroup
+                  boardType={boardType}
                   className={boardType === 'sticker' ? 'd-none' : null}
                   key={group.name}
                   name={group.name}
@@ -547,7 +540,6 @@ EmojiBoard.propTypes = {
   onSelect: PropTypes.func.isRequired,
   searchRef: PropTypes.shape({}).isRequired,
   emojiBoardRef: PropTypes.shape({}).isRequired,
-  scrollEmojisRef: PropTypes.shape({}).isRequired,
 };
 
 export default EmojiBoard;

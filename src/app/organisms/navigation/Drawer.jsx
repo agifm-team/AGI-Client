@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ClientEvent } from 'matrix-js-sdk';
+import $ from 'jquery';
+
+import { ClientEvent, RoomStateEvent } from 'matrix-js-sdk';
 
 import Modal from 'react-bootstrap/Modal';
 import objectHash from 'object-hash';
@@ -7,6 +9,7 @@ import { objType } from 'for-promise/utils/lib.mjs';
 
 import { getAppearance } from '@src/util/libs/appearance';
 import settings from '@src/client/state/settings';
+import { AvatarJquery } from '@src/app/atoms/avatar/Avatar';
 
 import tinyAPI from '../../../util/mods';
 import initMatrix from '../../../client/initMatrix';
@@ -29,6 +32,7 @@ import { getSelectRoom, getSelectSpace } from '../../../util/selectedRoom';
 import { getCurrentState } from '../../../util/matrixUtil';
 import { selectRoomMode } from '../../../client/action/navigation';
 import { setLoadingPage } from '../../templates/client/Loading';
+import PonyRoomEvent from '../space-settings/PonyRoomEvent';
 
 // System State
 function useSystemState() {
@@ -100,6 +104,8 @@ function Drawer() {
   const [, forceUpdate] = useForceUpdate();
   const scrollRef = useRef(null);
 
+  const [bannerSrc, setBannerSrc] = useState('');
+  const spaceDrawerRef = useRef(null);
   const homeClickRef = useRef(null);
 
   const [isIconsColored, setIsIconsColored] = useState(settings.isSelectedThemeColored());
@@ -129,23 +135,56 @@ function Drawer() {
   const mxcUrl = initMatrix.mxcUrl;
   const room = mx.getRoom(spaceId);
 
-  let bannerCfg;
-  if (room) {
-    bannerCfg = getCurrentState(room).getStateEvents('pony.house.settings', 'banner')?.getContent();
-  }
+  useEffect(() => {
+    if (room) {
+      const bannerCfg =
+        getCurrentState(room).getStateEvents(PonyRoomEvent.PhSettings, 'banner')?.getContent() ??
+        {};
 
-  let avatarSrc = '';
-  if (bannerCfg && typeof bannerCfg?.url === 'string' && bannerCfg?.url.length > 0) {
-    avatarSrc = mxcUrl.toHttp(bannerCfg.url, 960, 540);
-  } else {
-    $('.space-drawer-body').removeClass('drawer-with-banner');
-    $('#space-header > .navbar').removeClass('banner-mode').css('background-image', '');
-  }
+      if (bannerCfg && typeof bannerCfg?.url === 'string' && bannerCfg?.url.length > 0) {
+        const bannerData = AvatarJquery({
+          isObj: true,
+          imageSrc: mxcUrl.toHttp(bannerCfg.url, 960, 540),
+          imageAnimSrc: mxcUrl.toHttp(bannerCfg.url),
+          onLoadingChange: () => {
+            if (typeof bannerData.blobAnimSrc === 'string' && bannerData.blobAnimSrc.length > 0) {
+              setBannerSrc(bannerData.blobAnimSrc);
+            }
+          },
+        });
+      } else {
+        setBannerSrc('');
+      }
+    } else {
+      setBannerSrc('');
+    }
+
+    const handleEvent = (event, state, prevEvent) => {
+      if (room && event.getRoomId() !== room.roomId) return;
+      if (event.getType() !== PonyRoomEvent.PhSettings) return;
+      if (event.getStateKey() !== 'banner') return;
+
+      const oldUrl = prevEvent?.getContent()?.url;
+      const newUrl = event.getContent()?.url;
+
+      if (!oldUrl || !newUrl || newUrl !== oldUrl) {
+        setBannerSrc(mxcUrl.toHttp(newUrl, 960, 540));
+      }
+    };
+
+    mx.on(RoomStateEvent.Events, handleEvent);
+    return () => {
+      mx.removeListener(RoomStateEvent.Events, handleEvent);
+    };
+  });
 
   return (
     <>
-      <div className={`space-drawer-body${avatarSrc ? ' drawer-with-banner' : ''}`}>
-        <DrawerHeader selectedTab={selectedTab} spaceId={spaceId} banner={avatarSrc} room={room} />
+      <div
+        ref={spaceDrawerRef}
+        className={`space-drawer-body${bannerSrc ? ' drawer-with-banner' : ''}`}
+      >
+        <DrawerHeader selectedTab={selectedTab} spaceId={spaceId} banner={bannerSrc} room={room} />
 
         <ScrollView ref={scrollRef} autoHide>
           {navigation.selectedSpacePath.length > 1 && selectedTab !== cons.tabs.DIRECTS && (

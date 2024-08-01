@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
-import { getUsername, getUsernameOfRoomMember } from '../../../util/matrixUtil';
+import { dfAvatarSize, getUsername, getUsernameOfRoomMember } from '../../../util/matrixUtil';
 import { colorMXID } from '../../../util/colorMXID';
 
 import PeopleSelector from '../../molecules/people-selector/PeopleSelector';
@@ -44,13 +44,15 @@ function ReadReceipts() {
     return (
       <PeopleSelector
         disableStatus
+        animParentsCount={1}
         avatarSize={32}
         key={userId}
         onClick={() => {
           setIsOpen(false);
           openProfileViewer(userId, roomId);
         }}
-        avatarSrc={mxcUrl.getAvatarUrl(member, 32, 32, 'crop')}
+        avatarSrc={mxcUrl.getAvatarUrl(member, dfAvatarSize, dfAvatarSize)}
+        avatarAnimSrc={mxcUrl.getAvatarUrl(member)}
         name={getUserDisplayName(userId)}
         color={colorMXID(userId)}
       />

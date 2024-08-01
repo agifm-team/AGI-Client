@@ -6,7 +6,7 @@ import { twemojifyReact } from '../../../util/twemojify';
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
-import { joinRuleToIconSrc, getIdServer, genRoomVia } from '../../../util/matrixUtil';
+import { joinRuleToIconSrc, getIdServer, genRoomVia, dfAvatarSize } from '../../../util/matrixUtil';
 import { Debounce } from '../../../util/common';
 
 import Text from '../../atoms/text/Text';
@@ -18,7 +18,6 @@ import RoomSelector from '../room-selector/RoomSelector';
 import Dialog from '../dialog/Dialog';
 
 import { useStore } from '../../hooks/useStore';
-import { getAppearance, getAnimatedImageUrl } from '../../../util/libs/appearance';
 
 function SpaceAddExistingContent({ roomId }) {
   const mountStore = useStore(roomId);
@@ -109,8 +108,6 @@ function SpaceAddExistingContent({ roomId }) {
     setSearchIds(null);
   }; */
 
-  const appearanceSettings = getAppearance();
-
   return (
     <>
       <form
@@ -130,19 +127,15 @@ function SpaceAddExistingContent({ roomId }) {
         {(searchIds || allRoomIds).map((rId) => {
           const room = mx.getRoom(rId);
 
-          let imageSrc =
-            mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 32, 32, 'crop') || null;
-          if (imageSrc === null) imageSrc = mxcUrl.getAvatarUrl(room, 32, 32, 'crop') || null;
+          let imageSrc = mxcUrl.getAvatarUrl(
+            room.getAvatarFallbackMember(),
+            dfAvatarSize,
+            dfAvatarSize,
+          );
+          if (!imageSrc) imageSrc = mxcUrl.getAvatarUrl(room, dfAvatarSize, dfAvatarSize);
 
-          let imageAnimSrc = !appearanceSettings.enableAnimParams
-            ? mxcUrl.getAvatarUrl(room.getAvatarFallbackMember())
-            : getAnimatedImageUrl(
-                mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 32, 32, 'crop'),
-              ) || null;
-          if (imageAnimSrc === null)
-            imageAnimSrc = !appearanceSettings.enableAnimParams
-              ? mxcUrl.getAvatarUrl(room)
-              : getAnimatedImageUrl(mxcUrl.getAvatarUrl(room, 32, 32, 'crop')) || null;
+          let imageAnimSrc = mxcUrl.getAvatarUrl(room.getAvatarFallbackMember());
+          if (!imageAnimSrc) imageAnimSrc = mxcUrl.getAvatarUrl(room);
 
           const parentSet = roomIdToParents.get(rId);
           const parentNames = parentSet

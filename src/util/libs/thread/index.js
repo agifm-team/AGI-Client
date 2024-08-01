@@ -1,8 +1,9 @@
+import $ from 'jquery';
 import moment from 'moment-timezone';
 import EventEmitter from 'events';
 import { objType } from 'for-promise/utils/lib.mjs';
 
-import { ImgJquery } from '@src/app/atoms/image/Image';
+import { AvatarJquery } from '@src/app/atoms/avatar/Avatar';
 import { setLoadingPage } from '@src/app/templates/client/Loading';
 import { colorMXID } from '@src/util/colorMXID';
 import { twemojify } from '@src/util/twemojify';
@@ -13,18 +14,14 @@ import {
   getDataList,
   removeFromDataFolder,
 } from '@src/util/selectedRoom';
-import { canSupport } from '@src/util/matrixUtil';
+import { canSupport, dfAvatarSize } from '@src/util/matrixUtil';
 
 import { openProfileViewer, selectRoom } from '@src/client/action/navigation';
 import { createMessageData } from '@src/app/molecules/message/Message';
 import { jqueryTime } from '@src/app/atoms/time/Time';
 
-import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
-
 import { btModal } from '../../tools';
 import initMatrix, { fetchFn } from '../../../client/initMatrix';
-
-const ImageBrokenSVG = './img/svg/image-broken.svg';
 
 // The class
 class ThreadsList extends EventEmitter {
@@ -72,12 +69,10 @@ class ThreadsList extends EventEmitter {
     return newData;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   getActives() {
     return getDataFolderRaw('thread', 'actives');
   }
 
-  // eslint-disable-next-line class-methods-use-this
   getActive(roomId, threadId) {
     return getDataList('thread', 'actives', `${roomId}:${threadId}`);
   }
@@ -191,6 +186,8 @@ export function openThreadsMessageModal(room) {
         // Prepare
         const body = [];
         const mx = initMatrix.matrixClient;
+        const mxcUrl = initMatrix.mxcUrl;
+
         const isCustomHTML = true;
         let modal = null;
 
@@ -212,7 +209,10 @@ export function openThreadsMessageModal(room) {
               const roomId = room.roomId;
               const tinyUsername = twemojify(user.userId);
 
-              const imageSrc = user ? (user.avatarUrl, 36, 36, 'crop') : null;
+              const imageSrc = user
+                ? mxcUrl.toHttp(user.avatarUrl, dfAvatarSize, dfAvatarSize)
+                : null;
+              const imageAnimSrc = user ? mxcUrl.toHttp(user.avatarUrl) : null;
 
               const content = events[item].content;
               const msgBody =
@@ -231,8 +231,7 @@ export function openThreadsMessageModal(room) {
               }
 
               const td = $('<td>', {
-                class:
-                  'p-0 ps-2 ps-md-4 py-1 pe-md-2 align-top text-center chat-base avatar-container profile-image-container',
+                class: 'p-0 ps-2 ps-md-4 py-1 pe-md-2 align-top text-center chat-base',
               });
 
               // Insert Body
@@ -243,23 +242,17 @@ export function openThreadsMessageModal(room) {
                 }).append(
                   // Avatar
                   td.append(
-                    $('<button>')
-                      .on('click', () => openProfileViewer(userId, roomId))
-                      .append(
-                        ImgJquery({
-                          className: 'avatar-react',
-                          draggable: false,
-                          src: imageSrc !== null ? imageSrc : defaultAvatar(userColor),
-                          alt: 'avatar',
-                        })
-                          .on('load', (event) => {
-                            td.addClass('avatar-react-loaded');
-                          })
-                          .on('error', (event) => {
-                            const e = event.originalEvent;
-                            e.target.src = ImageBrokenSVG;
-                          }),
-                      ),
+                    $('<button>').append(
+                      AvatarJquery({
+                        className: 'profile-image-container',
+                        imgClass: 'profile-image-container',
+                        imageSrc,
+                        imageAnimSrc,
+                        isDefaultImage: true,
+                        animParentsCount: 4,
+                        onClick: () => openProfileViewer(userId, roomId),
+                      }),
+                    ),
                   ),
 
                   // Message
@@ -267,12 +260,16 @@ export function openThreadsMessageModal(room) {
                     .on('click', async () => {
                       setLoadingPage();
                       if (modal) modal.hide();
-
-                      // Go to timeline
-                      const roomTimeline = getRoomInfo().roomTimeline;
-                      const isLoaded = await roomTimeline.loadEventTimeline(eventId);
-                      if (!isLoaded) roomTimeline.loadLiveTimeline();
-                      selectRoom(roomId, undefined, { threadId: eventId, force: true });
+                      try {
+                        // Go to timeline
+                        const roomTimeline = getRoomInfo().roomTimeline;
+                        const isLoaded = await roomTimeline.loadEventTimeline(eventId);
+                        if (!isLoaded) roomTimeline.loadLiveTimeline();
+                        selectRoom(roomId, undefined, { threadId: eventId, force: true });
+                      } catch (err) {
+                        console.error(err);
+                        alert(err.message);
+                      }
 
                       setLoadingPage(false);
                     })

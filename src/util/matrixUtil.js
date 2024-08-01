@@ -50,7 +50,7 @@ export async function getBaseUrl(servername) {
     const baseUrl = result?.['m.homeserver']?.base_url;
     if (baseUrl === undefined) throw new Error();
     return baseUrl;
-  } catch (e) {
+  } catch {
     return `${protocol}${servername}`;
   }
 }
@@ -369,6 +369,27 @@ export function appearUserProfile(userId) {
     ? userId
     : convertUserIdReverse(userId);
   openProfileViewer(openUserId);
+}
+
+export const dfAvatarSize = __ENV_APP__.IMG.SIZE.AVATAR;
+
+export function getRoomAvatars(room, size = 32, isDM = false) {
+  const mxcUrl = initMatrix.mxcUrl;
+
+  let imageSrc = null;
+  if (room) {
+    imageSrc = mxcUrl.getAvatarUrl(room, size, size);
+    if (!imageSrc && isDM)
+      imageSrc = mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), size, size);
+  }
+
+  let imageAnimSrc = null;
+  if (room) {
+    imageAnimSrc = mxcUrl.getAvatarUrl(room);
+    if (!imageAnimSrc && isDM) imageAnimSrc = mxcUrl.getAvatarUrl(room.getAvatarFallbackMember());
+  }
+
+  return { imageSrc, imageAnimSrc };
 }
 
 if (__ENV_APP__.MODE === 'development') {

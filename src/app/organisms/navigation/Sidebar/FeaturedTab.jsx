@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import $ from 'jquery';
+
 import { objType } from 'for-promise/utils/lib.mjs';
 
 import envAPI from '@src/util/libs/env';
 import settings from '@src/client/state/settings';
+import { dfAvatarSize } from '@src/util/matrixUtil';
 
 import initMatrix from '../../../../client/initMatrix';
 import cons from '../../../../client/state/cons';
@@ -26,7 +29,7 @@ import { getUserWeb3Account, tinyCrypto } from '../../../../util/web3';
 import navigation from '../../../../client/state/navigation';
 import { setEthereumStatusButton } from '../../../../util/web3/status';
 import { colorMXID } from '../../../../util/colorMXID';
-import { getAppearance, getAnimatedImageUrl } from '../../../../util/libs/appearance';
+import { getAppearance } from '../../../../util/libs/appearance';
 
 // Featured Tab
 export default function FeaturedTab() {
@@ -124,6 +127,7 @@ export default function FeaturedTab() {
             faSrc="fa-solid fa-house"
             size="normal"
             iconColor={!isIconsColored ? null : 'rgb(118, 232, 84)'}
+            imgClass="profile-image-container"
             className="profile-image-container"
           />
         }
@@ -149,6 +153,7 @@ export default function FeaturedTab() {
           <Avatar
             neonColor
             faSrc="fa-solid fa-user"
+            imgClass="profile-image-container"
             className="profile-image-container"
             iconColor={!isIconsColored ? null : 'rgb(0 159 255)'}
             size="normal"
@@ -178,6 +183,7 @@ export default function FeaturedTab() {
               iconColor={!isIconsColored ? null : 'rgb(121, 231, 231)'}
               faSrc="fa-brands fa-ethereum"
               size="normal"
+              imgClass="profile-image-container"
               className="profile-image-container"
             />
           }
@@ -204,23 +210,22 @@ export default function FeaturedTab() {
               }}
               avatar={
                 <Avatar
+                  imgClass="profile-image-container"
                   className="profile-image-container"
                   text={room.name}
                   bgColor={colorMXID(room.roomId)}
                   size="normal"
-                  animParentsCount={2}
+                  animParentsCount={1}
                   imageAnimSrc={
-                    !appearanceSettings.enableAnimParams
-                      ? mxcUrl.getAvatarUrl(room.getAvatarFallbackMember())
-                      : getAnimatedImageUrl(
-                            mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 42, 42, 'crop'),
-                          ) || !appearanceSettings.enableAnimParams
-                        ? mxcUrl.getAvatarUrl(room)
-                        : getAnimatedImageUrl(mxcUrl.getAvatarUrl(room, 42, 42, 'crop')) || null
+                    mxcUrl.getAvatarUrl(room.getAvatarFallbackMember()) || mxcUrl.getAvatarUrl(room)
                   }
                   imageSrc={
-                    mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 42, 42, 'crop') ||
-                    mxcUrl.getAvatarUrl(room, 42, 42, 'crop') ||
+                    mxcUrl.getAvatarUrl(
+                      room.getAvatarFallbackMember(),
+                      dfAvatarSize,
+                      dfAvatarSize,
+                    ) ||
+                    mxcUrl.getAvatarUrl(room, dfAvatarSize, dfAvatarSize) ||
                     null
                   }
                   isDefaultImage

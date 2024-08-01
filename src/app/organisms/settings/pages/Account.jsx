@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
+import $ from 'jquery';
+
 import { objType } from 'for-promise/utils/lib.mjs';
 
 import userPid from '@src/util/libs/userPid';
@@ -492,13 +494,13 @@ function AccountSection() {
                         <div className="very-small text-danger">
                           {!accountValidation.confirmPassword && accountValidation.password && (
                             <div className="password">
-                              <i class="fa-solid fa-triangle-exclamation me-1" />
+                              <i className="fa-solid fa-triangle-exclamation me-1" />
                               {accountValidation.password}
                             </div>
                           )}
                           {accountValidation.confirmPassword && (
                             <div className="confirmPassword">
-                              <i class="fa-solid fa-triangle-exclamation me-1" />
+                              <i className="fa-solid fa-triangle-exclamation me-1" />
                               {accountValidation.confirmPassword}
                             </div>
                           )}
@@ -585,7 +587,7 @@ function AccountSection() {
                       {accountValidation.email ? (
                         <div className="very-small text-danger mb-1">
                           <span className="email">
-                            <i class="fa-solid fa-triangle-exclamation me-1" />
+                            <i className="fa-solid fa-triangle-exclamation me-1" />
                             {accountValidation.email}
                           </span>
                         </div>

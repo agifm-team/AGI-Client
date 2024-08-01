@@ -1,5 +1,7 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import $ from 'jquery';
+
 import { UserEvent } from 'matrix-js-sdk';
 import { objType } from 'for-promise/utils/lib.mjs';
 
@@ -13,17 +15,19 @@ import { convertUserId } from '@src/util/matrixUtil';
 import tinyClipboard from '@src/util/libs/Clipboard';
 import { twemojifyReact, twemojify } from '../../../util/twemojify';
 
-import Avatar from '../../atoms/avatar/Avatar';
-import { getUserStatus, updateUserStatusIcon, getPresence } from '../../../util/onlineStatus';
+import Avatar, { AvatarJquery } from '../../atoms/avatar/Avatar';
+import {
+  getUserStatus,
+  updateUserStatusIcon,
+  getPresence,
+  canUsePresence,
+} from '../../../util/onlineStatus';
 import initMatrix from '../../../client/initMatrix';
 import { colorMXID, cssColorMXID } from '../../../util/colorMXID';
 import { addToDataFolder, getDataList } from '../../../util/selectedRoom';
 import { toast } from '../../../util/tools';
 import copyText from '../../organisms/profile-viewer/copyText';
-import matrixAppearance, {
-  getAppearance,
-  getAnimatedImageUrl,
-} from '../../../util/libs/appearance';
+import matrixAppearance from '../../../util/libs/appearance';
 
 const timezoneAutoUpdate = { text: null, html: null, value: null };
 setInterval(() => {
@@ -57,9 +61,7 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
   const bioRef = useRef(null);
   const noteRef = useRef(null);
 
-  const [avatarUrl, setUserAvatar] = useState(
-    user ? user?.avatarUrl || defaultAvatar(colorMXID(user.userId)) : null,
-  );
+  const [avatarUrl, setUserAvatar] = useState(user ? user?.avatarUrl : null);
 
   const mx = initMatrix.matrixClient;
   const mxcUrl = initMatrix.mxcUrl;
@@ -169,14 +171,13 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
       // Message Icon
       if (typeof presence.msgIcon === 'string' && presence.msgIcon.length > 0) {
         customStatusImg = ImgJquery({
+          animParentsCount: 4,
           src: presence.msgIconThumb,
+          animSrc: presence.msgIcon,
           alt: 'icon',
           className: 'emoji me-1',
         });
         htmlStatus.push(customStatusImg);
-
-        customStatusImg.data('pony-house-cs-normal', presence.msgIconThumb);
-        customStatusImg.data('pony-house-cs-hover', presence.msgIcon);
       }
 
       if (typeof presence.msg === 'string' && presence.msg.length > 0) {
@@ -191,11 +192,34 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
       const bannerDOM = $(profileBanner.current);
 
       if (bannerDOM.length > 0) {
-        if (typeof presence.banner === 'string' && presence.banner.length > 0) {
-          bannerDOM.css('background-image', `url("${presence.banner}")`).addClass('exist-banner');
-        } else {
-          bannerDOM.css('background-image', '').removeClass('exist-banner');
-        }
+        bannerDOM.css('background-image', '').removeClass('exist-banner');
+        const bannerData = AvatarJquery({
+          isObj: true,
+          imageSrc: presence.bannerThumb,
+          imageAnimSrc: presence.banner,
+          onLoadingChange: () => {
+            if (typeof bannerData.blobSrc === 'string' && bannerData.blobSrc.length > 0) {
+              bannerDOM
+                .css('background-image', `url("${bannerData.blobSrc}")`)
+                .addClass('exist-banner');
+
+              const bannerDomParent = bannerDOM.parent();
+
+              bannerDomParent
+                .off('mouseover')
+                .on('mouseover', () =>
+                  bannerDOM.css('background-image', `url("${bannerData.blobAnimSrc}")`),
+                );
+              bannerDomParent
+                .off('mouseout')
+                .on('mouseout', () =>
+                  bannerDOM.css('background-image', `url("${bannerData.blobSrc}")`),
+                );
+            } else {
+              bannerDOM.css('background-image', '').removeClass('exist-banner');
+            }
+          },
+        });
       }
     }
 
@@ -223,7 +247,7 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
     }
   };
 
-  if (user) {
+  if (user && canUsePresence()) {
     getCustomStatus(getPresence(user));
   }
 
@@ -237,7 +261,7 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
         setUserAvatar(tinyData?.avatarUrl);
 
         // Update Status Icon
-        getCustomStatus(updateUserStatusIcon(status, tinyUser));
+        if (canUsePresence) getCustomStatus(updateUserStatusIcon(status, tinyUser));
       };
 
       // Read Events
@@ -298,8 +322,6 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
   });
 
   if (user) {
-    const appearanceSettings = getAppearance();
-
     return (
       <>
         <div
@@ -309,23 +331,23 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
 
         <div className="text-center profile-user-profile-avatar">
           <Avatar
+            animParentsCount={2}
+            imgClass="profile-image-container"
             className="profile-image-container"
             ref={profileAvatar}
-            imageSrc={mxcUrl.toHttp(avatarUrl, 100, 100, 'crop')}
-            imageAnimSrc={
-              !appearanceSettings.enableAnimParams
-                ? mxcUrl.toHttp(avatarUrl)
-                : getAnimatedImageUrl(mxcUrl.toHttp(avatarUrl, 100, 100, 'crop'))
-            }
+            imageSrc={mxcUrl.toHttp(avatarUrl, 100, 100)}
+            imageAnimSrc={mxcUrl.toHttp(avatarUrl)}
             text={name}
             bgColor={color}
             size="large"
             isDefaultImage
           />
-          <i
-            ref={statusRef}
-            className={`user-status user-status-icon pe-2 ${getUserStatus(user)}`}
-          />
+          {canUsePresence() && (
+            <i
+              ref={statusRef}
+              className={`user-status user-status-icon pe-2 ${getUserStatus(user)}`}
+            />
+          )}
         </div>
 
         <div className="card bg-bg mx-3 text-start">

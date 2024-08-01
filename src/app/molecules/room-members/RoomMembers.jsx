@@ -5,7 +5,7 @@ import { RoomMemberEvent } from 'matrix-js-sdk';
 import initMatrix from '../../../client/initMatrix';
 import { colorMXID } from '../../../util/colorMXID';
 import { openProfileViewer, openReusableContextMenu } from '../../../client/action/navigation';
-import { getUsernameOfRoomMember, getPowerLabel } from '../../../util/matrixUtil';
+import { getUsernameOfRoomMember, getPowerLabel, dfAvatarSize } from '../../../util/matrixUtil';
 import AsyncSearch from '../../../util/AsyncSearch';
 import { memberByAtoZ, memberByPowerLevel } from '../../../util/sort';
 
@@ -26,7 +26,8 @@ function normalizeMembers(members) {
     userId: member.userId,
     name: getUsernameOfRoomMember(member),
     username: member.userId.slice(1, member.userId.indexOf(':')),
-    avatarSrc: mxcUrl.getAvatarUrl(member, 32, 32, 'crop'),
+    avatarSrc: mxcUrl.getAvatarUrl(member, dfAvatarSize, dfAvatarSize),
+    avatarAnimSrc: mxcUrl.getAvatarUrl(member),
     peopleRole: getPowerLabel(member.powerLevel),
     powerLevel: members.powerLevel,
   }));
@@ -73,7 +74,6 @@ function useMemberOfMembership(roomId, membership) {
 function useSearchMembers(members) {
   const [searchMembers, setSearchMembers] = useState(null);
   const [asyncSearch] = useState(new AsyncSearch());
-  if (asyncSearch) asyncSearch.setMaxListeners(__ENV_APP__.MAX_LISTENERS);
 
   const reSearch = useCallback(() => {
     if (searchMembers) {
@@ -153,17 +153,20 @@ function RoomMembers({ roomId }) {
           {mList.map((member) => (
             <PeopleSelector
               disableStatus
+              animParentsCount={1}
               avatarSize={32}
               key={member.userId}
               contextMenu={(e) => {
-                openReusableContextMenu('bottom', getEventCords(e, '.ic-btn'), (closeMenu) => (
-                  <UserOptions userId={member.userId} afterOptionSelect={closeMenu} />
-                ));
+                if (!initMatrix.isGuest)
+                  openReusableContextMenu('bottom', getEventCords(e, '.ic-btn'), (closeMenu) => (
+                    <UserOptions userId={member.userId} afterOptionSelect={closeMenu} />
+                  ));
 
                 e.preventDefault();
               }}
               onClick={() => openProfileViewer(member.userId, roomId)}
               avatarSrc={member.avatarSrc}
+              avatarAnimSrc={member.avatarAnimSrc}
               name={member.name}
               color={colorMXID(member.userId)}
               peopleRole={member.peopleRole}

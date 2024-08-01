@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import matrixAppearance, { getAppearance } from '@src/util/libs/appearance';
+import $ from 'jquery';
 
+import matrixAppearance, { getAppearance } from '@src/util/libs/appearance';
 import { updateName, sortTime, sortName } from '../../../util/roomName';
 import initMatrix from '../../../client/initMatrix';
 import {
@@ -55,7 +56,7 @@ function RoomsCategory({
   hideHeader = false,
   roomIds,
   drawerPostie,
-  notSpace = false,
+  isSpaces = false,
   type = null,
   isDM = false,
 }) {
@@ -95,7 +96,7 @@ function RoomsCategory({
 
     return (
       <Selector
-        notSpace={notSpace}
+        isSpaces={isSpaces}
         isProfile={isProfile}
         roomReady={roomReady}
         key={`roomCategory_renderSelector_${roomId}`}
@@ -295,7 +296,7 @@ function RoomsCategory({
 RoomsCategory.propTypes = {
   isDM: PropTypes.bool,
   type: PropTypes.string,
-  notSpace: PropTypes.bool,
+  isSpaces: PropTypes.bool,
   spaceId: PropTypes.string,
   name: PropTypes.string.isRequired,
   hideHeader: PropTypes.bool,

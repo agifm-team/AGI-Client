@@ -1,19 +1,16 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import Freezeframe from 'freezeframe';
+import $ from 'jquery';
 
-import { loadAvatar, forceLoadAvatars } from './load';
 import { twemojifyReact } from '../../../util/twemojify';
-
 import Text from '../text/Text';
 import RawIcon from '../system-icons/RawIcon';
 
 import { avatarInitials } from '../../../util/common';
 import { defaultAvatar, defaultProfileBanner, defaultSpaceBanner } from './defaultAvatar';
-import { getAppearance } from '../../../util/libs/appearance';
+import Img, { ImgJquery } from '../image/Image';
 
-const ImageBrokenSVG = './img/svg/image-broken.svg';
-
+// isAnimateAvatarsEnabled
 const defaultGetItems = {
   avatar: (colorCode) => defaultAvatar(colorCode),
   space: (colorCode) => defaultSpaceBanner(colorCode),
@@ -27,9 +24,9 @@ export const avatarDefaultColor = (bgColor, type = 'avatar') => {
     typeof colorCode !== 'number' ||
     Number.isNaN(colorCode) ||
     !Number.isFinite(colorCode) ||
-    colorCode < 1
+    colorCode < 0
   ) {
-    colorCode = 1;
+    colorCode = 0;
   }
 
   // Default Avatar
@@ -40,7 +37,11 @@ export const avatarDefaultColor = (bgColor, type = 'avatar') => {
 const Avatar = React.forwardRef(
   (
     {
+      isObj = false,
       onClick = null,
+      onError = null,
+      onLoad = null,
+      onLoadingChange = null,
       neonColor = false,
       text = null,
       bgColor = 'transparent',
@@ -53,17 +54,13 @@ const Avatar = React.forwardRef(
       imgClass = 'img-fluid',
       imageAnimSrc = null,
       isDefaultImage = false,
-      animParentsCount = 4,
+      animParentsCount = 3,
       theRef,
     },
     ref,
   ) => {
-    // Freeze Avatar
-    const freezeAvatarRef = useRef(null);
-    const ref2 = useRef(null);
-
-    // Avatar Config
-    const appearanceSettings = getAppearance();
+    const imgRef = ref || useRef(null);
+    const [isLoading, setIsLoading] = useState(0);
 
     // Prepare Data
     let textSize = 's1';
@@ -71,147 +68,75 @@ const Avatar = React.forwardRef(
     if (size === 'small') textSize = 'b1';
     if (size === 'extra-small') textSize = 'b3';
 
-    const tinyDa = avatarDefaultColor(bgColor);
-    setTimeout(forceLoadAvatars, 100);
-    useEffect(() => {
-      forceLoadAvatars();
-      if (freezeAvatarRef.current) {
-        const avatar = new Freezeframe(freezeAvatarRef.current, {
-          responsive: true,
-          trigger: false,
-          overlay: false,
-        });
-
-        const img = $(avatar.$images[0]);
-        const loadingimg = img.attr('loadingimg');
-        if (loadingimg !== 'true' && loadingimg !== true) {
-          img.attr('loadingimg', 'true');
-          let tinyNode = avatar.$images[0];
-          for (let i = 0; i < animParentsCount + 1; i++) {
-            tinyNode = tinyNode.parentNode;
-          }
-
-          // Final Node
-          tinyNode = $(tinyNode);
-
-          // Insert Effects
-          tinyNode.hover(
-            () => {
-              if (typeof avatar.start === 'function') avatar.start();
-            },
-            () => {
-              if (typeof avatar.stop === 'function') avatar.stop();
-            },
-          );
-
-          if (typeof avatar.render === 'function') avatar.render();
-          return () => {
-            if (avatar && typeof avatar.destroy === 'function') avatar.destroy();
-          };
-        }
-      }
-    }, []);
-
-    const onLoadAvatar = () => {
-      if (ref) {
-        if (ref.current) ref.current.classList.add('avatar-react-loaded');
-      } else if (ref2.current) ref2.current.classList.add('avatar-react-loaded');
-    };
-
-    const isImage = imageSrc !== null || isDefaultImage;
+    // Icons
+    const tinyIcon = () =>
+      faSrc !== null ? (
+        <span
+          style={{ backgroundColor: faSrc === null ? bgColor : 'transparent' }}
+          className={`avatar__border${faSrc !== null ? '--active' : ''}`}
+        >
+          <RawIcon size={size} fa={faSrc} neonColor={neonColor} color={iconColor} />
+        </span>
+      ) : (
+        <span
+          style={{ backgroundColor: iconSrc === null ? bgColor : 'transparent' }}
+          className={`avatar__border${iconSrc !== null ? '--active' : ''}`}
+        >
+          {iconSrc !== null ? (
+            <RawIcon size={size} src={iconSrc} neonColor={neonColor} color={iconColor} />
+          ) : (
+            text !== null && (
+              <Text variant={textSize} primary>
+                {twemojifyReact(true, avatarInitials(text))}
+              </Text>
+            )
+          )}
+        </span>
+      );
 
     // Render
-    return (
-      <div
+    const isImage = imageSrc !== null || isDefaultImage;
+    const tinyImg = isImage ? (
+      <Img
+        isObj={isObj}
+        disableBase
+        onError={onError}
+        bgColor={bgColor}
+        onLoad={onLoad}
         onClick={onClick}
-        ref={ref || ref2}
-        className={`avatar-container avatar-container__${size} ${className} noselect${isImage ? '' : ' avatar-react-loaded'}`}
-      >
-        {
-          // Exist Image
-          isImage ? (
-            // Image
-            !imageAnimSrc || !appearanceSettings.isAnimateAvatarsEnabled ? (
-              // Default Image
-              <img
-                ref={theRef}
-                className={`avatar-react${imgClass ? ` ${imgClass}` : ''}`}
-                draggable="false"
-                src={typeof imageSrc === 'string' && imageSrc.length > 0 ? imageSrc : tinyDa}
-                onLoad={onLoadAvatar}
-                onError={(e) => {
-                  e.target.src = ImageBrokenSVG;
-                }}
-                alt={text || 'avatar'}
-              />
-            ) : appearanceSettings.useFreezePlugin ? (
-              // Custom Image
-              <div className="react-freezeframe">
-                <img
-                  ref={freezeAvatarRef}
-                  className={`avatar-react${imgClass ? ` ${imgClass}` : ''}`}
-                  onLoad={onLoadAvatar}
-                  src={
-                    typeof imageAnimSrc === 'string' && imageAnimSrc.length > 0
-                      ? imageAnimSrc
-                      : tinyDa
-                  }
-                  alt={text || 'avatar'}
-                />
-              </div>
-            ) : (
-              <img
-                className={`avatar-react${imgClass ? ` ${imgClass}` : ''}`}
-                draggable="false"
-                loadedimg="false"
-                loadingimg="false"
-                animparentscount={animParentsCount}
-                animsrc={imageAnimSrc}
-                normalsrc={imageSrc}
-                defaultavatar={tinyDa}
-                src={tinyDa}
-                onLoad={(e) => {
-                  onLoadAvatar(e);
-                  loadAvatar(e);
-                }}
-                onError={(e) => {
-                  e.target.src = ImageBrokenSVG;
-                }}
-                alt={text || 'avatar'}
-              />
-            )
-          ) : // Icons
-          faSrc !== null ? (
-            <span
-              style={{ backgroundColor: faSrc === null ? bgColor : 'transparent' }}
-              className={`avatar__border${faSrc !== null ? '--active' : ''}`}
-            >
-              <RawIcon size={size} fa={faSrc} neonColor={neonColor} color={iconColor} />
-            </span>
-          ) : (
-            <span
-              style={{ backgroundColor: iconSrc === null ? bgColor : 'transparent' }}
-              className={`avatar__border${iconSrc !== null ? '--active' : ''}`}
-            >
-              {iconSrc !== null ? (
-                <RawIcon size={size} src={iconSrc} neonColor={neonColor} color={iconColor} />
-              ) : (
-                text !== null && (
-                  <Text variant={textSize} primary>
-                    {twemojifyReact(true, avatarInitials(text))}
-                  </Text>
-                )
-              )}
-            </span>
-          )
-        }
-      </div>
+        onLoadingChange={(value) => {
+          setIsLoading(value);
+          if (onLoadingChange) onLoadingChange(value);
+        }}
+        getDefaultImage={avatarDefaultColor}
+        isDefaultImage={isDefaultImage}
+        ref={theRef}
+        src={imageSrc}
+        animSrc={imageAnimSrc}
+        animParentsCount={animParentsCount + 1}
+        className={`avatar-react${imgClass ? ` ${imgClass}` : ''}`}
+        alt={text || 'avatar'}
+      />
+    ) : (
+      tinyIcon()
     );
+
+    if (!isObj)
+      return (
+        <div
+          onClick={onClick}
+          ref={imgRef}
+          className={`avatar-container${`${className ? ` ${className}` : ''}`} noselect${isImage && isLoading < 2 ? '' : ' image-react-loaded'}`}
+        >
+          {tinyImg}
+        </div>
+      );
+    else return tinyImg;
   },
 );
 
-// Props
-Avatar.propTypes = {
+const imgPropTypes = {
+  isObj: PropTypes.bool,
   neonColor: PropTypes.bool,
   animParentsCount: PropTypes.number,
   isDefaultImage: PropTypes.bool,
@@ -224,8 +149,62 @@ Avatar.propTypes = {
   faSrc: PropTypes.string,
   iconColor: PropTypes.string,
   imageSrc: PropTypes.string,
+  onError: PropTypes.func,
   onClick: PropTypes.func,
+  onLoad: PropTypes.func,
+  onLoadingChange: PropTypes.func,
   size: PropTypes.oneOf(['large', 'normal', 'small', 'extra-small']),
 };
 
+// Props
+Avatar.propTypes = imgPropTypes;
 export default Avatar;
+
+// jQuery
+const AvatarJquery = ({
+  isObj = false,
+  onClick = null,
+  onError = null,
+  onLoad = null,
+  onLoadingChange = null,
+  text = null,
+  imageSrc = null,
+  imageAnimSrc = null,
+  animParentsCount = 0,
+  imgClass = 'img-fluid',
+  className = null,
+  bgColor = 'transparent',
+  isDefaultImage = false,
+}) => {
+  const tinyBase = $('<div>', {
+    class: `avatar-container${`${className ? ` ${className}` : ''}`} noselect`,
+  });
+
+  const tinyImg = ImgJquery({
+    isObj,
+    onClick,
+    onError,
+    onLoad,
+    isDefaultImage: isDefaultImage,
+    getDefaultImage: avatarDefaultColor,
+    bgColor,
+    animParentsCount,
+    disableBase: true,
+    alt: text || 'avatar',
+    className: `avatar-react${imgClass ? ` ${imgClass}` : ''}`,
+    draggable: false,
+    src: imageSrc,
+    animSrc: imageAnimSrc,
+    onLoadingChange: (isLoading) => {
+      if (isLoading >= 2) tinyBase.addClass('image-react-loaded');
+      if (onLoadingChange) onLoadingChange(isLoading);
+    },
+  });
+
+  if (!isObj) return tinyBase.append(tinyImg);
+  return tinyImg;
+};
+
+AvatarJquery.propTypes = imgPropTypes;
+
+export { AvatarJquery };

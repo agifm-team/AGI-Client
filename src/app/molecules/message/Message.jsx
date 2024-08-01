@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useState, useEffect, useCallback, useRef, useReducer } from 'react';
 import PropTypes from 'prop-types';
+import $ from 'jquery';
 
 import { MatrixEventEvent, RoomEvent, THREAD_RELATION_TYPE } from 'matrix-js-sdk';
 import { objType } from 'for-promise/utils/lib.mjs';
@@ -9,8 +10,6 @@ import clone from 'clone';
 import hljs from 'highlight.js';
 import * as linkify from 'linkifyjs';
 import forPromise from 'for-promise';
-
-import { ImgJquery } from '@src/app/atoms/image/Image';
 
 import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 import cons from '@src/client/state/cons';
@@ -41,6 +40,7 @@ import {
   trimHTMLReply,
   getCurrentState,
   canSupport,
+  dfAvatarSize,
 } from '../../../util/matrixUtil';
 
 import { colorMXID, backgroundColorMXID } from '../../../util/colorMXID';
@@ -62,7 +62,7 @@ import RawIcon from '../../atoms/system-icons/RawIcon';
 import Button from '../../atoms/button/Button';
 import Tooltip from '../../atoms/tooltip/Tooltip';
 import Input from '../../atoms/input/Input';
-import Avatar, { avatarDefaultColor } from '../../atoms/avatar/Avatar';
+import Avatar, { AvatarJquery } from '../../atoms/avatar/Avatar';
 import IconButton from '../../atoms/button/IconButton';
 import Time from '../../atoms/time/Time';
 import ContextMenu, {
@@ -87,7 +87,7 @@ import UserOptions from '../user-options/UserOptions';
 import { getDataList } from '../../../util/selectedRoom';
 import { tinyLinkifyFixer } from '../../../util/clear-urls/clearUrls';
 import { canPinMessage, isPinnedMessage, setPinMessage } from '../../../util/libs/pinMessage';
-import { mediaFix, tinyFixScrollChat } from '../media/mediaFix';
+import tinyFixScrollChat from '../media/mediaFix';
 import { everyoneTags } from '../global-notification/KeywordNotification';
 
 function PlaceholderMessage({
@@ -104,7 +104,7 @@ function PlaceholderMessage({
     <tr className="ph-msg">
       <td className="p-0 ps-2 ps-md-4 py-1 pe-md-2 align-top text-center chat-base">
         <center>
-          <div className="avatar-container" />
+          <div className="avatar-container profile-image-container" />
         </center>
       </td>
       <td className="p-0 pe-3 py-1">
@@ -150,10 +150,12 @@ const MessageAvatar = React.memo(
     >
       <Avatar
         imgClass="profile-image-container"
+        className="profile-image-container"
         imageAnimSrc={avatarAnimSrc}
         imageSrc={avatarSrc}
         text={username}
         bgColor={bgColor}
+        isDefaultImage
       />
     </button>
   ),
@@ -170,9 +172,10 @@ const MessageHeader = React.memo(({ userId, username }) => {
     <span
       onClick={usernameClick}
       onContextMenu={(e) => {
-        openReusableContextMenu('bottom', getEventCords(e, '.username'), (closeMenu) => (
-          <UserOptions userId={userId} afterOptionSelect={closeMenu} />
-        ));
+        if (!initMatrix.isGuest)
+          openReusableContextMenu('bottom', getEventCords(e, '.username'), (closeMenu) => (
+            <UserOptions userId={userId} afterOptionSelect={closeMenu} />
+          ));
 
         e.preventDefault();
       }}
@@ -311,21 +314,35 @@ const isEmojiOnly = (msgContent) => {
   // - Contains no more than 10 emoji
   let emojiOnly = false;
   if (msgContent) {
-    if (msgContent.type === 'img') {
+    if (
+      msgContent.type === 'img' ||
+      (msgContent.props &&
+        (typeof msgContent.props.dataMxEmoticon === 'string' ||
+          msgContent.props.className === 'emoji'))
+    ) {
       // If this messages contains only a single (inline) image
       emojiOnly = true;
     } else if (msgContent.constructor.name === 'Array') {
       // Otherwise, it might be an array of images / text
 
       // Count the number of emojis
-      const nEmojis = msgContent.filter((e) => e.type === 'img').length;
+      const nEmojis = msgContent.filter(
+        (e) =>
+          e.type === 'img' ||
+          (e.props &&
+            (typeof e.props.dataMxEmoticon === 'string' || e.props.className === 'emoji')),
+      ).length;
 
       // Make sure there's no text besides whitespace and variation selector U+FE0F
       if (
         nEmojis <= 10 &&
         msgContent.every(
           (element) =>
-            (typeof element === 'object' && element.type === 'img') ||
+            (typeof element === 'object' &&
+              (element.type === 'img' ||
+                (element.props &&
+                  (typeof element.props.dataMxEmoticon === 'string' ||
+                    element.props.className === 'emoji')))) ||
             (typeof element === 'string' && /^[\s\ufe0f]*$/g.test(element)),
         )
       ) {
@@ -351,23 +368,12 @@ const createMessageData = (
   let msgData = null;
   if (isCustomHTML) {
     try {
-      const insertMsg = () =>
-        !isJquery
-          ? twemojifyReact(
-              sanitizeCustomHtml(initMatrix.matrixClient, body, senderId),
-              undefined,
-              true,
-              false,
-              true,
-            )
-          : twemojify(
-              sanitizeCustomHtml(initMatrix.matrixClient, body, senderId),
-              undefined,
-              true,
-              false,
-              true,
-            );
-
+      const insertMsg = () => {
+        const messageHtml = sanitizeCustomHtml(initMatrix.matrixClient, body, senderId);
+        return !isJquery
+          ? twemojifyReact(messageHtml, undefined, true, false, true)
+          : twemojify(messageHtml, undefined, true, false, true);
+      };
       const msgOptions = tinyAPI.emit(
         'messageBody',
         content,
@@ -395,7 +401,7 @@ const createMessageData = (
   return msgData;
 };
 
-const messageDataEffects = (messageBody, embedHeight, setEmbedHeight) => {
+const messageDataEffects = (messageBody) => {
   messageBody.find('pre code').each((index, value) => {
     const el = $(value);
     resizeWindowChecker();
@@ -403,31 +409,18 @@ const messageDataEffects = (messageBody, embedHeight, setEmbedHeight) => {
     if (!el.hasClass('hljs')) {
       hljs.highlightElement(value);
       el.addClass('chatbox-size-fix');
-      mediaFix(null, embedHeight, setEmbedHeight);
+      tinyFixScrollChat();
     }
 
     if (!el.hasClass('hljs-fix')) {
       el.addClass('hljs-fix');
-      hljsFixer(el, 'MessageBody', () => mediaFix(null, embedHeight, setEmbedHeight));
-      mediaFix(null, embedHeight, setEmbedHeight);
+      hljsFixer(el, 'MessageBody', () => tinyFixScrollChat());
+      tinyFixScrollChat();
     }
 
     if (!el.hasClass('hljs')) {
       el.addClass('hljs');
-      mediaFix(null, embedHeight, setEmbedHeight);
-    }
-  });
-
-  // Add tooltip on the emoji
-  messageBody.find('[data-mx-emoticon], .emoji').each((index, value) => {
-    const el = $(value);
-
-    if (!el.hasClass('emoji-fix')) {
-      if (!el.attr('title') && el.attr('alt')) el.attr('title', el.attr('alt'));
-
-      new bootstrap.Tooltip(value, { customClass: 'small' });
-      el.addClass('emoji-fix');
-      el.attr('draggable', 'false');
+      tinyFixScrollChat();
     }
   });
 };
@@ -453,10 +446,9 @@ const MessageBody = React.memo(
     messageStatus,
   }) => {
     const messageBody = useRef(null);
-    const [embedHeight, setEmbedHeight] = useState(null);
 
     useEffect(() => {
-      messageDataEffects($(messageBody.current), embedHeight, setEmbedHeight);
+      messageDataEffects($(messageBody.current));
     });
 
     // if body is not string it is a React element.
@@ -765,8 +757,6 @@ MessageReaction.propTypes = {
 };
 
 function MessageReactionGroup({ roomTimeline, mEvent }) {
-  const itemEmbed = useRef(null);
-  const [embedHeight, setEmbedHeight] = useState(null);
   const [, forceUpdate] = useReducer((count) => count + 1, 0);
 
   const { roomId, room, reactionTimeline } = roomTimeline;
@@ -786,7 +776,7 @@ function MessageReactionGroup({ roomTimeline, mEvent }) {
   // Create reaction list and limit the amount to 20
   const reacts = getEventReactions(eventReactions, false, reactionLimit);
 
-  useEffect(() => mediaFix(itemEmbed, embedHeight, setEmbedHeight));
+  useEffect(() => tinyFixScrollChat());
 
   return (
     <div className="noselect">
@@ -1066,35 +1056,27 @@ const MessageOptions = React.memo(
                         const color = colorMXID(userId);
 
                         const username = user ? muteUserManager.getSelectorName(user) : userId;
-                        const avatarAnimSrc = user
-                          ? !appearanceSettings.enableAnimParams
-                            ? mxcUrl.toHttp(user.avatarUrl)
-                            : (getAnimatedImageUrl(mxcUrl.toHttp(user.avatarUrl, 36, 36, 'crop')) ??
-                              avatarDefaultColor(color))
-                          : avatarDefaultColor(color);
+                        const avatarAnimSrc = user ? mxcUrl.toHttp(user.avatarUrl) : null;
+                        const avatarSrc = user
+                          ? mxcUrl.toHttp(user.avatarUrl, dfAvatarSize, dfAvatarSize)
+                          : null;
 
                         const ct = $('<div>', {
-                          class:
-                            'align-top text-center chat-base avatar-container profile-image-container d-inline-block',
+                          class: 'align-top text-center chat-base d-inline-block',
                         });
 
                         users.push(
                           $('<div>', { class: 'my-2 user-react rounded p-1' })
                             .append(
                               ct.append(
-                                ImgJquery({
-                                  className: 'avatar-react',
-                                  draggable: false,
-                                  src: avatarAnimSrc,
-                                  alt: 'avatar',
-                                })
-                                  .on('load', (event) => {
-                                    ct.addClass('avatar-react-loaded');
-                                  })
-                                  .on('error', (event) => {
-                                    const e = event.originalEvent;
-                                    e.target.src = ImageBrokenSVG;
-                                  }),
+                                AvatarJquery({
+                                  animParentsCount: 3,
+                                  className: 'profile-image-container',
+                                  imgClass: 'profile-image-container',
+                                  imageSrc: avatarSrc,
+                                  imageAnimSrc: avatarAnimSrc,
+                                  isDefaultImage: true,
+                                }),
                               ),
 
                               $('<span>', { class: 'small react-username' }).text(username),
@@ -1292,6 +1274,8 @@ const MessageThreadSummary = React.memo(({ thread, useManualCheck = false }) => 
   const [show, setShow] = useState(false);
   thread.setMaxListeners(__ENV_APP__.MAX_LISTENERS);
 
+  const appearanceSettings = getAppearance();
+
   // can't have empty threads
   if (thread.length === 0) return null;
 
@@ -1308,12 +1292,9 @@ const MessageThreadSummary = React.memo(({ thread, useManualCheck = false }) => 
     lastSender && typeof lastSender?.userId === 'string' ? colorMXID(lastSender?.userId) : null;
 
   // Avatar
-  const newAvatar = mxcUrl.getAvatarUrl(lastSender, 36, 36, 'crop', true, false);
-  const lastSenderAvatarSrc = newAvatar
-    ? newAvatar
-    : typeof color === 'string'
-      ? avatarDefaultColor(color)
-      : defaultAvatar(0);
+  const avatarSrc =
+    mxcUrl.getAvatarUrl(lastSender, dfAvatarSize, dfAvatarSize, undefined, true, false) ?? null;
+  const avatarAnimSrc = mxcUrl.getAvatarUrl(lastSender);
 
   // Select Thread
   function selectThread() {
@@ -1368,8 +1349,11 @@ const MessageThreadSummary = React.memo(({ thread, useManualCheck = false }) => 
             {lastSender ? (
               <>
                 <Avatar
+                  animParentsCount={2}
+                  isDefaultImage
                   className="profile-image-container"
-                  imageSrc={lastSenderAvatarSrc}
+                  imageSrc={avatarSrc}
+                  imageAnimSrc={avatarAnimSrc}
                   text={lastSender?.name}
                   bgColor={backgroundColorMXID(lastSender?.userId)}
                   size="small"
@@ -1514,7 +1498,7 @@ function genMediaContent(mE, seeHiddenData, setSeeHiddenData) {
           link={
             !enableAnimParams
               ? mxcUrl.toHttp(mediaMXC)
-              : getAnimatedImageUrl(mxcUrl.toHttp(mediaMXC, 170, 170, 'crop'))
+              : getAnimatedImageUrl(mxcUrl.toHttp(mediaMXC, 170, 170))
           }
           file={isEncryptedFile ? mContent.file : null}
           type={mContent.info?.mimetype}
@@ -1633,7 +1617,6 @@ function Message({
   const [seeHiddenData, setSeeHiddenData] = useState(false);
   const [existThread, updateExistThread] = useState(typeof threadId === 'string');
   const [embeds, setEmbeds] = useState([]);
-  const [embedHeight, setEmbedHeight] = useState(null);
   const [isFocus, setIsFocus] = useState(null);
   const [translateText, setTranslateText] = useState(null);
   const messageElement = useRef(null);
@@ -1672,11 +1655,8 @@ function Message({
 
   const color = colorMXID(senderId);
   const username = muteUserManager.getMessageName(mEvent, isDM);
-  const avatarSrc = mxcUrl.getAvatarUrl(mEvent.sender, 36, 36, 'crop') ?? avatarDefaultColor(color);
-  const avatarAnimSrc = !appearanceSettings.enableAnimParams
-    ? mxcUrl.getAvatarUrl(mEvent.sender)
-    : (getAnimatedImageUrl(mxcUrl.getAvatarUrl(mEvent.sender, 36, 36, 'crop')) ??
-      avatarDefaultColor(color));
+  const avatarSrc = mxcUrl.getAvatarUrl(mEvent.sender, dfAvatarSize, dfAvatarSize);
+  const avatarAnimSrc = mxcUrl.getAvatarUrl(mEvent.sender);
 
   // Content Data
   let isCustomHTML = content.format === 'org.matrix.custom.html';
@@ -1685,13 +1665,13 @@ function Message({
   // Edit Data
   const edit = useCallback(() => {
     if (eventId && setEdit) setEdit(eventId);
-    mediaFix(null, embedHeight, setEmbedHeight);
+    tinyFixScrollChat();
   }, [setEdit, eventId]);
 
   // Reply Data
   const reply = useCallback(() => {
     if (eventId && senderId) replyTo(senderId, eventId, body, customHTML);
-    mediaFix(null, embedHeight, setEmbedHeight);
+    tinyFixScrollChat();
   }, [body, customHTML, eventId, senderId]);
 
   if (!eventId) {
@@ -1798,7 +1778,7 @@ function Message({
                   ) {
                     try {
                       tinyEmbed.data = await getUrlPreview(bodyUrls[item].href);
-                      mediaFix(null, embedHeight, setEmbedHeight);
+                      tinyFixScrollChat();
                     } catch (err) {
                       tinyEmbed.data = null;
                       console.error(err);
@@ -1829,7 +1809,7 @@ function Message({
                   ) {
                     try {
                       tinyEmbed.data = await getUrlPreview(bodyUrls[item].href);
-                      mediaFix(null, embedHeight, setEmbedHeight);
+                      tinyFixScrollChat();
                     } catch (err) {
                       tinyEmbed.data = null;
                       console.error(err);
@@ -1844,7 +1824,7 @@ function Message({
               }
             }
 
-            mediaFix(null, embedHeight, setEmbedHeight);
+            tinyFixScrollChat();
             setEmbeds(newEmbeds);
           };
 
@@ -1853,7 +1833,7 @@ function Message({
       }
 
       // Complete
-      mediaFix(null, embedHeight, setEmbedHeight);
+      tinyFixScrollChat();
     } else if (embeds.length > 0 && muteUserManager.isEmbedMuted(senderId)) {
       setEmbeds([]);
     }
@@ -1947,9 +1927,10 @@ function Message({
   });
 
   const contextMenuClick = (e) => {
-    openReusableContextMenu('bottom', getEventCords(e, '.ic-btn'), (closeMenu) => (
-      <UserOptions userId={senderId} afterOptionSelect={closeMenu} />
-    ));
+    if (!initMatrix.isGuest)
+      openReusableContextMenu('bottom', getEventCords(e, '.ic-btn'), (closeMenu) => (
+        <UserOptions userId={senderId} afterOptionSelect={closeMenu} />
+      ));
 
     e.preventDefault();
   };

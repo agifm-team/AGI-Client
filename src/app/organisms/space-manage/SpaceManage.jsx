@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { RoomStateEvent } from 'matrix-js-sdk';
+import $ from 'jquery';
 
+import { RoomStateEvent } from 'matrix-js-sdk';
 import { twemojifyReact } from '../../../util/twemojify';
 
 import initMatrix from '../../../client/initMatrix';
@@ -10,7 +11,12 @@ import navigation from '../../../client/state/navigation';
 import { colorMXID } from '../../../util/colorMXID';
 import { selectRoom, selectTab, selectRoomMode } from '../../../client/action/navigation';
 import RoomsHierarchy from '../../../client/state/RoomsHierarchy';
-import { joinRuleToIconSrc, getCurrentState } from '../../../util/matrixUtil';
+import {
+  joinRuleToIconSrc,
+  getCurrentState,
+  getRoomAvatars,
+  dfAvatarSize,
+} from '../../../util/matrixUtil';
 import { join } from '../../../client/action/room';
 import { Debounce } from '../../../util/common';
 
@@ -27,7 +33,7 @@ import PopupWindow from '../../molecules/popup-window/PopupWindow';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { useStore } from '../../hooks/useStore';
 import { toast } from '../../../util/tools';
-import { getAppearance, getAnimatedImageUrl } from '../../../util/libs/appearance';
+import { getAppearance } from '../../../util/libs/appearance';
 
 function SpaceManageBreadcrumb({ path, onSelect }) {
   return (
@@ -87,28 +93,8 @@ function SpaceManageItem({
   const room = mx.getRoom(roomId);
   const isJoined = !!(room?.getMyMembership() === 'join' || null);
   const name = room?.name || roomInfo.name || roomInfo.canonical_alias || roomId;
-
-  let imageSrc = mxcUrl.toHttp(roomInfo.avatar_url, 32, 32, 'crop') || null;
-  if (!imageSrc && room) {
-    imageSrc = mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 32, 32, 'crop') || null;
-    if (imageSrc === null) imageSrc = mxcUrl.getAvatarUrl(room, 32, 32, 'crop') || null;
-  }
-
-  let imageAnimSrc = !appearanceSettings.enableAnimParams
-    ? roomInfo.avatar_url
-    : (roomInfo.avatar_url, 32, 32, 'crop') || null;
-  if (!imageAnimSrc && room) {
-    imageAnimSrc = !appearanceSettings.enableAnimParams
-      ? mxcUrl.getAvatarUrl(room.getAvatarFallbackMember())
-      : getAnimatedImageUrl(mxcUrl.getAvatarUrl(room.getAvatarFallbackMember(), 32, 32, 'crop')) ||
-        null;
-    if (imageAnimSrc === null)
-      imageAnimSrc = !appearanceSettings.enableAnimParams
-        ? mxcUrl.getAvatarUrl(room)
-        : getAnimatedImageUrl(mxcUrl.getAvatarUrl(room, 32, 32, 'crop')) || null;
-  }
-
   const isDM = directs.has(roomId);
+  const { imageSrc, imageAnimSrc } = getRoomAvatars(room, dfAvatarSize, isDM);
 
   const handleOpen = () => {
     if (isSpace) selectTab(roomId, true);
@@ -139,11 +125,12 @@ function SpaceManageItem({
 
   const roomAvatarJSX = (
     <Avatar
+      imgClass="profile-image-container"
       className="profile-image-container"
       text={name}
       bgColor={colorMXID(roomId)}
-      imageAnimSrc={isDM ? imageAnimSrc : null}
-      imageSrc={isDM ? imageSrc : null}
+      imageAnimSrc={imageAnimSrc}
+      imageSrc={imageSrc}
       iconColor="var(--ic-surface-low)"
       iconSrc={isDM ? null : joinRuleToIconSrc(roomInfo.join_rules || roomInfo.join_rule, isSpace)}
       size="extra-small"
@@ -430,7 +417,7 @@ function SpaceManageContent({ roomId, requestClose }) {
         <Button onClick={loadRoomHierarchy}>Load more</Button>
       )}
       {isLoading && (
-        <div className="space-manage__content-loading">
+        <div className="mt-2 space-manage__content-loading text-center">
           <Spinner size="small" />
           <Text>Loading rooms...</Text>
         </div>

@@ -5,7 +5,7 @@ import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
 import AsyncSearch from '../../../util/AsyncSearch';
 import { selectRoom, selectTab, selectRoomMode } from '../../../client/action/navigation';
-import { joinRuleToIconSrc } from '../../../util/matrixUtil';
+import { dfAvatarSize, joinRuleToIconSrc } from '../../../util/matrixUtil';
 import { roomIdByActivity } from '../../../util/sort';
 
 import Dialog from '../../molecules/dialog/Dialog';
@@ -14,7 +14,6 @@ import IconButton from '../../atoms/button/IconButton';
 import Input from '../../atoms/input/Input';
 import ScrollView from '../../atoms/scroll/ScrollView';
 import RoomSelector from '../../molecules/room-selector/RoomSelector';
-import { getAppearance, getAnimatedImageUrl } from '../../../util/libs/appearance';
 
 function useVisiblityToggle(setResult) {
   const [isOpen, setIsOpen] = useState(false);
@@ -71,10 +70,8 @@ function mapRoomIds(roomIds) {
 }
 
 function Search() {
-  const appearanceSettings = getAppearance();
   const [result, setResult] = useState(null);
   const [asyncSearch] = useState(new AsyncSearch());
-  if (asyncSearch) asyncSearch.setMaxListeners(__ENV_APP__.MAX_LISTENERS);
   const [isOpen, requestClose] = useVisiblityToggle(setResult);
   const searchRef = useRef(null);
 
@@ -178,12 +175,12 @@ function Search() {
     let iconSrc = null;
 
     if (item.type === 'direct') {
-      imageSrc = mxcUrl.getAvatarUrl(item.room.getAvatarFallbackMember(), 32, 32, 'crop') || null;
-      imageAnimSrc = !appearanceSettings.enableAnimParams
-        ? mxcUrl.getAvatarUrl(item.room.getAvatarFallbackMember())
-        : getAnimatedImageUrl(
-            mxcUrl.getAvatarUrl(item.room.getAvatarFallbackMember(), 32, 32, 'crop'),
-          ) || null;
+      imageSrc = mxcUrl.getAvatarUrl(
+        item.room.getAvatarFallbackMember(),
+        dfAvatarSize,
+        dfAvatarSize,
+      );
+      imageAnimSrc = mxcUrl.getAvatarUrl(item.room.getAvatarFallbackMember());
     } else {
       iconSrc = joinRuleToIconSrc(item.room.getJoinRule(), item.type === 'space');
     }

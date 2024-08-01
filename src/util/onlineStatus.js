@@ -1,7 +1,6 @@
 import initMatrix from '../client/initMatrix';
 import { twemojifyToUrl } from './twemojify';
 import { getUserWeb3Account } from './web3';
-import { getAppearance, getAnimatedImageUrl } from './libs/appearance';
 
 // Status Builder
 const statusList = {
@@ -23,6 +22,18 @@ const statusIcons = {
 const statusIcons2 = {};
 for (const item in statusIcons) {
   statusIcons2[statusIcons[item]] = item;
+}
+
+export function canUsePresence() {
+  return true;
+  /*
+  const user = initMatrix.matrixClient.getUser(initMatrix.matrixClient.getUserId());
+  return (
+    (typeof user.lastPresenceTs === 'number' && user.lastPresenceTs > 0) ||
+    (typeof user.lastActiveAgo === 'number' && user.lastActiveAgo > 0) ||
+    user.currentlyActive
+  );
+  */
 }
 
 export function getStatusCSS(presence) {
@@ -57,9 +68,7 @@ export function validatorStatusIcon(presence) {
 export function parsePresenceStatus(presence, userId) {
   if (typeof presence === 'string') {
     // Get data
-    const mx = initMatrix.matrixClient;
     const mxcUrl = initMatrix.mxcUrl;
-    const appearanceSettings = getAppearance();
 
     // Result
     const tinyResult = { status: null, msg: null, bio: null, timezone: null, banner: null };
@@ -90,19 +99,15 @@ export function parsePresenceStatus(presence, userId) {
             tinyResult.msgIcon = twemojifyToUrl(tinyParse.msgIcon);
             tinyResult.msgIconThumb = tinyResult.msgIcon;
           } else {
-            tinyResult.msgIcon = !appearanceSettings.enableAnimParams
-              ? mxcUrl.toHttp(tinyParse.msgIcon)
-              : getAnimatedImageUrl(mxcUrl.toHttp(tinyParse.msgIcon, 50, 50, 'crop'));
-            tinyResult.msgIconThumb = mxcUrl.toHttp(tinyParse.msgIcon, 50, 50, 'crop');
+            tinyResult.msgIcon = mxcUrl.toHttp(tinyParse.msgIcon);
+            tinyResult.msgIconThumb = mxcUrl.toHttp(tinyParse.msgIcon, 50, 50);
           }
         }
 
         // User Banner
         if (typeof tinyParse.banner === 'string' && tinyParse.banner.length > 0) {
-          tinyResult.banner = !appearanceSettings.enableAnimParams
-            ? mxcUrl.toHttp(tinyParse.banner)
-            : getAnimatedImageUrl(mxcUrl.toHttp(tinyParse.banner, 1500, 500, 'crop'));
-          tinyResult.bannerThumb = mxcUrl.toHttp(tinyParse.banner, 1500, 500, 'crop');
+          tinyResult.banner = mxcUrl.toHttp(tinyParse.banner);
+          tinyResult.bannerThumb = mxcUrl.toHttp(tinyParse.banner, 1500, 500);
         }
 
         // Pronouns
@@ -127,7 +132,7 @@ export function parsePresenceStatus(presence, userId) {
           tinyResult.afk = false;
         }
       }
-    } catch (err) {
+    } catch {
       tinyResult.msg = presence.substring(0, 100);
     }
 

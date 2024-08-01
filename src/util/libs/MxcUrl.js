@@ -1,4 +1,6 @@
 import encrypt from 'matrix-encrypt-attachment';
+import EventEmitter from 'events';
+import { generateApiKey } from 'generate-api-key';
 
 import { fetchFn } from '@src/client/initMatrix';
 import { avatarDefaultColor } from '@src/app/atoms/avatar/Avatar';
@@ -6,12 +8,26 @@ import { avatarDefaultColor } from '@src/app/atoms/avatar/Avatar';
 import { colorMXID } from '../colorMXID';
 import { getBlobSafeMimeType } from '../mimetypes';
 
-// getAnimatedImageUrl
 // Mxc Url
-class MxcUrl {
+class MxcUrl extends EventEmitter {
   // Constructor
   constructor(mxBase) {
+    super();
     this.mx = mxBase;
+    this._fetchWait = {};
+    this._isAuth = false;
+    this._queue = [];
+    this._queueExec = [];
+    this.setMaxListeners(__ENV_APP__.MAX_LISTENERS);
+  }
+
+  // Set Auth Mode
+  setAuthMode(value) {
+    if (typeof value === 'boolean') this._isAuth = value;
+  }
+
+  isAuth() {
+    return this._isAuth;
   }
 
   // Check Url Cache
@@ -20,6 +36,70 @@ class MxcUrl {
       return global.cacheFileElectron(url, type);
     }
     return url;
+  }
+
+  // Fetch queue
+  _checkFetchQueue() {
+    const tinyThis = this;
+
+    // Get executation
+    if (this._queueExec.length > 0) {
+      for (const item in this._queueExec) {
+        if (!this._queueExec[item].exec) {
+          // Execute now
+          this._queueExec[item].exec = true;
+          const tinyData = this._queueExec[item];
+
+          // Complete
+          const tinyComplete = () => {
+            // Remove old item
+            const index = tinyThis._queueExec.findIndex((tItem) => tItem.key === tinyData.key);
+            if (index > -1) {
+              tinyThis._queueExec.splice(index, 1);
+            }
+
+            // Add new fetch
+            if (tinyThis._queue.length > 0) {
+              while (
+                tinyThis._queue.length > 0 &&
+                tinyThis._queueExec.length < __ENV_APP__.MXC_FETCH_LIMIT
+              ) {
+                tinyThis._queueExec.push(tinyThis._queue.shift());
+              }
+            }
+
+            // Check again
+            tinyThis._checkFetchQueue();
+          };
+
+          // Fetch
+          fetchFn(tinyData.url, tinyData.options)
+            .then((res) => {
+              if (!res.ok) {
+                res
+                  .json()
+                  .then((e) => {
+                    const err = new Error(e.error);
+                    err.code = e.errcode;
+                    tinyComplete();
+                    tinyData.reject(err);
+                  })
+                  .catch((err) => {
+                    tinyComplete();
+                    tinyData.reject(err);
+                  });
+                return;
+              }
+              tinyComplete();
+              tinyData.resolve(res);
+            })
+            .catch((err) => {
+              tinyComplete();
+              tinyData.reject(err);
+            });
+        }
+      }
+    }
   }
 
   // Image
@@ -57,10 +137,34 @@ class MxcUrl {
   // Fetch Url
   fetch(link = null, ignoreCustomUrl = false) {
     const tinyLink = !ignoreCustomUrl ? this.readCustomUrl(link) : link;
-    const accessToken = typeof this.mx.getAccessToken === 'function' && this.mx.getAccessToken();
-    const options = { method: 'GET', headers: {} };
-    if (accessToken) options.headers['Authorization'] = `Bearer ${accessToken}`;
-    return fetchFn(tinyLink, options);
+    const options = {
+      method: 'GET',
+      headers: {},
+      signal:
+        __ENV_APP__.MXC_FETCH_TIMEOUT > 0
+          ? AbortSignal.timeout(__ENV_APP__.MXC_FETCH_TIMEOUT)
+          : undefined,
+    };
+
+    if (this._isAuth && link.startsWith(`${this.mx.baseUrl}/`)) {
+      const accessToken = typeof this.mx.getAccessToken === 'function' && this.mx.getAccessToken();
+      if (accessToken) options.headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+
+    // Execute fetch
+    return new Promise((resolve, reject) => {
+      const tinyThis = this;
+      const key = generateApiKey();
+      const tinyFetch = { key, url: tinyLink, options, resolve, reject, exec: false };
+
+      // Execute now
+      if (tinyThis._queueExec.length < __ENV_APP__.MXC_FETCH_LIMIT)
+        tinyThis._queueExec.push(tinyFetch);
+      // Later
+      else tinyThis._queue.push(tinyFetch);
+
+      tinyThis._checkFetchQueue();
+    });
   }
 
   // Get Fetch Blob
@@ -80,39 +184,109 @@ class MxcUrl {
     return this.getBlob(response, type, tinyLink, decryptData);
   }
 
+  // Focus Fetch Blob
+  async focusFetchBlob(link = null, type = null, decryptData = null) {
+    const tinyThis = this;
+    return new Promise((resolve, reject) => {
+      if (!tinyThis._fetchWait[link]) {
+        tinyThis._fetchWait[link] = true;
+        tinyThis
+          .fetchBlob(link, type, decryptData)
+          // Complete
+          .then((result) => {
+            tinyThis.emit(`fetchBlob:then:${link}`, result);
+            delete tinyThis._fetchWait[link];
+            resolve(result);
+          })
+          // Error
+          .catch((err) => {
+            tinyThis.emit(`fetchBlob:catch:${link}`, err);
+            delete tinyThis._fetchWait[link];
+            reject(err);
+          });
+      }
+
+      // Wait
+      else {
+        const funcs = {};
+        const key = generateApiKey();
+
+        const tinyComplete = (isResolve) => {
+          if (isResolve) tinyThis.off(`fetchBlob:catch:${link}`, funcs[`${key}_TinyReject`]);
+          else tinyThis.off(`fetchBlob:then:${link}`, funcs[`${key}_TinyResolve`]);
+        };
+
+        funcs[`${key}_TinyResolve`] = (result) => {
+          resolve(result);
+          tinyComplete(true);
+        };
+        funcs[`${key}_TinyReject`] = (err) => {
+          reject(err);
+          tinyComplete(false);
+        };
+
+        tinyThis.once(`fetchBlob:then:${link}`, funcs[`${key}_TinyResolve`]);
+        tinyThis.once(`fetchBlob:catch:${link}`, funcs[`${key}_TinyReject`]);
+      }
+    });
+  }
+
   // MXC Protocol to Http
-  toHttp(mxcUrl, width, height, resizeMethod, allowDirectLinks, allowRedirects) {
-    return this.mx.mxcUrlToHttp(
-      mxcUrl,
-      width,
-      height,
-      resizeMethod,
-      allowDirectLinks,
-      allowRedirects,
-      // true,
-    );
+  toHttp(
+    mxcUrl,
+    width,
+    height,
+    resizeMethod = 'scale',
+    allowDirectLinks = undefined,
+    allowRedirects = undefined,
+  ) {
+    if (typeof mxcUrl === 'string')
+      return this.mx.mxcUrlToHttp(
+        mxcUrl,
+        width,
+        height,
+        height || width ? resizeMethod : undefined,
+        allowDirectLinks,
+        allowRedirects,
+        this._isAuth,
+      );
+    return null;
   }
 
   // Classic getAvatarUrl
-  getAvatarUrlClassic(user, width, height, resizeMethod, allowDefault, allowDirectLinks) {
+  getAvatarUrlClassic(
+    user,
+    width,
+    height,
+    resizeMethod = 'scale',
+    allowDefault = undefined,
+    allowDirectLinks = undefined,
+  ) {
     return user?.getAvatarUrl(
       this.mx.baseUrl,
       width,
       height,
-      resizeMethod,
+      height || width ? resizeMethod : undefined,
       allowDefault,
       allowDirectLinks,
     );
   }
 
   // Get Avatar Url
-  getAvatarUrl(user, width, height, resizeMethod, allowDefault, allowDirectLinks) {
+  getAvatarUrl(
+    user,
+    width,
+    height,
+    resizeMethod = 'scale',
+    allowDefault = undefined,
+    allowDirectLinks = undefined,
+  ) {
     if (user) {
       let avatarUrl = this.toHttp(
         user?.getMxcAvatarUrl(),
         width,
         height,
-        resizeMethod,
+        height || width ? resizeMethod : undefined,
         allowDirectLinks,
       );
       if (!avatarUrl && allowDefault) {

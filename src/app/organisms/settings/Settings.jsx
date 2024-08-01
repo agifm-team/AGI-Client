@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import $ from 'jquery';
+
 import envAPI from '@src/util/libs/env';
 import libreTranslate from '@src/util/libs/libreTranslate';
 
@@ -67,13 +69,15 @@ const buildTabItems = () => {
       render: () => <ProfileSection />,
     });
 
-    tabItems.push({
-      text: tabText.ACCOUNT,
-      key: 'account',
-      faSrc: 'fa-solid fa-user',
-      disabled: false,
-      render: () => <AccountSection />,
-    });
+    if (!initMatrix.isGuest) {
+      tabItems.push({
+        text: tabText.ACCOUNT,
+        key: 'account',
+        faSrc: 'fa-solid fa-user',
+        disabled: false,
+        render: () => <AccountSection />,
+      });
+    }
 
     tabItems.push({
       text: tabText.APPEARANCE,
@@ -83,21 +87,23 @@ const buildTabItems = () => {
       render: () => <AppearanceSection />,
     });
 
-    tabItems.push({
-      text: tabText.VOICEVIDEO,
-      key: 'voicevideo',
-      faSrc: 'bi bi-optical-audio-fill',
-      disabled: false,
-      render: () => <VoiceVideoSection />,
-    });
+    if (!initMatrix.isGuest) {
+      tabItems.push({
+        text: tabText.VOICEVIDEO,
+        key: 'voicevideo',
+        faSrc: 'bi bi-optical-audio-fill',
+        disabled: false,
+        render: () => <VoiceVideoSection />,
+      });
 
-    tabItems.push({
-      text: tabText.EMOJI,
-      key: 'emoji',
-      faSrc: 'fa-solid fa-face-smile',
-      disabled: false,
-      render: () => <EmojiSection />,
-    });
+      tabItems.push({
+        text: tabText.EMOJI,
+        key: 'emoji',
+        faSrc: 'fa-solid fa-face-smile',
+        disabled: false,
+        render: () => <EmojiSection />,
+      });
+    }
 
     tabItems.push({ type: 'divider', key: '1' });
 
@@ -117,13 +123,15 @@ const buildTabItems = () => {
       render: () => <SecuritySection />,
     });
 
-    tabItems.push({
-      text: tabText.PRIVACY,
-      key: 'privacy',
-      faSrc: 'bi bi-eye-fill',
-      disabled: false,
-      render: () => <PrivacySection />,
-    });
+    if (!initMatrix.isGuest) {
+      tabItems.push({
+        text: tabText.PRIVACY,
+        key: 'privacy',
+        faSrc: 'bi bi-eye-fill',
+        disabled: false,
+        render: () => <PrivacySection />,
+      });
+    }
 
     if (__ENV_APP__.ELECTRON_MODE) {
       tabItems.push({
@@ -177,7 +185,7 @@ const buildTabItems = () => {
         });
       }
 
-      if (envAPI.get('WEB3')) {
+      if (envAPI.get('WEB3') && !initMatrix.isGuest) {
         tabItems.push({
           text: tabText.WEB3,
           key: 'web3',

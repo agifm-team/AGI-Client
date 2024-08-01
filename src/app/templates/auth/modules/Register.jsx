@@ -167,10 +167,9 @@ function Register() {
 
   return (
     <>
-      {!isDisabled && ssoProviders.length > 0 && (
-        <SSOButtons isRegister type="sso" identityProviders={ssoProviders} baseUrl={baseUrl} />
+      {process.type === 'processing' && (
+        <LoadingScreen className="noselect" message={process.message} />
       )}
-      {process.type === 'processing' && <LoadingScreen message={process.message} />}
       {process.type === 'm.login.recaptcha' && (
         <Recaptcha
           message="Please check the box below to proceed."
@@ -193,9 +192,9 @@ function Register() {
           {({ values, errors, handleChange, handleSubmit, isSubmitting }) => (
             <>
               {process.type === undefined && isSubmitting && (
-                <LoadingScreen message="Registration in progress..." />
+                <LoadingScreen className="noselect" message="Registration in progress..." />
               )}
-              <form className="auth-form" ref={formRef} onSubmit={handleSubmit}>
+              <form className="auth-form noselect" ref={formRef} onSubmit={handleSubmit}>
                 <div>
                   <Input
                     values={values.username}

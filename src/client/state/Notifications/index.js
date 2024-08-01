@@ -1,4 +1,5 @@
 // import { LocalNotifications } from '@capacitor/local-notifications';
+import $ from 'jquery';
 import { ClientEvent, MatrixEventEvent, NotificationCountType, RoomEvent } from 'matrix-js-sdk';
 import EventEmitter from 'events';
 
@@ -9,6 +10,7 @@ import { getAppearance } from '@src/util/libs/appearance';
 import attemptDecryption from '@src/util/libs/attemptDecryption';
 import soundFiles from '@src/util/soundFiles';
 // import { insertIntoRoomEventsDB } from '@src/util/libs/roomEventsDB';
+import { canSupport, dfAvatarSize } from '@src/util/matrixUtil';
 
 import renderAvatar from '../../../app/atoms/avatar/render';
 import { cssColorMXID } from '../../../util/colorMXID';
@@ -23,7 +25,6 @@ import { getAccountStatus } from '../../../app/organisms/navigation/ProfileAvata
 import { messageIsClassicCrdt } from '../../../util/libs/crdt';
 import favIconManager from '../../../util/libs/favicon';
 import { getPrivacyRefuseRoom } from '../../../app/organisms/navigation/Sidebar/InviteSidebar';
-import { canSupport } from '@src/util/matrixUtil';
 // import { insertEvent } from '../eventsDelay';
 
 function isNotifEvent(mEvent) {
@@ -67,6 +68,7 @@ class Notifications extends EventEmitter {
   constructor(roomList) {
     super();
 
+    this.setMaxListeners(__ENV_APP__.MAX_LISTENERS);
     this.initialized = false;
     this.matrixClient = roomList.matrixClient;
     this.roomList = roomList;
@@ -404,8 +406,8 @@ class Notifications extends EventEmitter {
     // Check Window
     if (
       (!__ENV_APP__.ELECTRON_MODE ||
-        typeof window.getElectronShowStatus !== 'function' ||
-        window.getElectronShowStatus()) &&
+        typeof global.electronWindow.getShowStatus !== 'function' ||
+        global.electronWindow.getShowStatus()) &&
       !$('body').hasClass('modal-open') &&
       ((!mEvent.thread && navigation.selectedRoomId === room.roomId) ||
         (mEvent.thread && navigation.selectedThreadId === mEvent.thread.id)) &&
@@ -433,12 +435,11 @@ class Notifications extends EventEmitter {
       const title = getRoomTitle(room, mEvent.sender, mEvent.thread);
       updateName(room);
 
-      const iconSize = 36;
       const icon = await renderAvatar({
         text: mEvent.sender.name,
         bgColor: cssColorMXID(mEvent.getSender()),
-        imageSrc: mxcUrl.getAvatarUrl(mEvent.sender, iconSize, iconSize, 'crop'),
-        size: iconSize,
+        imageSrc: mxcUrl.getAvatarUrl(mEvent.sender, dfAvatarSize, dfAvatarSize),
+        size: dfAvatarSize,
         borderRadius: 8,
         scale: 8,
       });
@@ -466,7 +467,7 @@ class Notifications extends EventEmitter {
         onClick: {
           desktop: () => {
             selectRoom(room.roomId, mEvent.getId(), !mEvent.thread ? null : mEvent.thread.id, true);
-            window.focusAppWindow();
+            global.electronWindow.forceFocus();
           },
 
           browser: () =>

@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import imageViewer from '../imageViewer';
 
 export function openOnGallery(imgUrl, fileName /* urlRevoke = false */) {
@@ -7,8 +8,6 @@ export function openOnGallery(imgUrl, fileName /* urlRevoke = false */) {
       lightbox: null,
       imgQuery: $(img),
       name: fileName,
-      url: imgUrl,
-      readMime: false,
     }).then((/* pswp */) => {
       /* pswp.on('close', () => {
                 pswp.destroy();

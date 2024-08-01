@@ -38,29 +38,33 @@ export function HomeSpaceOptions({ spaceId = null, afterOptionSelect }) {
   return (
     <>
       <MenuHeader>Add rooms or spaces</MenuHeader>
-      <MenuItem
-        className="text-start"
-        iconSrc={SpacePlusIC}
-        onClick={() => {
-          afterOptionSelect();
-          openCreateRoom(true, spaceId);
-        }}
-        disabled={!canManage}
-      >
-        Create new space
-      </MenuItem>
-      <MenuItem
-        className="text-start"
-        iconSrc={HashPlusIC}
-        onClick={() => {
-          afterOptionSelect();
-          openCreateRoom(false, spaceId);
-        }}
-        disabled={!canManage}
-      >
-        Create new room
-      </MenuItem>
-      {!spaceId && (
+      {!initMatrix.isGuest && (
+        <MenuItem
+          className="text-start"
+          iconSrc={SpacePlusIC}
+          onClick={() => {
+            afterOptionSelect();
+            openCreateRoom(true, spaceId);
+          }}
+          disabled={!canManage}
+        >
+          Create new space
+        </MenuItem>
+      )}
+      {!initMatrix.isGuest && (
+        <MenuItem
+          className="text-start"
+          iconSrc={HashPlusIC}
+          onClick={() => {
+            afterOptionSelect();
+            openCreateRoom(false, spaceId);
+          }}
+          disabled={!canManage}
+        >
+          Create new room
+        </MenuItem>
+      )}
+      {!initMatrix.isGuest && !spaceId && (
         <MenuItem
           className="text-start"
           iconSrc={HashGlobeIC}
@@ -84,7 +88,7 @@ export function HomeSpaceOptions({ spaceId = null, afterOptionSelect }) {
           Join with address
         </MenuItem>
       )}
-      {spaceId && (
+      {!initMatrix.isGuest && spaceId && (
         <MenuItem
           className="text-start"
           faSrc="fa-solid fa-plus"
@@ -156,28 +160,30 @@ function DrawerHeader({ selectedTab, spaceId = null, room = null, banner = null 
         )}
       </ul>
 
-      <ul className="navbar-nav ms-auto mt-0 mt-md-1 small space-menu-2">
-        {isDMTab && (
-          <IconButton
-            className="nav-link"
-            onClick={() => openInviteUser()}
-            tooltipPlacement="bottom"
-            tooltip="Start DM"
-            fa="fa-solid fa-plus"
-            size="small"
-          />
-        )}
-        {!isDMTab && (
-          <IconButton
-            className="nav-link"
-            onClick={openHomeSpaceOptions}
-            tooltipPlacement="bottom"
-            tooltip="Add rooms/spaces"
-            fa="fa-solid fa-plus"
-            size="small"
-          />
-        )}
-      </ul>
+      {(!initMatrix.isGuest || !isDMTab) && (
+        <ul className="navbar-nav ms-auto mt-0 mt-md-1 small space-menu-2">
+          {isDMTab && (
+            <IconButton
+              className="nav-link"
+              onClick={() => openInviteUser()}
+              tooltipPlacement="bottom"
+              tooltip="Start DM"
+              fa="fa-solid fa-plus"
+              size="small"
+            />
+          )}
+          {!isDMTab && (
+            <IconButton
+              className="nav-link"
+              onClick={openHomeSpaceOptions}
+              tooltipPlacement="bottom"
+              tooltip="Add rooms/spaces"
+              fa="fa-solid fa-plus"
+              size="small"
+            />
+          )}
+        </ul>
+      )}
     </Header>
   );
 }

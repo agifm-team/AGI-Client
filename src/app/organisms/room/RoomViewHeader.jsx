@@ -212,7 +212,7 @@ function RoomViewHeader({
           ) : null}
 
           <li className="nav-item avatar-base">
-            {!disableActions ? (
+            {!initMatrix.isGuest && !disableActions ? (
               <button
                 className="nav-link btn btn-bg border-0 p-1"
                 onClick={() => toggleRoomSettings()}
@@ -251,9 +251,11 @@ function RoomViewHeader({
                 type="button"
               >
                 <Avatar
+                  animParentsCount={2}
                   className="d-inline-block me-2 profile-image-container"
                   imgClass="profile-image-container"
                   imageSrc={avatarSrc}
+                  imageAnimSrc={avatarAnimSrc}
                   text={roomName}
                   bgColor={colorMXID(roomId)}
                   size="small"
@@ -277,13 +279,12 @@ function RoomViewHeader({
                   className="nav-link btn btn-bg border-0"
                   onClick={() => setPixxEmbedsVisible(!pixxEmbedsVisible)}
                   tooltipPlacement="bottom"
-                  tooltip={`${
-                    objType(pixxEmbeds.data, 'object') &&
-                    pixxEmbeds.roomId === roomId &&
-                    pixxEmbedsVisible
+                  tooltip={`${objType(pixxEmbeds.data, 'object') &&
+                      pixxEmbeds.roomId === roomId &&
+                      pixxEmbedsVisible
                       ? 'Hide'
                       : 'Show'
-                  } Embed`}
+                    } Embed`}
                   fa={`fa-solid fa-${pixxEmbedVisible ? 'window-minimize' : 'window-restore'}`}
                 />
               </li>

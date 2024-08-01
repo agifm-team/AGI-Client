@@ -103,7 +103,7 @@ export default function InviteSidebar() {
         // mx.joinRoom(member.roomId);
 
         if (!otpAccept(member) && getPrivacyRefuseRoom(member)) {
-          roomActions.leave(member.roomId);
+          roomActions.leave(member.roomId).catch((err) => alert(err.message, 'Leave room error'));
         }
 
         setLastMemberRoomId(member.roomId);

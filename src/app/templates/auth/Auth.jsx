@@ -13,6 +13,7 @@ import AuthCard from './modules/AuthCard';
 import Welcome from '../../../../mods/agi-mod/bots/Welcome';
 import ElectronSidebar from '../client/ElectronSidebar';
 import { AuthDivBaseWithBanner } from './modules/AuthDivBase';
+import LoadingPage from '../client/Loading';
 
 function Auth({ isDevToolsOpen = false }) {
   const [loginToken, setLoginToken] = useState(getUrlParams('loginToken'));

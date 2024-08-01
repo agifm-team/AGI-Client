@@ -4,6 +4,7 @@ import $ from 'jquery';
 
 import parse from 'html-react-parser';
 import twemoji from 'twemoji';
+// import objectHash from 'object-hash';
 
 // import objectHash from 'object-hash';
 import { checkRoomAgents } from '@mods/agi-mod/bots/PeopleSelector/lib';
@@ -201,7 +202,6 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
         }
       }
 
-      setAgentsCmd({ prefix: newCmd.prefix, suggestions: [] });
       checkRoomAgents(roomId, { bots })
         .then((data) => {
           // const tinyHashNow = objectHash(cmd);
@@ -219,6 +219,7 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
         })
         .catch((err) => {
           console.error(err);
+          setAgentsCmd({ prefix: newCmd.prefix, suggestions: [] });
         });
     } else {
       setCmd(newCmd);
@@ -435,7 +436,7 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
   }
 
   const tabList = (tinyRef, classItems, cmdItems, tabName, buttonMode = false) =>
-    cmdItems.suggestions.length > 0 && (
+    cmdItems && cmdItems.suggestions.length > 0 && (
       <div ref={tinyRef} className={`cmd-bar${classItems ? ` ${classItems}` : ''}`}>
         <div className="cmd-bar__info">
           <div className="very-small text-gray">{tabName}</div>

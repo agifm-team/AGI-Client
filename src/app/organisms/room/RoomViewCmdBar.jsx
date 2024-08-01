@@ -322,6 +322,18 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
         const endIndex = aliasesId.length > 20 ? 20 : aliasesId.length;
         setCmds({ prefix, suggestions: aliasesId.slice(0, endIndex) });
       },
+      '': () => {
+        const members = mx
+          .getRoom(roomId)
+          .getJoinedMembers()
+          .map((member) => ({
+            name: member.name,
+            userId: member.userId.slice(1),
+          }));
+        asyncSearch.setup(members, { keys: ['name', 'userId'], limit: 20 });
+        const endIndex = members.length > 20 ? 20 : members.length;
+        setCmds({ empty: true, prefix: '@', suggestions: members.slice(0, endIndex) });
+      },
     };
     setupSearch[prefix]?.();
   }

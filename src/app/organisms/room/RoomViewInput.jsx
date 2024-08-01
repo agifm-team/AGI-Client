@@ -479,7 +479,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
   function replaceCmdWith(msg, cursor, replacement) {
     if (msg === null) return null;
     const targetInput = msg.slice(0, cursor);
-    const cmdParts = targetInput.match(CMD_REGEX);
+    const cmdParts = targetInput.match(CMD_REGEX) || ['', '', ''];
     const leadingInput = msg.slice(0, cmdParts.index);
     if (replacement.length > 0) setCursorPosition(leadingInput.length + replacement.length);
     return leadingInput + replacement + msg.slice(cursor);
@@ -757,7 +757,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
     const cursor = getCursorPosition();
     const targetInput = rawInput.slice(0, cursor);
 
-    const cmdParts = targetInput.match(CMD_REGEX);
+    const cmdParts = targetInput.match(CMD_REGEX) || ['', '', ''];
     if (cmdParts === null) {
       if (isCmdActivated) deactivateCmdAndEmit();
       return;
@@ -1010,6 +1010,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
                 id="message-textarea"
                 ref={textAreaRef}
                 onChange={handleMsgTyping}
+                onClick={handleMsgTyping}
                 onPaste={handlePaste}
                 onKeyDown={handleKeyDown}
                 placeholder="Send a message..."

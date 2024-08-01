@@ -1,8 +1,12 @@
 .cmd-bar.bots {
   position: relative;
-  top: -41px;
+  top: -40px;
   margin-top: -27px;
+  --cmd-bar-height: 27px;
   background-color: var(--bg-surface);
+  .cmd-bar__info {
+    height: unset !important;
+  }
 }
 
 /* Welcome Page */

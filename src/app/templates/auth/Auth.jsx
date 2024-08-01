@@ -44,6 +44,7 @@ function Auth({ isDevToolsOpen = false }) {
   const showLoginPage = !isWelcome || !WelcomePage.html || loginToken;
   return (
     <>
+      <LoadingPage />
       {loginToken && <LoadingScreen message="Redirecting..." />}
       {!loginToken && (
         <>

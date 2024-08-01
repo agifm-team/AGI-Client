@@ -71,7 +71,7 @@ function SSOButtons({ type, identityProviders, baseUrl, isRegister = false }) {
           }}
         >{`Login with Guest`}</Button>
       )}
-    </center >
+    </center>
   );
 }
 

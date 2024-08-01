@@ -457,16 +457,16 @@ const MessageBody = React.memo(
     // Message Data
     let msgData = !translateText
       ? createMessageData(
-        content,
-        body,
-        isCustomHTML,
-        isSystem,
-        false,
-        roomId,
-        senderId,
-        eventId,
-        threadId,
-      )
+          content,
+          body,
+          isCustomHTML,
+          isSystem,
+          false,
+          roomId,
+          senderId,
+          eventId,
+          threadId,
+        )
       : translateText;
 
     // Emoji Only
@@ -921,47 +921,47 @@ const MessageOptions = React.memo(
     });
 
     const translateMessage =
-      (hideMenu = () => { }) =>
-        () => {
-          hideMenu();
-          let sourceText = '';
-          try {
-            sourceText = customHTML
-              ? html(customHTML, roomId, threadId, { kind: 'edit', onlyPlain: true }).plain
-              : plain(body, roomId, threadId, { kind: 'edit', onlyPlain: true }).plain;
-            if (typeof sourceText !== 'string') sourceText = '';
-          } catch (err) {
-            console.error(err);
-            alert(err.message, 'Translate get text error');
-            sourceText = '';
-          }
+      (hideMenu = () => {}) =>
+      () => {
+        hideMenu();
+        let sourceText = '';
+        try {
+          sourceText = customHTML
+            ? html(customHTML, roomId, threadId, { kind: 'edit', onlyPlain: true }).plain
+            : plain(body, roomId, threadId, { kind: 'edit', onlyPlain: true }).plain;
+          if (typeof sourceText !== 'string') sourceText = '';
+        } catch (err) {
+          console.error(err);
+          alert(err.message, 'Translate get text error');
+          sourceText = '';
+        }
 
-          if (sourceText.length > 0) {
-            setLoadingPage('Translating message...');
-            libreTranslate
-              .translate(sourceText)
-              .then((text) => {
-                setLoadingPage(false);
-                if (typeof text === 'string') {
-                  setTranslateText(text);
-                }
-              })
-              .catch((err) => {
-                setLoadingPage(false);
-                console.error(err);
-                alert(err.message, 'Libre Translate Progress Error');
-              });
-          } else {
-            alert('There is no text to translate here.', 'Libre Translate Progress Error');
-          }
-        };
+        if (sourceText.length > 0) {
+          setLoadingPage('Translating message...');
+          libreTranslate
+            .translate(sourceText)
+            .then((text) => {
+              setLoadingPage(false);
+              if (typeof text === 'string') {
+                setTranslateText(text);
+              }
+            })
+            .catch((err) => {
+              setLoadingPage(false);
+              console.error(err);
+              alert(err.message, 'Libre Translate Progress Error');
+            });
+        } else {
+          alert('There is no text to translate here.', 'Libre Translate Progress Error');
+        }
+      };
 
     const removeTranslateMessage =
-      (hideMenu = () => { }) =>
-        () => {
-          hideMenu();
-          setTranslateText(null);
-        };
+      (hideMenu = () => {}) =>
+      () => {
+        hideMenu();
+        setTranslateText(null);
+      };
 
     return (
       <div className="message__options">
@@ -1151,7 +1151,7 @@ const MessageOptions = React.memo(
                     tinyClipboard.copyText(
                       customHTML
                         ? html(customHTML, roomId, threadId, { kind: 'edit', onlyPlain: true })
-                          .plain
+                            .plain
                         : plain(body, roomId, threadId, { kind: 'edit', onlyPlain: true }).plain,
                     );
                     toast('Text successfully copied to the clipboard.');

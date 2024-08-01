@@ -48,14 +48,14 @@ function SSOButtons({ type, identityProviders, baseUrl, isRegister = false }) {
           ) : (
             <Button
               key={idp.id}
-              className="sso-btn__text-only border border-bg mb-2"
+              className="sso-btn__text-only border border-bg mb-2 mx-2"
               onClick={() => handleClick(idp.id)}
             >{`${!isRegister ? 'Login' : 'Register'} with ${idp.name}`}</Button>
           ),
         )}
       {__ENV_APP__.GUEST_ACCOUNT && (
         <Button
-          className="sso-btn__text-only"
+          className="sso-btn__text-only border border-bg mb-2 mx-2"
           onClick={async () => {
             setLoadingPage('Joining...');
             try {

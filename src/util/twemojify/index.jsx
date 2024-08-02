@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
 import $ from 'jquery';
 
 import * as linkify from 'linkifyjs';
@@ -8,14 +8,15 @@ import Linkify from 'linkify-react';
 import parse from 'html-react-parser';
 import twemoji from 'twemoji';
 
-import tinyFixScrollChat from '@src/app/molecules/media/mediaFix';
-import Img, { ImgJquery } from '@src/app/atoms/image/Image';
 import { everyoneTags } from '@src/app/molecules/global-notification/KeywordNotification';
 
-import { sanitizeText } from './sanitize';
-import openTinyURL from './message/urlProtection';
-import { tinyLinkifyFixer } from './clear-urls/clearUrls';
-import envAPI from './libs/env';
+import { sanitizeText } from '../sanitize';
+import openTinyURL from '../message/urlProtection';
+import { tinyLinkifyFixer } from '../clear-urls/clearUrls';
+import envAPI from '../libs/env';
+
+import IMG from './tags/Img';
+import MxMaths from './tags/MxMaths';
 
 // Register Protocols
 linkify.registerCustomProtocol('matrix');
@@ -66,86 +67,22 @@ global.String.prototype.emojiToCode = function () {
   return this.codePointAt(0).toString(16);
 };
 
-// Image fix
-const ImageFix = {
-  jquery: function () {
-    const el = $(this);
-    const dataMxEmoticon = el.attr('data-mx-emoticon') || el.prop('data-mx-emoticon');
-    const className = el.attr('class');
-    const src = el.attr('src');
-    const alt = el.attr('alt');
-
-    el.replaceWith(
-      ImgJquery({
-        isEmoji: typeof dataMxEmoticon !== 'undefined' && dataMxEmoticon !== null,
-        onLoad: () => tinyFixScrollChat(),
-        onLoadingChange: () => tinyFixScrollChat(),
-        dataMxEmoticon,
-        className,
-        src,
-        alt,
-      }),
-    );
-  },
-  React: (attribs) => {
-    const imgResult =
-      attribs &&
-      typeof attribs.src === 'string' &&
-      (attribs.src.startsWith('mxc://') || attribs.src.startsWith('./')) ? (
-        <Img
-          isEmoji={
-            typeof attribs['data-mx-emoticon'] !== 'undefined' &&
-            attribs['data-mx-emoticon'] !== null
-          }
-          onLoad={() => tinyFixScrollChat()}
-          onLoadingChange={() => tinyFixScrollChat()}
-          placement="top"
-          content={<div className="small">{attribs.alt}</div>}
-          dataMxEmoticon={attribs['data-mx-emoticon']}
-          className={attribs.class}
-          src={attribs.src}
-          alt={attribs.alt}
-        />
-      ) : (
-        <span />
-      );
-
-    // Emoji data
-    /* if (
-      attribs['data-mx-emoticon'] ||
-      (typeof attribs.class === 'string' && attribs.class.includes('emoji'))
-    ) {
-      return 
-    } */
-
-    return imgResult;
-  },
-};
+const reactTags = { img: IMG.React };
+const jQueryTags = { img: IMG.jquery };
 
 // Tiny Math
-const Math = lazy(() => import('../app/atoms/math/Math'));
 const mathOptions = {
   replace: (node) => {
     const maths = node.attribs?.['data-mx-maths'];
-    if (maths) {
-      return (
-        <Suspense fallback={<code>{maths}</code>}>
-          <Math
-            content={maths}
-            throwOnError={false}
-            errorColor="var(--tc-danger-normal)"
-            displayMode={node.name === 'div'}
-          />
-        </Suspense>
-      );
-    } else if (node.type === 'tag' && node.name === 'img') return ImageFix.React(node.attribs);
+    if (maths) return <MxMaths displayMode={node.name} maths={maths} />;
+    else if (node.type === 'tag' && reactTags[node.name]) return reactTags[node.name](node);
     return null;
   },
 };
 
-const sendImg = {
+const sendReactTag = {
   replace: (node) => {
-    if (node.type === 'tag' && node.name === 'img') return ImageFix.React(node.attribs);
+    if (node.type === 'tag' && reactTags[node.name]) return reactTags[node.name](node);
     return null;
   },
 };
@@ -252,9 +189,18 @@ const twemojifyAction = (text, opts, linkifyEnabled, sanitize, maths, isReact) =
     target: '_blank',
   };
 
+  // Fix List
+  const UL_tags = /<ul>([\s\S]*?)<\/ul>|<ol>([\s\S]*?)<\/ol>/g;
+  msgContent = msgContent.replace(UL_tags, (r0) => {
+    return r0
+      .replace(/<p>/g, '')
+      .replace(/<\/p>/g, '')
+      .replace(/(\r\n|\n|\r)/gm, '');
+  });
+
   // React Mode
   if (isReact) {
-    const msgHtml = parse(msgContent, maths ? mathOptions : sendImg);
+    const msgHtml = parse(msgContent, maths ? mathOptions : sendReactTag);
 
     // Insert Linkify
     if (linkifyEnabled) {
@@ -286,9 +232,11 @@ const twemojifyAction = (text, opts, linkifyEnabled, sanitize, maths, isReact) =
   // Final Result
   msgContent = $('<span>', { class: 'linkify-base' }).html(msgContent);
 
-  // Convert images
-  const imgs = msgContent.find('img');
-  imgs.each(ImageFix.jquery);
+  // Convert Tags
+  for (const item in jQueryTags) {
+    const imgs = msgContent.find(item);
+    imgs.each(jQueryTags[item]);
+  }
 
   // Fix Urls
   const tinyUrls = msgContent.find('.lk-href');

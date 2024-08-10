@@ -38,7 +38,7 @@
   display: inline-flex;
   max-width: 170px;
   width: 100%;
-  img,
+  [itemprop='image'],
   .img-container {
     width: 100% !important;
   }
@@ -61,8 +61,8 @@
 
 .image-container,
 .video-container {
-  img,
-  canvas,
+  [itemprop='image'],
+  .image-container-canvas,
   .img-container {
     max-width: unset !important;
     width: 100% !important;
@@ -73,7 +73,7 @@
 }
 .image-container {
   max-height: 460px;
-  img,
+  [itemprop='image'],
   .img-container {
     cursor: pointer;
     object-fit: cover;

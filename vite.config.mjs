@@ -91,6 +91,11 @@ const copyFiles = {
       dest: '',
     },
 
+    {
+      src: 'src/util/pwa/service-worker.js',
+      dest: '',
+    },
+
   ],
 }
 
@@ -200,7 +205,8 @@ export default defineConfig(({ command, mode }) => {
     IMG: {
       SIZE: {
         AVATAR: Number(env.DEFAULT_AVATAR_SIZE)
-      }
+      },
+      SHOW_ERROR: addBooleanToEnv('SHOW_IMG_ERROR'),
     },
 
     LIBRE_TRANSLATE: {

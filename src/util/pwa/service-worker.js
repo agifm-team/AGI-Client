@@ -84,7 +84,7 @@ function proxyRequest(caches, request) {
     // check cache
     return cache.match(request).then(function (cachedResponse) {
       if (cachedResponse) {
-        console.info('[PWA] [service-worker] Take it from cache', request.url);
+        // console.info('[PWA] [service-worker] Take it from cache', request.url);
         return cachedResponse;
       }
 
@@ -107,11 +107,11 @@ function proxyRequest(caches, request) {
           };
           throw err;
         }
-        console.info(
+        /* console.info(
           '[PWA] [service-worker] Fetch it through Network',
           request.url,
           networkResponse.type,
-        );
+        ); */
         cache.put(request, networkResponse.clone());
         return networkResponse;
       };
@@ -144,6 +144,8 @@ self.addEventListener('fetch', function (event) {
   // console.log('[PWA] [service-worker] Detected request', request.url);
   if (
     request.method !== 'GET' ||
+    !request.url.startsWith('blob:') ||
+    !request.url.startsWith('data:') ||
     !request.url.match(/\.(jpe?g|png|gif|svg|webp|bmp|avif|jfif|pjpeg|pjp|ico|cur|tif|tiff)$/)
   ) {
     // Detect matrix file url

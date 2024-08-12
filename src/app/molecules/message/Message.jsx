@@ -1760,67 +1760,44 @@ function Message({
           const newEmbeds = [];
           const searchEmbeds = async () => {
             let limit = 5;
+            const addEmbedItem = async (item) => {
+              if (bodyUrls[item].href && limit > 0 && !bodyUrls[item].href.startsWith('@')) {
+                const tinyEmbed = {
+                  url: bodyUrls[item],
+                  roomId,
+                  senderId,
+                  eventId,
+                };
+
+                if (
+                  bodyUrls[item].href.startsWith('http') ||
+                  bodyUrls[item].href.startsWith('https')
+                ) {
+                  try {
+                    tinyEmbed.data = await getUrlPreview(bodyUrls[item].href);
+                    tinyFixScrollChat();
+                  } catch (err) {
+                    tinyEmbed.data = null;
+                    console.error(err);
+                  }
+                } else {
+                  tinyEmbed.data = null;
+                }
+
+                newEmbeds.push(tinyEmbed);
+                limit--;
+              }
+            };
 
             const embedParallelLoad = getAppearance('embedParallelLoad');
             if (embedParallelLoad) {
               await forPromise({ data: bodyUrls }, async (item, fn) => {
-                if (bodyUrls[item].href && limit > 0 && !bodyUrls[item].href.startsWith('@')) {
-                  const tinyEmbed = {
-                    url: bodyUrls[item],
-                    roomId,
-                    senderId,
-                    eventId,
-                  };
-
-                  if (
-                    bodyUrls[item].href.startsWith('http') ||
-                    bodyUrls[item].href.startsWith('https')
-                  ) {
-                    try {
-                      tinyEmbed.data = await getUrlPreview(bodyUrls[item].href);
-                      tinyFixScrollChat();
-                    } catch (err) {
-                      tinyEmbed.data = null;
-                      console.error(err);
-                    }
-                  } else {
-                    tinyEmbed.data = null;
-                  }
-
-                  newEmbeds.push(tinyEmbed);
-                  limit--;
-                }
-
+                await addEmbedItem(item);
                 fn();
               });
             } else {
               for (const item in bodyUrls) {
-                if (bodyUrls[item].href && limit > 0 && !bodyUrls[item].href.startsWith('@')) {
-                  const tinyEmbed = {
-                    url: bodyUrls[item],
-                    roomId,
-                    senderId,
-                    eventId,
-                  };
-
-                  if (
-                    bodyUrls[item].href.startsWith('http') ||
-                    bodyUrls[item].href.startsWith('https')
-                  ) {
-                    try {
-                      tinyEmbed.data = await getUrlPreview(bodyUrls[item].href);
-                      tinyFixScrollChat();
-                    } catch (err) {
-                      tinyEmbed.data = null;
-                      console.error(err);
-                    }
-                  } else {
-                    tinyEmbed.data = null;
-                  }
-
-                  newEmbeds.push(tinyEmbed);
-                  limit--;
-                }
+                await addEmbedItem(item);
               }
             }
 
@@ -2040,6 +2017,7 @@ function Message({
                             threadId={threadId}
                             key={`msg_embed_${embed.eventId}_${embed.url}`}
                             embed={embed.data}
+                            url={embed.url}
                           />
                         );
                     })}

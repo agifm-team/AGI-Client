@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useReducer } from 'react';
 import PropTypes from 'prop-types';
 import $ from 'jquery';
+import { objType } from 'for-promise/utils/lib.mjs';
 
 import { RoomMemberEvent, UserEvent } from 'matrix-js-sdk';
 
@@ -13,6 +14,8 @@ import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 // import YamlEditor from '@mods/agi-mod/components/YamlEditor';
 import { openSuperAgent } from '@mods/agi-mod/menu/Buttons';
 import matrixAppearance from '@src/util/libs/appearance';
+import Img from '@src/app/atoms/image/Image';
+import Tooltip from '@src/app/atoms/tooltip/Tooltip';
 
 import { twemojifyReact } from '../../../util/twemojify';
 import {
@@ -50,7 +53,7 @@ import { colorMXID, cssColorMXID } from '../../../util/colorMXID';
 import Text from '../../atoms/text/Text';
 import Chip from '../../atoms/chip/Chip';
 import Input from '../../atoms/input/Input';
-import Avatar, { avatarDefaultColor } from '../../atoms/avatar/Avatar';
+import Avatar, { avatarDefaultColor, AvatarJquery } from '../../atoms/avatar/Avatar';
 import Button from '../../atoms/button/Button';
 import { MenuItem } from '../../atoms/context-menu/ContextMenu';
 import PowerLevelSelector from '../../molecules/power-level-selector/PowerLevelSelector';
@@ -61,11 +64,10 @@ import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import { addToDataFolder, getDataList } from '../../../util/selectedRoom';
 import { getUserWeb3Account, getWeb3Cfg } from '../../../util/web3';
 
-import renderAbout from './tabs/main';
-import renderEthereum from './tabs/ethereum';
-
 import copyText from './copyText';
 import tinyAPI from '../../../util/mods';
+import Clock from '@src/app/atoms/time/Clock';
+import EthereumProfileTab from './tabs/Ethereum';
 
 function ModerationTools({ roomId, userId }) {
   const [, forceUpdate] = useReducer((count) => count + 1, 0);
@@ -310,9 +312,9 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence
   return (
     <>
       {agentData &&
-      agentData.data &&
-      typeof agentData.data.id === 'string' &&
-      agentData.data.id.length > 0 ? (
+        agentData.data &&
+        typeof agentData.data.id === 'string' &&
+        agentData.data.id.length > 0 ? (
         <>
           <Button
             className="me-2"
@@ -408,6 +410,13 @@ function useToggleDialog() {
   const [isOpen, setIsOpen] = useState(false);
   const [roomId, setRoomId] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [selectedMenu, setSelectedMenu] = useState(0);
+  const [accountContent, setAccountContent] = useState(null);
+
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [username, setUsername] = useState(null);
+  const [bannerSrc, setBannerSrc] = useState(null);
+  const [loadingBanner, setLoadingBanner] = useState(false);
 
   useEffect(() => {
     const loadProfile = (uId, rId) => {
@@ -424,11 +433,35 @@ function useToggleDialog() {
   const closeDialog = () => setIsOpen(false);
 
   const afterClose = () => {
+    setAccountContent(null);
     setUserId(null);
     setRoomId(null);
+    setSelectedMenu(0);
+    setBannerSrc(null);
+    setLoadingBanner(false);
+    setUsername(null);
+    setAvatarUrl(null);
   };
 
-  return [isOpen, roomId, userId, closeDialog, afterClose];
+  return [
+    isOpen,
+    roomId,
+    userId,
+    closeDialog,
+    afterClose,
+    accountContent,
+    setAccountContent,
+    selectedMenu,
+    setSelectedMenu,
+    bannerSrc,
+    setBannerSrc,
+    avatarUrl,
+    setAvatarUrl,
+    username,
+    setUsername,
+    loadingBanner,
+    setLoadingBanner,
+  ];
 }
 
 function useRerenderOnProfileChange(roomId, userId) {
@@ -456,18 +489,30 @@ function useRerenderOnProfileChange(roomId, userId) {
 let tinyMenuId = 'default';
 function ProfileViewer() {
   // Prepare
-  const menubarRef = useRef(null);
-  const profileAvatar = useRef(null);
-  const bioRef = useRef(null);
-  const timezoneRef = useRef(null);
   const noteRef = useRef(null);
-  const customStatusRef = useRef(null);
+  const profileAvatar = useRef(null);
   const statusRef = useRef(null);
-  const profileBanner = useRef(null);
 
-  const customPlaceRef = useRef(null);
+  const [
+    isOpen,
+    roomId,
+    userId,
+    closeDialog,
+    handleAfterClose,
+    accountContent,
+    setAccountContent,
+    selectedMenu,
+    setSelectedMenu,
+    bannerSrc,
+    setBannerSrc,
+    avatarUrl,
+    setAvatarUrl,
+    username,
+    setUsername,
+    loadingBanner,
+    setLoadingBanner,
+  ] = useToggleDialog();
 
-  const [isOpen, roomId, userId, closeDialog, handleAfterClose] = useToggleDialog();
   const [lightbox, setLightbox] = useState(false);
   const [lastUserId, setLastUserId] = useState(null);
   const [agentData, setAgentData] = useState({
@@ -479,9 +524,7 @@ function ProfileViewer() {
   const [agentFullPrompt, setAgentFullPrompt] = useState(false);
 
   const userNameRef = useRef(null);
-  const userPronounsRef = useRef(null);
   const displayNameRef = useRef(null);
-
   useRerenderOnProfileChange(roomId, userId);
 
   // Get Data
@@ -491,8 +534,6 @@ function ProfileViewer() {
   const user = mx.getUser(userId);
   const room = mx.getRoom(roomId) || {};
   const roomMember = room && room.getMember ? room.getMember(userId) : null;
-  const [avatarUrl, setAvatarUrl] = useState(null);
-  const [username, setUsername] = useState(null);
 
   const getTheUsername = () => {
     if (userId) {
@@ -503,6 +544,10 @@ function ProfileViewer() {
   };
 
   if (!isOpen) tinyMenuId = 'default';
+  // Re-Open Profile
+  const reopenProfile = () => {
+    if (userId) openProfileViewer(userId, roomId);
+  };
 
   // Super agent
   useEffect(() => {
@@ -546,12 +591,24 @@ function ProfileViewer() {
     }
   });
 
+  // Basic User profile updated
   useEffect(() => {
-    const reopenProfile = () => {
-      if (userId) openProfileViewer(userId, roomId);
+    // Avatar Preview
+    let newAvatar;
+    const avatarPreviewBase = (name) => {
+      const img = $(profileAvatar.current).find('> img');
+      imageViewer({
+        lightbox,
+        onClose: reopenProfile,
+        imgQuery: img,
+        name,
+        originalUrl: newAvatar || avatarUrl,
+      });
     };
 
+    // User
     if (user) {
+      // Avatar and username data
       const avatarMxc = roomMember
         ? roomMember?.getMxcAvatarUrl?.()
         : user
@@ -567,175 +624,17 @@ function ProfileViewer() {
       setUsername(roomMember ? getUsernameOfRoomMember(roomMember) : getTheUsername());
 
       // Avatar Preview
-      const tinyAvatarPreview = () => {
-        if (newAvatar) {
-          const img = $(profileAvatar.current).find('> img');
-          imageViewer({
-            lightbox,
-            onClose: reopenProfile,
-            imgQuery: img,
-            name: username,
-            originalUrl: newAvatar,
-          });
-        }
-      };
-
-      // Menu Bar
-      const menubar = $(menubarRef.current);
-      const menuBarItems = [];
-
-      // Get refs
-      const bioPlace = $(bioRef.current);
-      const timezonePlace = $(timezoneRef.current);
-      const customPlace = $(customPlaceRef.current);
-
-      // Actions
-      const actions = {
-        ethereum: renderEthereum,
-      };
-
-      tinyAPI.emit('profileTabs', actions);
-
-      // Execute Menu
-      const executeMenu = (where, tinyData) => {
-        // Hide items
-        bioPlace.addClass('no-show').addClass('d-none');
-        timezonePlace.addClass('no-show').addClass('d-none');
-        customPlace.addClass('d-none');
-
-        // Show items back
-        if (typeof actions[where] === 'function') {
-          const tinyPlace = customPlace.find('#insert-custom-place');
-          tinyPlace
-            .empty()
-            .append(
-              actions[where](
-                tinyPlace,
-                user,
-                tinyData.content?.presenceStatusMsg,
-                tinyData.ethereumValid,
-              ),
-            );
-          customPlace.removeClass('d-none');
-        } else {
-          timezonePlace.removeClass('no-show').removeClass('d-none');
-          bioPlace.removeClass('no-show').removeClass('d-none');
-        }
-      };
-
-      // Create menu
-      const menuItem = (name, openItem = null, tinyData = {}) => {
-        const button = $('<a>', {
-          class: `nav-link text-bg-force${openItem === tinyMenuId ? ' active' : ''}${openItem !== 'default' ? ' ms-3' : ''}`,
-          href: '#',
-        }).on('click', () => {
-          for (const item in menuBarItems) {
-            menuBarItems[item].removeClass('active');
-          }
-
-          button.addClass('active');
-
-          executeMenu(openItem, tinyData);
-          tinyMenuId = openItem;
-          return false;
-        });
-
-        menuBarItems.push(button);
-        return $('<li>', { class: 'nav-item' }).append(button.text(name));
-      };
-
-      // Create Menu Bar Time
-      const enableMenuBar = (content, ethereumValid, menubarReasons = 0) => {
-        // Clear Menu bar
-        menubar.empty().removeClass('d-none');
-
-        // Start functions
-        if (menubarReasons > 0) {
-          const tinyData = { content, ethereumValid };
-
-          // User info
-          menubar.append(menuItem('User info', 'default', tinyData));
-
-          // Ethereum
-          tinyAPI.emit('profileTabsSpawnBefore', tinyData, user, (name, id) =>
-            menubar.append(menuItem(name, id, tinyData)),
-          );
-          if (ethereumValid) {
-            tinyAPI.emit('profileTabsSpawnEthereumBefore', tinyData, user, (name, id) =>
-              menubar.append(menuItem(name, id, tinyData)),
-            );
-            menubar.append(menuItem('Ethereum', 'ethereum', tinyData));
-            tinyAPI.emit('profileTabsSpawnEthereumAfter', tinyData, user, (name, id) =>
-              menubar.append(menuItem(name, id, tinyData)),
-            );
-          }
-          tinyAPI.emit('profileTabsSpawnAfter', tinyData, user, (name, id) =>
-            menubar.append(menuItem(name, id, tinyData)),
-          );
-
-          // First Execute
-          executeMenu(tinyMenuId, tinyData);
-        }
-
-        // Nope
-        else {
-          menubar.addClass('d-none');
-        }
-      };
-
-      // Update Status Profile
-      const updateProfileStatus = (mEvent, tinyData) => {
-        // Ethereum Config
-        const ethConfig = getWeb3Cfg();
-
-        // Get Status
-        let menubarReasons = 0;
-        const tinyUser = tinyData;
-        const status = $(statusRef.current);
-
-        // Is You
-        if (tinyUser.userId === mx.getUserId()) {
-          const yourData = clone(mx.getAccountData('pony.house.profile')?.getContent() ?? {});
-          yourData.ethereum = getUserWeb3Account();
-          if (typeof yourData.ethereum.valid !== 'undefined') delete yourData.ethereum.valid;
-          tinyUser.presenceStatusMsg = JSON.stringify(yourData);
-        }
-
-        // Update Status Icon
-        const content = updateUserStatusIcon(status, tinyUser);
-        const existPresence = content && content.presenceStatusMsg;
-        const ethereumValid =
-          envAPI.get('WEB3') &&
-          existPresence &&
-          content.presenceStatusMsg.ethereum &&
-          content.presenceStatusMsg.ethereum.valid;
-        if (existPresence) {
-          // Ethereum
-          if (ethConfig.web3Enabled && ethereumValid) {
-            menubarReasons++;
-          }
-
-          // About Page
-          renderAbout(
-            userPronounsRef,
-            ethereumValid,
-            displayNameRef,
-            customStatusRef,
-            profileBanner,
-            bioRef,
-            timezoneRef,
-            content,
-          );
-        }
-
-        enableMenuBar(content, ethereumValid, menubarReasons);
-      };
+      const tinyAvatarPreview = () => avatarPreviewBase(username);
 
       // Copy Profile Username
       const copyUsername = {
         tag: (event) => copyText(event, 'Username successfully copied to the clipboard.'),
         display: (event) => copyText(event, 'Display name successfully copied to the clipboard.'),
       };
+
+      $(profileAvatar.current).on('click', tinyAvatarPreview);
+      $(displayNameRef.current).find('> .button').on('click', copyUsername.display);
+      $(userNameRef.current).find('> .button').on('click', copyUsername.tag);
 
       // Update Note
       const tinyNoteUpdate = (event) => {
@@ -751,61 +650,44 @@ function ProfileViewer() {
       // Read Events
       const tinyNote = getDataList('user_cache', 'note', userId);
 
-      if (user) user.on(UserEvent.CurrentlyActive, updateProfileStatus);
-      if (user) user.on(UserEvent.LastPresenceTs, updateProfileStatus);
-      if (user) user.on(UserEvent.Presence, updateProfileStatus);
-
-      $(displayNameRef.current).find('> .button').on('click', copyUsername.display);
-      $(userNameRef.current).find('> .button').on('click', copyUsername.tag);
-
-      $(profileAvatar.current).on('click', tinyAvatarPreview);
+      // Note
       $(noteRef.current)
         .on('change', tinyNoteUpdate)
         .on('keypress keyup keydown', tinyNoteSpacing)
         .val(tinyNote);
 
       if (noteRef.current) tinyNoteSpacing({ target: noteRef.current });
-      if (user) updateProfileStatus(null, user);
 
       return () => {
-        menubar.empty();
-        $(displayNameRef.current).find('> .button').off('click', copyUsername.display);
-        $(userNameRef.current).find('> .button').off('click', copyUsername.tag);
         $(noteRef.current)
           .off('change', tinyNoteUpdate)
           .off('keypress keyup keydown', tinyNoteSpacing);
+
+        $(displayNameRef.current).find('> .button').off('click', copyUsername.display);
+        $(userNameRef.current).find('> .button').off('click', copyUsername.tag);
         $(profileAvatar.current).off('click', tinyAvatarPreview);
-        if (user) user.removeListener(UserEvent.CurrentlyActive, updateProfileStatus);
-        if (user) user.removeListener(UserEvent.LastPresenceTs, updateProfileStatus);
-        if (user) user.removeListener(UserEvent.Presence, updateProfileStatus);
       };
-    } else if (!userId) {
+    }
+
+    // User not found
+    else if (!userId) {
       setAvatarUrl(defaultAvatar(0));
       setUsername(null);
+      setBannerSrc(null);
     }
+
+    // Unknown User
     if (username === null && avatarUrl === defaultAvatar(0)) {
       // Avatar Preview
-      let newAvatar;
-      const tinyAvatarPreview = () => {
-        if (newAvatar) {
-          const img = $(profileAvatar.current).find('> img');
-          imageViewer({
-            onClose: reopenProfile,
-            lightbox,
-            imgQuery: img,
-            name: userId,
-            originalUrl: newAvatar,
-          });
-        }
-      };
+      const tinyAvatarPreview = () => avatarPreviewBase(userId);
 
       $(profileAvatar.current).on('click', tinyAvatarPreview);
       mx.getProfileInfo(userId)
         .then((userProfile) => {
           newAvatar =
             userProfile.avatar_url &&
-            userProfile.avatar_url !== 'null' &&
-            userProfile.avatar_url !== null
+              userProfile.avatar_url !== 'null' &&
+              userProfile.avatar_url !== null
               ? mxcUrl.toHttp(userProfile.avatar_url)
               : null;
 
@@ -819,6 +701,41 @@ function ProfileViewer() {
 
       return () => {
         $(profileAvatar.current).off('click', tinyAvatarPreview);
+      };
+    }
+  }, [user]);
+
+  // User profile updated
+  useEffect(() => {
+    if (user) {
+      const updateProfileStatus = (mEvent, tinyData) => {
+        // Tiny Data
+        const tinyUser = tinyData;
+
+        // Get Status
+        const status = $(statusRef.current);
+
+        // Is You
+        if (tinyUser.userId === mx.getUserId()) {
+          const yourData = clone(mx.getAccountData('pony.house.profile')?.getContent() ?? {});
+          yourData.ethereum = getUserWeb3Account();
+          if (typeof yourData.ethereum.valid !== 'undefined') delete yourData.ethereum.valid;
+          tinyUser.presenceStatusMsg = JSON.stringify(yourData);
+        }
+
+        // Update Status Icon
+        setAccountContent(updateUserStatusIcon(status, tinyUser));
+      };
+
+      user.on(UserEvent.CurrentlyActive, updateProfileStatus);
+      user.on(UserEvent.LastPresenceTs, updateProfileStatus);
+      user.on(UserEvent.Presence, updateProfileStatus);
+      updateProfileStatus(null, user);
+
+      return () => {
+        if (user) user.removeListener(UserEvent.CurrentlyActive, updateProfileStatus);
+        if (user) user.removeListener(UserEvent.LastPresenceTs, updateProfileStatus);
+        if (user) user.removeListener(UserEvent.Presence, updateProfileStatus);
       };
     }
   }, [user]);
@@ -875,11 +792,76 @@ function ProfileViewer() {
       setLightbox(!lightbox);
     };
 
-    const tinyPresence = getPresence(user);
+    // Exist Presence
+    const existPresenceObject =
+      accountContent && objType(accountContent.presenceStatusMsg, 'object');
+
+    // Ethereum Config
+    const ethConfig = getWeb3Cfg();
+    const existEthereum =
+      envAPI.get('WEB3') &&
+      ethConfig.web3Enabled &&
+      existPresenceObject &&
+      accountContent.presenceStatusMsg.ethereum &&
+      accountContent.presenceStatusMsg.ethereum.valid;
+
+    // Exist message presence
+    const existMsgPresence =
+      existPresenceObject &&
+      typeof accountContent.presenceStatusMsg.msg === 'string' &&
+      accountContent.presenceStatusMsg.msg.length > 0;
+
+    // Exist Icon Presence
+    const existIconPresence =
+      existPresenceObject &&
+      typeof accountContent.presenceStatusMsg.msgIcon === 'string' &&
+      accountContent.presenceStatusMsg.msgIcon.length > 0;
+
+    // Exist banner
+    const existBanner =
+      existPresenceObject &&
+      typeof accountContent.presenceStatusMsg.bannerThumb === 'string' &&
+      accountContent.presenceStatusMsg.bannerThumb.length > 0 &&
+      typeof accountContent.presenceStatusMsg.banner === 'string' &&
+      accountContent.presenceStatusMsg.banner.length > 0;
+
+    // Menu bar items
+    const menuBarItems = [];
+
+    // Ethereum
+    EthereumProfileTab(menuBarItems, accountContent, existEthereum);
+
+    // Profile Tabs Spawn
+    tinyAPI.emit('profileTabsSpawn', menuBarItems, accountContent, existEthereum);
+
+    // Add default page
+    if (menuBarItems.length > 0) {
+      menuBarItems.unshift({
+        menu: () => 'User info',
+      });
+    }
+
+    if (existPresenceObject && existBanner && !bannerSrc && !loadingBanner) {
+      setLoadingBanner(true);
+      const bannerData = AvatarJquery({
+        isObj: true,
+        imageSrc: accountContent.presenceStatusMsg.bannerThumb,
+        imageAnimSrc: accountContent.presenceStatusMsg.banner,
+        onLoadingChange: () => {
+          if (typeof bannerData.blobAnimSrc === 'string' && bannerData.blobAnimSrc.length > 0) {
+            setBannerSrc(bannerData.blobAnimSrc);
+            setLoadingBanner(false);
+          }
+        },
+      });
+    }
 
     return (
       <>
-        <div ref={profileBanner} className={`profile-banner profile-bg${cssColorMXID(userId)}`} />
+        <div
+          className={`profile-banner profile-bg${cssColorMXID(userId)}${existBanner ? ' exist-banner' : ''}`}
+          style={{ backgroundImage: bannerSrc ? `url("${bannerSrc}")` : null }}
+        />
 
         <div className="p-4">
           <div className="row pb-3">
@@ -937,102 +919,225 @@ function ProfileViewer() {
 
               <h6 ref={displayNameRef} className="emoji-size-fix m-0 mb-1 fw-bold display-name">
                 <span className="button">{twemojifyReact(username)}</span>
+                {existEthereum ? (
+                  <Tooltip content={accountContent.presenceStatusMsg.ethereum.address}>
+                    <span
+                      className="ms-2 ethereum-icon"
+                      onClick={() => {
+                        copyText(
+                          accountContent.presenceStatusMsg.ethereum.address,
+                          'Ethereum address successfully copied to the clipboard.',
+                        );
+                      }}
+                    >
+                      <i className="fa-brands fa-ethereum" />
+                    </span>
+                  </Tooltip>
+                ) : null}
               </h6>
               <small ref={userNameRef} className="text-gray emoji-size-fix username">
                 <span className="button">{twemojifyReact(convertUserId(userId))}</span>
               </small>
-              <div
-                ref={userPronounsRef}
-                className="text-gray emoji-size-fix pronouns small d-none"
-              />
 
-              <div
-                ref={customStatusRef}
-                className="d-none mt-2 emoji-size-fix small user-custom-status"
-              />
-              <ul ref={menubarRef} id="usertabs" className="nav nav-underline mt-2 small" />
-
-              <div ref={customPlaceRef} className="d-none">
-                <hr />
-                <div id="insert-custom-place" />
-              </div>
-
-              <div ref={timezoneRef} className="d-none">
-                <hr />
-
-                <div className="text-gray text-uppercase fw-bold very-small mb-2">Timezone</div>
-                <div id="tiny-timezone" className="emoji-size-fix small text-freedom" />
-              </div>
-
-              <div ref={bioRef} className="d-none">
-                <hr />
-
-                <div className="text-gray text-uppercase fw-bold very-small mb-2">About me</div>
-                <div id="tiny-bio" className="emoji-size-fix small text-freedom" />
-              </div>
-
-              {agentData.data && typeof agentData.data.id === 'string' ? (
+              {existPresenceObject ? (
                 <>
-                  {typeof agentData.data.llmModel === 'string' ||
-                  typeof agentData.data.prompt === 'string' ? (
-                    <>
-                      <hr />
+                  {typeof accountContent.presenceStatusMsg.pronouns === 'string' &&
+                    accountContent.presenceStatusMsg.pronouns.length > 0 ? (
+                    <div className="text-gray emoji-size-fix pronouns small">
+                      {twemojifyReact(accountContent.presenceStatusMsg.pronouns.substring(0, 20))}
+                    </div>
+                  ) : null}
 
-                      <div className="mt-2">
-                        {typeof agentData.data.llmModel === 'string' && (
-                          <div className="very-small mb-2">
-                            <span className="fw-bold">LLM Model: </span> {agentData.data.llmModel}{' '}
-                            test
-                          </div>
-                        )}
-
-                        {typeof agentData.data.prompt === 'string' && (
-                          <div className="very-small mb-2">
-                            <span className="fw-bold">Prompt: </span>{' '}
-                            {agentData.data.prompt.length < 100 || agentFullPrompt ? (
-                              agentData.data.prompt
-                            ) : (
-                              <a
-                                href="#"
-                                className="text-white"
-                                onClick={(event) => {
-                                  event.preventDefault();
-                                  setAgentFullPrompt(true);
-                                }}
-                              >
-                                {`${agentData.data.prompt.substring(0, 100)}...`}
-                              </a>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </>
+                  {existMsgPresence || existIconPresence ? (
+                    <div
+                      className={`mt-2${existMsgPresence ? ' emoji-size-fix ' : ''}small user-custom-status${!existMsgPresence ? ' custom-status-emoji-only' : ''}`}
+                    >
+                      {existIconPresence ? (
+                        <Img
+                          className="emoji me-1"
+                          alt="icon"
+                          src={accountContent.presenceStatusMsg.msgIcon}
+                        />
+                      ) : null}
+                      {existMsgPresence ? (
+                        <span className="text-truncate cs-text">
+                          {twemojifyReact(accountContent.presenceStatusMsg.msg.substring(0, 100))}
+                        </span>
+                      ) : null}
+                    </div>
                   ) : null}
                 </>
               ) : null}
 
-              <hr />
+              {menuBarItems.length > 0 ? (
+                <ul className="usertabs nav nav-underline mt-2 small">
+                  {menuBarItems.map((item, index) => (
+                    <li key={`profileViewer_menubar_${index}`} className="nav-item">
+                      <a
+                        className={`nav-link text-bg-force${index !== menuBarItems.length - 1 ? ' me-3' : ''}${index !== selectedMenu ? '' : ' active'}`}
+                        href="#"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          setSelectedMenu(index);
+                        }}
+                      >
+                        {item.menu({
+                          roomId,
+                          userId,
+                          closeDialog,
+                          accountContent,
+                          roomMember,
+                          avatarUrl,
+                          username,
+                        })}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
 
-              <label
-                htmlFor="tiny-note"
-                className="form-label text-gray text-uppercase fw-bold very-small mb-2"
-              >
-                Note
-              </label>
-              <textarea
-                ref={noteRef}
-                spellCheck="false"
-                className="form-control form-control-bg emoji-size-fix small"
-                id="tiny-note"
-                placeholder="Insert a note here"
-              />
-            </div>
+              {menuBarItems[selectedMenu] &&
+                typeof menuBarItems[selectedMenu].render === 'function' ? (
+                <>
+                  <hr />
+                  {menuBarItems[selectedMenu].render({
+                    roomId,
+                    userId,
+                    closeDialog,
+                    accountContent,
+                    roomMember,
+                    avatarUrl,
+                    username,
+                    imagePreview: (name, imgQuery, originalUrl) =>
+                      imageViewer({
+                        lightbox,
+                        onClose: reopenProfile,
+                        imgQuery: imgQuery,
+                        name,
+                        originalUrl: originalUrl,
+                      }),
+                  })}
+                </>
+              ) : null}
 
-            {roomId ? <ModerationTools roomId={roomId} userId={userId} /> : null}
-          </div>
+              {selectedMenu === 0 ? (
+                <>
+                  {accountContent ? (
+                    // Object presence status
+                    existPresenceObject ? (
+                      <>
+                        {typeof accountContent.presenceStatusMsg.timezone === 'string' &&
+                          accountContent.presenceStatusMsg.timezone.length > 0 ? (
+                          <>
+                            <hr />
+
+                            <div className="text-gray text-uppercase fw-bold very-small mb-2">
+                              Timezone
+                            </div>
+                            <div className="emoji-size-fix small text-freedom">
+                              <Clock
+                                timezone={accountContent.presenceStatusMsg.timezone}
+                                calendarFormat="MMMM Do YYYY, {time}"
+                              />
+                            </div>
+                          </>
+                        ) : null}
+
+                        {typeof accountContent.presenceStatusMsg.bio === 'string' &&
+                          accountContent.presenceStatusMsg.bio.length > 0 ? (
+                          <>
+                            <hr />
+                            <div className="text-gray text-uppercase fw-bold very-small mb-2">
+                              About me
+                            </div>
+                            <div className="emoji-size-fix small text-freedom">
+                              {twemojifyReact(
+                                accountContent.presenceStatusMsg.bio.substring(0, 190),
+                                undefined,
+                                true,
+                                false,
+                              )}
+                            </div>
+                          </>
+                        ) : null}
+                      </>
+                    ) : // Text presence status
+                      typeof accountContent.presenceStatusMsg === 'string' &&
+                        accountContent.presenceStatusMsg.length > 0 ? (
+                        <div className="mt-2 emoji-size-fix small user-custom-status">
+                          <span className="text-truncate cs-text">
+                            {twemojifyReact(accountContent.presenceStatusMsg.substring(0, 100))}
+                          </span>
+                        </div>
+                      ) : null
+                  ) : null}
+
+                  {
+                    agentData.data && typeof agentData.data.id === 'string' ? (
+                      <>
+                        {typeof agentData.data.llmModel === 'string' ||
+                          typeof agentData.data.prompt === 'string' ? (
+                          <>
+                            <hr />
+
+                            <div className="mt-2">
+                              {typeof agentData.data.llmModel === 'string' && (
+                                <div className="very-small mb-2">
+                                  <span className="fw-bold">LLM Model: </span> {agentData.data.llmModel}{' '}
+                                  test
+                                </div>
+                              )}
+
+                              {typeof agentData.data.prompt === 'string' && (
+                                <div className="very-small mb-2">
+                                  <span className="fw-bold">Prompt: </span>{' '}
+                                  {agentData.data.prompt.length < 100 || agentFullPrompt ? (
+                                    agentData.data.prompt
+                                  ) : (
+                                    <a
+                                      href="#"
+                                      className="text-white"
+                                      onClick={(event) => {
+                                        event.preventDefault();
+                                        setAgentFullPrompt(true);
+                                      }}
+                                    >
+                                      {`${agentData.data.prompt.substring(0, 100)}...`}
+                                    </a>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        ) : null}
+                      </>
+                    ) : null
+                  }
+
+                  <hr />
+                  <label
+                    htmlFor="tiny-note"
+                    className="form-label text-gray text-uppercase fw-bold very-small mb-2"
+                  >
+                    Note
+                  </label>
+                  <textarea
+                    ref={noteRef}
+                    spellCheck="false"
+                    className="form-control form-control-bg emoji-size-fix small"
+                    id="tiny-note"
+                    placeholder="Insert a note here"
+                  />
+                </>
+              ) : null}
+            </div >
+
+            {roomId ? <ModerationTools roomId={roomId} userId={userId} /> : null
+            }
+          </div >
 
           <SessionInfo userId={userId} />
-        </div>
+        </div >
       </>
     );
   };

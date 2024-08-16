@@ -29,7 +29,7 @@ To host SpaceShip-App on your own, download tarball of the app from [GitHub rele
 You can serve the application with a webserver of your choice by simply copying `dist/` directory to the webroot. 
 To set default Homeserver on login and register page, place a customized [`.env`](.env) in webroot of your choice.
 
-If you want to use devtools in production mode in the destkop version before the application is opened, type `--devtools` after the file path.
+If you want to use devtools in production mode in the desktop version before the application is opened, type `--devtools` after the file path.
 
 <h3 align="center">SpaceShip App Demo Video</h3>
 
@@ -89,6 +89,4 @@ yarn electron:build # Compiles the app into the release/ directory
 If you need to manage client files on your desktop version. You can find specific storage files in the directory below:
 
     %AppData%/spaceship-matrix/tinyMatrixData/
-
-
 

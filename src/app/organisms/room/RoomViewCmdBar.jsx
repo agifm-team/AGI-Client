@@ -436,7 +436,8 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
   }
 
   const tabList = (tinyRef, classItems, cmdItems, tabName, buttonMode = false) =>
-    cmdItems && cmdItems.suggestions.length > 0 && (
+    cmdItems &&
+    cmdItems.suggestions.length > 0 && (
       <div ref={tinyRef} className={`cmd-bar${classItems ? ` ${classItems}` : ''}`}>
         <div className="cmd-bar__info">
           <div className="very-small text-gray">{tabName}</div>

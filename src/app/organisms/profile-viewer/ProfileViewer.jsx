@@ -206,7 +206,7 @@ SessionInfo.propTypes = {
   userId: PropTypes.string.isRequired,
 };
 
-function ProfileFooter({ roomId, userId, onRequestClose, agentData, tinyPresence }) {
+function ProfileFooter({ roomId, userId, onRequestClose, agentData }) {
   const [isCreatingDM, setIsCreatingDM] = useState(false);
   const [isIgnoring, setIsIgnoring] = useState(false);
   const [isUserIgnored, setIsUserIgnored] = useState(initMatrix.matrixClient.isUserIgnored(userId));
@@ -892,7 +892,6 @@ function ProfileViewer() {
               <div className="float-end">
                 {userId !== mx.getUserId() && (
                   <ProfileFooter
-                    tinyPresence={tinyPresence}
                     agentData={agentData}
                     roomId={roomId}
                     userId={userId}

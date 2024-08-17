@@ -11,6 +11,7 @@ import attemptDecryption from '@src/util/libs/attemptDecryption';
 import soundFiles from '@src/util/soundFiles';
 // import { insertIntoRoomEventsDB } from '@src/util/libs/roomEventsDB';
 import { canSupport, dfAvatarSize } from '@src/util/matrixUtil';
+import initMatrix from '@src/client/initMatrix';
 
 import renderAvatar from '../../../app/atoms/avatar/render';
 import { cssColorMXID } from '../../../util/colorMXID';

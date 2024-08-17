@@ -21,7 +21,7 @@ import Clock from '@src/app/atoms/time/Clock';
 import UserStatusIcon from '@src/app/atoms/user-status/UserStatusIcon';
 
 import { twemojifyReact } from '../../../util/twemojify';
-import { canUsePresence, getUserStatus, getPresence } from '../../../util/onlineStatus';
+import { canUsePresence, getPresence } from '../../../util/onlineStatus';
 
 import imageViewer from '../../../util/imageViewer';
 
@@ -704,7 +704,7 @@ function ProfileViewer() {
   // User profile updated
   useEffect(() => {
     if (user) {
-      const updateProfileStatus = (mEvent, tinyData) => {
+      const updateProfileStatus = (mEvent, tinyData, isFirstTime = false) => {
         // Tiny Data
         const tinyUser = tinyData;
 
@@ -724,13 +724,14 @@ function ProfileViewer() {
       user.on(UserEvent.LastPresenceTs, updateProfileStatus);
       user.on(UserEvent.Presence, updateProfileStatus);
       user.on(UserEvent.AvatarUrl, updateProfileStatus);
-      updateProfileStatus(null, user);
-
+      user.on(UserEvent.DisplayName, updateProfileStatus);
+      if (!accountContent) updateProfileStatus(null, user);
       return () => {
         if (user) user.removeListener(UserEvent.CurrentlyActive, updateProfileStatus);
         if (user) user.removeListener(UserEvent.LastPresenceTs, updateProfileStatus);
         if (user) user.removeListener(UserEvent.Presence, updateProfileStatus);
-        if (user) user.on(UserEvent.AvatarUrl, updateProfileStatus);
+        if (user) user.removeListener(UserEvent.AvatarUrl, updateProfileStatus);
+        if (user) user.removeListener(UserEvent.DisplayName, updateProfileStatus);
       };
     }
   }, [user]);
@@ -927,7 +928,10 @@ function ProfileViewer() {
                     </div>
                   ) : null}
 
-                  <UserCustomStatus className="mt-2 small" presenceData={accountContent} />
+                  <UserCustomStatus
+                    className="mt-2 small profile-modal "
+                    presenceData={accountContent}
+                  />
                 </>
               ) : null}
 
@@ -1026,11 +1030,10 @@ function ProfileViewer() {
                     ) : // Text presence status
                     typeof accountContent.presenceStatusMsg === 'string' &&
                       accountContent.presenceStatusMsg.length > 0 ? (
-                      <div className="mt-2 emoji-size-fix small user-custom-status">
-                        <span className="text-truncate cs-text">
-                          {twemojifyReact(accountContent.presenceStatusMsg.substring(0, 100))}
-                        </span>
-                      </div>
+                      <UserCustomStatus
+                        className="mt-2 small profile-modal "
+                        presenceData={accountContent}
+                      />
                     ) : null
                   ) : null}
 

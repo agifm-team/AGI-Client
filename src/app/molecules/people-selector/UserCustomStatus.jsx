@@ -15,6 +15,7 @@ const UserCustomStatus = React.forwardRef(
       emojiFix = 'emoji-size-fix',
       useHoverAnim = false,
       disableEmojiOnly = false,
+      altContent = null,
     },
     ref,
   ) => {
@@ -38,14 +39,14 @@ const UserCustomStatus = React.forwardRef(
       forceShow ||
       ((existPresenceObject || presenceIsPureText) &&
         presenceData.presence !== 'offline' &&
-        presenceData.presence !== 'invisible');
+        presenceData.presence !== 'invisible' &&
+        presenceData.presence !== 'unavailable');
+
+    const tinyClass = `${existMsgPresence ? `${emojiFix} ` : ''}user-custom-status${!existMsgPresence && !disableEmojiOnly ? ' custom-status-emoji-only' : ''}${className ? ` ${className}` : ''}`;
 
     if (canShowPresence && (existIconPresence || existMsgPresence || presenceIsPureText))
       return (
-        <div
-          ref={ref}
-          className={`${existMsgPresence ? `${emojiFix} ` : ''}user-custom-status${!existMsgPresence && !disableEmojiOnly ? ' custom-status-emoji-only' : ''}${className ? ` ${className}` : ''}`}
-        >
+        <div ref={ref} className={tinyClass}>
           {existIconPresence ? (
             <Img
               animParentsCount={animParentsCount}
@@ -71,7 +72,11 @@ const UserCustomStatus = React.forwardRef(
         </div>
       );
 
-    return null;
+    return !altContent ? null : (
+      <div ref={ref} className={tinyClass}>
+        <span className="text-truncate cs-text">{altContent}</span>
+      </div>
+    );
   },
 );
 
@@ -82,6 +87,8 @@ UserCustomStatus.propTypes = {
   presenceData: PropTypes.object,
   useHoverAnim: PropTypes.bool,
   disableEmojiOnly: PropTypes.bool,
+  altContent: PropTypes.node,
+  forceShow: PropTypes.bool,
 };
 
 export default UserCustomStatus;

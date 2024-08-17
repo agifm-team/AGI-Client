@@ -19,7 +19,7 @@ import { getUserWeb3Account, getWeb3Cfg } from '../../../util/web3';
 import { twemojifyReact } from '../../../util/twemojify';
 
 import Avatar, { AvatarJquery } from '../../atoms/avatar/Avatar';
-import { getUserStatus, canUsePresence, getPresence } from '../../../util/onlineStatus';
+import { canUsePresence, getPresence } from '../../../util/onlineStatus';
 import initMatrix from '../../../client/initMatrix';
 import { cssColorMXID } from '../../../util/colorMXID';
 import { addToDataFolder, getDataList } from '../../../util/selectedRoom';
@@ -92,7 +92,7 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
   // User profile updated
   useEffect(() => {
     if (user) {
-      const updateProfileStatus = (mEvent, tinyData) => {
+      const updateProfileStatus = (mEvent, tinyData, isFirstTime = false) => {
         // Tiny Data
         const tinyUser = tinyData;
 
@@ -112,14 +112,15 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
       user.on(UserEvent.CurrentlyActive, updateProfileStatus);
       user.on(UserEvent.LastPresenceTs, updateProfileStatus);
       user.on(UserEvent.Presence, updateProfileStatus);
-      if (user) user.on(UserEvent.AvatarUrl, updateProfileStatus);
-      updateProfileStatus(null, user);
-
+      user.on(UserEvent.AvatarUrl, updateProfileStatus);
+      user.on(UserEvent.DisplayName, updateProfileStatus);
+      if (!accountContent) updateProfileStatus(null, user);
       return () => {
         if (user) user.removeListener(UserEvent.CurrentlyActive, updateProfileStatus);
         if (user) user.removeListener(UserEvent.LastPresenceTs, updateProfileStatus);
         if (user) user.removeListener(UserEvent.Presence, updateProfileStatus);
-        if (user) user.on(UserEvent.AvatarUrl, updateProfileStatus);
+        if (user) user.removeListener(UserEvent.AvatarUrl, updateProfileStatus);
+        if (user) user.removeListener(UserEvent.DisplayName, updateProfileStatus);
       };
     }
   }, [user]);

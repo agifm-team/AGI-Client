@@ -309,9 +309,9 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData }) {
   return (
     <>
       {agentData &&
-        agentData.data &&
-        typeof agentData.data.id === 'string' &&
-        agentData.data.id.length > 0 ? (
+      agentData.data &&
+      typeof agentData.data.id === 'string' &&
+      agentData.data.id.length > 0 ? (
         <>
           <Button
             className="me-2"
@@ -682,8 +682,8 @@ function ProfileViewer() {
         .then((userProfile) => {
           newAvatar =
             userProfile.avatar_url &&
-              userProfile.avatar_url !== 'null' &&
-              userProfile.avatar_url !== null
+            userProfile.avatar_url !== 'null' &&
+            userProfile.avatar_url !== null
               ? mxcUrl.toHttp(userProfile.avatar_url)
               : null;
 
@@ -921,7 +921,7 @@ function ProfileViewer() {
               {existPresenceObject ? (
                 <>
                   {typeof accountContent.presenceStatusMsg.pronouns === 'string' &&
-                    accountContent.presenceStatusMsg.pronouns.length > 0 ? (
+                  accountContent.presenceStatusMsg.pronouns.length > 0 ? (
                     <div className="text-gray emoji-size-fix pronouns small">
                       {twemojifyReact(accountContent.presenceStatusMsg.pronouns.substring(0, 20))}
                     </div>
@@ -959,7 +959,7 @@ function ProfileViewer() {
               ) : null}
 
               {menuBarItems[selectedMenu] &&
-                typeof menuBarItems[selectedMenu].render === 'function' ? (
+              typeof menuBarItems[selectedMenu].render === 'function' ? (
                 <>
                   <hr />
                   {menuBarItems[selectedMenu].render({
@@ -989,7 +989,7 @@ function ProfileViewer() {
                     existPresenceObject ? (
                       <>
                         {typeof accountContent.presenceStatusMsg.timezone === 'string' &&
-                          accountContent.presenceStatusMsg.timezone.length > 0 ? (
+                        accountContent.presenceStatusMsg.timezone.length > 0 ? (
                           <>
                             <hr />
 
@@ -1006,7 +1006,7 @@ function ProfileViewer() {
                         ) : null}
 
                         {typeof accountContent.presenceStatusMsg.bio === 'string' &&
-                          accountContent.presenceStatusMsg.bio.length > 0 ? (
+                        accountContent.presenceStatusMsg.bio.length > 0 ? (
                           <>
                             <hr />
                             <div className="text-gray text-uppercase fw-bold very-small mb-2">
@@ -1024,20 +1024,20 @@ function ProfileViewer() {
                         ) : null}
                       </>
                     ) : // Text presence status
-                      typeof accountContent.presenceStatusMsg === 'string' &&
-                        accountContent.presenceStatusMsg.length > 0 ? (
-                        <div className="mt-2 emoji-size-fix small user-custom-status">
-                          <span className="text-truncate cs-text">
-                            {twemojifyReact(accountContent.presenceStatusMsg.substring(0, 100))}
-                          </span>
-                        </div>
-                      ) : null
+                    typeof accountContent.presenceStatusMsg === 'string' &&
+                      accountContent.presenceStatusMsg.length > 0 ? (
+                      <div className="mt-2 emoji-size-fix small user-custom-status">
+                        <span className="text-truncate cs-text">
+                          {twemojifyReact(accountContent.presenceStatusMsg.substring(0, 100))}
+                        </span>
+                      </div>
+                    ) : null
                   ) : null}
 
                   {agentData.data && typeof agentData.data.id === 'string' ? (
                     <>
                       {typeof agentData.data.llmModel === 'string' ||
-                        typeof agentData.data.prompt === 'string' ? (
+                      typeof agentData.data.prompt === 'string' ? (
                         <>
                           <hr />
 

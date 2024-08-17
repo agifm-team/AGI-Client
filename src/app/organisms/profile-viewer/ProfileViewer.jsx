@@ -14,16 +14,14 @@ import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
 // import YamlEditor from '@mods/agi-mod/components/YamlEditor';
 import { openSuperAgent } from '@mods/agi-mod/menu/Buttons';
 import matrixAppearance from '@src/util/libs/appearance';
-import Img from '@src/app/atoms/image/Image';
+import UserCustomStatus from '@src/app/molecules/people-selector/UserCustomStatus';
 import Tooltip from '@src/app/atoms/tooltip/Tooltip';
 
+import Clock from '@src/app/atoms/time/Clock';
+import UserStatusIcon from '@src/app/atoms/user-status/UserStatusIcon';
+
 import { twemojifyReact } from '../../../util/twemojify';
-import {
-  getPresence,
-  canUsePresence,
-  getUserStatus,
-  updateUserStatusIcon,
-} from '../../../util/onlineStatus';
+import { canUsePresence, getUserStatus, getPresence } from '../../../util/onlineStatus';
 
 import imageViewer from '../../../util/imageViewer';
 
@@ -66,7 +64,6 @@ import { getUserWeb3Account, getWeb3Cfg } from '../../../util/web3';
 
 import copyText from './copyText';
 import tinyAPI from '../../../util/mods';
-import Clock from '@src/app/atoms/time/Clock';
 import EthereumProfileTab from './tabs/Ethereum';
 
 function ModerationTools({ roomId, userId }) {
@@ -312,9 +309,9 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData }) {
   return (
     <>
       {agentData &&
-      agentData.data &&
-      typeof agentData.data.id === 'string' &&
-      agentData.data.id.length > 0 ? (
+        agentData.data &&
+        typeof agentData.data.id === 'string' &&
+        agentData.data.id.length > 0 ? (
         <>
           <Button
             className="me-2"
@@ -491,7 +488,6 @@ function ProfileViewer() {
   // Prepare
   const noteRef = useRef(null);
   const profileAvatar = useRef(null);
-  const statusRef = useRef(null);
 
   const [
     isOpen,
@@ -686,8 +682,8 @@ function ProfileViewer() {
         .then((userProfile) => {
           newAvatar =
             userProfile.avatar_url &&
-            userProfile.avatar_url !== 'null' &&
-            userProfile.avatar_url !== null
+              userProfile.avatar_url !== 'null' &&
+              userProfile.avatar_url !== null
               ? mxcUrl.toHttp(userProfile.avatar_url)
               : null;
 
@@ -712,9 +708,6 @@ function ProfileViewer() {
         // Tiny Data
         const tinyUser = tinyData;
 
-        // Get Status
-        const status = $(statusRef.current);
-
         // Is You
         if (tinyUser.userId === mx.getUserId()) {
           const yourData = clone(mx.getAccountData('pony.house.profile')?.getContent() ?? {});
@@ -724,7 +717,7 @@ function ProfileViewer() {
         }
 
         // Update Status Icon
-        setAccountContent(updateUserStatusIcon(status, tinyUser));
+        setAccountContent(getPresence(tinyUser));
       };
 
       user.on(UserEvent.CurrentlyActive, updateProfileStatus);
@@ -807,18 +800,6 @@ function ProfileViewer() {
       accountContent.presenceStatusMsg.ethereum &&
       accountContent.presenceStatusMsg.ethereum.valid;
 
-    // Exist message presence
-    const existMsgPresence =
-      existPresenceObject &&
-      typeof accountContent.presenceStatusMsg.msg === 'string' &&
-      accountContent.presenceStatusMsg.msg.length > 0;
-
-    // Exist Icon Presence
-    const existIconPresence =
-      existPresenceObject &&
-      typeof accountContent.presenceStatusMsg.msgIcon === 'string' &&
-      accountContent.presenceStatusMsg.msgIcon.length > 0;
-
     // Exist banner
     const existBanner =
       existPresenceObject &&
@@ -883,10 +864,7 @@ function ProfileViewer() {
                 isDefaultImage
               />
               {canUsePresence() && (
-                <i
-                  ref={statusRef}
-                  className={`user-status user-status-icon pe-2 ${getUserStatus(user)}`}
-                />
+                <UserStatusIcon className="pe-2" user={user} presenceData={accountContent} />
               )}
             </div>
 
@@ -943,30 +921,13 @@ function ProfileViewer() {
               {existPresenceObject ? (
                 <>
                   {typeof accountContent.presenceStatusMsg.pronouns === 'string' &&
-                  accountContent.presenceStatusMsg.pronouns.length > 0 ? (
+                    accountContent.presenceStatusMsg.pronouns.length > 0 ? (
                     <div className="text-gray emoji-size-fix pronouns small">
                       {twemojifyReact(accountContent.presenceStatusMsg.pronouns.substring(0, 20))}
                     </div>
                   ) : null}
 
-                  {existMsgPresence || existIconPresence ? (
-                    <div
-                      className={`mt-2${existMsgPresence ? ' emoji-size-fix ' : ''}small user-custom-status${!existMsgPresence ? ' custom-status-emoji-only' : ''}`}
-                    >
-                      {existIconPresence ? (
-                        <Img
-                          className="emoji me-1"
-                          alt="icon"
-                          src={accountContent.presenceStatusMsg.msgIcon}
-                        />
-                      ) : null}
-                      {existMsgPresence ? (
-                        <span className="text-truncate cs-text">
-                          {twemojifyReact(accountContent.presenceStatusMsg.msg.substring(0, 100))}
-                        </span>
-                      ) : null}
-                    </div>
-                  ) : null}
+                  <UserCustomStatus className="mt-2 small" presenceData={accountContent} />
                 </>
               ) : null}
 
@@ -998,7 +959,7 @@ function ProfileViewer() {
               ) : null}
 
               {menuBarItems[selectedMenu] &&
-              typeof menuBarItems[selectedMenu].render === 'function' ? (
+                typeof menuBarItems[selectedMenu].render === 'function' ? (
                 <>
                   <hr />
                   {menuBarItems[selectedMenu].render({
@@ -1028,7 +989,7 @@ function ProfileViewer() {
                     existPresenceObject ? (
                       <>
                         {typeof accountContent.presenceStatusMsg.timezone === 'string' &&
-                        accountContent.presenceStatusMsg.timezone.length > 0 ? (
+                          accountContent.presenceStatusMsg.timezone.length > 0 ? (
                           <>
                             <hr />
 
@@ -1045,7 +1006,7 @@ function ProfileViewer() {
                         ) : null}
 
                         {typeof accountContent.presenceStatusMsg.bio === 'string' &&
-                        accountContent.presenceStatusMsg.bio.length > 0 ? (
+                          accountContent.presenceStatusMsg.bio.length > 0 ? (
                           <>
                             <hr />
                             <div className="text-gray text-uppercase fw-bold very-small mb-2">
@@ -1063,20 +1024,20 @@ function ProfileViewer() {
                         ) : null}
                       </>
                     ) : // Text presence status
-                    typeof accountContent.presenceStatusMsg === 'string' &&
-                      accountContent.presenceStatusMsg.length > 0 ? (
-                      <div className="mt-2 emoji-size-fix small user-custom-status">
-                        <span className="text-truncate cs-text">
-                          {twemojifyReact(accountContent.presenceStatusMsg.substring(0, 100))}
-                        </span>
-                      </div>
-                    ) : null
+                      typeof accountContent.presenceStatusMsg === 'string' &&
+                        accountContent.presenceStatusMsg.length > 0 ? (
+                        <div className="mt-2 emoji-size-fix small user-custom-status">
+                          <span className="text-truncate cs-text">
+                            {twemojifyReact(accountContent.presenceStatusMsg.substring(0, 100))}
+                          </span>
+                        </div>
+                      ) : null
                   ) : null}
 
                   {agentData.data && typeof agentData.data.id === 'string' ? (
                     <>
                       {typeof agentData.data.llmModel === 'string' ||
-                      typeof agentData.data.prompt === 'string' ? (
+                        typeof agentData.data.prompt === 'string' ? (
                         <>
                           <hr />
 

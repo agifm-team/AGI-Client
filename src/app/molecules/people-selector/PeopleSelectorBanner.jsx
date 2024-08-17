@@ -5,27 +5,29 @@ import $ from 'jquery';
 import { UserEvent } from 'matrix-js-sdk';
 import { objType } from 'for-promise/utils/lib.mjs';
 
-import Img from '@src/app/atoms/image/Image';
 import envAPI from '@src/util/libs/env';
 import { openProfileViewer } from '@src/client/action/navigation';
 import { convertUserId } from '@src/util/matrixUtil';
 
+import UserStatusIcon from '@src/app/atoms/user-status/UserStatusIcon';
 import Clock from '@src/app/atoms/time/Clock';
+import Tooltip from '@src/app/atoms/tooltip/Tooltip';
+import copyText from '@src/app/organisms/profile-viewer/copyText';
+
 import { getUserWeb3Account, getWeb3Cfg } from '../../../util/web3';
 
 import { twemojifyReact } from '../../../util/twemojify';
 
 import Avatar, { AvatarJquery } from '../../atoms/avatar/Avatar';
-import { getUserStatus, updateUserStatusIcon, canUsePresence } from '../../../util/onlineStatus';
+import { getUserStatus, canUsePresence, getPresence } from '../../../util/onlineStatus';
 import initMatrix from '../../../client/initMatrix';
 import { cssColorMXID } from '../../../util/colorMXID';
 import { addToDataFolder, getDataList } from '../../../util/selectedRoom';
 import matrixAppearance from '../../../util/libs/appearance';
+import UserCustomStatus from './UserCustomStatus';
 
 function PeopleSelectorBanner({ name, color, user = null, roomId }) {
   const [, forceUpdate] = useReducer((count) => count + 1, 0);
-
-  const statusRef = useRef(null);
 
   const userNameRef = useRef(null);
   const displayNameRef = useRef(null);
@@ -94,9 +96,6 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
         // Tiny Data
         const tinyUser = tinyData;
 
-        // Get Status
-        const status = $(statusRef.current);
-
         // Is You
         if (tinyUser.userId === mx.getUserId()) {
           const yourData = clone(mx.getAccountData('pony.house.profile')?.getContent() ?? {});
@@ -105,9 +104,8 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
           tinyUser.presenceStatusMsg = JSON.stringify(yourData);
         }
 
-        console.log(tinyUser);
         // Update Status Icon
-        setAccountContent(updateUserStatusIcon(status, tinyUser));
+        setAccountContent(getPresence(tinyUser));
         setUserAvatar(tinyUser?.avatarUrl);
       };
 
@@ -137,18 +135,6 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
     existPresenceObject &&
     accountContent.presenceStatusMsg.ethereum &&
     accountContent.presenceStatusMsg.ethereum.valid;
-
-  // Exist message presence
-  const existMsgPresence =
-    existPresenceObject &&
-    typeof accountContent.presenceStatusMsg.msg === 'string' &&
-    accountContent.presenceStatusMsg.msg.length > 0;
-
-  // Exist Icon Presence
-  const existIconPresence =
-    existPresenceObject &&
-    typeof accountContent.presenceStatusMsg.msgIcon === 'string' &&
-    accountContent.presenceStatusMsg.msgIcon.length > 0;
 
   // Exist banner
   const existBanner =
@@ -195,10 +181,7 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
             isDefaultImage
           />
           {canUsePresence() && (
-            <i
-              ref={statusRef}
-              className={`user-status user-status-icon pe-2 ${getUserStatus(user)}`}
-            />
+            <UserStatusIcon className="pe-2" user={user} presenceData={accountContent} />
           )}
         </div>
 
@@ -206,6 +189,21 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
           <div className="card-body">
             <h6 ref={displayNameRef} className="emoji-size-fix m-0 mb-1 fw-bold display-name">
               <span className="button">{twemojifyReact(name)}</span>
+              {existEthereum ? (
+                <Tooltip content={accountContent.presenceStatusMsg.ethereum.address}>
+                  <span
+                    className="ms-2 ethereum-icon"
+                    onClick={() => {
+                      copyText(
+                        accountContent.presenceStatusMsg.ethereum.address,
+                        'Ethereum address successfully copied to the clipboard.',
+                      );
+                    }}
+                  >
+                    <i className="fa-brands fa-ethereum" />
+                  </span>
+                </Tooltip>
+              ) : null}
             </h6>
             <small ref={userNameRef} className="text-gray emoji-size-fix username">
               <span className="button">{twemojifyReact(convertUserId(user.userId))}</span>
@@ -220,24 +218,12 @@ function PeopleSelectorBanner({ name, color, user = null, roomId }) {
                   </div>
                 ) : null}
 
-                {existMsgPresence || existIconPresence ? (
-                  <div
-                    className={`mt-2${existMsgPresence ? ' emoji-size-fix ' : ''}small user-custom-status${!existMsgPresence ? ' custom-status-emoji-only' : ''}`}
-                  >
-                    {existIconPresence ? (
-                      <Img
-                        className="emoji me-1"
-                        alt="icon"
-                        src={accountContent.presenceStatusMsg.msgIcon}
-                      />
-                    ) : null}
-                    {existMsgPresence ? (
-                      <span className="text-truncate cs-text">
-                        {twemojifyReact(accountContent.presenceStatusMsg.msg.substring(0, 100))}
-                      </span>
-                    ) : null}
-                  </div>
-                ) : null}
+                <UserCustomStatus
+                  className="mt-2 small"
+                  presenceData={accountContent}
+                  animParentsCount={2}
+                  useHoverAnim
+                />
               </>
             ) : null}
 

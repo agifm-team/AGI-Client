@@ -8,6 +8,9 @@ import buttons from './menu/Buttons';
 import Welcome from './bots/Welcome';
 import startMessage from './bots/Message';
 
+import './openrouter';
+import startOpenRouterTabs from './openrouter';
+
 export default function startAgiMod(firstTime) {
   // Normal Loading
   if (!firstTime) {
@@ -33,4 +36,5 @@ export default function startAgiMod(firstTime) {
   tinyAPI.on('startWelcomePage', (data, tinyWelcome) => {
     tinyWelcome.html = <Welcome />;
   });
+  startOpenRouterTabs();
 }

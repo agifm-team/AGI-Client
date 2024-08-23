@@ -821,7 +821,15 @@ function ProfileViewer() {
     EthereumProfileTab(menuBarItems, accountContent, existEthereum, userId, roomId);
 
     // Profile Tabs Spawn
-    tinyAPI.emit('profileTabsSpawn', menuBarItems, accountContent, existEthereum, userId, roomId);
+    tinyAPI.emit(
+      'profileTabsSpawn',
+      menuBarItems,
+      accountContent,
+      existEthereum,
+      userId,
+      roomId,
+      agentData,
+    );
 
     // Add default page
     if (menuBarItems.length > 0) {

@@ -13,9 +13,6 @@ function OpenRouterTab({ userId, roomId, agentData }) {
   const [isEmpty, setIsEmpty] = useState(true);
   const [botSetting, setBotSetting] = useState(null);
 
-  const [isBotDisabled, setIsBotDisabled] = useState(null);
-  const [botPrompt, setBotPrompt] = useState(null);
-
   const promptForm = useRef(null);
 
   useEffect(() => {
@@ -27,7 +24,7 @@ function OpenRouterTab({ userId, roomId, agentData }) {
         })
         .catch((err) => {
           console.error(err);
-          alert(err.message, 'Error Get Open Router');
+          alert(err.message, 'Error Get Bot');
           isError(true);
           setIsLoading(false);
         });
@@ -62,7 +59,7 @@ function OpenRouterTab({ userId, roomId, agentData }) {
 
   useEffect(() => {
     if (botSetting && promptForm.current) {
-      $(promptForm.current).val(botPrompt);
+      $(promptForm.current).val(botSetting.prompt);
     }
   });
 
@@ -83,12 +80,6 @@ function OpenRouterTab({ userId, roomId, agentData }) {
   // Empty
   if (!botSetting) return <strong className="small">No bot data found to change.</strong>;
 
-  // Fix Data
-  if (isBotDisabled === null && botSetting && botSetting.disabled !== isBotDisabled)
-    setIsBotDisabled(botSetting.disabled);
-  if (botPrompt === null && botSetting && botSetting.prompt !== botPrompt)
-    setBotPrompt(botSetting.prompt);
-
   // Complete
   return (
     <>
@@ -97,26 +88,48 @@ function OpenRouterTab({ userId, roomId, agentData }) {
           Prompt
         </label>
         <textarea
-          promptForm={promptForm}
+          ref={promptForm}
           className="form-control form-control-bg"
           id="promptForm"
           rows="5"
+          onChange={(event) => {
+            botSetting.prompt = event.target.value;
+            setBotSetting(botSetting);
+          }}
         ></textarea>
       </div>
 
       <div className="mt-2">
         <input
+          checked={botSetting && botSetting.disabled}
           className="form-check-input"
           type="checkbox"
           id="disabledOpenRouterBot"
-          onChange={(event) => setIsBotDisabled(event.target.checked)}
+          onChange={(event) => {
+            botSetting.disabled = event.target.checked;
+            setBotSetting(botSetting);
+          }}
         />
         <label className="form-check-label ms-2" htmlFor="disabledOpenRouterBot">
           Disabled bot
         </label>
       </div>
 
-      <Button className="mt-2" variant="primary" onClick={() => {}}>
+      <Button
+        className="mt-2"
+        variant="primary"
+        onClick={() => {
+          initMatrix.matrixClient
+            .sendEvent(roomId, 'openrouter.settings.update', botSetting)
+            .then(() => {
+              alert('The bot was successfully updated.', 'Bot updated');
+            })
+            .catch((err) => {
+              console.error(err);
+              alert(err.message, 'Error bot update');
+            });
+        }}
+      >
         Update bot
       </Button>
     </>

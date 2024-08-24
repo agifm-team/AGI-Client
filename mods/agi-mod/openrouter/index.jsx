@@ -129,9 +129,12 @@ function OpenRouterTab({ userId, roomId, agentData }) {
           setIsUpdating(true);
           initMatrix.matrixClient
             .sendEvent(roomId, 'openrouter.settings.update', botSetting)
-            .then(() => {
+            .then((data) => {
               alert('The bot was successfully updated.', 'Bot updated');
               setIsUpdating(false);
+              setTimeout(() => {
+                initMatrix.matrixClient.redactEvent(roomId, data.event_id).catch(console.error);
+              }, 1000);
             })
             .catch((err) => {
               console.error(err);

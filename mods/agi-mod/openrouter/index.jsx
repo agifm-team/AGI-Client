@@ -53,8 +53,22 @@ function OpenRouterTab({ userId, roomId, agentData }) {
     };
   });
 
+  // Is Loading
+  if (isLoading)
+    return (
+      <strong className="small">
+        <div className="me-2 spinner-border spinner-border-sm d-inline-block" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>{' '}
+        Loading data...
+      </strong>
+    );
+
+  // Is Error
+  if (isError) return <strong className="small text-danger">ERROR LOADING!</strong>;
+
   // Complete
-  console.log(botSetting)
+  console.log(botSetting);
   return <small>This account is non-compatible with Bot Settings.</small>;
 }
 

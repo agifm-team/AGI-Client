@@ -23,6 +23,11 @@ function OpenRouterTab({ userId, roomId, agentData }) {
         .sendEvent(roomId, 'openrouter.settings.get', {
           request_id: generateApiKey(),
         })
+        .then((data) => {
+          setTimeout(() => {
+            initMatrix.matrixClient.redactEvent(roomId, data.event_id).catch(console.error);
+          }, 1000);
+        })
         .catch((err) => {
           console.error(err);
           alert(err.message, 'Error Get Bot');

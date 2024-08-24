@@ -5,12 +5,16 @@ import { generateApiKey } from 'generate-api-key';
 import tinyAPI from '@src/util/mods';
 import initMatrix from '@src/client/initMatrix';
 import Checkbox from '@src/app/atoms/button/Checkbox';
+import Button from '@src/app/atoms/button/Button';
 function OpenRouterTab({ userId, roomId, agentData }) {
   // Prepare
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [isEmpty, setIsEmpty] = useState(true);
   const [botSetting, setBotSetting] = useState(null);
+
+  const [isBotDisabled, setIsBotDisabled] = useState(null);
+  const [botPrompt, setBotPrompt] = useState(null);
 
   const promptForm = useRef(null);
 
@@ -58,7 +62,7 @@ function OpenRouterTab({ userId, roomId, agentData }) {
 
   useEffect(() => {
     if (botSetting && promptForm.current) {
-      $(promptForm.current).val(botSetting.prompt);
+      $(promptForm.current).val(botPrompt);
     }
   });
 
@@ -76,8 +80,16 @@ function OpenRouterTab({ userId, roomId, agentData }) {
   // Is Error
   if (isError) return <strong className="small text-danger">ERROR LOADING!</strong>;
 
+  // Empty
+  if (!botSetting) return <strong className="small">No bot data found to change.</strong>;
+
+  // Fix Data
+  if (isBotDisabled === null && botSetting && botSetting.disabled !== isBotDisabled)
+    setIsBotDisabled(botSetting.disabled);
+  if (botPrompt === null && botSetting && botSetting.prompt !== botPrompt)
+    setBotPrompt(botSetting.prompt);
+
   // Complete
-  console.log(botSetting);
   return (
     <>
       <div>
@@ -92,19 +104,21 @@ function OpenRouterTab({ userId, roomId, agentData }) {
         ></textarea>
       </div>
 
-      <div className="mt-3 tiny-form-align-center">
-        <Checkbox
-          className='d-inline-block'
-          variant="success"
-          isActive={botSetting && botSetting.disabled}
-          onToggle={(value) => {
-            console.log(value)
-          }}
+      <div className="mt-2">
+        <input
+          className="form-check-input"
+          type="checkbox"
+          id="disabledOpenRouterBot"
+          onChange={(event) => setIsBotDisabled(event.target.checked)}
         />
-        <span className="ms-2">
+        <label className="form-check-label ms-2" htmlFor="disabledOpenRouterBot">
           Disabled bot
-        </span>
+        </label>
       </div>
+
+      <Button className="mt-2" variant="primary" onClick={() => {}}>
+        Update bot
+      </Button>
     </>
   );
 }

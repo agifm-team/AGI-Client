@@ -12,6 +12,7 @@ function OpenRouterTab({ userId, roomId, agentData }) {
   const [isError, setIsError] = useState(false);
   const [isEmpty, setIsEmpty] = useState(true);
   const [botSetting, setBotSetting] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const promptForm = useRef(null);
 
@@ -116,17 +117,21 @@ function OpenRouterTab({ userId, roomId, agentData }) {
       </div>
 
       <Button
+        disabled={isUpdating}
         className="mt-2"
         variant="primary"
         onClick={() => {
+          setIsUpdating(true);
           initMatrix.matrixClient
             .sendEvent(roomId, 'openrouter.settings.update', botSetting)
             .then(() => {
               alert('The bot was successfully updated.', 'Bot updated');
+              setIsUpdating(false);
             })
             .catch((err) => {
               console.error(err);
               alert(err.message, 'Error bot update');
+              setIsUpdating(false);
             });
         }}
       >

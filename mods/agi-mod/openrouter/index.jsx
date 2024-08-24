@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { RoomEvent } from 'matrix-js-sdk';
 import { generateApiKey } from 'generate-api-key';
 
 import tinyAPI from '@src/util/mods';
 import initMatrix from '@src/client/initMatrix';
+import Checkbox from '@src/app/atoms/button/Checkbox';
 function OpenRouterTab({ userId, roomId, agentData }) {
   // Prepare
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [isEmpty, setIsEmpty] = useState(true);
   const [botSetting, setBotSetting] = useState(null);
+
+  const promptForm = useRef(null);
 
   useEffect(() => {
     if (!isLoading && isEmpty && !isError) {
@@ -53,6 +56,12 @@ function OpenRouterTab({ userId, roomId, agentData }) {
     };
   });
 
+  useEffect(() => {
+    if (botSetting && promptForm.current) {
+      $(promptForm.current).val(botSetting.prompt);
+    }
+  });
+
   // Is Loading
   if (isLoading)
     return (
@@ -69,7 +78,35 @@ function OpenRouterTab({ userId, roomId, agentData }) {
 
   // Complete
   console.log(botSetting);
-  return <small>This account is non-compatible with Bot Settings.</small>;
+  return (
+    <>
+      <div>
+        <label htmlFor="promptForm" className="form-label">
+          Prompt
+        </label>
+        <textarea
+          promptForm={promptForm}
+          className="form-control form-control-bg"
+          id="promptForm"
+          rows="5"
+        ></textarea>
+      </div>
+
+      <div className="mt-3 tiny-form-align-center">
+        <Checkbox
+          className='d-inline-block'
+          variant="success"
+          isActive={botSetting && botSetting.disabled}
+          onToggle={(value) => {
+            console.log(value)
+          }}
+        />
+        <span className="ms-2">
+          Disabled bot
+        </span>
+      </div>
+    </>
+  );
 }
 
 export default function startOpenRouterTabs() {

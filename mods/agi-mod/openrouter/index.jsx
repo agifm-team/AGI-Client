@@ -13,6 +13,7 @@ function OpenRouterTab({ userId, roomId, agentData }) {
   const [isEmpty, setIsEmpty] = useState(true);
   const [botSetting, setBotSetting] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [ownerId, setOwnerId] = useState(true);
 
   const promptForm = useRef(null);
 
@@ -55,6 +56,7 @@ function OpenRouterTab({ userId, roomId, agentData }) {
 
       setIsEmpty(false);
       setBotSetting(content.account_data.value);
+      setOwnerId(content.account_data.ownerId);
       setIsLoading(false);
     };
     initMatrix.matrixClient.on(RoomEvent.Timeline, getData);
@@ -86,6 +88,9 @@ function OpenRouterTab({ userId, roomId, agentData }) {
   // Empty
   if (!botSetting) return <strong className="small">No bot data found to change.</strong>;
 
+  // UserId
+  const yourId = initMatrix.matrixClient.getUserId();
+
   // Complete
   return (
     <>
@@ -94,6 +99,7 @@ function OpenRouterTab({ userId, roomId, agentData }) {
           Prompt
         </label>
         <textarea
+          disabled={ownerId !== yourId}
           ref={promptForm}
           className="form-control form-control-bg"
           id="promptForm"
@@ -107,6 +113,7 @@ function OpenRouterTab({ userId, roomId, agentData }) {
 
       <div className="mt-2">
         <input
+          disabled={ownerId !== yourId}
           checked={botSetting && botSetting.disabled}
           className="form-check-input"
           type="checkbox"
@@ -122,7 +129,7 @@ function OpenRouterTab({ userId, roomId, agentData }) {
       </div>
 
       <Button
-        disabled={isUpdating}
+        disabled={isUpdating || ownerId !== yourId}
         className="mt-2"
         variant="primary"
         onClick={() => {

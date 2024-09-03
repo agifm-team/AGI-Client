@@ -6,6 +6,9 @@ import Img from '@src/app/atoms/image/Image';
 import initMatrix, { fetchFn } from '@src/client/initMatrix';
 import blobUrlManager from '@src/util/libs/blobUrlManager';
 
+import { formatBytes } from '@src/util/tools';
+import { getFileIcon } from '@src/util/icons/files';
+
 import { BlurhashCanvas } from 'react-blurhash';
 import imageViewer from '../../../util/imageViewer';
 import Tooltip from '../../atoms/tooltip/Tooltip';
@@ -65,9 +68,21 @@ function getNativeHeight(width, height, maxWidth = 296) {
   return '';
 }
 
-function FileHeader({ name, link = null, external = false, file = null, type, roomId, threadId }) {
+function FileHeader({
+  name,
+  link = null,
+  external = false,
+  file = null,
+  type,
+  roomId,
+  threadId,
+  content = {},
+}) {
   const [url, setUrl] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const bytesText = formatBytes(
+    content.info && typeof content.info.size === 'number' ? content.info?.size : 0,
+  );
 
   async function getFile() {
     const myUrl = await getUrl('file', 'unknown', link, type, file, roomId, threadId);
@@ -89,9 +104,11 @@ function FileHeader({ name, link = null, external = false, file = null, type, ro
 
   return (
     <div className="file-header">
-      <Text className="file-name" variant="b3">
-        {name}
-      </Text>
+      <i className={`${getFileIcon(type, name)} me-2 h-100 file-icon`} />
+      <div className="file-name small">
+        <span className="title">{name}</span> <br />
+        <span className="file-size very-small text-gray">{bytesText}</span>
+      </div>
       {link !== null && (
         <>
           {!__ENV_APP__.ELECTRON_MODE && external && (
@@ -123,12 +140,16 @@ FileHeader.propTypes = {
   external: PropTypes.bool,
   file: PropTypes.shape({}),
   type: PropTypes.string.isRequired,
+  content: PropTypes.object,
 };
 
-function File({ name, link, file = null, type = '', roomId, threadId }) {
+function File({ link, file = null, roomId, threadId, content = {} }) {
+  const name = content.body;
+  const type = content.info?.mimetype || '';
   return (
     <div className="file-container">
       <FileHeader
+        content={content}
         roomId={roomId}
         threadId={threadId}
         name={name}
@@ -141,21 +162,19 @@ function File({ name, link, file = null, type = '', roomId, threadId }) {
 }
 
 File.propTypes = {
-  name: PropTypes.string.isRequired,
   link: PropTypes.string.isRequired,
-  type: PropTypes.string,
   file: PropTypes.shape({}),
+  content: PropTypes.object,
 };
 
 function Image({
-  name,
+  content = {},
   roomId,
   threadId,
   width = null,
   height = null,
   link,
   file = null,
-  type = '',
   blurhash = '',
   className = null,
   classImage = null,
@@ -165,6 +184,8 @@ function Image({
   const [url, setUrl] = useState(null);
   const [blur, setBlur] = useState(true);
   const [lightbox, setLightbox] = useState(false);
+  const name = content.body;
+  const type = content.info?.mimetype || '';
 
   useEffect(() => {
     let unmounted = false;
@@ -252,29 +273,29 @@ function Image({
 Image.propTypes = {
   maxWidth: PropTypes.number,
   ignoreContainer: PropTypes.bool,
-  name: PropTypes.string.isRequired,
   width: PropTypes.number,
   height: PropTypes.number,
   link: PropTypes.string.isRequired,
   linkAnim: PropTypes.string,
   file: PropTypes.shape({}),
-  type: PropTypes.string,
   className: PropTypes.string,
   classImage: PropTypes.string,
   blurhash: PropTypes.string,
+  content: PropTypes.object,
 };
 
 function Sticker({
-  name,
+  content = {},
   height = null,
   width = null,
   link,
   file = null,
-  type = '',
   roomId,
   threadId,
 }) {
   const [url, setUrl] = useState(null);
+  const name = content.body;
+  const type = content.info?.mimetype || '';
 
   useEffect(() => {
     let unmounted = false;
@@ -317,18 +338,19 @@ function Sticker({
 }
 
 Sticker.propTypes = {
-  name: PropTypes.string.isRequired,
   width: PropTypes.number,
   height: PropTypes.number,
   link: PropTypes.string.isRequired,
   file: PropTypes.shape({}),
-  type: PropTypes.string,
+  content: PropTypes.object,
 };
 
-function Audio({ name, link, type = '', file = null, roomId, threadId }) {
+function Audio({ content = {}, link, file = null, roomId, threadId }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [url, setUrl] = useState(null);
+  const name = content.body;
+  const type = content.info?.mimetype || '';
 
   async function loadAudio() {
     const myUrl = await getUrl('audio', 'audio', link, type, file, roomId, threadId);
@@ -345,6 +367,7 @@ function Audio({ name, link, type = '', file = null, roomId, threadId }) {
   return (
     <div className="file-container">
       <FileHeader
+        content={content}
         threadId={threadId}
         roomId={roomId}
         name={name}
@@ -368,14 +391,13 @@ function Audio({ name, link, type = '', file = null, roomId, threadId }) {
 }
 
 Audio.propTypes = {
-  name: PropTypes.string.isRequired,
   link: PropTypes.string.isRequired,
-  type: PropTypes.string,
   file: PropTypes.shape({}),
+  content: PropTypes.object,
 };
 
 function Video({
-  name,
+  content = {},
   roomId,
   threadId,
   link,
@@ -385,7 +407,6 @@ function Video({
   width = null,
   height = null,
   file = null,
-  type = '',
   blurhash = null,
 }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -393,6 +414,8 @@ function Video({
   const [url, setUrl] = useState(null);
   const [thumbUrl, setThumbUrl] = useState(null);
   const [blur, setBlur] = useState(true);
+  const name = content.body;
+  const type = content.info?.mimetype || '';
 
   useEffect(() => {
     let unmounted = false;
@@ -435,6 +458,7 @@ function Video({
   return (
     <div className={`file-container${url !== null ? ' file-open' : ''}`}>
       <FileHeader
+        content={content}
         threadId={threadId}
         roomId={roomId}
         name={name}
@@ -478,7 +502,6 @@ function Video({
 }
 
 Video.propTypes = {
-  name: PropTypes.string.isRequired,
   link: PropTypes.string.isRequired,
   thumbnail: PropTypes.string,
   thumbnailFile: PropTypes.shape({}),
@@ -486,8 +509,8 @@ Video.propTypes = {
   width: PropTypes.number,
   height: PropTypes.number,
   file: PropTypes.shape({}),
-  type: PropTypes.string,
   blurhash: PropTypes.string,
+  content: PropTypes.object,
 };
 
 export { File, Image, Sticker, Audio, Video };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { CryptoEvent } from 'matrix-js-sdk';
+import { CrossSigningKey } from 'matrix-js-sdk/lib/crypto-api';
 
 import { twemojifyReact } from '../../../util/twemojify';
 
@@ -27,13 +28,12 @@ function EmojiVerificationContent({ data, requestClose }) {
   const beginStore = useStore();
 
   const beginVerification = async () => {
+    const crypto = mx.getCrypto();
     try {
-      const crossSigningInfo = mx.getCrypto().crossSigningInfo;
+      const keyId = (crypto && (await crypto.getCrossSigningKeyId())) || null;
       if (
         (await isCrossVerified(mx.deviceId)) &&
-        (mx.getCrossSigningId() === null ||
-          (crossSigningInfo && (await crossSigningInfo.isStoredInKeyCache('self_signing'))) ===
-            false)
+        (keyId === null || keyId !== CrossSigningKey.SelfSigning)
       ) {
         if (!hasPrivateKey(getDefaultSSKey())) {
           const keyData = await accessSecretStorage('Emoji verification');
@@ -47,7 +47,7 @@ function EmojiVerificationContent({ data, requestClose }) {
       setProcess(true);
       await request.accept();
 
-      const verifier = request.beginKeyVerification('m.sas.v1', targetDevice);
+      const verifier = await request.startVerification('m.sas.v1');
 
       const handleVerifier = (sasData) => {
         verifier.off('show_sas', handleVerifier);
@@ -88,7 +88,7 @@ function EmojiVerificationContent({ data, requestClose }) {
       }
     };
 
-    if (request === null) return null;
+    if (request === null) return undefined;
     const req = request;
     req.on('change', handleChange);
     return () => {
@@ -127,7 +127,7 @@ function EmojiVerificationContent({ data, requestClose }) {
               <Button variant="primary" onClick={sasConfirm}>
                 They match
               </Button>
-              <Button onClick={sasMismatch}>{"They don't match"}</Button>
+              <Button onClick={sasMismatch}>No match</Button>
             </>
           )}
         </div>
@@ -166,9 +166,9 @@ EmojiVerificationContent.propTypes = {
 
 function useVisibilityToggle() {
   const [data, setData] = useState(null);
-  const mx = initMatrix.matrixClient;
 
   useEffect(() => {
+    const mx = initMatrix.matrixClient;
     const handleOpen = (request, targetDevice) => {
       setData({ request, targetDevice });
     };
@@ -178,7 +178,7 @@ function useVisibilityToggle() {
       navigation.removeListener(cons.events.navigation.EMOJI_VERIFICATION_OPENED, handleOpen);
       mx.removeListener(CryptoEvent.VerificationRequestReceived, handleOpen);
     };
-  }, []);
+  });
 
   const requestClose = () => setData(null);
 

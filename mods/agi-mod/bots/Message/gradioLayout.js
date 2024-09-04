@@ -16,7 +16,7 @@ import clone from 'clone';
 import isBase64 from 'is-base64';
 import { objType } from 'for-promise/utils/lib.mjs';
 
-import { blobCreator, hljsFixer, toast } from '@src/util/tools';
+import { blobCreator, toast } from '@src/util/tools';
 import initMatrix, { fetchFn } from '@src/client/initMatrix';
 import openTinyURL from '@src/util/message/urlProtection';
 import { bootstrapItems } from '@src/util/styles-bootstrap';
@@ -837,7 +837,7 @@ const components = {
         );
 
         const tinyResult = $('<pre>').append(tinyCode);
-        hljsFixer(tinyCode, 'MessageBody');
+        // hljsFixer(tinyCode, 'MessageBody');
 
         tinyPlace.append(tinyResult);
       };

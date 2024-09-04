@@ -146,8 +146,7 @@ self.addEventListener('fetch', function (event) {
       !request.url !== `${origin}/olm.wasm` &&
       !request.url !== `${origin}/manifest.json` &&
       !request.url !== `${origin}/404.html` &&
-      !request.url !== `${origin}/ipfs-404.html` &&
-      !request.url !== `${origin}/index.html`)
+      !request.url !== `${origin}/ipfs-404.html`)
   ) {
     // Detect matrix file url
     const urlPath = request.url.split('/');
@@ -162,4 +161,18 @@ self.addEventListener('fetch', function (event) {
   }
 
   event.respondWith(proxyRequest(caches, request));
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'CLEAR_FETCH_CACHE') {
+    event.waitUntil(
+      caches.keys().then(function (cacheNames) {
+        return Promise.all(
+          cacheNames.map(function (cacheName) {
+            return caches.delete(cacheName);
+          }),
+        );
+      }),
+    );
+  }
 });

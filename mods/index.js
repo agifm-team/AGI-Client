@@ -12,7 +12,7 @@ export function startCustomThemes() {
 }
 
 export default function startMods(firstTime) {
-  // sinkingYachts(firstTime);
+  // startSinkingYachts(firstTime);
   // helloWorld(firstTime);
   // startTest(firstTime);
 

@@ -22,6 +22,12 @@ Join us in shaping the future of AI collaboration – where security meets simpl
 Ready to take off? Let's explore the AI universe together with Spaceship! 🚀✨
 
 
+## Unofficial versions
+
+Unofficial version is supported by the community. Any questions you have about these versions please contact the list of developers below. Links to download unofficial versions are present in the description at the top of the readme.
+
+- Arch Linux - supported by Maki
+
 ## Getting started
 Web app is available at https://spaceship.im and gets updated on each new release.
 

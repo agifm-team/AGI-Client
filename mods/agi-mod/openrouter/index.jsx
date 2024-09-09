@@ -111,23 +111,6 @@ function OpenRouterTab({ userId, roomId, agentData }) {
         ></textarea>
       </div>
 
-      <div className="mt-2">
-        <input
-          disabled={ownerId !== yourId}
-          checked={botSetting && botSetting.disabled}
-          className="form-check-input"
-          type="checkbox"
-          id="disabledOpenRouterBot"
-          onChange={(event) => {
-            botSetting.disabled = event.target.checked;
-            setBotSetting(botSetting);
-          }}
-        />
-        <label className="form-check-label ms-2" htmlFor="disabledOpenRouterBot">
-          Disabled bot
-        </label>
-      </div>
-
       <Button
         disabled={isUpdating || ownerId !== yourId}
         className="mt-2"

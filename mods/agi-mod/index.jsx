@@ -19,22 +19,22 @@ export default function startAgiMod(firstTime) {
 
     // Start Buttons
     startPeopleSelector();
-    buttons();
-    startMessage();
+    // buttons();
+    // startMessage();
 
     // Start Page Detector
     // addRoomOptions({}, 'room');
     // tinyAPI.on('selectedRoomModeAfter', addRoomOptions);
     // tinyAPI.on('selectTabAfter', () => addRoomOptions({}, 'room'));
-    tinyAPI.on('emptyTimeline', (data, forceUpdateLimit) => forceUpdateLimit());
+    // tinyAPI.on('emptyTimeline', (data, forceUpdateLimit) => forceUpdateLimit());
 
     // Mod Loaded
     console.log('[SpaceShip App] Loading complete!');
   }
 
   // Welcome Page
-  tinyAPI.on('startWelcomePage', (data, tinyWelcome) => {
+  /* tinyAPI.on('startWelcomePage', (data, tinyWelcome) => {
     tinyWelcome.html = <Welcome />;
-  });
+  }); */
   startOpenRouterTabs();
 }

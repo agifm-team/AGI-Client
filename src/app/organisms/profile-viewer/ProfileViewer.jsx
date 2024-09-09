@@ -7,12 +7,11 @@ import { RoomMemberEvent, UserEvent } from 'matrix-js-sdk';
 
 import clone from 'clone';
 import envAPI from '@src/util/libs/env';
-import { serverDomain } from '@mods/agi-mod/socket';
+
 import { setLoadingPage } from '@src/app/templates/client/Loading';
 import { duplicatorAgent, reconnectAgent } from '@mods/agi-mod/bots/PeopleSelector/lib';
 import { defaultAvatar } from '@src/app/atoms/avatar/defaultAvatar';
-// import YamlEditor from '@mods/agi-mod/components/YamlEditor';
-import { openSuperAgent } from '@mods/agi-mod/menu/Buttons';
+
 import matrixAppearance from '@src/util/libs/appearance';
 import UserCustomStatus from '@src/app/molecules/people-selector/UserCustomStatus';
 import Tooltip from '@src/app/atoms/tooltip/Tooltip';
@@ -310,59 +309,6 @@ function ProfileFooter({ roomId, userId, onRequestClose, agentData }) {
 
   return (
     <>
-      {agentData &&
-      agentData.data &&
-      typeof agentData.data.id === 'string' &&
-      agentData.data.id.length > 0 ? (
-        <>
-          <Button
-            className="me-2"
-            variant="primary"
-            onClick={() => {
-              openSuperAgent(
-                `${agentData.data.type === 'WORKFLOW' ? 'workflows' : 'agents'}/${agentData.data.id}?`,
-              );
-            }}
-          >
-            Edit
-          </Button>
-          <Button
-            className="me-2"
-            variant="primary"
-            onClick={async () => {
-              setLoadingPage();
-              reconnectAgent(userId)
-                .then(() => {
-                  setLoadingPage(false);
-                })
-                .catch((err) => {
-                  console.error(err);
-                  alert(err.message);
-                });
-            }}
-          >
-            Restart
-          </Button>
-          <Button
-            className="me-2"
-            variant="primary"
-            onClick={async () => {
-              setLoadingPage();
-              duplicatorAgent(agentData.data)
-                .then(() => {
-                  setLoadingPage(false);
-                })
-                .catch((err) => {
-                  console.error(err);
-                  alert(err.message);
-                });
-            }}
-          >
-            Duplicate
-          </Button>
-        </>
-      ) : null}
-
       <Button className="me-2" variant="primary" onClick={openDM} disabled={isCreatingDM}>
         {isCreatingDM ? 'Creating room...' : 'Message'}
       </Button>
@@ -546,48 +492,6 @@ function ProfileViewer() {
   const reopenProfile = () => {
     if (userId) openProfileViewer(userId, roomId);
   };
-
-  // Super agent
-  useEffect(() => {
-    // Reset
-    if (lastUserId && userId && lastUserId !== userId) {
-      setLastUserId(userId);
-      setAgentFullPrompt(false);
-      setAgentData({
-        err: null,
-        data: null,
-        loading: false,
-      });
-    }
-
-    // Set agent data
-    if (user && !agentData.loading && !agentData.err && !agentData.data) {
-      setAgentData({
-        err: null,
-        data: null,
-        loading: true,
-      });
-
-      fetch(`https://bots.${serverDomain}/bot/${userId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setLastUserId(userId);
-          setAgentData({
-            err: null,
-            data: data || {},
-            loading: false,
-          });
-        })
-        .catch((err) => {
-          setLastUserId(userId);
-          setAgentData({
-            err,
-            data: null,
-            loading: false,
-          });
-        });
-    }
-  });
 
   // Basic User profile updated
   useEffect(() => {

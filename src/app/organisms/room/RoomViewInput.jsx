@@ -10,7 +10,7 @@ import { Editor, Transforms } from 'slate';
 
 import Img from '@src/app/atoms/image/Image';
 import FileInput, { fileInputClick, fileInputValue } from '@src/app/molecules/file-input/FileInput';
-import { clickAIButton } from '@mods/agi-mod/menu/click';
+import { clickOpenRouterList } from '@mods/agi-mod/menu/click';
 
 import { blobToBase64 } from '@src/util/libs/blobUrlManager';
 import threadsList from '@src/util/libs/thread';
@@ -1025,7 +1025,7 @@ function RoomViewInput({ roomId, threadId, roomTimeline, viewEvent, refRoomInput
           >
             <IconButton
               id="sticker-opener"
-              onClick={clickAIButton}
+              onClick={clickOpenRouterList}
               tooltip="Add AI"
               fa="fa-solid fa-robot"
             />

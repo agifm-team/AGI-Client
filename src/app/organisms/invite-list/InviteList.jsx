@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { otpAccept } from '@mods/agi-mod/otpAccept';
+// import { otpAccept } from '@mods/agi-mod/otpAccept';
 import { dfAvatarSize } from '@src/util/matrixUtil';
 
 import initMatrix from '../../../client/initMatrix';
@@ -98,9 +98,9 @@ function InviteList({ isOpen, onRequestClose }) {
     );
   }
 
-  Array.from(initMatrix.roomList.inviteDirects).map((roomId) => {
+  /* Array.from(initMatrix.roomList.inviteDirects).map((roomId) => {
     otpAccept({ roomId });
-  });
+  }); */
 
   return (
     <PopupWindow isOpen={isOpen} title="Invites" onRequestClose={onRequestClose}>

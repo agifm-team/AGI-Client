@@ -32,11 +32,11 @@ export function updateAgentsList() {
   });
 }
 
-updateAgentsList();
+// updateAgentsList();
 const customItems = { public: [], personal: [] };
 export default function startPeopleSelector() {
   // Members List
-  updateAgentsList();
+  // updateAgentsList();
   tinyAPI.on('roomSearchedMembers', (data, items, membership) => {
     if (membership.value === 'join') {
       for (const item in items) {
@@ -45,7 +45,7 @@ export default function startPeopleSelector() {
     }
   });
 
-  tinyAPI.on('roomMembersOptions', (data, items) => {
+  /* tinyAPI.on('roomMembersOptions', (data, items) => {
     updateAgentsList();
 
     customItems.public = [];
@@ -119,5 +119,5 @@ export default function startPeopleSelector() {
 
     const invitedItem = items.findIndex((item) => item.value === 'invite');
     if (invitedItem > -1) items.splice(invitedItem, 1);
-  });
+  }); */
 }

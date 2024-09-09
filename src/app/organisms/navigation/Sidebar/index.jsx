@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { CryptoEvent } from 'matrix-js-sdk';
 
 import settings from '@src/client/state/settings';
-import { openSuperAgent } from '@mods/agi-mod/menu/Buttons';
 import initMatrix from '@src/client/initMatrix';
 
 import { openShortcutSpaces, openSearch, openSettings } from '../../../../client/action/navigation';
@@ -121,20 +120,6 @@ function SideBar() {
                     iconColor={!isIconsColored ? null : 'rgb(84, 101, 232)'}
                     faSrc="bi bi-bookmark-plus-fill"
                     imgClass="profile-image-container"
-                    className="profile-image-container"
-                    size="normal"
-                  />
-                }
-              />
-              <SidebarAvatar
-                id="agi-superagent"
-                tooltip="SuperAgent"
-                onClick={() => openSuperAgent()}
-                avatar={
-                  <Avatar
-                    neonColor
-                    iconColor={!isIconsColored ? null : 'rgb(41, 220, 131)'}
-                    faSrc="fa-solid fa-user-ninja"
                     className="profile-image-container"
                     size="normal"
                   />

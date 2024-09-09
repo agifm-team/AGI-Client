@@ -6,9 +6,6 @@ import parse from 'html-react-parser';
 import twemoji from 'twemoji';
 // import objectHash from 'object-hash';
 
-// import objectHash from 'object-hash';
-import { checkRoomAgents } from '@mods/agi-mod/bots/PeopleSelector/lib';
-
 import Img from '@src/app/atoms/image/Image';
 import { twemojifyReact, TWEMOJI_BASE_URL } from '../../../util/twemojify';
 
@@ -189,8 +186,6 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
   const setCmds = (newCmd) => {
     if (newCmd) {
       setCmd(newCmd);
-      // const tinyHash = objectHash(newCmd);
-
       const bots = [];
       if (Array.isArray(newCmd.suggestions)) {
         for (const item in newCmd.suggestions) {
@@ -201,26 +196,6 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent, refcmdInput }) {
           );
         }
       }
-
-      checkRoomAgents(roomId, { bots })
-        .then((data) => {
-          // const tinyHashNow = objectHash(cmd);
-          const tinyList = [];
-          if (Array.isArray(data)) {
-            for (const item in data) {
-              const tinyData = newCmd.suggestions.find((i) =>
-                !i.userId.startsWith('@') ? `@${i.userId}` === data[item] : i.userId === data[item],
-              );
-              if (tinyData) tinyList.push(tinyData);
-            }
-          }
-
-          setAgentsCmd({ prefix: newCmd.prefix, suggestions: tinyList });
-        })
-        .catch((err) => {
-          console.error(err);
-          setAgentsCmd({ prefix: newCmd.prefix, suggestions: [] });
-        });
     } else {
       setCmd(newCmd);
       setAgentsCmd(newCmd);

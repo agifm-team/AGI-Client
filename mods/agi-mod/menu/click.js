@@ -169,4 +169,6 @@ const clickAIButton = () => {
     });
 };
 
-export { clickAIButton };
+const clickOpenRouterList = () => {};
+
+export { clickAIButton, clickOpenRouterList };

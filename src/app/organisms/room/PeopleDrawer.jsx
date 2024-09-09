@@ -4,7 +4,6 @@ import $ from 'jquery';
 
 import { RoomMemberEvent } from 'matrix-js-sdk';
 
-import { checkRoomAgents } from '@mods/agi-mod/bots/PeopleSelector/lib';
 import settings from '@src/client/state/settings';
 
 import initMatrix from '../../../client/initMatrix';
@@ -161,26 +160,8 @@ function PeopleDrawer({
           }
         }
 
-        checkRoomAgents(roomId, { bots })
-          .then((data) => {
-            const tinyList = [];
-            if (Array.isArray(data)) {
-              for (const item in data) {
-                const tinyData = data.find((i) =>
-                  !i.startsWith('@') ? `@${i}` === data[item] : i === data[item],
-                );
-                if (tinyData) tinyList.push(tinyData);
-              }
-            }
-
-            setAgents(tinyList);
-            setMemberList(simplyfiMembers(membersData));
-          })
-          .catch((err) => {
-            alert(err.message);
-            console.error(err);
-            setMemberList(simplyfiMembers(membersData));
-          });
+        /* checkRoomAgents */
+        setMemberList(simplyfiMembers(membersData));
       }
 
       // Custom

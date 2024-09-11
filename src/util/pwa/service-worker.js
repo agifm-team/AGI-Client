@@ -4,7 +4,7 @@
  * If image not found responds with fallback
  */
 
-var INVALIDATION_INTERVAL = 24 * 60 * 60 * 1000; // 1 day
+var INVALIDATION_INTERVAL = Number(24 * 60 * 60 * 1000) * 7; // 7 days
 var NS = 'MAGE';
 var SEPARATOR = '|';
 var VERSION = Math.ceil(now() / INVALIDATION_INTERVAL);
@@ -92,7 +92,9 @@ function proxyRequest(caches, request) {
       // so we cannot get info about response status
       const resolve = (networkResponse) => {
         if (networkResponse.type !== 'opaque' && networkResponse.ok === false) {
-          throw new Error('Resource not available');
+          throw new Error(
+            `Resource not available\nType: ${networkResponse.type}\n${networkResponse.statusText}`,
+          );
         }
 
         if (!networkResponse.ok) {
@@ -153,8 +155,11 @@ self.addEventListener('fetch', function (event) {
     const skipUrlPath = 2;
     if (
       urlPath[skipUrlPath + 1] === '_matrix' &&
-      urlPath[skipUrlPath + 2] === 'media' &&
-      (urlPath[skipUrlPath + 4] === 'download' || urlPath[skipUrlPath + 4] === 'thumbnail')
+      ((urlPath[skipUrlPath + 2] === 'media' &&
+        (urlPath[skipUrlPath + 4] === 'download' || urlPath[skipUrlPath + 4] === 'thumbnail')) ||
+        (urlPath[skipUrlPath + 2] === 'client' &&
+          urlPath[skipUrlPath + 4] === 'media' &&
+          (urlPath[skipUrlPath + 5] === 'download' || urlPath[skipUrlPath + 5] === 'thumbnail')))
     ) {
       if (!request.url.endsWith('ph_mxc_type=image')) return;
     } else return;

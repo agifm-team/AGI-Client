@@ -36,14 +36,26 @@ async function getUrl(contentType, fileType, link, type, decryptData, roomId /* 
     const resultById = blobUrlManager.getById(blobSettings.id);
     if (fileType !== 'unknown') {
       if (!resultById) {
-        const blob = await initMatrix.mxcUrl.focusFetchBlob(link, fileType, type, decryptData);
+        const blob = await initMatrix.mxcUrl.focusFetchBlob(
+          link,
+          fileType,
+          type,
+          decryptData,
+          'media',
+        );
         const result = await blobUrlManager.insert(blob, blobSettings);
         return result;
       } else {
         return resultById;
       }
     } else {
-      const blob = await initMatrix.mxcUrl.focusFetchBlob(link, fileType, type, decryptData);
+      const blob = await initMatrix.mxcUrl.focusFetchBlob(
+        link,
+        fileType,
+        type,
+        decryptData,
+        'media',
+      );
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(blob);
@@ -180,6 +192,10 @@ function Image({
   classImage = null,
   ignoreContainer = false,
   maxWidth = 296,
+  onLoadingChange = null,
+  onLoad = null,
+  onClick = null,
+  onError = null,
 }) {
   const [url, setUrl] = useState(null);
   const [blur, setBlur] = useState(true);
@@ -217,13 +233,18 @@ function Image({
       }}
     >
       <Img
+        onClick={onClick}
+        onError={onError}
         className={`${classImage}${ignoreContainer ? ` ${className}` : ''}`}
         draggable="false"
         style={{
           display: blur ? 'none' : 'unset',
           height: imgHeight,
         }}
-        onLoadingChange={() => tinyFixScrollChat()}
+        onLoadingChange={(event) => {
+          tinyFixScrollChat();
+          if (onLoadingChange) onLoadingChange(event);
+        }}
         onLoad={(event) => {
           tinyFixScrollChat();
           setBlur(false);
@@ -237,6 +258,7 @@ function Image({
 
             img.off('click', imgAction);
             img.on('click', imgAction);
+            if (onLoad) onLoad(event);
           }
         }}
         src={url || link}
@@ -271,6 +293,10 @@ function Image({
 }
 
 Image.propTypes = {
+  onLoadingChange: PropTypes.func,
+  onLoad: PropTypes.func,
+  onClick: PropTypes.func,
+  onError: PropTypes.func,
   maxWidth: PropTypes.number,
   ignoreContainer: PropTypes.bool,
   width: PropTypes.number,
@@ -285,6 +311,10 @@ Image.propTypes = {
 };
 
 function Sticker({
+  onLoadingChange = null,
+  onLoad = null,
+  onClick = null,
+  onError = null,
   content = {},
   height = null,
   width = null,
@@ -324,12 +354,20 @@ function Sticker({
         {url !== null && (
           <Img
             isSticker
+            onClick={onClick}
+            onError={onError}
             style={typeof stickerStyle.height === 'number' ? stickerStyle : null}
             height={stickerStyle.height}
             src={url || link}
             alt={name}
-            onLoad={() => tinyFixScrollChat()}
-            onLoadingChange={() => tinyFixScrollChat()}
+            onLoad={(event) => {
+              tinyFixScrollChat();
+              if (onLoad) onLoadingChange(event);
+            }}
+            onLoadingChange={(event) => {
+              tinyFixScrollChat();
+              if (onLoadingChange) onLoadingChange(event);
+            }}
           />
         )}
       </div>
@@ -338,6 +376,10 @@ function Sticker({
 }
 
 Sticker.propTypes = {
+  onLoadingChange: PropTypes.func,
+  onLoad: PropTypes.func,
+  onClick: PropTypes.func,
+  onError: PropTypes.func,
   width: PropTypes.number,
   height: PropTypes.number,
   link: PropTypes.string.isRequired,
@@ -404,6 +446,9 @@ function Video({
   thumbnail = null,
   thumbnailFile = null,
   thumbnailType = null,
+  onThumbLoadingChange = null,
+  onThumbLoad = null,
+  onThumbError = null,
   width = null,
   height = null,
   file = null,
@@ -478,12 +523,17 @@ function Video({
           {blurhash && blur && <BlurhashCanvas hash={blurhash} punch={1} />}
           {thumbUrl !== null && (
             <Img
+              onError={onThumbError}
               style={{ display: blur ? 'none' : 'unset' }}
               src={thumbUrl}
-              onLoadingChange={() => tinyFixScrollChat()}
-              onLoad={() => {
+              onLoadingChange={(event) => {
+                tinyFixScrollChat();
+                if (onThumbLoadingChange) onThumbLoadingChange(event);
+              }}
+              onLoad={(event) => {
                 setBlur(false);
                 tinyFixScrollChat();
+                if (onThumbLoad) onThumbLoad(event);
               }}
               alt={name}
             />
@@ -502,6 +552,9 @@ function Video({
 }
 
 Video.propTypes = {
+  onThumbLoadingChange: PropTypes.func,
+  onThumbLoad: PropTypes.func,
+  onThumbError: PropTypes.func,
   link: PropTypes.string.isRequired,
   thumbnail: PropTypes.string,
   thumbnailFile: PropTypes.shape({}),

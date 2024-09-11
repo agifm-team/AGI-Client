@@ -7,6 +7,19 @@ import { avatarDefaultColor } from '@src/app/atoms/avatar/Avatar';
 
 import { colorMXID } from '../colorMXID';
 import { getBlobSafeMimeType } from '../mimetypes';
+import envAPI from './env';
+
+const LOAD_DELAY_COUNTER = __ENV_APP__.MXC_FETCH_WAITER;
+const fetchLimit = {
+  default: __ENV_APP__.MXC_FETCH_LIMIT.DEFAULT,
+  emoji: __ENV_APP__.MXC_FETCH_LIMIT.EMOJI,
+  avatar: __ENV_APP__.MXC_FETCH_LIMIT.AVATAR,
+  media: __ENV_APP__.MXC_FETCH_LIMIT.MEDIA,
+  attach: __ENV_APP__.MXC_FETCH_LIMIT.ATTACH,
+};
+
+export const getFetchLimit = (name = 'default') =>
+  typeof fetchLimit[name] === 'number' ? fetchLimit[name] : fetchLimit.default;
 
 // Mxc Url
 class MxcUrl extends EventEmitter {
@@ -15,10 +28,16 @@ class MxcUrl extends EventEmitter {
     super();
     this.mx = mxBase;
     this._fetchWait = {};
-    this._isAuth = __ENV_APP__.MXC_AUTHENTICATED_MEDIA;
-    this._queue = [];
-    this._queueExec = [];
+    this._isAuth = envAPI.get('MXC_AUTHENTICATED_MEDIA');
+    this._queue = {};
+    this._queueExec = {};
+    this._loadDelay = 0;
     this.setMaxListeners(__ENV_APP__.MAX_LISTENERS);
+
+    const tinyThis = this;
+    envAPI.on('MXC_AUTHENTICATED_MEDIA', (value) => {
+      if (typeof value === 'boolean') tinyThis._isAuth = value;
+    });
   }
 
   // Set Auth Mode
@@ -30,6 +49,12 @@ class MxcUrl extends EventEmitter {
     return this._isAuth;
   }
 
+  // Check Queue Cache
+  _fixQueueCache(queueId = 'default') {
+    if (!Array.isArray(this._queue[queueId])) this._queue[queueId] = [];
+    if (!Array.isArray(this._queueExec[queueId])) this._queueExec[queueId] = [];
+  }
+
   // Check Url Cache
   _checkUrlCache(url, type = '') {
     if (typeof global.cacheFileElectron === 'function') {
@@ -39,64 +64,72 @@ class MxcUrl extends EventEmitter {
   }
 
   // Fetch queue
-  _checkFetchQueue() {
+  _checkFetchQueue(queueId = 'default') {
     const tinyThis = this;
+    tinyThis._fixQueueCache(queueId);
 
     // Get executation
-    if (this._queueExec.length > 0) {
-      for (const item in this._queueExec) {
-        if (!this._queueExec[item].exec) {
+    if (this._queueExec[queueId].length > 0) {
+      for (const item in this._queueExec[queueId]) {
+        if (!this._queueExec[queueId][item].exec) {
           // Execute now
-          this._queueExec[item].exec = true;
-          const tinyData = this._queueExec[item];
+          this._queueExec[queueId][item].exec = true;
+          const tinyData = this._queueExec[queueId][item];
 
           // Complete
           const tinyComplete = () => {
+            tinyThis._loadDelay -= LOAD_DELAY_COUNTER;
+            if (tinyThis._loadDelay < 0) tinyThis._loadDelay = 0;
             // Remove old item
-            const index = tinyThis._queueExec.findIndex((tItem) => tItem.key === tinyData.key);
+            const index = tinyThis._queueExec[queueId].findIndex(
+              (tItem) => tItem.key === tinyData.key,
+            );
             if (index > -1) {
-              tinyThis._queueExec.splice(index, 1);
+              tinyThis._queueExec[queueId].splice(index, 1);
             }
 
             // Add new fetch
-            if (tinyThis._queue.length > 0) {
+            if (tinyThis._queue[queueId].length > 0) {
               while (
-                tinyThis._queue.length > 0 &&
-                tinyThis._queueExec.length < __ENV_APP__.MXC_FETCH_LIMIT
+                tinyThis._queue[queueId].length > 0 &&
+                tinyThis._queueExec[queueId].length < getFetchLimit(queueId)
               ) {
-                tinyThis._queueExec.push(tinyThis._queue.shift());
+                tinyThis._queueExec[queueId].push(tinyThis._queue[queueId].shift());
               }
             }
 
             // Check again
-            tinyThis._checkFetchQueue();
+            tinyThis._checkFetchQueue(queueId);
           };
 
           // Fetch
-          fetchFn(tinyData.url, tinyData.options)
-            .then((res) => {
-              if (!res.ok) {
-                res
-                  .json()
-                  .then((e) => {
-                    const err = new Error(e.error);
-                    err.code = e.errcode;
-                    tinyComplete();
-                    tinyData.reject(err);
-                  })
-                  .catch((err) => {
-                    tinyComplete();
-                    tinyData.reject(err);
-                  });
-                return;
-              }
-              tinyComplete();
-              tinyData.resolve(res);
-            })
-            .catch((err) => {
-              tinyComplete();
-              tinyData.reject(err);
-            });
+          setTimeout(() => {
+            tinyThis._loadDelay += LOAD_DELAY_COUNTER;
+            fetchFn(tinyData.url, tinyData.options)
+              .then((res) => {
+                if (!res.ok) {
+                  res
+                    .json()
+                    .then((e) => {
+                      const err = new Error(e.error);
+                      err.code = e.errcode;
+                      tinyComplete();
+                      tinyData.reject(err);
+                    })
+                    .catch((err) => {
+                      tinyComplete();
+                      tinyData.reject(err);
+                    });
+                  return;
+                }
+                tinyComplete();
+                tinyData.resolve(res);
+              })
+              .catch((err) => {
+                tinyComplete();
+                tinyData.reject(err);
+              });
+          }, tinyThis._loadDelay);
         }
       }
     }
@@ -135,7 +168,13 @@ class MxcUrl extends EventEmitter {
   }
 
   // Fetch Url
-  fetch(link = null, type = null, ignoreCustomUrl = false) {
+  fetch(
+    link = null,
+    type = null,
+    ignoreCustomUrl = false,
+    queueId = 'default',
+    ignoreAuth = false,
+  ) {
     let tinyLink = !ignoreCustomUrl ? this.readCustomUrl(link) : link;
     const options = {
       method: 'GET',
@@ -153,7 +192,7 @@ class MxcUrl extends EventEmitter {
       tinyLink += `ph_mxc_type=${type}`;
     }
 
-    if (this._isAuth && link.startsWith(`${this.mx.baseUrl}/`)) {
+    if (!ignoreAuth && this._isAuth && this.mx && link.startsWith(`${this.mx.baseUrl}/`)) {
       const accessToken = typeof this.mx.getAccessToken === 'function' && this.mx.getAccessToken();
       if (accessToken) options.headers['Authorization'] = `Bearer ${accessToken}`;
     }
@@ -161,16 +200,18 @@ class MxcUrl extends EventEmitter {
     // Execute fetch
     return new Promise((resolve, reject) => {
       const tinyThis = this;
+      tinyThis._fixQueueCache(queueId);
+
       const key = generateApiKey();
       const tinyFetch = { key, url: tinyLink, options, resolve, reject, exec: false };
 
       // Execute now
-      if (tinyThis._queueExec.length < __ENV_APP__.MXC_FETCH_LIMIT)
-        tinyThis._queueExec.push(tinyFetch);
+      if (tinyThis._queueExec[queueId].length < getFetchLimit(queueId))
+        tinyThis._queueExec[queueId].push(tinyFetch);
       // Later
-      else tinyThis._queue.push(tinyFetch);
+      else tinyThis._queue[queueId].push(tinyFetch);
 
-      tinyThis._checkFetchQueue();
+      tinyThis._checkFetchQueue(queueId);
     });
   }
 
@@ -185,30 +226,45 @@ class MxcUrl extends EventEmitter {
   }
 
   // Fetch Blob
-  async fetchBlob(link = null, fileType = 'unknown', type = null, decryptData = null) {
+  async fetchBlob(
+    link = null,
+    fileType = 'unknown',
+    type = null,
+    decryptData = null,
+    queueId = 'default',
+    ignoreAuth = false,
+  ) {
     const tinyLink = this.readCustomUrl(link);
-    const response = await this.fetch(tinyLink, fileType, true);
+    const response = await this.fetch(tinyLink, fileType, true, queueId, ignoreAuth);
     return this.getBlob(response, type, tinyLink, decryptData);
   }
 
   // Focus Fetch Blob
-  async focusFetchBlob(link = null, fileType = 'unknown', type = null, decryptData = null) {
+  async focusFetchBlob(
+    link = null,
+    fileType = 'unknown',
+    type = null,
+    decryptData = null,
+    queueId = 'default',
+    ignoreAuth = false,
+  ) {
     const tinyThis = this;
     return new Promise((resolve, reject) => {
-      if (!tinyThis._fetchWait[link]) {
-        tinyThis._fetchWait[link] = true;
+      const waitId = `${link}`;
+      if (!tinyThis._fetchWait[waitId]) {
+        tinyThis._fetchWait[waitId] = true;
         tinyThis
-          .fetchBlob(link, fileType, type, decryptData)
+          .fetchBlob(link, fileType, type, decryptData, queueId, ignoreAuth)
           // Complete
           .then((result) => {
-            tinyThis.emit(`fetchBlob:then:${link}:${fileType}`, result);
-            delete tinyThis._fetchWait[link];
+            tinyThis.emit(`fetchBlob:then:${waitId}`, result);
+            delete tinyThis._fetchWait[waitId];
             resolve(result);
           })
           // Error
           .catch((err) => {
-            tinyThis.emit(`fetchBlob:catch:${link}:${fileType}`, err);
-            delete tinyThis._fetchWait[link];
+            tinyThis.emit(`fetchBlob:catch:${waitId}`, err);
+            delete tinyThis._fetchWait[waitId];
             reject(err);
           });
       }
@@ -219,9 +275,8 @@ class MxcUrl extends EventEmitter {
         const key = generateApiKey();
 
         const tinyComplete = (isResolve) => {
-          if (isResolve)
-            tinyThis.off(`fetchBlob:catch:${link}:${fileType}`, funcs[`${key}_TinyReject`]);
-          else tinyThis.off(`fetchBlob:then:${link}:${fileType}`, funcs[`${key}_TinyResolve`]);
+          if (isResolve) tinyThis.off(`fetchBlob:catch:${waitId}`, funcs[`${key}_TinyReject`]);
+          else tinyThis.off(`fetchBlob:then:${waitId}`, funcs[`${key}_TinyResolve`]);
         };
 
         funcs[`${key}_TinyResolve`] = (result) => {
@@ -233,8 +288,8 @@ class MxcUrl extends EventEmitter {
           tinyComplete(false);
         };
 
-        tinyThis.once(`fetchBlob:then:${link}:${fileType}`, funcs[`${key}_TinyResolve`]);
-        tinyThis.once(`fetchBlob:catch:${link}:${fileType}`, funcs[`${key}_TinyReject`]);
+        tinyThis.once(`fetchBlob:then:${waitId}`, funcs[`${key}_TinyResolve`]);
+        tinyThis.once(`fetchBlob:catch:${waitId}`, funcs[`${key}_TinyReject`]);
       }
     });
   }

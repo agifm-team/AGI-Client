@@ -81,6 +81,7 @@ function renderSuggestions({ prefix, option, suggestions }, fireCmd, buttonMode 
     function renderCustomEmoji(emoji) {
       return (
         <Img
+          queueId="emoji"
           isEmoji
           className="emoji"
           src={mxcUrl.toHttp(emoji.mxc)}

@@ -13,6 +13,25 @@ import {
   updateLocalStore,
 } from '../../../client/action/auth';
 
+/* idp.icon ? (
+    <Tooltip placement="top" content={<div className="small">{idp.name}</div>}>
+      <button
+        key={idp.id}
+        type="button"
+        className="sso-btn"
+        onClick={() => handleClick(idp.id)}
+      >
+        <Img
+          customMxcUrl={mxcUrl}
+          className="sso-btn__img rounded-circle"
+          src={mxcUrl.toHttp(idp.icon)}
+          alt={idp.name}
+          ignoreAuth
+        />
+      </button>
+    </Tooltip>
+  ) */
+
 import Button from '../../atoms/button/Button';
 
 function SSOButtons({ type, identityProviders, baseUrl, isRegister = false }) {

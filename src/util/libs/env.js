@@ -5,6 +5,8 @@
 import EventEmitter from 'events';
 import storageManager from './Localstorage';
 
+const ENV_NAME_LIMIT = 50;
+
 // Emitter
 class EnvAPI extends EventEmitter {
   constructor() {
@@ -36,6 +38,15 @@ class EnvAPI extends EventEmitter {
           const SAVE_ROOM_DB = await this.getDB('SAVE_ROOM_DB');
           if (typeof SAVE_ROOM_DB === 'boolean') this.content.SAVE_ROOM_DB = SAVE_ROOM_DB;
         }
+
+        if (
+          typeof __ENV_APP__.MXC_AUTHENTICATED_MEDIA === 'boolean' &&
+          __ENV_APP__.MXC_AUTHENTICATED_MEDIA
+        ) {
+          const MXC_AUTHENTICATED_MEDIA = await this.getDB('MXC_AUTHENTICATED_MEDIA');
+          if (typeof MXC_AUTHENTICATED_MEDIA === 'boolean')
+            this.content.MXC_AUTHENTICATED_MEDIA = MXC_AUTHENTICATED_MEDIA;
+        }
       }
     }
   }
@@ -66,6 +77,18 @@ class EnvAPI extends EventEmitter {
       } else {
         this.content.SAVE_ROOM_DB = false;
       }
+
+      if (
+        typeof __ENV_APP__.MXC_AUTHENTICATED_MEDIA === 'boolean' &&
+        __ENV_APP__.MXC_AUTHENTICATED_MEDIA
+      ) {
+        this.content.MXC_AUTHENTICATED_MEDIA =
+          typeof this.content.MXC_AUTHENTICATED_MEDIA === 'boolean'
+            ? this.content.MXC_AUTHENTICATED_MEDIA
+            : true;
+      } else {
+        this.content.MXC_AUTHENTICATED_MEDIA = false;
+      }
     }
   }
 
@@ -91,7 +114,7 @@ class EnvAPI extends EventEmitter {
   set(folder, value) {
     this.start();
     if (typeof folder === 'string' && (typeof value === 'string' || typeof value === 'boolean')) {
-      if (folder.length <= 20) {
+      if (folder.length <= ENV_NAME_LIMIT) {
         this.content[folder] = value;
 
         if (!__ENV_APP__.ELECTRON_MODE) {
@@ -102,7 +125,7 @@ class EnvAPI extends EventEmitter {
 
         this.emit(folder, value);
       } else {
-        console.error('ENV value name length is greater than the limit! Limit: 20');
+        console.error(`ENV value name length is greater than the limit! Limit: ${ENV_NAME_LIMIT}`);
       }
     }
   }

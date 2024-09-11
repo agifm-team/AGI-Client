@@ -63,9 +63,11 @@ const createImageCanvas = (mainBlob, onLoad, onError) => {
 const Img = React.forwardRef(
   (
     {
+      ignoreAuth = false,
       bgColor = 0,
       animParentsCount = 0,
       draggable = 'false',
+      queueId = 'default',
       style = null,
       height = null,
       width = null,
@@ -193,7 +195,7 @@ const Img = React.forwardRef(
               // Add loading progress...
               isLoadingProgress++;
               mxcUrl
-                .focusFetchBlob(tinySrc, 'image')
+                .focusFetchBlob(tinySrc, 'image', null, null, queueId, ignoreAuth)
                 .then((blobFromFetch) => {
                   const mime =
                     typeof blobFromFetch.type === 'string' ? blobFromFetch.type.split('/') : [];
@@ -443,6 +445,7 @@ const Img = React.forwardRef(
       if (!isObj) {
         const theTinyImg = (
           <img
+            ignore_auth={ignoreAuth ? 'true' : null}
             itemProp="image"
             label={label}
             tags={typeof tags === 'string' ? tags : Array.isArray(tags) ? tags.join(',') : null}
@@ -505,6 +508,7 @@ const Img = React.forwardRef(
       if (!isObj)
         return (
           <div
+            ignore_auth={ignoreAuth ? 'true' : null}
             itemProp="image"
             unicode={unicode}
             hexcode={hexcode}
@@ -535,6 +539,8 @@ const Img = React.forwardRef(
 );
 
 const imgPropTypes = {
+  queueId: PropTypes.string,
+  ignoreAuth: PropTypes.bool,
   onLoadingChange: PropTypes.func,
   getDefaultImage: PropTypes.func,
   bgColor: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -571,9 +577,11 @@ Img.propTypes = imgPropTypes;
 export default Img;
 
 function ImgJquery({
+  ignoreAuth = false,
   bgColor = 0,
   animParentsCount = 0,
   draggable = 'false',
+  queueId = 'default',
   style = null,
   height = null,
   width = null,
@@ -651,6 +659,7 @@ function ImgJquery({
       if (hexcode) img.attr('hexcode', hexcode);
       if (unicode) img.attr('unicode', unicode);
       if (shortcodes) img.attr('shortcodes', shortcodes);
+      if (ignoreAuth) img.attr('ignore_auth', 'true');
 
       // Insert Data
       if (style) img.css(style);
@@ -708,6 +717,7 @@ function ImgJquery({
         if (hexcode) finalImg.attr('hexcode', hexcode);
         if (unicode) finalImg.attr('unicode', unicode);
         if (shortcodes) finalImg.attr('shortcodes', shortcodes);
+        if (ignoreAuth) finalImg.attr('ignore_auth', 'true');
 
         finalImg.on('load', (event) => {
           img.addClass('image-react-loaded');
@@ -794,7 +804,7 @@ function ImgJquery({
           // Add loading progress...
           isLoadingProgress++;
           mxcUrl
-            .focusFetchBlob(tinySrc, 'image')
+            .focusFetchBlob(tinySrc, 'image', null, null, queueId, ignoreAuth)
             .then((blobFromFetch) => {
               const mime =
                 typeof blobFromFetch.type === 'string' ? blobFromFetch.type.split('/') : [];

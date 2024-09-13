@@ -4,6 +4,10 @@ import WelcomePage from '@mods/WelcomePage';
 import storageManager from '@src/util/libs/Localstorage';
 import urlParams from '@src/util/libs/urlParams';
 
+import ProxyModal from '@src/app/organisms/proxy-modal/ProxyModal';
+import { canProxy } from '@src/util/libs/proxy';
+import { openProxyModal } from '@src/client/action/navigation';
+
 import * as auth from '../../../client/action/auth';
 import cons from '../../../client/state/cons';
 import { getUrlParams } from '../../../util/common';

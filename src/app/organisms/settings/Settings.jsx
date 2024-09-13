@@ -3,6 +3,7 @@ import $ from 'jquery';
 
 import envAPI from '@src/util/libs/env';
 import libreTranslate from '@src/util/libs/libreTranslate';
+import { openChangelog } from '@src/client/action/navigation';
 
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
@@ -55,6 +56,7 @@ export const tabText = {
   PROFILE: 'Profile',
   LOGOUT: 'Logout',
   EXPERIMENTAL: 'Experimental',
+  CHANGELOG: 'Changelog',
   OS: '{OS} Settings',
 };
 
@@ -222,6 +224,14 @@ const buildTabItems = () => {
       faSrc: 'fa-solid fa-flask',
       disabled: false,
       render: () => <ExperimentalSection />,
+    });
+
+    tabItems.push({
+      text: tabText.CHANGELOG,
+      key: 'changelog',
+      faSrc: 'fa-solid fa-table-list',
+      disabled: false,
+      onClick: () => openChangelog(),
     });
 
     tabItems.push({ type: 'divider', key: '5' });

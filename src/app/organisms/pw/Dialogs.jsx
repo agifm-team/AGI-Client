@@ -12,6 +12,8 @@ import JoinAlias from '../join-alias/JoinAlias';
 import EmojiVerification from '../emoji-verification/EmojiVerification';
 
 import ReusableDialog from '../../molecules/dialog/ReusableDialog';
+import Changelog from '../changelog/Changelog';
+import ProxyModal from '../proxy-modal/ProxyModal';
 
 function Dialogs() {
   return (
@@ -19,6 +21,8 @@ function Dialogs() {
       <ReadReceipts />
       <ViewSource />
       <ProfileViewer />
+      <ProxyModal />
+      <Changelog />
       <RoomViewer />
       <ShortcutSpaces />
       <CreateRoom />

@@ -17,6 +17,9 @@ import matrixAppearance from '@src/util/libs/appearance';
 import soundFiles from '@src/util/soundFiles';
 import storageManager from '@src/util/libs/Localstorage';
 
+import matrixProxy, { canProxy } from '@src/util/libs/proxy';
+import ProxyModal from '@src/app/organisms/proxy-modal/ProxyModal';
+
 import { initHotkeys } from '../../../client/event/hotkeys';
 import { initRoomListListener } from '../../../client/event/roomList';
 
@@ -48,6 +51,8 @@ import Mods from './Mods';
 import LoadingPage from './Loading';
 import urlParams from '../../../util/libs/urlParams';
 import {
+  openChangelog,
+  openProxyModal,
   openRoomViewer,
   selectRoom,
   selectRoomMode,
@@ -303,48 +308,41 @@ function Client({ isDevToolsOpen = false }) {
       } else {
         window.Notification?.requestPermission();
       }
+
+      // Changelog time
+      const version = cons.version.split('.');
+      const cacheVersion = storageManager.getJson('changelog-version', 'array');
+      if (
+        version[0] !== cacheVersion[0] ||
+        version[1] !== cacheVersion[1] ||
+        version[2] !== cacheVersion[2]
+      ) {
+        setTimeout(() => openChangelog(cons.version), 1000);
+        storageManager.setJson('changelog-version', version);
+      }
     });
 
-    /* 
-
-      electronWindow.setProxy({});
-
-      direct - In direct mode all connections are created directly, without any proxy involved.
-      fixed_servers - In fixed_servers mode the proxy configuration is specified in proxyRules. This is the default mode if proxyRules is specified.
-      system - In system mode the proxy configuration is taken from the operating system. Note that the system mode is different from setting no proxy configuration. In the latter case, Electron falls back to the system settings only if no command-line options influence the proxy configuration.
-
-      {
-        mode: 'system',
-      }
-
-      {
-        mode: 'direct',
-      }
-
-      {
-        proxyRules: 'socks5://114.215.193.156:1080',
-        mode: 'fixed_servers',
-      }
-        
-    */
-
-    initMatrix
-      .init()
-      .then((tinyResult) => {
-        if (tinyResult.err && typeof tinyResult.err.message === 'string') {
-          setErrorMessage(tinyResult.err.message);
+    // Proxy
+    matrixProxy.startProxy().then(() => {
+      // Start Client
+      initMatrix
+        .init()
+        .then((tinyResult) => {
+          if (tinyResult.err && typeof tinyResult.err.message === 'string') {
+            setErrorMessage(tinyResult.err.message);
+            playFatalBeep();
+          }
+          setStartWorked(tinyResult.userId !== null);
+        })
+        .catch((err) => {
+          console.error(err);
+          if (typeof err.message === 'string')
+            setErrorMessage(`${err.message}${err.code ? ` CODE: ${err.code}` : ''}`);
+          else setErrorMessage(`Unknown Error ${err.code ? err.code : '???'}`);
           playFatalBeep();
-        }
-        setStartWorked(tinyResult.userId !== null);
-      })
-      .catch((err) => {
-        console.error(err);
-        if (typeof err.message === 'string')
-          setErrorMessage(`${err.message}${err.code ? ` CODE: ${err.code}` : ''}`);
-        else setErrorMessage(`Unknown Error ${err.code ? err.code : '???'}`);
-        playFatalBeep();
-        setStartWorked(null);
-      });
+          setStartWorked(null);
+        });
+    });
   }, []);
 
   useEffect(() => {
@@ -370,6 +368,7 @@ function Client({ isDevToolsOpen = false }) {
       return (
         <>
           <ElectronSidebar isDevToolsOpen={isDevToolsOpen} />
+          <ProxyModal />
           <div
             className={`loading-display${__ENV_APP__.ELECTRON_MODE ? ' root-electron-style' : ''}${isDevToolsOpen ? ' devtools-open' : ''}`}
           >
@@ -381,6 +380,9 @@ function Client({ isDevToolsOpen = false }) {
                     <MenuItem onClick={() => initMatrix.clearCacheAndReload()}>
                       Clear cache & reload
                     </MenuItem>
+                    {canProxy() ? (
+                      <MenuItem onClick={() => openProxyModal()}>Proxy Settings</MenuItem>
+                    ) : null}
                     <MenuItem onClick={() => initMatrix.logout()}>Logout</MenuItem>
                   </>
                 }
@@ -466,6 +468,7 @@ function Client({ isDevToolsOpen = false }) {
   return (
     <>
       <ElectronSidebar isDevToolsOpen={isDevToolsOpen} />
+      <ProxyModal />
       <div
         className={`loading-display${__ENV_APP__.ELECTRON_MODE ? ' root-electron-style' : ''}${isDevToolsOpen ? ' devtools-open' : ''}`}
       >
@@ -477,6 +480,9 @@ function Client({ isDevToolsOpen = false }) {
                 <MenuItem onClick={() => initMatrix.clearCacheAndReload()}>
                   Clear cache & reload
                 </MenuItem>
+                {canProxy() ? (
+                  <MenuItem onClick={() => openProxyModal()}>Proxy Settings</MenuItem>
+                ) : null}
                 <MenuItem onClick={() => initMatrix.logout()}>Logout</MenuItem>
               </>
             }

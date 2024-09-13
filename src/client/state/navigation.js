@@ -566,6 +566,15 @@ class Navigation extends EventEmitter {
         );
       },
 
+      [cons.actions.navigation.OPEN_CHANGELOG]: () => {
+        tinyAPI.emit('changelogOpened', action.version);
+        this.emit(cons.events.navigation.CHANGELOG_OPENED, action.version);
+      },
+
+      [cons.actions.navigation.OPEN_PROXY_MODAL]: () => {
+        this.emit(cons.events.navigation.PROXY_MODAL_OPENED);
+      },
+
       [cons.actions.navigation.OPEN_SETTINGS]: () => {
         if (
           tinyCrypto &&

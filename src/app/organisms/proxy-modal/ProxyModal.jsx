@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { getAppearance } from '@src/util/libs/appearance';
+import Button from '@src/app/atoms/button/Button';
 import matrixProxy, {
-  canProxy,
   getProxyStorage,
   setProxyStorage,
   toggleProxyAction,
@@ -11,18 +10,16 @@ import SettingNumber from '@src/app/molecules/setting-number/SettingNumber';
 import SettingText from '@src/app/molecules/setting-text/SettingText';
 import SegmentedControls from '@src/app/atoms/segmented-controls/SegmentedControls';
 
-import initMatrix from '../../../../client/initMatrix';
-import Toggle from '../../../atoms/button/Toggle';
-import SettingTile from '../../../molecules/setting-tile/SettingTile';
+import Toggle from '@src/app/atoms/button/Toggle';
+import SettingTile from '../../molecules/setting-tile/SettingTile';
 
-import { toggleAction } from '../Api';
-import Button from '@src/app/atoms/button/Button';
+import cons from '../../../client/state/cons';
+import navigation from '../../../client/state/navigation';
 
-function PrivacySection() {
-  const [hideTypingWarn, setHideTypingWarn] = useState(false);
-  const [roomAutoRefuse, setRoomAutoRefuse] = useState(false);
-  const [sendReadReceipts, setSendReadReceipts] = useState(false);
-  const [autoEncryptCreateDM, setAutoEncryptCreateDM] = useState(true);
+import Dialog from '../../molecules/dialog/Dialog';
+
+function ProxyModal() {
+  const [isOpen, setIsOpen] = useState(false);
 
   const [proxyEnabled, setProxyEnabled] = useState(getProxyStorage('enabled'));
   const [proxyProtocol, setProxyProtocol] = useState(getProxyStorage('protocol'));
@@ -30,29 +27,52 @@ function PrivacySection() {
   const [proxyPort, setProxyPort] = useState(getProxyStorage('port'));
   const [proxyMode, setProxyMode] = useState(getProxyStorage('mode'));
 
-  const basicUserMode = getAppearance('basicUserMode');
+  const closeDialog = () => setIsOpen(false);
+  const afterClose = () => {
+    setIsOpen(false);
+  };
 
   useEffect(() => {
-    const content =
-      initMatrix.matrixClient.getAccountData('pony.house.privacy')?.getContent() ?? {};
-    setHideTypingWarn(content.hideTypingWarn === true);
-    setRoomAutoRefuse(content.roomAutoRefuse === true);
-    setAutoEncryptCreateDM(
-      !__ENV_APP__.DISABLE_ENCRYPT_SETTINGS
-        ? typeof content.autoEncryptCreateDM === 'boolean'
-          ? content.autoEncryptCreateDM
-          : !!__ENV_APP__.AUTO_ENCRYPT_CREATE_DM
-        : false,
-    );
-    setSendReadReceipts(
-      typeof content.sendReadReceipts !== 'boolean' || content.sendReadReceipts === true,
-    );
-  }, []);
+    const openChangelog = () => {
+      setIsOpen(true);
+    };
 
+    const updateEnabled = (value) => setProxyEnabled(value);
+    const updateProtocol = (value) => setProxyProtocol(value);
+    const updateAddress = (value) => setProxyAddress(value);
+    const updatePort = (value) => setProxyPort(value);
+    const updateMode = (value) => setProxyMode(value);
+
+    matrixProxy.on('enabled', updateEnabled);
+    matrixProxy.on('protocol', updateProtocol);
+    matrixProxy.on('address', updateAddress);
+    matrixProxy.on('port', updatePort);
+    matrixProxy.on('mode', updateMode);
+
+    navigation.on(cons.events.navigation.PROXY_MODAL_OPENED, openChangelog);
+    return () => {
+      matrixProxy.off('enabled', updateEnabled);
+      matrixProxy.off('protocol', updateProtocol);
+      matrixProxy.off('address', updateAddress);
+      matrixProxy.off('port', updatePort);
+      matrixProxy.off('mode', updateMode);
+
+      navigation.removeListener(cons.events.navigation.PROXY_MODAL_OPENED, openChangelog);
+    };
+  });
+
+  // Read Modal
   return (
-    <div>
-      {canProxy() ? (
-        <div className="card noselect mt-3">
+    <Dialog
+      bodyClass="bg-bg2 p-0"
+      className="modal-dialog-centered modal-lg noselect modal-dialog-changelog"
+      isOpen={isOpen}
+      title="Proxy settings"
+      onAfterClose={afterClose}
+      onRequestClose={closeDialog}
+    >
+      <div className="p-4 pb-3">
+        <div className="card noselect">
           <ul className="list-group list-group-flush">
             <li className="list-group-item very-small text-gray">Proxy</li>
 
@@ -170,126 +190,31 @@ function PrivacySection() {
                     </>
                   }
                 />
-
-                <SettingTile
-                  title="Applying your new proxy settings"
-                  content={
-                    <>
-                      <div className="mt-2 mb-1">
-                        <Button
-                          onClick={() => {
-                            matrixProxy.updateProxy();
-                            alert('Your proxy has been successfully updated.', 'Proxy alert');
-                          }}
-                          variant="theme"
-                        >
-                          Refresh Proxy
-                        </Button>
-                      </div>
-                      <div className="very-small text-gray">
-                        Click the button to refresh the proxy. If you configure an incorrect proxy,
-                        you will lose the client connection.
-                      </div>
-                    </>
-                  }
-                />
               </>
             ) : null}
           </ul>
         </div>
-      ) : null}
 
-      <div className="card noselect mt-3">
-        <ul className="list-group list-group-flush">
-          <li className="list-group-item very-small text-gray">Rooms</li>
-
-          <SettingTile
-            title={'Disable the "typing" warning'}
-            options={
-              <Toggle
-                className="d-inline-flex"
-                isActive={hideTypingWarn}
-                onToggle={toggleAction('pony.house.privacy', 'hideTypingWarn', setHideTypingWarn)}
-              />
-            }
-            content={
-              <div className="very-small text-gray">
-                Users will no longer be able to see whether or not you are typing.
-              </div>
-            }
-          />
-
-          {!basicUserMode ? (
-            <SettingTile
-              title="Auto refuse room and space invites"
-              options={
-                <Toggle
-                  className="d-inline-flex"
-                  isActive={roomAutoRefuse}
-                  onToggle={toggleAction('pony.house.privacy', 'roomAutoRefuse', setRoomAutoRefuse)}
-                />
-              }
-              content={
-                <div className="very-small text-gray">
-                  All invitations will automatically attempt to be refused. Whitelisted users will
-                  be ignored by this option. (The whitelisted user must be the owner of the DM or
-                  room for it to work.)
-                </div>
-              }
-            />
-          ) : null}
-
-          <SettingTile
-            title="Send read receipts"
-            options={
-              <Toggle
-                className="d-inline-flex"
-                isActive={sendReadReceipts}
-                onToggle={toggleAction(
-                  'pony.house.privacy',
-                  'sendReadReceipts',
-                  setSendReadReceipts,
-                )}
-              />
-            }
-            content={
-              <div className="very-small text-gray">
-                Let other people know what messages you read.
-              </div>
-            }
-          />
-        </ul>
+        <center>
+          <div className="mt-3 mb-1">
+            <Button
+              onClick={() => {
+                matrixProxy.updateProxy();
+                alert('Your proxy has been successfully updated.', 'Proxy alert');
+              }}
+              variant="primary"
+            >
+              Refresh Proxy
+            </Button>
+          </div>
+          <div className="very-small text-gray">
+            Click the button to refresh the proxy. If you configure an incorrect proxy, you will
+            lose the client connection.
+          </div>
+        </center>
       </div>
-
-      {!__ENV_APP__.DISABLE_ENCRYPT_SETTINGS ? (
-        <div className="card noselect mt-3">
-          <ul className="list-group list-group-flush">
-            <li className="list-group-item very-small text-gray">DMs</li>
-
-            <SettingTile
-              title="Enable auto encrypt in DM creation"
-              options={
-                <Toggle
-                  className="d-inline-flex"
-                  isActive={autoEncryptCreateDM}
-                  onToggle={toggleAction(
-                    'pony.house.privacy',
-                    'autoEncryptCreateDM',
-                    setAutoEncryptCreateDM,
-                  )}
-                />
-              }
-              content={
-                <div className="very-small text-gray">
-                  All DM rooms you create will have encryption enabled by default.
-                </div>
-              }
-            />
-          </ul>
-        </div>
-      ) : null}
-    </div>
+    </Dialog>
   );
 }
 
-export default PrivacySection;
+export default ProxyModal;

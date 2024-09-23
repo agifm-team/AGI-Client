@@ -1,6 +1,7 @@
 import React from 'react';
 
 import Img from '@src/app/atoms/image/Image';
+import { openUrl } from '@src/util/message/urlProtection';
 import initMatrix from '../../../../client/initMatrix';
 import cons from '../../../../client/state/cons';
 import Button from '../../../atoms/button/Button';
@@ -55,7 +56,7 @@ function AboutSection() {
                   >
                     Source code
                   </Button>
-                  <Button className="mx-1" onClick={() => window.open('https://puddy.club/')}>
+                  <Button className="mx-1" onClick={() => openUrl('https://puddy.club/')}>
                     Support
                   </Button>
                   <Button

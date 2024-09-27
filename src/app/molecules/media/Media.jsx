@@ -13,6 +13,11 @@ import { getFileIcon } from '@src/util/icons/files';
 
 import { openUrl } from '@src/util/message/urlProtection';
 
+import VideoEmbed from '@src/app/atoms/video/VideoEmbed';
+import AudioEmbed from '@src/app/atoms/audio/AudioEmbed';
+
+import RatioScreen from '@src/app/atoms/video/RatioScreen';
+
 import imageViewer from '../../../util/imageViewer';
 import Tooltip from '../../atoms/tooltip/Tooltip';
 import Text from '../../atoms/text/Text';
@@ -119,9 +124,9 @@ function FileHeader({
 
   return (
     <div className="file-header">
-      <i className={`${getFileIcon(type, name)} me-2 h-100 file-icon`} />
+      <i className={`${getFileIcon(type, name)} me-2 h-100 file-icon d-flex`} />
       <div className="file-name small">
-        <span className="title">{name}</span> <br />
+        <span className="title text-truncate">{name}</span> <br />
         <span className="file-size very-small text-gray">{bytesText}</span>
       </div>
       {link !== null && (
@@ -426,9 +431,7 @@ function Audio({ content = {}, link, file = null, roomId, threadId }) {
           <IconButton onClick={handlePlayAudio} tooltip="Play audio" fa="fa-solid fa-circle-play" />
         )}
         {url !== null && (
-          <audio autoPlay controls>
-            <source src={url} type={getBlobSafeMimeType(type)} />
-          </audio>
+          <AudioEmbed autoPlay controls src={url} type={getBlobSafeMimeType(type)} />
         )}
       </div>
     </div>
@@ -462,6 +465,8 @@ function Video({
   const [url, setUrl] = useState(null);
   const [thumbUrl, setThumbUrl] = useState(null);
   const [blur, setBlur] = useState(true);
+  const [isVisible, setIsVisible] = useState(true);
+  const [videoReady, setVideoReady] = useState(false);
   const name = content.body;
   const type = content.info?.mimetype || '';
 
@@ -485,6 +490,7 @@ function Video({
     }
 
     if (thumbnail !== null) fetchUrl();
+    else setThumbUrl('data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==');
     return () => {
       unmounted = true;
     };
@@ -498,11 +504,6 @@ function Video({
     setIsLoaded(true);
   };
 
-  const handlePlayVideo = () => {
-    setIsLoading(true);
-    loadVideo();
-  };
-
   return (
     <div className={`file-container${url !== null ? ' file-open' : ''}`}>
       <FileHeader
@@ -514,42 +515,63 @@ function Video({
         type={type}
         external
       />
-      {url === null ? (
-        <div className="video-container">
-          {!isLoading && (
-            <IconButton
-              onClick={handlePlayVideo}
-              tooltip="Play video"
-              fa="fa-solid fa-circle-play"
-            />
-          )}
-          {blurhash && blur && <BlurhashCanvas hash={blurhash} punch={1} />}
-          {thumbUrl !== null && (
-            <Img
-              onError={onThumbError}
-              style={{ display: blur ? 'none' : 'unset' }}
-              src={thumbUrl}
-              onLoadingChange={(event) => {
-                tinyFixScrollChat();
-                if (onThumbLoadingChange) onThumbLoadingChange(event);
-              }}
-              onLoad={(event) => {
-                setBlur(false);
-                tinyFixScrollChat();
-                if (onThumbLoad) onThumbLoad(event);
-              }}
-              alt={name}
-            />
-          )}
-          {isLoading && <Spinner size="small" />}
-        </div>
-      ) : (
-        <div className="ratio ratio-16x9 video-base">
-          <video srcwidth={width} srcheight={height} autoPlay controls poster={thumbUrl}>
-            <source src={url} type={getBlobSafeMimeType(type)} />
-          </video>
-        </div>
+      {thumbUrl !== null && blur && (
+        <Img
+          onError={onThumbError}
+          className="d-none"
+          src={thumbUrl}
+          onLoadingChange={(event) => {
+            tinyFixScrollChat();
+            if (onThumbLoadingChange) onThumbLoadingChange(event);
+          }}
+          onLoad={(event) => {
+            setBlur(false);
+            tinyFixScrollChat();
+            if (onThumbLoad) onThumbLoad(event);
+          }}
+          alt={name}
+        />
       )}
+      <RatioScreen className="video-container">
+        {(url && !isLoading) || thumbUrl
+          ? isVisible && (
+              <VideoEmbed
+                onClick={() => {
+                  if (!url && !isLoading) {
+                    tinyFixScrollChat();
+                    setIsVisible(false);
+                    setIsLoading(true);
+                    loadVideo()
+                      .then(() => {
+                        setVideoReady(true);
+                        setIsVisible(true);
+                        tinyFixScrollChat();
+                      })
+                      .catch((err) => {
+                        console.error(err);
+                        alert(err.message, 'Video load error!');
+                      });
+                  }
+                }}
+                language="en"
+                controls
+                autoPlay={videoReady}
+                poster={thumbUrl}
+                width={width}
+                height={height}
+                src={url && !isLoading ? url : null}
+                type={url && !isLoading ? getBlobSafeMimeType(type) : null}
+              />
+            )
+          : blurhash &&
+            blur && (
+              <div data-vjs-player className={`data-vjs-player-container`}>
+                <div>
+                  <BlurhashCanvas hash={blurhash} punch={1} />
+                </div>
+              </div>
+            )}
+      </RatioScreen>
     </div>
   );
 }

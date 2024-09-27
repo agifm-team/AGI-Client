@@ -5,6 +5,7 @@ import $ from 'jquery';
 import { countObj, objType } from 'for-promise/utils/lib.mjs';
 
 import jReact from '@mods/lib/jReact';
+import RatioScreen from '@src/app/atoms/video/RatioScreen';
 
 import * as Media from '../media/Media';
 import initMatrix from '../../../client/initMatrix';
@@ -134,6 +135,29 @@ function Embed({ embed = {}, url = {}, roomId = null, threadId = null }) {
     while (description.endsWith('\n') || description.endsWith('\r')) {
       description = description.substring(0, description.length - 1);
     }
+
+    let breaklineRemoved = false;
+    const maxBreaklines = 5;
+
+    description = description.split('\n');
+    if (description.length > maxBreaklines)
+      while (description.length > maxBreaklines) {
+        description.pop();
+        breaklineRemoved = true;
+      }
+    description = description.join('\n');
+
+    description = description.split('\r');
+    if (description.length > maxBreaklines)
+      while (description.length > maxBreaklines) {
+        description.pop();
+        breaklineRemoved = true;
+      }
+    description = description.join('\r');
+
+    if (breaklineRemoved) description += '[...]';
+
+    if (description.length > 500) description = `${description.substring(0, 500)}[...]`;
   }
 
   // Site Name
@@ -277,8 +301,9 @@ function Embed({ embed = {}, url = {}, roomId = null, threadId = null }) {
 
           {isVideo && typeof imgUrl === 'string' && imgUrl.length > 0 ? (
             !useVideo ? (
-              <div
-                className="mt-2 ratio ratio-16x9 embed-video"
+              <RatioScreen
+                classBase="embed-video"
+                className="mt-2"
                 style={{
                   backgroundImage: `url('${imgUrl !== defaultVideoAvatar ? mxcUrl.toHttp(imgUrl, 2000, 2000) : defaultVideoAvatar}')`,
                 }}
@@ -290,11 +315,11 @@ function Embed({ embed = {}, url = {}, roomId = null, threadId = null }) {
                   className="play-button w-100 h-100"
                   style={{ backgroundImage: `url('./img/svg/play-circle-fill.svg')` }}
                 />
-              </div>
+              </RatioScreen>
             ) : (
-              <div className="mt-2 ratio ratio-16x9 embed-video enabled">
+              <RatioScreen classBase="embed-video" className="mt-2 enabled">
                 <Iframe title={title} src={videoUrl} allowFullScreen frameBorder={0} />
-              </div>
+              </RatioScreen>
             )
           ) : null}
         </span>

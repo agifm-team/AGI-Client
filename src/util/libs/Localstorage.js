@@ -1,13 +1,18 @@
 import EventEmitter from 'events';
-import { openDB } from 'idb';
 
 import { objType } from 'for-promise/utils/lib.mjs';
+import initMatrix from '@src/client/initMatrix';
+import { startDb } from './db/indexedDb';
 
 class StorageManager extends EventEmitter {
   constructor() {
     super();
     this.isPersisted = null;
-    this._dbVersion = 1;
+
+    // Db
+    this._dbVersion = 2;
+    this.dbName = 'pony-house-database';
+    this._timelineSyncCache = this.getJson('ponyHouse-timeline-sync', 'obj');
 
     // Get Content
     this.content = this.getJson('ponyHouse-storage-manager', 'obj');
@@ -20,35 +25,115 @@ class StorageManager extends EventEmitter {
     });
   }
 
-  async startPonyHouseDb() {
-    /* this.db = await openDB('pony-house-database', this._dbVersion, {
-      upgrade(db, oldVersion) {
-        switch (oldVersion) {
-        case 0:
-          console.log('[indexedDb] Version detected - 0');
+  async _syncTimeline(room, checkpoint = null, timeline = null) {
+    if (room && typeof room.roomId === 'string') {
+      const tm = timeline || room.getLiveTimeline();
+      const roomId = room.roomId;
 
-          // Create a store of objects
-          const events = db.createObjectStore('timeline', {
-            // The 'id' property of the object will be the key.
-            keyPath: 'id',
-            // If it isn't explicitly set, create a value by auto incrementing.
-            autoIncrement: false,
-          });
-          // Create an index on the 'date' property of the objects.
-          events.createIndex('origin_server_ts', 'origin_server_ts', { unique: true });
-          events.createIndex('type', 'type', { unique: false });
+      const checkPoint =
+        typeof checkpoint === 'string' && checkpoint.length > 0
+          ? checkpoint
+          : objType(this._timelineSyncCache[roomId], 'object') &&
+              typeof this._timelineSyncCache[roomId].last === 'string' &&
+              this._timelineSyncCache[roomId].last.length > 0
+            ? this._timelineSyncCache[roomId].last
+            : null;
+    }
+    return null;
+  }
 
-          events.createIndex('sender', 'sender', { unique: false });
-          events.createIndex('event_id', 'event_id', { unique: true });
-          events.createIndex('room_id', 'room_id', { unique: false });
+  syncTimeline(roomId, checkpoint = null) {
+    return this._syncTimeline(initMatrix.matrixClient.getRoom(roomId), checkpoint);
+  }
 
-          events.createIndex('content', 'content', { unique: false });
-          events.createIndex('unsigned', 'unsigned', { unique: false });
-        case 1:
-          console.log('[indexedDb] Version detected - 1');
-        }
+  addToMembers(event) {
+    const tinyThis = this;
+    return new Promise((resolve, reject) => {
+      const data = {};
+      const tinyReject = (err) => {
+        console.log('[indexed-db] ERROR SAVING MEMBER DATA!', data);
+        tinyThis.emit('dbMemberInserted-Error', err, data);
+        reject(err);
+      };
+      try {
+        data.user_id;
+        data.room_id;
+        data.type;
+        data.origin_server_ts;
+
+        data.id = `${data.user_id}:${data.room_id}`;
+
+        tinyThis.storeConnection
+          .insert({
+            into: 'members',
+            upsert: true,
+            values: [data],
+          })
+          .then((result) => {
+            tinyThis.emit('dbMemberInserted', result, data);
+            resolve(result);
+          })
+          .catch(tinyReject);
+      } catch (err) {
+        tinyReject(err);
       }
-    }); */
+    });
+  }
+
+  addToTimeline(event) {
+    const tinyThis = this;
+    return new Promise((resolve, reject) => {
+      const data = {};
+      const tinyReject = (err) => {
+        console.log('[indexed-db] ERROR SAVING TIMELINE DATA!', data);
+        tinyThis.emit('dbTimelineInserted-Error', err, data);
+        reject(err);
+      };
+      try {
+        const date = event.getDate();
+        const thread = event.getThread();
+        const threadId = thread && typeof thread.id === 'string' ? thread.id : null;
+
+        data.event_id = event.getId();
+        data.type = event.getType();
+        data.sender = event.getSender();
+        data.room_id = event.getRoomId();
+        data.content = event.getContent();
+        data.unsigned = event.getUnsigned();
+        data.redaction = event.isRedaction();
+
+        if (typeof threadId === 'string') data.thread_id = threadId;
+        if (date) data.origin_server_ts = date.getTime();
+
+        if (typeof data.age !== 'number') delete data.age;
+        if (typeof data.type !== 'string') delete data.type;
+        if (typeof data.sender !== 'string') delete data.sender;
+        if (typeof data.room_id !== 'string') delete data.room_id;
+
+        if (!objType(data.content, 'object')) delete data.content;
+        if (!objType(data.unsigned, 'object')) delete data.unsigned;
+
+        tinyThis.storeConnection
+          .insert({
+            into: 'timeline',
+            upsert: true,
+            values: [data],
+          })
+          .then((result) => {
+            tinyThis.emit('dbTimelineInserted', result, data);
+            resolve(result);
+          })
+          .catch(tinyReject);
+      } catch (err) {
+        tinyReject(err);
+      }
+    });
+  }
+
+  async startPonyHouseDb() {
+    const isDbCreated = await startDb(this);
+    this.emit('isDbCreated', isDbCreated);
+    return isDbCreated;
   }
 
   getLocalStorage() {

@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 
 import attemptDecryption from '@src/util/libs/attemptDecryption';
-// import { insertIntoRoomEventsDB } from '@src/util/libs/roomEventsDB';
+import storageManager from '@src/util/libs/Localstorage';
 
 import { Direction, MatrixEventEvent, Room, RoomEvent, RoomMemberEvent } from 'matrix-js-sdk';
 import initMatrix from '../initMatrix';
@@ -123,7 +123,6 @@ class RoomTimeline extends EventEmitter {
 
   // Add to timeline
   addToTimeline(mEvent) {
-    // insertIntoRoomEventsDB(mEvent).catch(console.error);
     const evType = mEvent.getType();
     if (evType !== 'pony.house.crdt' && !messageIsClassicCrdt(mEvent)) {
       // Filter Room Member Event and Matrix CRDT Events
@@ -159,7 +158,10 @@ class RoomTimeline extends EventEmitter {
   _populateAllLinkedEvents(timeline) {
     const firstTimeline = getFirstLinkedTimeline(timeline);
     iterateLinkedTimelines(firstTimeline, false, (tm) => {
-      tm.getEvents().forEach((mEvent) => this.addToTimeline(mEvent));
+      tm.getEvents().forEach((mEvent) => {
+        storageManager.addToTimeline(mEvent);
+        return this.addToTimeline(mEvent);
+      });
     });
   }
 
@@ -400,6 +402,7 @@ class RoomTimeline extends EventEmitter {
 
       this.addToTimeline(event);
       this.emit(cons.events.roomTimeline.EVENT, event);
+      storageManager.addToTimeline(event);
       tinyFixScrollChat();
     };
 
@@ -417,6 +420,7 @@ class RoomTimeline extends EventEmitter {
 
       this.addToTimeline(event);
       this.emit(cons.events.roomTimeline.EVENT, event);
+      storageManager.addToTimeline(event);
       tinyFixScrollChat();
     };
 

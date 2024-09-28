@@ -415,7 +415,7 @@ function Audio({ content = {}, link, file = null, roomId, threadId }) {
 
   useEffect(() => tinyFixScrollChat());
   return (
-    <div className="file-container">
+    <div className={`file-container${url !== null ? ' file-open' : ''}`}>
       <FileHeader
         content={content}
         threadId={threadId}
@@ -426,9 +426,21 @@ function Audio({ content = {}, link, file = null, roomId, threadId }) {
         external
       />
       <div className="audio-container">
-        {url === null && isLoading && <Spinner size="small" />}
+        {url === null && isLoading && (
+          <center className="r-howler-previewer">
+            <Spinner size="small" />
+          </center>
+        )}
         {url === null && !isLoading && (
-          <IconButton onClick={handlePlayAudio} tooltip="Play audio" fa="fa-solid fa-circle-play" />
+          <center className="r-howler-previewer">
+            <IconButton
+              onClick={handlePlayAudio}
+              tooltip="Play audio"
+              fa="fa-solid fa-circle-play me-2"
+            >
+              Play audio
+            </IconButton>
+          </center>
         )}
         {url !== null && (
           <AudioEmbed autoPlay controls src={url} type={getBlobSafeMimeType(type)} />
